@@ -25,7 +25,7 @@ public class EditProfileActivity extends AppCompatActivity {
     static final int NUM_ITEMS = 3;
 
     Intent intent;
-    String[] actionBarTabs = {"Description", "Formations", "Annonces"};
+    String[] actionBarTabs = {"Description", "Formation", "Annonce"};
     ViewPager viewPager;
     MyAdapter myAdapter;
 

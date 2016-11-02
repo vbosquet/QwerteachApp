@@ -5,6 +5,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 
 import com.qwerteach.wivi.qwerteachapp.R;
 
@@ -13,6 +15,11 @@ import com.qwerteach.wivi.qwerteachapp.R;
  */
 
 public class FormationsTabFragment extends Fragment {
+
+    EditText professionEditText;
+    EditText schoolEditText;
+    EditText levelEditText;
+    Button button;
 
     public static FormationsTabFragment newInstance() {
         FormationsTabFragment formationsTabFragment = new FormationsTabFragment();

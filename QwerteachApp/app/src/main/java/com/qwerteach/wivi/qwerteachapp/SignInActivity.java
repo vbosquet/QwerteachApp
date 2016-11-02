@@ -148,7 +148,7 @@ public class SignInActivity extends AppCompatActivity implements SignInActivityA
                 editor.putString("userId", userId);
                 editor.apply();
 
-                Toast.makeText(this, "Connexion réussie", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.connection_success_toast, Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent(this, DashboardActivity.class);
                 startActivity(intent);

@@ -1,11 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#dfdfdf">
 
-    <TextView
-        android:id="@+id/label"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:background="#ffffff">
 
-</LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:text="@string/formations_tab_title"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/formations_tab_subtitle"
+            android:textColor="#dfdfdf"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/formations_tab_profession_text_view"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+
+        <EditText
+            android:id="@+id/profession"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_border"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:hint="@string/formations_tab_profession_edit_text"
+            android:textColorHint="#dfdfdf"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/formations_tab_school_text_view"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+
+        <EditText
+            android:id="@+id/schoolName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_border"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:hint="@string/formations_tab_school_edit_text"
+            android:textColorHint="#dfdfdf"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/formations_tab_level_text_view"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+
+        <EditText
+            android:id="@+id/level"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_border"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:hint="@string/formations_tab_level_edit_text"
+            android:textColorHint="#dfdfdf"/>
+
+        <Button
+            android:id="@+id/save_infos_formation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/formations_tab_save_infos_button" />
+
+
+    </LinearLayout>
+
+</ScrollView>

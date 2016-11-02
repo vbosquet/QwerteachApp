@@ -45,6 +45,11 @@ public class DashboardActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
 
+                if(action.equals(menuDrawerItems[6])) {
+                    Intent intent = new Intent(getApplicationContext(), ToBecomeATeacherActivity.class);
+                    startActivity(intent);
+                }
+
             }
         });
 
