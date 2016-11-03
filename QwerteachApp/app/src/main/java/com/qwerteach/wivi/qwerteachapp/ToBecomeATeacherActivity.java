@@ -82,9 +82,9 @@ public class ToBecomeATeacherActivity extends AppCompatActivity implements SaveI
 
         try {
             JSONObject jsonObject = new JSONObject(string);
-            String regsitrationConfirmation = jsonObject.getString("success");
+            String registrationConfirmation = jsonObject.getString("success");
 
-            if (regsitrationConfirmation.equals("true")) {
+            if (registrationConfirmation.equals("true")) {
                 Intent intent = new Intent(this, CreateSmallAdActivity.class);
                 startActivity(intent);
             } else {
