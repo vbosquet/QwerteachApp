@@ -20,7 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.qwerteach.wivi.qwerteachapp.AsyncTasks.SignInActivityAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.SignInActivityAsyncTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;

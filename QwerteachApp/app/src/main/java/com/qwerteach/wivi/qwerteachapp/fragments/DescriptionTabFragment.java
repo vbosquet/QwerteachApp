@@ -18,8 +18,8 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.qwerteach.wivi.qwerteachapp.AsyncTasks.DisplayInfosProfileAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.AsyncTasks.SaveInfosProfileAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosProfileAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.SaveInfosProfileAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.R;
 
 import org.json.JSONException;

@@ -7,10 +7,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
-import com.qwerteach.wivi.qwerteachapp.AsyncTasks.EmailSignUpAsyncTask;
 
 public class ProfilActivity extends AppCompatActivity {
 

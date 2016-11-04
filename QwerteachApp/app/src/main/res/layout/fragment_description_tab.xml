@@ -23,13 +23,6 @@
             android:background="#ffffff"
             android:orientation="vertical">
 
-            <!--<ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/my_photo_profile"
-                android:layout_marginBottom="@dimen/activity_vertical_margin" />-->
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

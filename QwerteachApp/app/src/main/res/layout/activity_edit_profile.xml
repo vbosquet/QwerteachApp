@@ -4,7 +4,9 @@
     android:id="@+id/activity_edit_profile"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.qwerteach.wivi.qwerteachapp.EditProfileActivity">
+    tools:context="com.qwerteach.wivi.qwerteachapp.EditProfileActivity"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
 
     <android.support.v4.view.ViewPager
         xmlns:android="http://schemas.android.com/apk/res/android"

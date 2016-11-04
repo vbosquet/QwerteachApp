@@ -9,14 +9,11 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
 
-import com.qwerteach.wivi.qwerteachapp.fragments.AnnoncesTabFragment;
+import com.qwerteach.wivi.qwerteachapp.fragments.AdTabFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.DescriptionTabFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.FormationsTabFragment;
 
@@ -102,7 +99,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 case 1:
                     return FormationsTabFragment.newInstance();
                 case 2:
-                    return AnnoncesTabFragment.newInstance();
+                    return AdTabFragment.newInstance();
                 default:
                     return null;
             }

@@ -75,7 +75,8 @@
     <string name="to_become_a_teacher_activity_title">Poser candidature</string>
     <string name="error_save_infos_profile_toast_message">Impossible d\'enregistrer vos informations, Veuillez réessayer</string>
     <string name="course_category_text_view">Choisissez une catégorie</string>
-    <string name="save_small_ad_success_true_message">Votre annonce a été enregistrée avec succès.</string>
+    <string name="save_small_ad_success_true_message">Votre annonce a été enregistrée avec succès</string>
     <string name="save_small_ad_success_false_message">Impossible d\'enregistrer votre annonce. Essayez à nouveau.</string>
     <string name="save_small_ad_success_exists_message">Vous possédez déjà une annonce de ce type</string>
+    <string name="save_small_ad_success_need_message">Indiquez vos tarifs avant d\'enregistrer votre annonce</string>
 </resources>

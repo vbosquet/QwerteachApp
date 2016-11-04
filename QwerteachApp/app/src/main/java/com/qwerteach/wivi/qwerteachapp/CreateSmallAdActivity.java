@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.method.KeyListener;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,9 +21,9 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.qwerteach.wivi.qwerteachapp.AsyncTasks.DisplayInfosGroupTopicsAsyncTack;
-import com.qwerteach.wivi.qwerteachapp.AsyncTasks.DisplayInfosTopicsAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.AsyncTasks.SaveSmallAdAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosGroupTopicsAsyncTack;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosTopicsAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.SaveSmallAdAsyncTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -84,24 +83,22 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
     public void didTouchSaveSmallAd(View view) {
 
         if (variableCoursePriceCheckbox.isChecked()) {
+
             for (int i = 0; i < levelIdChecked.size(); i++) {
                 int index = levelIdChecked.get(i);
                 Integer levelId = levelIdList.get(index);
-                Double coursePrice = Double.valueOf(coursePriceEditTextList.get(index).getText().toString());
-
-                if (coursePrice != null) {
+                if (!coursePriceEditTextList.get(index).getText().toString().equals("")) {
+                    Double coursePrice = Double.valueOf(coursePriceEditTextList.get(index).getText().toString());
                     levelNamesChecked.put(levelId, coursePrice);
                 }
             }
 
         } else {
-
             for (int i = 0; i < levelIdChecked.size(); i++) {
                 int index = levelIdChecked.get(i);
                 Integer levelId = levelIdList.get(index);
-                Double coursePrice = Double.valueOf(fixCoursePriceEditText.getText().toString());
-
-                if (coursePrice != null) {
+                if (!fixCoursePriceEditText.getText().toString().equals("")) {
+                    Double coursePrice = Double.valueOf(fixCoursePriceEditText.getText().toString());
                     levelNamesChecked.put(levelId, coursePrice);
                 }
             }
@@ -119,7 +116,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
 
         courseCategoryName = adapterView.getItemAtPosition(position).toString();
         DisplayInfosTopicsAsyncTask displayInfosTopicsAsyncTask = new DisplayInfosTopicsAsyncTask(this);
-        displayInfosTopicsAsyncTask.execute(courseCategoryName);
+        displayInfosTopicsAsyncTask.execute(courseCategoryName, null);
     }
 
     @Override
@@ -176,9 +173,11 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
                 Toast.makeText(this, R.string.save_small_ad_success_exists_message, Toast.LENGTH_SHORT).show();
             } else if (confirmationMessage.equals("false")) {
                 Toast.makeText(this, R.string.save_small_ad_success_false_message, Toast.LENGTH_SHORT).show();
-            } else {
+            } else if (confirmationMessage.equals("true")) {
                 Toast.makeText(this, R.string.save_small_ad_success_true_message, Toast.LENGTH_SHORT).show();
                 finish();
+            } else {
+                Toast.makeText(this, R.string.save_small_ad_success_need_message, Toast.LENGTH_SHORT).show();
             }
 
 
