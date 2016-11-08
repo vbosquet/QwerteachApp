@@ -3,6 +3,10 @@ package com.qwerteach.wivi.qwerteachapp.asyncTasks;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.qwerteach.wivi.qwerteachapp.models.Level;
+import com.qwerteach.wivi.qwerteachapp.models.Topic;
+import com.qwerteach.wivi.qwerteachapp.models.TopicGroup;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,8 +18,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
 /**
  * Created by wivi on 31/10/16.
@@ -32,12 +35,12 @@ public class SaveSmallAdAsyncTask extends AsyncTask<Object, String, String> {
     @Override
     protected String doInBackground(Object... objects) {
 
-        String courseCategoryName = (String) objects[0];
-        String courseMaterialName = (String) objects[1];
+        TopicGroup topicGroup = (TopicGroup) objects[0];
+        Topic topic = (Topic) objects[1];
         String otherCourseMaterialName = (String) objects[2];
         String description = (String) objects[3];
         String userId = (String) objects[4];
-        Map<Integer, Double> coursePrices = (HashMap) objects[5];
+        ArrayList<Level> levels = (ArrayList<Level>) objects[5];
 
 
         try {
@@ -46,14 +49,14 @@ public class SaveSmallAdAsyncTask extends AsyncTask<Object, String, String> {
             JSONObject json = new JSONObject();
             JSONObject smallAdJson = new JSONObject();
 
-            if (courseCategoryName != null) {
-                json.put("topic_group", courseCategoryName);
+            if (topicGroup != null) {
+                json.put("topic_group_id", topicGroup.getTopicGroupId());
             } else {
-                json.put("topic_group", "");
+                json.put("topic_group_id", "");
             }
 
-            if (courseMaterialName != null) {
-                json.put("topic", courseMaterialName);
+            if (topic != null) {
+                json.put("topic_id", topic.getTopicId());
             } else {
                 json.put("topic", "");
             }
@@ -70,12 +73,14 @@ public class SaveSmallAdAsyncTask extends AsyncTask<Object, String, String> {
                 json.put("description", "");
             }
 
-            if (coursePrices != null) {
-                for (Map.Entry<Integer, Double> entry : coursePrices.entrySet()) {
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("level_id", entry.getKey());
-                    jsonObject.put("price", entry.getValue());
-                    pricesJsonArray.put(jsonObject);
+            if (levels != null) {
+                for(int i = 0; i< levels.size(); i++) {
+                    if (levels.get(i).isChecked()) {
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("level_id", levels.get(i).getLevelId());
+                        jsonObject.put("price", levels.get(i).getPrice());
+                        pricesJsonArray.put(jsonObject);
+                    }
                 }
             }
 
@@ -84,7 +89,7 @@ public class SaveSmallAdAsyncTask extends AsyncTask<Object, String, String> {
             json.put("id", userId);
             smallAdJson.put("advert", json);
 
-            URL url = new URL("http://10.1.10.5:3000/api/save_advert");
+            URL url = new URL("http://10.1.10.5:3000/api/adverts/create");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.setDoOutput(true);

@@ -39,7 +39,7 @@ public class DisplayInfosSmallAdAsyncTask extends AsyncTask<String, String, Stri
             json.put("id", userId);
             userJson.put("user", json);
 
-            URL url = new URL("http://10.1.10.5:3000/api/display_advert");
+            URL url = new URL("http://10.1.10.5:3000/api/adverts/show");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.setDoOutput(true);

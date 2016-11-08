@@ -85,8 +85,8 @@ public class ToBecomeATeacherActivity extends AppCompatActivity implements SaveI
             String registrationConfirmation = jsonObject.getString("success");
 
             if (registrationConfirmation.equals("true")) {
-                Intent intent = new Intent(this, CreateSmallAdActivity.class);
-                startActivity(intent);
+                //Intent intent = new Intent(this, CreateSmallAdActivity.class);
+                //startActivity(intent);
             } else {
                 Toast.makeText(this, R.string.error_save_infos_profile_toast_message, Toast.LENGTH_SHORT).show();
             }

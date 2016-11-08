@@ -7,9 +7,11 @@ package com.qwerteach.wivi.qwerteachapp.models;
 public class SmallAd {
 
     private String title;
+    private int advertId;
 
-    public SmallAd(String title) {
+    public SmallAd(String title, int advertId) {
         this.title = title;
+        this.advertId = advertId;
     }
 
     public String getTitle() {
@@ -18,5 +20,13 @@ public class SmallAd {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public int getAdvertId() {
+        return advertId;
+    }
+
+    public void setAdvertId(int advertId) {
+        this.advertId = advertId;
     }
 }

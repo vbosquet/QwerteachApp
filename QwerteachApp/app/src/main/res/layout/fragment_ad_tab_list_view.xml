@@ -2,33 +2,44 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:background="@drawable/edit_text_border"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:weightSum="1">
+    android:paddingTop="@dimen/activity_vertical_margin">
 
     <TextView
         android:id="@+id/title"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0.8"/>
+        android:paddingBottom="@dimen/activity_vertical_margin"/>
 
-    <ImageView
-        android:id="@+id/delete_image_view"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/delete"
-        android:layout_weight="0.2"
-        android:clickable="true" />
-    <ImageView
-        android:id="@+id/edit_image_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/pencil"
-        android:layout_weight="0"
-        android:clickable="true" />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/delete_small_ad_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/delete_small_ad_button"
+            android:background="#d03641"
+            android:textColor="#ffffff"
+            android:clickable="true"/>
+
+        <Button
+            android:id="@+id/edit_small_ad_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/edit_small_ad_button"
+            android:background="@color/colorPrimary"
+            android:textColor="#ffffff"
+            android:clickable="true"/>
+
+    </LinearLayout>
+
+
 </LinearLayout>
 

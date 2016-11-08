@@ -1,6 +1,8 @@
 package com.qwerteach.wivi.qwerteachapp;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -24,6 +25,11 @@ import android.widget.Toast;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosGroupTopicsAsyncTack;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosTopicsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.SaveSmallAdAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.models.Level;
+import com.qwerteach.wivi.qwerteachapp.models.Topic;
+import com.qwerteach.wivi.qwerteachapp.models.TopicAdapter;
+import com.qwerteach.wivi.qwerteachapp.models.TopicGroup;
+import com.qwerteach.wivi.qwerteachapp.models.TopicGroupAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,12 +48,13 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
     EditText otherCourseMaterialEditText, descriptionEditText, fixCoursePriceEditText;
     LinearLayout courseMaterialLinearLayout, checkboxesLinearLayout, coursePriceLinearLayout;
     Spinner categoryCourseSpinner, courseMaterialSpinner;
-    String courseCategoryName, courseMaterialName, userId;
-    ArrayList<String> courseCategoryNamesList, levelNamesList;
+    String courseMaterialName, userId, courseCategoryName;
     ArrayList<EditText> coursePriceEditTextList;
-    ArrayList<Integer> levelIdChecked, levelIdList;
-    Map<Integer, Double> levelNamesChecked;
+    ArrayList<TopicGroup> topicGroups;
+    ArrayList<Topic> topics;
+    ArrayList<Level> levels;
     CheckBox variableCoursePriceCheckbox;
+    TopicGroupAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,37 +76,49 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         userId = preferences.getString("userId", "");
 
-        courseCategoryNamesList = new ArrayList<>();
-        levelNamesList = new ArrayList<>();
+        topicGroups = new ArrayList<>();
+        topics = new ArrayList<>();
+        levels = new ArrayList<>();
         coursePriceEditTextList = new ArrayList<>();
-        levelIdList = new ArrayList<>();
-        levelIdChecked = new ArrayList<>();
-        levelNamesChecked = new HashMap<>();
 
         DisplayInfosGroupTopicsAsyncTack displayInfosGroupTopicsAsyncTack = new DisplayInfosGroupTopicsAsyncTack(this);
         displayInfosGroupTopicsAsyncTack.execute();
     }
 
     public void didTouchSaveSmallAd(View view) {
+        TopicGroup topicGroup = new TopicGroup();
+        Topic topic = new Topic();
+
+        for(int i = 0; i < topicGroups.size(); i++) {
+            if (topicGroups.get(i).getTopicGroupTitle().equals(courseCategoryName)) {
+                topicGroup = topicGroups.get(i);
+            }
+        }
+
+        for(int i = 0; i < topics.size(); i++) {
+            if (topics.get(i).getTopicTitle().equals(courseMaterialName)) {
+                topic = topics.get(i);
+            }
+        }
 
         if (variableCoursePriceCheckbox.isChecked()) {
 
-            for (int i = 0; i < levelIdChecked.size(); i++) {
-                int index = levelIdChecked.get(i);
-                Integer levelId = levelIdList.get(index);
-                if (!coursePriceEditTextList.get(index).getText().toString().equals("")) {
-                    Double coursePrice = Double.valueOf(coursePriceEditTextList.get(index).getText().toString());
-                    levelNamesChecked.put(levelId, coursePrice);
+            for (int i = 0; i < levels.size(); i++) {
+                if (levels.get(i).isChecked()) {
+                    if (!coursePriceEditTextList.get(i).getText().toString().equals("")) {
+                        Double coursePrice = Double.valueOf(coursePriceEditTextList.get(i).getText().toString());
+                        levels.get(i).setPrice(coursePrice);
+                    }
                 }
             }
 
         } else {
-            for (int i = 0; i < levelIdChecked.size(); i++) {
-                int index = levelIdChecked.get(i);
-                Integer levelId = levelIdList.get(index);
-                if (!fixCoursePriceEditText.getText().toString().equals("")) {
-                    Double coursePrice = Double.valueOf(fixCoursePriceEditText.getText().toString());
-                    levelNamesChecked.put(levelId, coursePrice);
+            for (int i = 0; i < levels.size(); i++) {
+                if (levels.get(i).isChecked()) {
+                    if (!fixCoursePriceEditText.getText().toString().equals("")) {
+                        Double coursePrice = Double.valueOf(fixCoursePriceEditText.getText().toString());
+                        levels.get(i).setPrice(coursePrice);
+                    }
                 }
             }
         }
@@ -108,13 +127,13 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
         String description = descriptionEditText.getText().toString();
 
         SaveSmallAdAsyncTask saveSmallAdAsyncTask = new SaveSmallAdAsyncTask(this);
-        saveSmallAdAsyncTask.execute(courseCategoryName, courseMaterialName, otherCourseMaterialName, description, userId, levelNamesChecked);
+        saveSmallAdAsyncTask.execute(topicGroup, topic, otherCourseMaterialName, description, userId, levels);
     }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
 
-        courseCategoryName = adapterView.getItemAtPosition(position).toString();
+        courseCategoryName = topicGroups.get(position).getTopicGroupTitle();
         DisplayInfosTopicsAsyncTask displayInfosTopicsAsyncTask = new DisplayInfosTopicsAsyncTask(this);
         displayInfosTopicsAsyncTask.execute(courseCategoryName, null);
     }
@@ -134,12 +153,14 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
                     coursePriceLinearLayout.setVisibility(view.VISIBLE);
                     fixCoursePriceEditText.setKeyListener(null);
                     fixCoursePriceEditText.setBackgroundResource(R.color.gray);
+                    fixCoursePriceEditText.setTextColor(Color.WHITE);
 
                 } else {
                     coursePriceLinearLayout.setVisibility(view.GONE);
                     fixCoursePriceEditText.setKeyListener(keyListener);
                     fixCoursePriceEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
                     fixCoursePriceEditText.setBackgroundResource(R.drawable.edit_text_border);
+                    fixCoursePriceEditText.setTextColor(Color.BLACK);
                 }
 
                 break;
@@ -174,8 +195,9 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
             } else if (confirmationMessage.equals("false")) {
                 Toast.makeText(this, R.string.save_small_ad_success_false_message, Toast.LENGTH_SHORT).show();
             } else if (confirmationMessage.equals("true")) {
-                Toast.makeText(this, R.string.save_small_ad_success_true_message, Toast.LENGTH_SHORT).show();
+                setResult(Activity.RESULT_OK);
                 finish();
+                Toast.makeText(this, R.string.save_small_ad_success_true_message, Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, R.string.save_small_ad_success_need_message, Toast.LENGTH_SHORT).show();
             }
@@ -194,12 +216,17 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
             JSONArray jsonArray = jsonObject.getJSONArray("topic_group");
 
             for (int i = 0; i < jsonArray.length(); i++) {
-                courseCategoryNamesList.add(jsonArray.getString(i));
+                JSONObject jsonData = jsonArray.getJSONObject(i);
+                int topicGroupId = jsonData.getInt("id");
+                String topicGroupTitle = jsonData.getString("title");
+                String levelCode = jsonData.getString("level_code");
+                TopicGroup topicGroup = new TopicGroup(topicGroupId, topicGroupTitle, levelCode);
+                topicGroups.add(topicGroup);
             }
 
-            ArrayAdapter<String> courseCategoryAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, courseCategoryNamesList);
-            courseCategoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            categoryCourseSpinner.setAdapter(courseCategoryAdapter);
+            adapter = new TopicGroupAdapter(this, android.R.layout.simple_spinner_item, topicGroups);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            categoryCourseSpinner.setAdapter(adapter);
             categoryCourseSpinner.setOnItemSelectedListener(this);
 
         } catch (JSONException e) {
@@ -213,14 +240,11 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
 
         checkboxesLinearLayout.removeAllViews();
         coursePriceLinearLayout.removeAllViews();
-        levelNamesList.clear();
-        levelIdList.clear();
+        topics.clear();
+        levels.clear();
         coursePriceEditTextList.clear();
-        levelNamesChecked.clear();
 
         try {
-
-            final ArrayList<String> courseMaterialNamesList = new ArrayList<>();
 
             JSONObject jsonObject = new JSONObject(string);
             JSONArray topicJsonArray = jsonObject.getJSONArray("topics");
@@ -228,26 +252,32 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
 
             for (int i = 0; i < topicJsonArray.length(); i++) {
                 JSONObject jsonData = topicJsonArray.getJSONObject(i);
-                courseMaterialNamesList.add(jsonData.getString("title"));
+                int topicId = jsonData.getInt("id");
+                String topicTitle = jsonData.getString("title");
+                int topicGroupId = jsonData.getInt("topic_group_id");
+                Topic topic = new Topic(topicId, topicTitle, topicGroupId);
+                topics.add(topic);
             }
 
             for (int i = 0; i < levelJsonArray.length(); i++) {
                 JSONObject jsonData = levelJsonArray.getJSONObject(i);
-                levelNamesList.add(jsonData.getString("fr"));
-                levelIdList.add(jsonData.getInt("id"));
+                int levelId = jsonData.getInt("id");
+                String levelName = jsonData.getString("fr");
+                Level level = new Level(levelId, levelName);
+                levels.add(level);
             }
 
-            ArrayAdapter<String> courseMaterialAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, courseMaterialNamesList);
-            courseMaterialAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            courseMaterialSpinner.setAdapter(courseMaterialAdapter);
+            TopicAdapter topicAdapter = new TopicAdapter(this, android.R.layout.simple_spinner_item, topics);
+            topicAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            courseMaterialSpinner.setAdapter(topicAdapter);
 
             courseMaterialTextView.setVisibility(View.VISIBLE);
             courseMaterialLinearLayout.setVisibility(View.VISIBLE);
 
-            for (int i = 0; i < levelNamesList.size(); i++) {
+            for (int i = 0; i < levels.size(); i++) {
                 CheckBox cb = new CheckBox(this);
                 cb.setId(i);
-                cb.setText(levelNamesList.get(i));
+                cb.setText(levels.get(i).getLevelName());
                 checkboxesLinearLayout.addView(cb);
 
                 LinearLayout linearLayout = new LinearLayout(this);
@@ -260,7 +290,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
                 linearLayout.setOrientation(LinearLayout.HORIZONTAL);
                 linearLayout.setWeightSum(1);
 
-                textView.setText(levelNamesList.get(i));
+                textView.setText(levels.get(i).getLevelName());
                 TableRow.LayoutParams params1 = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.7f);
                 TableRow.LayoutParams params2 = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.3f);
                 textView.setLayoutParams(params1);
@@ -282,7 +312,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
                         int index = view.getId();
 
                         if(((CheckBox) view).isChecked()) {
-                            levelIdChecked.add(index);
+                            levels.get(index).setChecked(true);
 
                             editText.setKeyListener(keyListener);
                             editText.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -290,12 +320,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
 
 
                         } else {
-
-                            for(int i = 0; i < levelIdChecked.size(); i++) {
-                                if (index == levelIdChecked.get(i)) {
-                                    levelIdChecked.remove(i);
-                                }
-                            }
+                            levels.get(index).setChecked(false);
 
                             editText.setKeyListener(null);
                             editText.setBackgroundResource(R.color.gray);
@@ -309,10 +334,9 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
 
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                    courseMaterialName = adapterView.getItemAtPosition(i).toString();
-                    String otherCourseMaterialName = courseMaterialNamesList.get(courseMaterialNamesList.size() - 1);
+                    courseMaterialName = topics.get(i).getTopicTitle();
 
-                    if (adapterView.getItemAtPosition(i).toString().equals(otherCourseMaterialName)) {
+                    if (courseMaterialName.equals("Other")) {
                         otherCourseMaterialTextView.setVisibility(view.VISIBLE);
                         otherCourseMaterialEditText.setVisibility(view.VISIBLE);
                     } else {

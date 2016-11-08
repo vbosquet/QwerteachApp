@@ -1,6 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.asyncTasks;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -69,6 +70,8 @@ public class DisplayInfosTopicsAsyncTask extends AsyncTask<Object, String, Strin
 
             bufferedReader.close();
             inputStream.close();
+
+            Log.i("STRINGBUILDER", stringBuilder.toString());
 
             return stringBuilder.toString();
 
