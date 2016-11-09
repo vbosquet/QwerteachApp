@@ -1,4 +1,4 @@
-package com.qwerteach.wivi.qwerteachapp.AsyncTasks;
+package com.qwerteach.wivi.qwerteachapp.asyncTasks;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -15,30 +15,30 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Created by wivi on 31/10/16.
+ * Created by wivi on 9/11/16.
  */
 
-public class DisplayInfosTopicsAsyncTask extends AsyncTask<String, String, String> {
+public class DisplaySmallAdPriceAsyncTask extends AsyncTask<Object, String, String> {
 
-    IDisplayTopicInfos callback;
+    private IDisplaySmallAdPrice callback;
 
-    public DisplayInfosTopicsAsyncTask(IDisplayTopicInfos callback) {
+    public DisplaySmallAdPriceAsyncTask(IDisplaySmallAdPrice callback) {
         this.callback = callback;
     }
 
     @Override
-    protected String doInBackground(String... strings) {
-        String courseCategoryName = strings[0];
+    protected String doInBackground(Object... objects) {
+        int smallAdId = (int) objects[0];
 
         try {
 
             JSONObject json = new JSONObject();
-            JSONObject topicJson = new JSONObject();
+            JSONObject userJson = new JSONObject();
 
-            json.put("title", courseCategoryName);
-            topicJson.put("topic", json);
+            json.put("advert_id", smallAdId);
+            userJson.put("advert_price", json);
 
-            URL url = new URL("http://10.1.10.5:3000/api/find_topics");
+            URL url = new URL("http://10.1.10.5:3000/api/adverts/find_advert_prices");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.setDoOutput(true);
@@ -46,7 +46,7 @@ public class DisplayInfosTopicsAsyncTask extends AsyncTask<String, String, Strin
             httpURLConnection.setRequestMethod("POST");
 
             OutputStream os = httpURLConnection.getOutputStream();
-            os.write(topicJson.toString().getBytes("UTF-8"));
+            os.write(userJson.toString().getBytes("UTF-8"));
             os.flush();
             os.close();
 
@@ -70,16 +70,17 @@ public class DisplayInfosTopicsAsyncTask extends AsyncTask<String, String, Strin
             e.printStackTrace();
         }
 
+
         return null;
     }
 
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.displayInfosTopics(string);
+        callback.displaySmallAdPrice(string);
     }
 
-    public interface IDisplayTopicInfos {
-        void displayInfosTopics(String string);
+    public interface IDisplaySmallAdPrice {
+        void displaySmallAdPrice(String string);
     }
 }

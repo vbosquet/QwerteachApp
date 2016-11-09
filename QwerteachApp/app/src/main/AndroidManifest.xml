@@ -38,9 +38,12 @@
         <activity
             android:name=".CreateSmallAdActivity"
             android:label="@string/create_small_add_activity_title" />
-        <activity android:name=".ToBecomeATeacherActivity"
-            android:parentActivityName=".DashboardActivity"
-            android:label="@string/to_become_a_teacher_activity_title"/>
+        <activity
+            android:name=".ToBecomeATeacherActivity"
+            android:label="@string/to_become_a_teacher_activity_title"
+            android:parentActivityName=".DashboardActivity" />
+        <activity android:name=".UpdateSmallAdActivity"
+            android:label="@string/title_activity_update_small_ad"/>
     </application>
 
 </manifest>

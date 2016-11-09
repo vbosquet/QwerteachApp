@@ -21,6 +21,7 @@ public class TopicAdapter extends ArrayAdapter<Topic> {
         super(context, simple_spinner_item, topics);
         this.context = context;
         this.topics = topics;
+
     }
 
     @Override

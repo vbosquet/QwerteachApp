@@ -35,18 +35,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;;
 
 public class CreateSmallAdActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
         SaveSmallAdAsyncTask.ISaveSmallAdInfos,
         DisplayInfosGroupTopicsAsyncTack.IDisplayInfosGroupTopics,
         DisplayInfosTopicsAsyncTask.IDisplayTopicInfos {
 
-    TextView courseMaterialTextView, otherCourseMaterialTextView;
+    TextView otherCourseMaterialTextView;
     EditText otherCourseMaterialEditText, descriptionEditText, fixCoursePriceEditText;
-    LinearLayout courseMaterialLinearLayout, checkboxesLinearLayout, coursePriceLinearLayout;
+    LinearLayout checkboxesLinearLayout, coursePriceLinearLayout;
     Spinner categoryCourseSpinner, courseMaterialSpinner;
     String courseMaterialName, userId, courseCategoryName;
     ArrayList<EditText> coursePriceEditTextList;
@@ -61,12 +59,10 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_small_ad);
 
-        courseMaterialTextView = (TextView) findViewById(R.id.course_materiel_text_view);
         otherCourseMaterialTextView = (TextView) findViewById(R.id.other_course_material_text_view);
         otherCourseMaterialEditText = (EditText) findViewById(R.id.other_course_material_edit_text);
         fixCoursePriceEditText = (EditText) findViewById(R.id.fix_course_price);
         descriptionEditText = (EditText) findViewById(R.id.description);
-        courseMaterialLinearLayout = (LinearLayout) findViewById(R.id.course_material_linear_layout);
         checkboxesLinearLayout = (LinearLayout) findViewById(R.id.checkboxes_linear_layout);
         coursePriceLinearLayout = (LinearLayout) findViewById(R.id.course_price);
         categoryCourseSpinner = (Spinner) findViewById(R.id.course_category_spinner);
@@ -270,9 +266,6 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
             TopicAdapter topicAdapter = new TopicAdapter(this, android.R.layout.simple_spinner_item, topics);
             topicAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             courseMaterialSpinner.setAdapter(topicAdapter);
-
-            courseMaterialTextView.setVisibility(View.VISIBLE);
-            courseMaterialLinearLayout.setVisibility(View.VISIBLE);
 
             for (int i = 0; i < levels.size(); i++) {
                 CheckBox cb = new CheckBox(this);

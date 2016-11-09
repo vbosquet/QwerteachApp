@@ -2,10 +2,16 @@ package com.qwerteach.wivi.qwerteachapp.models;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import com.qwerteach.wivi.qwerteachapp.R;
+
+import org.xmlpull.v1.XmlPullParser;
 
 import java.util.ArrayList;
 
@@ -41,3 +47,4 @@ public class TopicGroupAdapter extends ArrayAdapter<TopicGroup> {
         return v;
     }
 }
+

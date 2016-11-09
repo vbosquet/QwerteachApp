@@ -18,12 +18,14 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.qwerteach.wivi.qwerteachapp.UpdateSmallAdActivity;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DeleteSmallAdAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosSmallAdAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.CreateSmallAdActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdAdapter;
+import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -88,14 +90,17 @@ public class AdTabFragment extends Fragment implements DisplayInfosSmallAdAsyncT
                 for (int i = 0; i < jsonTopicTitleArray.length(); i++) {
                     JSONObject jsonData = jsonArray.getJSONObject(i);
                     int advertId = jsonData.getInt("id");
+                    int topicId = jsonData.getInt("topic_id");
+                    int topicGroupId = jsonData.getInt("topic_group_id");
                     String otherName = jsonData.getString("other_name");
+                    String description = jsonData.getString("description");
                     String topicTitle = jsonTopicTitleArray.getString(i);
 
                     if(!topicTitle.equals("Other")) {
-                        SmallAd smallAd = new SmallAd(topicTitle, advertId);
+                        SmallAd smallAd = new SmallAd(topicTitle, advertId, topicId, topicGroupId, description);
                         topicList.add(smallAd);
                     } else {
-                        SmallAd smallAd = new SmallAd(otherName, advertId);
+                        SmallAd smallAd = new SmallAd(otherName, advertId, topicId, topicGroupId, description);
                         topicList.add(smallAd);
                     }
 
@@ -111,7 +116,10 @@ public class AdTabFragment extends Fragment implements DisplayInfosSmallAdAsyncT
 
                     @Override
                     public void onEditClick(int position) {
-                        Log.i("EDIT", "OK");
+                        SmallAd smallAd = topicList.get(position);
+                        Intent intent = new Intent(getContext(), UpdateSmallAdActivity.class);
+                        intent.putExtra("smallAd", smallAd);
+                        startActivityForResult(intent, 10002);
                     }
                 });
 
