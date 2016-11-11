@@ -21,27 +21,25 @@ import java.net.URL;
 import java.util.ArrayList;
 
 /**
- * Created by wivi on 31/10/16.
+ * Created by wivi on 10/11/16.
  */
 
-public class SaveSmallAdAsyncTask extends AsyncTask<Object, String, String> {
+public class EditSmallAdAsyncTask extends AsyncTask<Object, String, String> {
 
-    private ISaveSmallAdInfos callback;
+    private IEditSmallAd callback;
 
-    public SaveSmallAdAsyncTask(ISaveSmallAdInfos callback) {
+    public  EditSmallAdAsyncTask(IEditSmallAd callback) {
         this.callback = callback;
     }
 
     @Override
     protected String doInBackground(Object... objects) {
-
         TopicGroup topicGroup = (TopicGroup) objects[0];
         Topic topic = (Topic) objects[1];
-        String otherCourseMaterialName = (String) objects[2];
-        String description = (String) objects[3];
-        String userId = (String) objects[4];
-        ArrayList<Level> levels = (ArrayList<Level>) objects[5];
-
+        ArrayList<Level> levels = (ArrayList<Level>) objects[2];
+        String otherCourseMaterialName = (String) objects[3];
+        String description = (String) objects[4];
+        int advertId = (int) objects[5];
 
         try {
 
@@ -86,10 +84,10 @@ public class SaveSmallAdAsyncTask extends AsyncTask<Object, String, String> {
 
 
             json.put("advert_price", pricesJsonArray);
-            json.put("id", userId);
+            json.put("id", advertId);
             smallAdJson.put("advert", json);
 
-            URL url = new URL("http://10.1.10.7:3000/api/adverts/create");
+            URL url = new URL("http://10.1.10.7:3000/api/adverts/update");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.setDoOutput(true);
@@ -125,10 +123,10 @@ public class SaveSmallAdAsyncTask extends AsyncTask<Object, String, String> {
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.displayRegistrationConfirmationMessage(string);
+        callback.confirmationRegsitrationMessage(string);
     }
 
-    public interface ISaveSmallAdInfos {
-        void displayRegistrationConfirmationMessage(String string);
+    public interface IEditSmallAd {
+        void confirmationRegsitrationMessage(String string);
     }
 }

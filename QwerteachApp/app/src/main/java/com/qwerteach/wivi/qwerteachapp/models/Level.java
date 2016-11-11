@@ -11,6 +11,10 @@ public class Level {
     private boolean isChecked;
     private double price;
 
+    public Level() {
+
+    }
+
     public  Level(int levelId, String levelName) {
         this.levelId = levelId;
         this.levelName = levelName;

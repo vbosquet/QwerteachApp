@@ -94,36 +94,6 @@
                 android:textColorHint="#dfdfdf"
                 android:focusable="false"/>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/description_textview_description_tab"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
-
-            <EditText
-                android:id="@+id/description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/edit_text_border"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:inputType="textMultiLine"
-                android:gravity="top|left"
-                android:lines="8"
-                android:maxLines="10"
-                android:hint="@string/description_edittext_desciption_tab"
-                android:textColorHint="#dfdfdf"/>
-
-            <Button
-                android:id="@+id/save_infos_profile_button_bloc_1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/save_infos_profile_button_bloc_1" />
-
-
         </LinearLayout>
 
         <LinearLayout
@@ -156,26 +126,6 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/email_text_view_description_tab"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
-
-            <EditText
-                android:id="@+id/email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/edit_text_border"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:hint="@string/email_edit_text_description_tab"
-                android:textColorHint="#dfdfdf"
-                android:inputType="textEmailAddress"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:text="@string/phone_number_text_view_description_tab"
                 android:layout_marginBottom="@dimen/activity_vertical_margin"/>
 
@@ -193,14 +143,7 @@
                 android:textColorHint="#dfdfdf"
                 android:inputType="phone"/>
 
-            <Button
-                android:id="@+id/save_infos_profile_button_bloc_2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/save_infos_profile_button_bloc_2" />
-
         </LinearLayout>
-
 
     </LinearLayout>
 

@@ -6,6 +6,11 @@
 
     <LinearLayout
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
@@ -53,30 +58,36 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/formations_tab_school_text_view"
+            android:text="@string/formations_tab_level_text_view"
             android:layout_marginBottom="@dimen/activity_vertical_margin"/>
 
-        <EditText
-            android:id="@+id/schoolName"
+        <LinearLayout
+            android:id="@+id/level_linear_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:background="@drawable/edit_text_border"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:hint="@string/formations_tab_school_edit_text"
-            android:textColorHint="#dfdfdf"/>
+            android:layout_marginBottom="@dimen/activity_vertical_margin">
+
+            <Spinner
+                android:id="@+id/spinner_level"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/formations_tab_level_text_view"
+            android:text="@string/description_textview_description_tab"
             android:layout_marginBottom="@dimen/activity_vertical_margin"/>
 
         <EditText
-            android:id="@+id/level"
+            android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/edit_text_border"
@@ -85,15 +96,15 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:hint="@string/formations_tab_level_edit_text"
+            android:inputType="textMultiLine"
+            android:gravity="top|left"
+            android:lines="8"
+            android:maxLines="10"
+            android:hint="@string/description_edittext_desciption_tab"
             android:textColorHint="#dfdfdf"/>
 
-        <Button
-            android:id="@+id/save_infos_formation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/formations_tab_save_infos_button" />
 
+    </LinearLayout>
 
     </LinearLayout>
 

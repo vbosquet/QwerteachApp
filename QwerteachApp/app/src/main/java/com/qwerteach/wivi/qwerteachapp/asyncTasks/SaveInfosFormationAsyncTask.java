@@ -15,35 +15,44 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Created by wivi on 9/11/16.
+ * Created by wivi on 10/11/16.
  */
 
-public class DisplaySmallAdPriceAsyncTask extends AsyncTask<Object, String, String> {
+public class SaveInfosFormationAsyncTask extends AsyncTask<Object, String, String> {
 
-    private IDisplaySmallAdPrice callback;
+    private ISaveInfosFormation callback;
 
-    public DisplaySmallAdPriceAsyncTask(IDisplaySmallAdPrice callback) {
+    public SaveInfosFormationAsyncTask(ISaveInfosFormation callback) {
         this.callback = callback;
     }
 
+
     @Override
     protected String doInBackground(Object... objects) {
-        int smallAdId = (int) objects[0];
+        String userId = (String) objects[0];
+        String token = (String) objects[1];
+        String profession = (String) objects[2];
+        String description = (String) objects[3];
+        int levelId = (int) objects[4];
 
         try {
 
             JSONObject json = new JSONObject();
             JSONObject userJson = new JSONObject();
 
-            json.put("advert_id", smallAdId);
-            userJson.put("advert_price", json);
+            json.put("occupation", profession);
+            json.put("description", description);
+            json.put("user_id", userId);
+            json.put("level_id", levelId);
+            json.put("api_token", token);
+            userJson.put("user", json);
 
-            URL url = new URL("http://10.1.10.7:3000/api/adverts/find_advert_prices");
+            URL url = new URL("http://10.1.10.7:3000/users/" + userId);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.setDoOutput(true);
             httpURLConnection.setDoInput(true);
-            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setRequestMethod("PUT");
 
             OutputStream os = httpURLConnection.getOutputStream();
             os.write(userJson.toString().getBytes("UTF-8"));
@@ -71,16 +80,17 @@ public class DisplaySmallAdPriceAsyncTask extends AsyncTask<Object, String, Stri
         }
 
 
+
         return null;
     }
 
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.displaySmallAdPrice(string);
+        callback.confirmationRegistrationMessage(string);
     }
 
-    public interface IDisplaySmallAdPrice {
-        void displaySmallAdPrice(String string);
+    public interface ISaveInfosFormation {
+        void confirmationRegistrationMessage(String string);
     }
 }

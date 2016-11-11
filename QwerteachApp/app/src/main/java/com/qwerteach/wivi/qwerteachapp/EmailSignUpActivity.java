@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,6 +26,9 @@ import com.qwerteach.wivi.qwerteachapp.asyncTasks.EmailSignUpAsyncTask;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +38,8 @@ public class EmailSignUpActivity extends AppCompatActivity implements EmailSignU
     EditText password;
     EditText passwordConfirmation;
     Menu myMenu;
+    byte[] salt;
+    String token;
 
     TextWatcher textWatcher = new TextWatcher() {
         @Override
@@ -106,8 +112,16 @@ public class EmailSignUpActivity extends AppCompatActivity implements EmailSignU
                             passwordConfirmationProblemMessage.setLayoutParams(params);
                             passwordConfirmationProblemMessage.setText(R.string.password_confirmation_problem_message);
                         } else {
-                            EmailSignUpAsyncTask emailSignUpAsyncTask = new EmailSignUpAsyncTask(this);
-                            emailSignUpAsyncTask.execute(email.getText().toString(), password.getText().toString(), passwordConfirmation.getText().toString());
+                            try {
+                                salt = getSalt();
+                                token = byteToString(salt);
+                                EmailSignUpAsyncTask emailSignUpAsyncTask = new EmailSignUpAsyncTask(this);
+                                emailSignUpAsyncTask.execute(email.getText().toString(), password.getText().toString(),
+                                        passwordConfirmation.getText().toString(), token);
+
+                            } catch (NoSuchProviderException | NoSuchAlgorithmException e) {
+                                e.printStackTrace();
+                            }
                         }
 
                     } else {
@@ -202,6 +216,23 @@ public class EmailSignUpActivity extends AppCompatActivity implements EmailSignU
         } else {
             myMenu.findItem(R.id.sign_up_button).setEnabled(false);
         }
+    }
+
+    public byte[] getSalt() throws NoSuchProviderException, NoSuchAlgorithmException {
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+        byte[] salt = new byte[16];
+        sr.nextBytes(salt);
+        return salt;
+    }
+
+    public String byteToString(byte[] digest){
+        StringBuilder sb = new StringBuilder();
+
+        for (byte aDigest : digest) {
+            sb.append(Integer.toString((aDigest & 0xff) + 0x100, 16).substring(1));
+        }
+
+        return sb.toString();
     }
 
 }

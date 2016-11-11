@@ -32,10 +32,9 @@ public class SaveInfosProfileAsyncTask extends AsyncTask<String, String, String>
         String firstName = strings[0];
         String lastName = strings[1];
         String birthDate = strings[2];
-        String userDescription = strings[3];
-        String userId = strings[4];
-        String email = strings[5];
-        String phoneNumber = strings[6];
+        String userId = strings[3];
+        String phoneNumber = strings[4];
+        String token = strings[5];
 
         try {
 
@@ -45,18 +44,16 @@ public class SaveInfosProfileAsyncTask extends AsyncTask<String, String, String>
             json.put("firstname", firstName);
             json.put("lastname", lastName);
             json.put("birthdate", birthDate);
-            json.put("description", userDescription);
-            json.put("id", userId);
-            json.put("email", email);
             json.put("phonenumber", phoneNumber);
+            json.put("api_token", token);
             userJson.put("user", json);
 
-            URL url = new URL("http://10.1.10.5:3000/api/update_profile");
+            URL url = new URL("http://10.1.10.7:3000/users/" + userId);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.setDoOutput(true);
             httpURLConnection.setDoInput(true);
-            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setRequestMethod("PUT");
 
             OutputStream os = httpURLConnection.getOutputStream();
             os.write(userJson.toString().getBytes("UTF-8"));

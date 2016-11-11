@@ -32,6 +32,7 @@ public class EmailSignUpAsyncTask extends AsyncTask<String, String, String> {
         String email = strings[0];
         String password = strings[1];
         String passwordConfirmation = strings[2];
+        String token = strings[3];
 
         try {
 
@@ -41,9 +42,10 @@ public class EmailSignUpAsyncTask extends AsyncTask<String, String, String> {
             json.put("email", email);
             json.put("password", password);
             json.put("password_confirmation", passwordConfirmation);
+            json.put("api_token", token);
             userJson.put("user", json);
 
-            URL url = new URL("http://10.1.10.5:3000/api/registration");
+            URL url = new URL("http://10.1.10.7:3000/api/registration");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.setDoOutput(true);

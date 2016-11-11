@@ -171,6 +171,9 @@ public class AdTabFragment extends Fragment implements DisplayInfosSmallAdAsyncT
         if ((requestCode == 10001) && (resultCode == Activity.RESULT_OK)) {
             topicList.clear();
             startDisplayInfosSmallAdAsyncTask();
+        } else if ((requestCode == 10002) && (resultCode == Activity.RESULT_OK)) {
+            topicList.clear();
+            startDisplayInfosSmallAdAsyncTask();
         }
     }
 }

@@ -11,14 +11,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Created by wivi on 31/10/16.
+ * Created by wivi on 10/11/16.
  */
 
-public class DisplayInfosGroupTopicsAsyncTack extends AsyncTask<String, String, String> {
+public class DisplaySchoolLevelsAsyncTask extends AsyncTask<String, String, String> {
 
-    private IDisplayInfosGroupTopics callback;
+    private IDisplaySchoolLevels callback;
 
-    public DisplayInfosGroupTopicsAsyncTack(IDisplayInfosGroupTopics callback) {
+    public DisplaySchoolLevelsAsyncTask(IDisplaySchoolLevels callback) {
         this.callback = callback;
     }
 
@@ -27,7 +27,7 @@ public class DisplayInfosGroupTopicsAsyncTack extends AsyncTask<String, String, 
 
         try {
 
-            URL url = new URL("http://10.1.10.7:3000/api/find_group_topics");
+            URL url = new URL("http://10.1.10.7:3000/api/profiles/find_level");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.connect();
@@ -58,10 +58,10 @@ public class DisplayInfosGroupTopicsAsyncTack extends AsyncTask<String, String, 
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.displayInfosGroupTopics(string);
+        callback.displaySchoolLevels(string);
     }
 
-    public interface IDisplayInfosGroupTopics {
-        void displayInfosGroupTopics(String string);
+    public interface IDisplaySchoolLevels {
+        void displaySchoolLevels(String string);
     }
 }

@@ -142,10 +142,12 @@ public class SignInActivity extends AppCompatActivity implements SignInActivityA
 
             } else {
                 String userId = jsonObject.getString("id");
+                String token = jsonObject.getString("api_token");
 
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString("userId", userId);
+                editor.putString("token", token);
                 editor.apply();
 
                 Toast.makeText(this, R.string.connection_success_toast, Toast.LENGTH_SHORT).show();

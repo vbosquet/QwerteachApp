@@ -11,6 +11,9 @@ import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -32,15 +35,12 @@ import java.util.Locale;
  */
 
 public class DescriptionTabFragment extends Fragment implements SaveInfosProfileAsyncTask.ISaveInfosProfile,
-        DisplayInfosProfileAsyncTask.IDisplayInfosProfile {
+        DisplayInfosProfileAsyncTask.IDisplayInfosProfile, View.OnClickListener {
 
     EditText firstNameEditText;
     EditText lastNameEditText;
-    EditText userDescriptionEditTet;
     EditText birthDateEditText;
-    EditText emailEditText;
     EditText phoneNumberEditText;
-    Button buttonBloc1, buttonBloc2;
     Calendar calendar;
     View view;
     DatePickerDialog.OnDateSetListener dateSetListener;
@@ -53,16 +53,15 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        startDisplayInfosProfileAsynTack();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         view  = inflater.inflate(R.layout.fragment_description_tab, container, false);
-        startDisplayInfosProfileAsynTack();
         calendar = Calendar.getInstance(TimeZone.getDefault());
         dateSetListener = new DatePickerDialog.OnDateSetListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onDateSet(DatePicker datePicker, int year, int monthOfYear, int dayOfMonth) {
                 calendar.set(Calendar.YEAR, year);
@@ -72,48 +71,14 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
 
             }
         };
-        buttonBloc1 = (Button) view.findViewById(R.id.save_infos_profile_button_bloc_1);
-        buttonBloc2 = (Button) view.findViewById(R.id.save_infos_profile_button_bloc_2);
 
         firstNameEditText = (EditText) view.findViewById(R.id.firstname);
         lastNameEditText = (EditText) view.findViewById(R.id.lastname);
         birthDateEditText = (EditText) view.findViewById(R.id.birthdate);
-        birthDateEditText.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                new DatePickerDialog(getContext(), dateSetListener, calendar
-                        .get(Calendar.YEAR), calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH)).show();
-            }
-        });
-
-        userDescriptionEditTet = (EditText) view.findViewById(R.id.description);
-        emailEditText = (EditText) view.findViewById(R.id.email);
         phoneNumberEditText = (EditText) view.findViewById(R.id.phoneNumber);
+        birthDateEditText.setOnClickListener(this);
 
-        buttonBloc1.setOnClickListener(new View.OnClickListener(){
-
-            @Override
-            public void onClick(View view) {
-                if(view.getId() == R.id.save_infos_profile_button_bloc_1) {
-                    startSaveInfosProfileTabAsyncTask(firstNameEditText.getText().toString(), lastNameEditText.getText().toString(),
-                            birthDateEditText.getText().toString(), userDescriptionEditTet.getText().toString(),
-                            emailEditText.getText().toString(), phoneNumberEditText.getText().toString());
-                }
-            }
-        });
-
-        buttonBloc2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(view.getId() == R.id.save_infos_profile_button_bloc_2) {
-                    startSaveInfosProfileTabAsyncTask(firstNameEditText.getText().toString(), lastNameEditText.getText().toString(),
-                            birthDateEditText.getText().toString(), userDescriptionEditTet.getText().toString(),
-                            emailEditText.getText().toString(), phoneNumberEditText.getText().toString());
-                }
-            }
-        });
+        setHasOptionsMenu(true);
 
         return view;
     }
@@ -125,12 +90,18 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
         birthDateEditText.setText(sdf.format(calendar.getTime()));
     }
 
-    public void startSaveInfosProfileTabAsyncTask(String firstName, String lastName, String birthDate, String userDescription, String email, String phoneNumber) {
+    public void startSaveInfosProfileTabAsyncTask() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         String userId = preferences.getString("userId", "");
+        String token = preferences.getString("token", "");
+
+        String firstName = firstNameEditText.getText().toString();
+        String lastName = lastNameEditText.getText().toString();
+        String birthDate = birthDateEditText.getText().toString();
+        String phoneNumber = phoneNumberEditText.getText().toString();
 
         SaveInfosProfileAsyncTask saveInfosProfileAsyncTask = new SaveInfosProfileAsyncTask(this);
-        saveInfosProfileAsyncTask.execute(firstName, lastName, birthDate, userDescription, userId, email, phoneNumber);
+        saveInfosProfileAsyncTask.execute(firstName, lastName, birthDate, userId, phoneNumber, token);
     }
 
     @Override
@@ -141,6 +112,8 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
 
             if (regsitrationConfirmation.equals("true")) {
                 Toast.makeText(getContext(), R.string.infos_profile_registration_success_toast, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), R.string.infos_profile_registration_error_toast, Toast.LENGTH_SHORT).show();
             }
 
 
@@ -151,8 +124,6 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
 
     @Override
     public void displayUserInfosProfile(String string) {
-
-
         try {
             JSONObject jsonObject = new JSONObject(string);
             String getUserInfosProfile = jsonObject.getString("success");
@@ -162,16 +133,12 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
                 String firstName = jsonData.getString("firstname");
                 String lastName = jsonData.getString("lastname");
                 String birthDate = jsonData.getString("birthdate");
-                String description = jsonData.getString("description");
-                String email = jsonData.getString("email");
-                String phonenumber = jsonData.getString("phonenumber");
+                String phoneNumber = jsonData.getString("phonenumber");
 
                 firstNameEditText.setText(firstName);
                 lastNameEditText.setText(lastName);
                 birthDateEditText.setText(birthDate);
-                userDescriptionEditTet.setText(description);
-                emailEditText.setText(email);
-                phoneNumberEditText.setText(phonenumber);
+                phoneNumberEditText.setText(phoneNumber);
             }
 
         } catch (JSONException e) {
@@ -186,5 +153,32 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
 
         DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
         displayInfosProfileAsyncTask.execute(userId);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @Override
+    public void onClick(View view) {
+
+        if (view.getId() == R.id.birthdate) {
+            new DatePickerDialog(getContext(), dateSetListener,
+                    calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)).show();
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(final Menu menu, MenuInflater menuInflater) {
+        menuInflater.inflate(R.menu.formations_tab_fragment_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.save_profile_button:
+                startSaveInfosProfileTabAsyncTask();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

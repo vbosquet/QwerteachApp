@@ -1,5 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,11 +20,13 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosGroupTopicsAsyncTack;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosSmallAdAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosTopicsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplaySmallAdPriceAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.EditSmallAdAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Level;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
@@ -41,7 +44,8 @@ import java.util.ArrayList;
 public class UpdateSmallAdActivity extends AppCompatActivity implements DisplayInfosGroupTopicsAsyncTack.IDisplayInfosGroupTopics,
         AdapterView.OnItemSelectedListener,
         DisplayInfosTopicsAsyncTask.IDisplayTopicInfos,
-        DisplaySmallAdPriceAsyncTask.IDisplaySmallAdPrice {
+        DisplaySmallAdPriceAsyncTask.IDisplaySmallAdPrice,
+        EditSmallAdAsyncTask.IEditSmallAd {
 
     SmallAd smallAd;
     Spinner categoryCourseSpinner, courseMaterialSpinner;
@@ -108,6 +112,52 @@ public class UpdateSmallAdActivity extends AppCompatActivity implements DisplayI
     }
 
     public void didTouchUpdateSmallAd(View view) {
+        TopicGroup topicGroup = new TopicGroup();
+        Topic topic = new Topic();
+
+        for(int i = 0; i < topicGroups.size(); i++) {
+            if (topicGroups.get(i).getTopicGroupTitle().equals(courseCategoryName)) {
+                topicGroup = topicGroups.get(i);
+            }
+        }
+
+        for(int i = 0; i < topics.size(); i++) {
+            if (topics.get(i).getTopicTitle().equals(courseMaterialName)) {
+                topic = topics.get(i);
+            }
+        }
+
+        if (variableCoursePriceCheckbox.isChecked()) {
+
+            for (int i = 0; i < levels.size(); i++) {
+                if (levels.get(i).isChecked()) {
+                    if (!coursePriceEditTextList.get(i).getText().toString().equals("")) {
+                        Double coursePrice = Double.valueOf(coursePriceEditTextList.get(i).getText().toString());
+                        levels.get(i).setPrice(coursePrice);
+                    }
+                } else {
+                    levels.get(i).setPrice(0.0);
+                }
+            }
+
+        } else {
+            for (int i = 0; i < levels.size(); i++) {
+                if (levels.get(i).isChecked()) {
+                    if (!fixCoursePriceEditText.getText().toString().equals("")) {
+                        Double coursePrice = Double.valueOf(fixCoursePriceEditText.getText().toString());
+                        levels.get(i).setPrice(coursePrice);
+                    }
+                } else {
+                    levels.get(i).setPrice(0.0);
+                }
+            }
+        }
+
+        String otherCourseMaterialName = otherCourseMaterialEditText.getText().toString();
+        String description = descriptionEditText.getText().toString();
+
+        EditSmallAdAsyncTask editSmallAdAsyncTask = new EditSmallAdAsyncTask(this);
+        editSmallAdAsyncTask.execute(topicGroup, topic, levels, otherCourseMaterialName, description, smallAd.getAdvertId());
     }
 
     @Override
@@ -246,6 +296,7 @@ public class UpdateSmallAdActivity extends AppCompatActivity implements DisplayI
                     } else {
                         otherCourseMaterialTextView.setVisibility(view.GONE);
                         otherCourseMaterialEditText.setVisibility(view.GONE);
+                        otherCourseMaterialEditText.setText("");
                     }
                 }
 
@@ -431,6 +482,25 @@ public class UpdateSmallAdActivity extends AppCompatActivity implements DisplayI
             }
         } else {
             fixCoursePriceEditText.setText(null);
+        }
+    }
+
+    @Override
+    public void confirmationRegsitrationMessage(String string) {
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            String confirmationRegistration = jsonObject.getString("success");
+
+            if (confirmationRegistration.equals("true")) {
+                setResult(Activity.RESULT_OK);
+                finish();
+                Toast.makeText(this, R.string.update_small_ad_success_true_message, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, R.string.update_small_ad_success_false_message, Toast.LENGTH_SHORT).show();
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 }
