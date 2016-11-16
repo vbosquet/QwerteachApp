@@ -77,8 +77,9 @@ public class EditProfileActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                intent = new Intent(this, ProfilActivity.class);
-                startActivity(intent);
+                finish();
+                //intent = new Intent(this, ProfileActivity.class);
+                //startActivity(intent);
                 return true;
         }
 

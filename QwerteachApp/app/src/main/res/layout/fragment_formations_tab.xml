@@ -69,7 +69,6 @@
             android:background="@drawable/edit_text_border"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
-            android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:layout_marginBottom="@dimen/activity_vertical_margin">
 

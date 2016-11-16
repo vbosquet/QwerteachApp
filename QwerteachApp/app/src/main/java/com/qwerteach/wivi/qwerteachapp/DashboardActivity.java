@@ -40,8 +40,13 @@ public class DashboardActivity extends AppCompatActivity {
                 Object o = mDrawerList.getItemAtPosition(position);
                 String action = o.toString();
 
+                if (action.equals(menuDrawerItems[1])) {
+                    Intent intent = new Intent(getApplicationContext(), SearchTeacherActivity.class);
+                    startActivity(intent);
+                }
+
                 if(action.equals(menuDrawerItems[5])) {
-                    Intent intent = new Intent(getApplicationContext(), ProfilActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
                     startActivity(intent);
                 }
 

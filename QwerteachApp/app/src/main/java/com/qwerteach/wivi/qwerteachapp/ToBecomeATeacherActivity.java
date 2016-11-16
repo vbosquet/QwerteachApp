@@ -22,14 +22,13 @@ import org.json.JSONObject;
 public class ToBecomeATeacherActivity extends AppCompatActivity implements SaveInfosProfileAsyncTask.ISaveInfosProfile,
         DisplayInfosProfileAsyncTask.IDisplayInfosProfile {
 
-    Intent intent;
     EditText firstNameEditText;
     EditText lastNameEditText;
     EditText userDescriptionEditTet;
     EditText birthDateEditText;
     EditText emailEditText;
     EditText phoneNumberEditText;
-    String userId;
+    String userId, email, token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,9 +37,8 @@ public class ToBecomeATeacherActivity extends AppCompatActivity implements SaveI
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         userId = preferences.getString("userId", "");
-
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        email = preferences.getString("email", "");
+        token = preferences.getString("token", "");
 
         firstNameEditText = (EditText) findViewById(R.id.firstname);
         lastNameEditText = (EditText) findViewById(R.id.lastname);
@@ -62,9 +60,8 @@ public class ToBecomeATeacherActivity extends AppCompatActivity implements SaveI
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                intent = new Intent(this, DashboardActivity.class);
-                startActivity(intent);
+            case R.id.cancel_button:
+                finish();
                 return true;
         }
 
@@ -72,9 +69,6 @@ public class ToBecomeATeacherActivity extends AppCompatActivity implements SaveI
     }
 
     public void didTouchSaveInfosProfile(View view) {
-        startSaveInfosProfileTabAsyncTask(firstNameEditText.getText().toString(), lastNameEditText.getText().toString(),
-                birthDateEditText.getText().toString(), userDescriptionEditTet.getText().toString(),
-                emailEditText.getText().toString(), phoneNumberEditText.getText().toString());
     }
 
     @Override
@@ -85,8 +79,6 @@ public class ToBecomeATeacherActivity extends AppCompatActivity implements SaveI
             String registrationConfirmation = jsonObject.getString("success");
 
             if (registrationConfirmation.equals("true")) {
-                //Intent intent = new Intent(this, CreateSmallAdActivity.class);
-                //startActivity(intent);
             } else {
                 Toast.makeText(this, R.string.error_save_infos_profile_toast_message, Toast.LENGTH_SHORT).show();
             }
@@ -98,16 +90,23 @@ public class ToBecomeATeacherActivity extends AppCompatActivity implements SaveI
 
     }
 
-    public void startSaveInfosProfileTabAsyncTask(String firstName, String lastName, String birthDate, String userDescription, String email, String phoneNumber) {
+    public void startSaveInfosProfileTabAsyncTask() {
+
+        String firstName = firstNameEditText.getText().toString();
+        String lastName = lastNameEditText.getText().toString();
+        String birthDate = birthDateEditText.getText().toString();
+        String description = userDescriptionEditTet.getText().toString();
+        String email = emailEditText.getText().toString();
+        String phoneNumber = phoneNumberEditText.getText().toString();
 
         SaveInfosProfileAsyncTask saveInfosProfileAsyncTask = new SaveInfosProfileAsyncTask(this);
-        saveInfosProfileAsyncTask.execute(firstName, lastName, birthDate, userDescription, userId, email, phoneNumber);
+        saveInfosProfileAsyncTask.execute(firstName, lastName, birthDate, description, userId, email, phoneNumber);
     }
 
     public void startDisplayInfosProfileAsynTack() {
 
         DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
-        displayInfosProfileAsyncTask.execute(userId);
+        displayInfosProfileAsyncTask.execute(userId, email, token);
     }
 
     @Override

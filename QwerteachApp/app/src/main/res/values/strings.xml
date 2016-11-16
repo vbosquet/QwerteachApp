@@ -45,7 +45,7 @@
     <string name="birthdate_textview_description_tab">Date de naissance</string>
     <string name="birthdate_edittext_description_tab">Date de naissance</string>
     <string name="infos_profile_registration_success_toast">Enregistrement réussi</string>
-    <string name="infos_profile_registration_error_toast">Une erreur s'est produite. Essayez à nouveau</string>
+    <string name="infos_profile_registration_error_toast">Une erreur s\'est produite. Essayez à nouveau</string>
     <string name="connection_success_toast">Connexion réussie</string>
     <string name="description_tab_bloc_1_title">Informations générales</string>
     <string name="description_tab_bloc_1_subtitle">Ces informations sont visibles par tous</string>
@@ -94,4 +94,10 @@
     <string name="update_small_ad_success_true_message">Vos informations ont été mises à jour</string>
     <string name="update_small_ad_success_false_message">Impossible d\'enregistrer vos infos. Essayez à nouveau</string>
     <string name="save_profile_button">ENREGISTRER</string>
+    <string name="occupation_text_view_title">Occupation</string>
+    <string name="description_text_view_title">Description</string>
+    <string name="to_become_a_teacher_introduction_message">Vous souhaitez donner des cours en ligne ? Dès à présent, envoyez votre candidature.\n\nComplétez vos informations de profil et suivez attentivement chaque étape.</string>
+    <string name="search_teacher_activity_title">Rechercher professeur</string>
+    <string name="app_label">Qwerteach</string>
+    <string name="search_hint">Search</string>
 </resources>

@@ -28,22 +28,31 @@
             android:parentActivityName=".MainActivity" />
         <activity android:name=".DashboardActivity" />
         <activity
-            android:name=".ProfilActivity"
+            android:name=".ProfileActivity"
             android:label="@string/title_profile_activity"
             android:parentActivityName=".DashboardActivity" />
         <activity
             android:name=".EditProfileActivity"
             android:label="@string/title_edit_profile_activity"
-            android:parentActivityName=".ProfilActivity" />
+            android:parentActivityName=".ProfileActivity" />
         <activity
             android:name=".CreateSmallAdActivity"
             android:label="@string/create_small_add_activity_title" />
         <activity
             android:name=".ToBecomeATeacherActivity"
-            android:label="@string/to_become_a_teacher_activity_title"
-            android:parentActivityName=".DashboardActivity" />
-        <activity android:name=".UpdateSmallAdActivity"
-            android:label="@string/title_activity_update_small_ad"/>
+            android:label="@string/to_become_a_teacher_activity_title" />
+        <activity
+            android:name=".UpdateSmallAdActivity"
+            android:label="@string/title_activity_update_small_ad" />
+        <activity android:name=".SearchTeacherActivity"
+            android:label="@string/search_teacher_activity_title"
+            android:parentActivityName=".DashboardActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                android:resource="@xml/searchable"/>
+        </activity>
     </application>
 
 </manifest>

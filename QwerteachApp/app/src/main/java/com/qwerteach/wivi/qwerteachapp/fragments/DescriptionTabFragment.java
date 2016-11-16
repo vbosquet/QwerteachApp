@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -93,6 +94,7 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
     public void startSaveInfosProfileTabAsyncTask() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         String userId = preferences.getString("userId", "");
+        String email = preferences.getString("email", "");
         String token = preferences.getString("token", "");
 
         String firstName = firstNameEditText.getText().toString();
@@ -101,7 +103,7 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
         String phoneNumber = phoneNumberEditText.getText().toString();
 
         SaveInfosProfileAsyncTask saveInfosProfileAsyncTask = new SaveInfosProfileAsyncTask(this);
-        saveInfosProfileAsyncTask.execute(firstName, lastName, birthDate, userId, phoneNumber, token);
+        saveInfosProfileAsyncTask.execute(firstName, lastName, birthDate, userId, phoneNumber, email, token);
     }
 
     @Override
@@ -150,9 +152,12 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
     public void startDisplayInfosProfileAsynTack() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         String userId = preferences.getString("userId", "");
+        String email = preferences.getString("email", "");
+        String token = preferences.getString("token", "");
+
 
         DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
-        displayInfosProfileAsyncTask.execute(userId);
+        displayInfosProfileAsyncTask.execute(userId, email, token);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

@@ -126,9 +126,11 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
     public void startDisplayInfosProfileAsynTack() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         String userId = preferences.getString("userId", "");
+        String email = preferences.getString("email", "");
+        String token = preferences.getString("token", "");
 
         DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
-        displayInfosProfileAsyncTask.execute(userId);
+        displayInfosProfileAsyncTask.execute(userId, email, token);
     }
 
     public void startSaveInfosFormationTabAsyncTask() {
@@ -136,6 +138,7 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         String userId = preferences.getString("userId", "");
+        String email = preferences.getString("email", "");
         String token = preferences.getString("token", "");
 
         String profession = professionEditText.getText().toString();
@@ -149,7 +152,7 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
         }
 
         SaveInfosFormationAsyncTask saveInfosFormationAsyncTask = new SaveInfosFormationAsyncTask(this);
-        saveInfosFormationAsyncTask.execute(userId, token, profession, userDescription, levelId);
+        saveInfosFormationAsyncTask.execute(userId, profession, userDescription, levelId, email, token);
 
     }
 

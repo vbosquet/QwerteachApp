@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -141,12 +142,16 @@ public class SignInActivity extends AppCompatActivity implements SignInActivityA
                 connectionProblemMessage.setText(R.string.login_error_message);
 
             } else {
-                String userId = jsonObject.getString("id");
-                String token = jsonObject.getString("api_token");
+                JSONObject jsonData = jsonObject.getJSONObject("data");
+                JSONObject jsonUser = jsonData.getJSONObject("user");
+                String userId = jsonUser.getString("id");
+                String email = jsonUser.getString("email");
+                String token = jsonUser.getString("authentication_token");
 
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString("userId", userId);
+                editor.putString("email", email);
                 editor.putString("token", token);
                 editor.apply();
 

@@ -15,45 +15,46 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Created by wivi on 22/10/16.
+ * Created by wivi on 16/11/16.
  */
 
-public class EmailSignUpAsyncTask extends AsyncTask<String, String, String> {
+public class SearchTeacherAsyncTask extends AsyncTask<String, String, String> {
 
-    private IEmailSignUp callback;
+    private ISearchTeacher callback;
 
-    public EmailSignUpAsyncTask(IEmailSignUp callback) {
+    public SearchTeacherAsyncTask(ISearchTeacher callback) {
         this.callback = callback;
     }
 
 
     @Override
     protected String doInBackground(String... strings) {
-        String email = strings[0];
-        String password = strings[1];
-        String passwordConfirmation = strings[2];
+        String query = strings[0];
+        String userId = strings[1];
+        String email = strings[2];
+        String token = strings[3];
 
         try {
 
-            JSONObject json = new JSONObject();
+            /*JSONObject json = new JSONObject();
             JSONObject userJson = new JSONObject();
 
-            json.put("email", email);
-            json.put("password", password);
-            json.put("password_confirmation", passwordConfirmation);
-            userJson.put("user", json);
+            json.put("topic", query);
+            userJson.put("user", json);*/
 
-            URL url = new URL("http://10.1.10.7:3000/api/registrations");
+            URL url = new URL("http://10.1.10.7:3000/profs?topic=" + query);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            httpURLConnection.addRequestProperty("X-User-Email", email);
+            httpURLConnection.addRequestProperty("X-User-Token", token);
             httpURLConnection.setDoOutput(true);
             httpURLConnection.setDoInput(true);
-            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setRequestMethod("GET");
 
-            OutputStream os = httpURLConnection.getOutputStream();
-            os.write(userJson.toString().getBytes("UTF-8"));
+            /*OutputStream os = httpURLConnection.getOutputStream();
+            os.write(json.toString().getBytes("UTF-8"));
             os.flush();
-            os.close();
+            os.close();*/
 
             InputStream inputStream = httpURLConnection.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
@@ -71,7 +72,7 @@ public class EmailSignUpAsyncTask extends AsyncTask<String, String, String> {
 
             return stringBuilder.toString();
 
-        } catch (JSONException | IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -81,10 +82,10 @@ public class EmailSignUpAsyncTask extends AsyncTask<String, String, String> {
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.displayConfirmationRegistrationMessage(string);
+        callback.displaySearchResults(string);
     }
 
-    public interface IEmailSignUp {
-        void displayConfirmationRegistrationMessage(String string);
+    public interface ISearchTeacher {
+        void displaySearchResults(String string);
     }
 }

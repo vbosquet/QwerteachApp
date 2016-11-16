@@ -18,11 +18,14 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.qwerteach.wivi.qwerteachapp.ToBecomeATeacherActivity;
 import com.qwerteach.wivi.qwerteachapp.UpdateSmallAdActivity;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DeleteSmallAdAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosProfileAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosSmallAdAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.CreateSmallAdActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplaySchoolLevelsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
@@ -38,13 +41,15 @@ import java.util.ArrayList;
  */
 
 public class AdTabFragment extends Fragment implements DisplayInfosSmallAdAsyncTask.IDisplayInfosSmallAd,
-        DeleteSmallAdAsyncTask.IDeleteSmallAd {
+        DeleteSmallAdAsyncTask.IDeleteSmallAd, View.OnClickListener,
+        DisplayInfosProfileAsyncTask.IDisplayInfosProfile {
 
     FloatingActionButton floatingActionButton;
     View view;
     ArrayList<SmallAd> topicList;
     ListView listView;
     SmallAdAdapter smallAdAdapter;
+    Boolean postulanceAccepted;
 
     public static AdTabFragment newInstance() {
         AdTabFragment adTabFragment = new AdTabFragment();
@@ -54,25 +59,16 @@ public class AdTabFragment extends Fragment implements DisplayInfosSmallAdAsyncT
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        startDisplayInfosProfileAsynTack();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_ad_tab, container, false);
         topicList = new ArrayList<>();
-        startDisplayInfosSmallAdAsyncTask();
         floatingActionButton = (FloatingActionButton) view.findViewById(R.id.floating_action_button);
-        floatingActionButton.setOnClickListener(new View.OnClickListener(){
-
-            @Override
-            public void onClick(View view) {
-
-                if(view.getId() == R.id.floating_action_button) {
-                    Intent intent = new Intent(getContext(), CreateSmallAdActivity.class);
-                    startActivityForResult(intent, 10001);
-                }
-            }
-        });
+        floatingActionButton.setOnClickListener(this);
+        startDisplayInfosSmallAdAsyncTask();
 
         return  view;
     }
@@ -174,6 +170,44 @@ public class AdTabFragment extends Fragment implements DisplayInfosSmallAdAsyncT
         } else if ((requestCode == 10002) && (resultCode == Activity.RESULT_OK)) {
             topicList.clear();
             startDisplayInfosSmallAdAsyncTask();
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (postulanceAccepted) {
+            Intent intent = new Intent(getContext(), CreateSmallAdActivity.class);
+            startActivityForResult(intent, 10001);
+        } else {
+            Intent intent = new Intent(getContext(), ToBecomeATeacherActivity.class);
+            startActivity(intent);
+        }
+    }
+
+    public void startDisplayInfosProfileAsynTack() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String userId = preferences.getString("userId", "");
+        String email = preferences.getString("email", "");
+        String token = preferences.getString("token", "");
+
+
+        DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
+        displayInfosProfileAsyncTask.execute(userId, email, token);
+    }
+
+    @Override
+    public void displayUserInfosProfile(String string) {
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            String getUserInfosProfile = jsonObject.getString("success");
+
+            if (getUserInfosProfile.equals("true")) {
+                JSONObject jsonData = jsonObject.getJSONObject("user");
+                postulanceAccepted = jsonData.getBoolean("postulance_accepted");
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 }

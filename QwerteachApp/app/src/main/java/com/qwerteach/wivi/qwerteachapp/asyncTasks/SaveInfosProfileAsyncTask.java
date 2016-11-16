@@ -34,7 +34,12 @@ public class SaveInfosProfileAsyncTask extends AsyncTask<String, String, String>
         String birthDate = strings[2];
         String userId = strings[3];
         String phoneNumber = strings[4];
-        String token = strings[5];
+        String email = strings[5];
+        String token = strings[6];
+
+        if(birthDate.equals("")) {
+            birthDate = null;
+        }
 
         try {
 
@@ -45,12 +50,13 @@ public class SaveInfosProfileAsyncTask extends AsyncTask<String, String, String>
             json.put("lastname", lastName);
             json.put("birthdate", birthDate);
             json.put("phonenumber", phoneNumber);
-            json.put("api_token", token);
             userJson.put("user", json);
 
-            URL url = new URL("http://10.1.10.7:3000/users/" + userId);
+            URL url = new URL("http://10.1.10.7:3000/api/profiles/" + userId);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            httpURLConnection.addRequestProperty("X-User-Email", email);
+            httpURLConnection.addRequestProperty("X-User-Token", token);
             httpURLConnection.setDoOutput(true);
             httpURLConnection.setDoInput(true);
             httpURLConnection.setRequestMethod("PUT");

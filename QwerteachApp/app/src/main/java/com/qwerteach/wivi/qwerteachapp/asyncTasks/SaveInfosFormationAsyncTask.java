@@ -30,10 +30,11 @@ public class SaveInfosFormationAsyncTask extends AsyncTask<Object, String, Strin
     @Override
     protected String doInBackground(Object... objects) {
         String userId = (String) objects[0];
-        String token = (String) objects[1];
-        String profession = (String) objects[2];
-        String description = (String) objects[3];
-        int levelId = (int) objects[4];
+        String profession = (String) objects[1];
+        String description = (String) objects[2];
+        int levelId = (int) objects[3];
+        String email = (String) objects[4];
+        String token = (String) objects[5];
 
         try {
 
@@ -44,12 +45,13 @@ public class SaveInfosFormationAsyncTask extends AsyncTask<Object, String, Strin
             json.put("description", description);
             json.put("user_id", userId);
             json.put("level_id", levelId);
-            json.put("api_token", token);
             userJson.put("user", json);
 
-            URL url = new URL("http://10.1.10.7:3000/users/" + userId);
+            URL url = new URL("http://10.1.10.7:3000/api/profiles/" + userId);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            httpURLConnection.addRequestProperty("X-User-Email", email);
+            httpURLConnection.addRequestProperty("X-User-Token", token);
             httpURLConnection.setDoOutput(true);
             httpURLConnection.setDoInput(true);
             httpURLConnection.setRequestMethod("PUT");
