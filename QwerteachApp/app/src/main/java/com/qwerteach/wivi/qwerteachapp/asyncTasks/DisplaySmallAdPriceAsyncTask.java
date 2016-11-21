@@ -38,7 +38,7 @@ public class DisplaySmallAdPriceAsyncTask extends AsyncTask<Object, String, Stri
             json.put("advert_id", smallAdId);
             userJson.put("advert_price", json);
 
-            URL url = new URL("http://10.1.10.7:3000/api/adverts/find_advert_prices");
+            URL url = new URL("http://192.168.0.111:3000/api/adverts/find_advert_prices");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.setDoOutput(true);
@@ -61,8 +61,6 @@ public class DisplaySmallAdPriceAsyncTask extends AsyncTask<Object, String, Stri
 
             bufferedReader.close();
             inputStream.close();
-
-            Log.i("STRINGBUILDER", stringBuilder.toString());
 
             return stringBuilder.toString();
 

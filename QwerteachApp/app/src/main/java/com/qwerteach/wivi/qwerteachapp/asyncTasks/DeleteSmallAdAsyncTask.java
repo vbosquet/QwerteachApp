@@ -39,7 +39,7 @@ public class DeleteSmallAdAsyncTask extends AsyncTask<Object, String, String> {
             json.put("id", advertId);
             userJson.put("advert", json);
 
-            URL url = new URL("http://10.1.10.7:3000/api/adverts/delete");
+            URL url = new URL("http://192.168.0.111:3000/api/adverts/delete");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.setDoOutput(true);

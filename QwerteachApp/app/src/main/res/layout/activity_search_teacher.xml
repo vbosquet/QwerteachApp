@@ -11,8 +11,8 @@
     tools:context="com.qwerteach.wivi.qwerteachapp.SearchTeacherActivity"
     android:orientation="vertical">
 
-    <android.support.v7.widget.SearchView
-        android:id="@+id/search_view"
+    <ListView
+        android:id="@+id/teacher_list_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/edit_text_border"/>

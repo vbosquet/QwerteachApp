@@ -87,7 +87,7 @@ public class EditSmallAdAsyncTask extends AsyncTask<Object, String, String> {
             json.put("id", advertId);
             smallAdJson.put("advert", json);
 
-            URL url = new URL("http://10.1.10.7:3000/api/adverts/update");
+            URL url = new URL("http://192.168.0.111:3000/api/adverts/update");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.setDoOutput(true);

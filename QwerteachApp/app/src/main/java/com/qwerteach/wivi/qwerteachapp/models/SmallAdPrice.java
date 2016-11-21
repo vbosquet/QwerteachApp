@@ -12,6 +12,10 @@ public class SmallAdPrice implements Serializable{
     int levelId;
     double price;
 
+    public SmallAdPrice() {
+
+    }
+
     public SmallAdPrice(int id, int smallAdId, int levelId, double price) {
         this.id = id;
         this.smallAdId = smallAdId;

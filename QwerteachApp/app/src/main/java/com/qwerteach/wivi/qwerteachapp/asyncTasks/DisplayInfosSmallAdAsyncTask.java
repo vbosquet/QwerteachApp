@@ -39,7 +39,7 @@ public class DisplayInfosSmallAdAsyncTask extends AsyncTask<String, String, Stri
             json.put("id", userId);
             userJson.put("user", json);
 
-            URL url = new URL("http://10.1.10.7:3000/api/adverts/show");
+            URL url = new URL("http://192.168.0.111:3000/api/adverts/show");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.setDoOutput(true);
@@ -62,8 +62,6 @@ public class DisplayInfosSmallAdAsyncTask extends AsyncTask<String, String, Stri
 
             bufferedReader.close();
             inputStream.close();
-
-            Log.i("STRINGBUILDER", stringBuilder.toString());
 
             return stringBuilder.toString();
 

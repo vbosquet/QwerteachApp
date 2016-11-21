@@ -40,7 +40,7 @@ public class DisplayInfosProfileAsyncTask extends AsyncTask<String, String, Stri
             json.put("id", userId);
             userJson.put("user", json);
 
-            URL url = new URL("http://10.1.10.7:3000/api/profiles/display");
+            URL url = new URL("http://192.168.0.111:3000/api/profiles/display");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);

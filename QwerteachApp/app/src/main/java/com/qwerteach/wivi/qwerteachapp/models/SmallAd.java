@@ -1,6 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * Created by wivi on 4/11/16.
@@ -13,6 +14,11 @@ public class SmallAd implements Serializable {
     private int topicId;
     private int topicGroupId;
     private String description;
+    private int userId;
+    ArrayList<SmallAdPrice> smallAdPrices;
+
+    public SmallAd() {
+    }
 
     public SmallAd(String title, int advertId, int topicId, int topicGroupId, String description) {
         this.title = title;
@@ -20,6 +26,7 @@ public class SmallAd implements Serializable {
         this.topicId = topicId;
         this.topicGroupId = topicGroupId;
         this.description = description;
+        smallAdPrices = new ArrayList<>();
     }
 
     public String getTitle() {
@@ -60,5 +67,23 @@ public class SmallAd implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public ArrayList<SmallAdPrice> getSmallAdPrices() {
+        return smallAdPrices;
+    }
+
+    public void setSmallAdPrices(ArrayList<SmallAdPrice> smallAdPrices) {
+        for (int i = 0; i < smallAdPrices.size(); i++) {
+            this.smallAdPrices.add(smallAdPrices.get(i));
+        }
     }
 }
