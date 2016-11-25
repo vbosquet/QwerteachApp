@@ -97,11 +97,38 @@
     <string name="occupation_text_view_title">Occupation</string>
     <string name="description_text_view_title">Description</string>
     <string name="to_become_a_teacher_introduction_message">Vous souhaitez donner des cours en ligne ? Dès à présent, envoyez votre candidature.\n\nComplétez vos informations de profil et suivez attentivement chaque étape.</string>
-    <string name="search_teacher_activity_title">Rechercher professeur</string>
+    <string name="search_teacher_activity_title">Professeurs de</string>
     <string name="app_label">Qwerteach</string>
     <string name="search_hint">Rechercher professeur</string>
     <string name="read_more_text_view">lire plus</string>
     <string name="course_names_teacher_profile_text_view">Matières enseignées</string>
     <string name="prices_teacher_profile_text_view">Tarif</string>
     <string name="detailed_prices_text_view">Voir le tarif détaillé</string>
+    <string name="drop_down_menu_item_title">Choisir une matière</string>
+    <string name="no_result_found_toast_message">Aucun résultat ne correspond à votre recherche.</string>
+    <string name="teacher_search_filter_text_view">Triés par</string>
+    <string name="lesson_reservation_button">Réserver un cours</string>
+    <string name="lesson_reservation_activity_title">Réserver un cours</string>
+    <string name="time_picker_button">Heure</string>
+    <string name="date_picker_button">Date</string>
+    <string name="lesson_start_time_title_text_view">Début du cours</string>
+    <string name="lesson_duration_title_text_view">Durée</string>
+    <string name="lesson_topic_group_title_text_view">Sélectionnez une catégorie</string>
+    <string name="lesson_topic_title_text_view">Choisissez une matière</string>
+    <string name="lesson_level_title_text_view">Indiquez votre niveau</string>
+    <string-array name="hour_spinner_items">
+        <item>00</item>
+        <item>01</item>
+        <item>02</item>
+        <item>03</item>
+        <item>04</item>
+        <item>05</item>
+    </string-array>
+    <string-array name="minut_spinner_items">
+        <item>00</item>
+        <item>15</item>
+        <item>30</item>
+        <item>45</item>
+    </string-array>
+    <string name="booking_lesson_button">RESERVER</string>
 </resources>

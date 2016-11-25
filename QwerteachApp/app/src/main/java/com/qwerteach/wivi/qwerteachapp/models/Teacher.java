@@ -18,6 +18,7 @@ public class Teacher implements Serializable{
     private String birthDate;
     private ArrayList<String> topicTitleList;
     private ArrayList<Double> priceList;
+    private ArrayList<SmallAd> smallAds;
 
     public Teacher(int id, String firstName, String lastName, String description, String occupation, String birthDate) {
         this.teacherId = id;
@@ -28,6 +29,7 @@ public class Teacher implements Serializable{
         this.birthDate = birthDate;
         topicTitleList = new ArrayList<>();
         priceList = new ArrayList<>();
+        smallAds = new ArrayList<>();
     }
 
     public int getTeacherId() {
@@ -95,7 +97,7 @@ public class Teacher implements Serializable{
         Collections.sort(this.priceList);
     }
 
-    public void addPriceToMinPriceList(ArrayList<Double> prices) {
+    public void addPriceToPriceList(ArrayList<Double> prices) {
         for (int i = 0; i < prices.size(); i++) {
             priceList.add(prices.get(i));
         }
@@ -116,5 +118,17 @@ public class Teacher implements Serializable{
 
     public void setBirthDate(String birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public ArrayList<Double> getPriceList() {
+        return priceList;
+    }
+
+    public ArrayList<SmallAd> getSmallAds() {
+        return smallAds;
+    }
+
+    public void addSmallAds(SmallAd smallAd) {
+        this.smallAds.add(smallAd);
     }
 }

@@ -22,7 +22,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosGroupTopicsAsyncTack;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllGroupTopicsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosTopicsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.SaveSmallAdAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Level;
@@ -39,7 +39,7 @@ import java.util.ArrayList;;
 
 public class CreateSmallAdActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
         SaveSmallAdAsyncTask.ISaveSmallAdInfos,
-        DisplayInfosGroupTopicsAsyncTack.IDisplayInfosGroupTopics,
+        GetAllGroupTopicsAsyncTask.IDisplayInfosGroupTopics,
         DisplayInfosTopicsAsyncTask.IDisplayTopicInfos {
 
     TextView otherCourseMaterialTextView;
@@ -77,8 +77,8 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
         levels = new ArrayList<>();
         coursePriceEditTextList = new ArrayList<>();
 
-        DisplayInfosGroupTopicsAsyncTack displayInfosGroupTopicsAsyncTack = new DisplayInfosGroupTopicsAsyncTack(this);
-        displayInfosGroupTopicsAsyncTack.execute();
+        GetAllGroupTopicsAsyncTask getAllGroupTopicsAsyncTask = new GetAllGroupTopicsAsyncTask(this);
+        getAllGroupTopicsAsyncTask.execute();
     }
 
     public void didTouchSaveSmallAd(View view) {
@@ -131,7 +131,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
 
         courseCategoryName = topicGroups.get(position).getTopicGroupTitle();
         DisplayInfosTopicsAsyncTask displayInfosTopicsAsyncTask = new DisplayInfosTopicsAsyncTask(this);
-        displayInfosTopicsAsyncTask.execute(courseCategoryName, null);
+        displayInfosTopicsAsyncTask.execute(courseCategoryName);
     }
 
     @Override

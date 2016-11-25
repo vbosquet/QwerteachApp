@@ -3,6 +3,8 @@ package com.qwerteach.wivi.qwerteachapp.asyncTasks;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,31 +15,32 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 /**
- * Created by wivi on 31/10/16.
+ * Created by wivi on 22/11/16.
  */
 
-public class DisplayInfosTopicsAsyncTask extends AsyncTask<Object, String, String> {
+public class DisplayTopicLevelsAsyncTask extends AsyncTask<Object, String, String> {
 
-    IDisplayTopicInfos callback;
+    private IDisplayTopicLevels callback;
 
-    public DisplayInfosTopicsAsyncTask(IDisplayTopicInfos callback) {
+    public DisplayTopicLevelsAsyncTask(IDisplayTopicLevels callback) {
         this.callback = callback;
     }
 
     @Override
     protected String doInBackground(Object... objects) {
-        String courseCategoryName = (String) objects[0];
+        int topicId = (int) objects[0];
 
         try {
 
             JSONObject json = new JSONObject();
             JSONObject topicJson = new JSONObject();
-            json.put("title", courseCategoryName);
+            json.put("topic_id", topicId);
             topicJson.put("topic", json);
 
-            URL url = new URL("http://192.168.0.111:3000/api/find_topics");
+            URL url = new URL("http://192.168.0.111:3000/api/find_topics/find_levels");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.setDoOutput(true);
@@ -67,16 +70,18 @@ public class DisplayInfosTopicsAsyncTask extends AsyncTask<Object, String, Strin
             e.printStackTrace();
         }
 
+
+
         return null;
     }
 
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.displayInfosTopics(string);
+        callback.displayTopicLevels(string);
     }
 
-    public interface IDisplayTopicInfos {
-        void displayInfosTopics(String string);
+    public interface IDisplayTopicLevels {
+        void displayTopicLevels(String string);
     }
 }

@@ -1,6 +1,9 @@
 package com.qwerteach.wivi.qwerteachapp;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,10 +12,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
-;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosSmallAdAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplaySmallAdPriceAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllTopicsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.SearchTeacherAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
@@ -24,34 +33,45 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 
 public class SearchTeacherActivity extends AppCompatActivity implements SearchTeacherAsyncTask.ISearchTeacher,
-        DisplayInfosSmallAdAsyncTask.IDisplayInfosSmallAd, DisplaySmallAdPriceAsyncTask.IDisplaySmallAdPrice {
+        DisplayInfosSmallAdAsyncTask.IDisplayInfosSmallAd,
+        DisplaySmallAdPriceAsyncTask.IDisplaySmallAdPrice,
+        AdapterView.OnItemSelectedListener,
+        GetAllTopicsAsyncTask.IGetAllTopics {
 
     ArrayList<Teacher> teacherList;
     ArrayList<SmallAd>smallAds;
+    ArrayList<String> menuItems;
+    ArrayList<String> searchSortingOptionNameToDisplay, searchSortingOptionNameToSendToAsyncTask;
     ListView listView;
+    Spinner searchSortingOptionsSpinner;
     int userId;
+    int currentSearchSortingOption = 0;
+    String query;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_teacher);
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        query = getIntent().getStringExtra("query");
 
         listView = (ListView) findViewById(R.id.teacher_list_view);
-
-        String query = getIntent().getStringExtra("query");
+        searchSortingOptionsSpinner = (Spinner) findViewById(R.id.search_sorting_options_spinner);
 
         teacherList = new ArrayList<>();
         smallAds = new ArrayList<>();
+        menuItems = new ArrayList<>();
+        searchSortingOptionNameToDisplay = new ArrayList<>();
+        searchSortingOptionNameToSendToAsyncTask = new ArrayList<>();
 
-        SearchTeacherAsyncTask searchTeacherAsyncTask = new SearchTeacherAsyncTask(this);
-        searchTeacherAsyncTask.execute(query);
+        menuItems.add(query);
+
+        startSearchTeacherAsyncTask(query, "");
+
+        GetAllTopicsAsyncTask getAllTopicsAsyncTask = new GetAllTopicsAsyncTask(this);
+        getAllTopicsAsyncTask.execute();
 
     }
 
@@ -59,48 +79,84 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
     public boolean onCreateOptionsMenu(final Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.search_teacher_menu, menu);
+        MenuItem item = menu.findItem(R.id.teacher_search_filter);
+        final Spinner spinner = (Spinner) MenuItemCompat.getActionView(item);
+        ArrayAdapter topicAdapter = new ArrayAdapter(this, R.layout.drop_down_menu_item, menuItems) {
+
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+
+                View v = null;
+
+                if (position == 0) {
+                    TextView tv = new TextView(getContext());
+                    tv.setHeight(0);
+                    tv.setVisibility(View.GONE);
+                    v = tv;
+                }
+                else {
+
+                    v = super.getDropDownView(position, null, parent);
+                }
+
+                parent.setVerticalScrollBarEnabled(false);
+                return v;
+            }
+        };
+
+        topicAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(topicAdapter);
+        spinner.setOnItemSelectedListener(this);
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-        }
-
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void displaySearchResults(String string) {
-
         try {
             JSONObject jsonObject = new JSONObject(string);
-            JSONArray searchJsonArray = jsonObject.getJSONArray("search");
+            JSONArray searchJsonArray = jsonObject.getJSONArray("pagin");
+            JSONArray optionsJsonArray = jsonObject.getJSONArray("options");
 
-            for (int i = 0; i < searchJsonArray.length(); i++) {
-                JSONObject jsonData = searchJsonArray.getJSONObject(i);
-                int id = jsonData.getInt("id");
-                String firstName = jsonData.getString("firstname");
-                String lastName = jsonData.getString("lastname");
-                String description = jsonData.getString("description");
-                String occupation = jsonData.getString("occupation");
-                String birthDate = jsonData.getString("birthdate");
-                Teacher teacher = new Teacher(id, firstName, lastName, description, occupation, birthDate);
-                teacherList.add(teacher);
+            if (searchJsonArray.length() > 0) {
+                for (int i = 0; i < searchJsonArray.length(); i++) {
+                    JSONObject jsonData = searchJsonArray.getJSONObject(i);
+                    int id = jsonData.getInt("id");
+                    String firstName = jsonData.getString("firstname");
+                    String lastName = jsonData.getString("lastname");
+                    String description = jsonData.getString("description");
+                    String occupation = jsonData.getString("occupation");
+                    String birthDate = jsonData.getString("birthdate");
+                    Teacher teacher = new Teacher(id, firstName, lastName, description, occupation, birthDate);
+                    teacherList.add(teacher);
 
-                DisplayInfosSmallAdAsyncTask displayInfosSmallAdAsyncTask = new DisplayInfosSmallAdAsyncTask(this);
-                displayInfosSmallAdAsyncTask.execute(String.valueOf(id));
-
+                    DisplayInfosSmallAdAsyncTask displayInfosSmallAdAsyncTask = new DisplayInfosSmallAdAsyncTask(this);
+                    displayInfosSmallAdAsyncTask.execute(String.valueOf(id));
+                }
+            } else {
+                Toast.makeText(this, R.string.no_result_found_toast_message, Toast.LENGTH_SHORT).show();
             }
 
+            for (int i = 0; i < optionsJsonArray.length(); i++) {
+                JSONArray jsonData = optionsJsonArray.getJSONArray(i);
+
+                String searchOptionNameToDisplay = jsonData.getString(0);
+                String searOtionNameToSend = jsonData.getString(1);
+
+                searchSortingOptionNameToDisplay.add(searchOptionNameToDisplay);
+                searchSortingOptionNameToSendToAsyncTask.add(searOtionNameToSend);
+            }
+
+            displaySearchSortingOptionsSpinner();
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -206,12 +262,17 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
                 if (smallAdId == smallAds.get(i).getAdvertId()) {
                     newUserId = smallAds.get(i).getUserId();
                     smallAds.get(i).setSmallAdPrices(smallAdPrices);
+                    for (int j = 0; j < teacherList.size(); j++) {
+                        if (newUserId == teacherList.get(j).getTeacherId()) {
+                            teacherList.get(j).addSmallAds(smallAds.get(i));
+                        }
+                    }
                 }
             }
 
             for (int i = 0; i < teacherList.size(); i++) {
                 if (newUserId == teacherList.get(i).getTeacherId()) {
-                    teacherList.get(i).addPriceToMinPriceList(coursePriceList);
+                    teacherList.get(i).addPriceToPriceList(coursePriceList);
                 }
             }
 
@@ -223,5 +284,79 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        String newQuery = menuItems.get(i);
+
+        if (!newQuery.equals(query)) {
+            Intent intent = new Intent(this, SearchTeacherActivity.class);
+            intent.putExtra("query", newQuery);
+            startActivity(intent);
+            finish();
+        }
+
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
+    }
+
+    @Override
+    public void displayTopics(String string) {
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            JSONArray jsonArray = jsonObject.getJSONArray("topics");
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonData = jsonArray.getJSONObject(i);
+                String topicTitle = jsonData.getString("title");
+
+                if (!topicTitle.equals("Other")) {
+                    menuItems.add(topicTitle);
+                }
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void displaySearchSortingOptionsSpinner() {
+        ArrayAdapter searchOptionsAdapter = new ArrayAdapter(this, R.layout.drop_down_menu_item, searchSortingOptionNameToDisplay);
+        searchOptionsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        searchSortingOptionsSpinner.getBackground().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
+        searchSortingOptionsSpinner.setAdapter(searchOptionsAdapter);
+        searchSortingOptionsSpinner.setSelection(currentSearchSortingOption);
+        searchSortingOptionsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String searchSortingOption = searchSortingOptionNameToSendToAsyncTask.get(i);
+                if (currentSearchSortingOption == i) {
+                    return;
+                } else {
+                    startSearchTeacherAsyncTask(query, searchSortingOption);
+                }
+
+                currentSearchSortingOption = i;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+    }
+
+    public void startSearchTeacherAsyncTask(String query, String searchSortingOption) {
+        teacherList.clear();
+        smallAds.clear();
+        searchSortingOptionNameToDisplay.clear();
+        searchSortingOptionNameToSendToAsyncTask.clear();
+
+        SearchTeacherAsyncTask searchTeacherAsyncTask = new SearchTeacherAsyncTask(this);
+        searchTeacherAsyncTask.execute(query, searchSortingOption);
     }
 }

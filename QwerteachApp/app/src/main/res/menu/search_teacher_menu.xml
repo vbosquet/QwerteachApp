@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/teacher_search_filter"
+        app:showAsAction="always"
+        app:actionViewClass="android.widget.Spinner"
+        android:title="@string/drop_down_menu_item_title"/>
 
 </menu>

@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.method.KeyListener;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,8 +21,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosGroupTopicsAsyncTack;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosSmallAdAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllGroupTopicsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosTopicsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplaySmallAdPriceAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.EditSmallAdAsyncTask;
@@ -31,9 +29,7 @@ import com.qwerteach.wivi.qwerteachapp.models.Level;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Topic;
-import com.qwerteach.wivi.qwerteachapp.models.TopicAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.TopicGroup;
-import com.qwerteach.wivi.qwerteachapp.models.TopicGroupAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,7 +37,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class UpdateSmallAdActivity extends AppCompatActivity implements DisplayInfosGroupTopicsAsyncTack.IDisplayInfosGroupTopics,
+public class UpdateSmallAdActivity extends AppCompatActivity implements GetAllGroupTopicsAsyncTask.IDisplayInfosGroupTopics,
         AdapterView.OnItemSelectedListener,
         DisplayInfosTopicsAsyncTask.IDisplayTopicInfos,
         DisplaySmallAdPriceAsyncTask.IDisplaySmallAdPrice,
@@ -86,8 +82,8 @@ public class UpdateSmallAdActivity extends AppCompatActivity implements DisplayI
         prices = new ArrayList<>();
         coursePriceEditTextList = new ArrayList<>();
 
-        DisplayInfosGroupTopicsAsyncTack displayInfosGroupTopicsAsyncTack = new DisplayInfosGroupTopicsAsyncTack(this);
-        displayInfosGroupTopicsAsyncTack.execute();
+        GetAllGroupTopicsAsyncTask getAllGroupTopicsAsyncTask = new GetAllGroupTopicsAsyncTask(this);
+        getAllGroupTopicsAsyncTask.execute();
 
         if (!smallAd.getDescription().equals("")) {
             descriptionEditText.setText(smallAd.getDescription());
@@ -218,7 +214,7 @@ public class UpdateSmallAdActivity extends AppCompatActivity implements DisplayI
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         courseCategoryName = topicGroups.get(i).getTopicGroupTitle();
         DisplayInfosTopicsAsyncTask displayInfosTopicsAsyncTask = new DisplayInfosTopicsAsyncTask(this);
-        displayInfosTopicsAsyncTask.execute(courseCategoryName, null);
+        displayInfosTopicsAsyncTask.execute(courseCategoryName);
 
     }
 

@@ -21,7 +21,6 @@ public class EditProfileActivity extends AppCompatActivity {
 
     static final int NUM_ITEMS = 3;
 
-    Intent intent;
     String[] actionBarTabs = {"Description", "Formation", "Annonce"};
     ViewPager viewPager;
     MyAdapter myAdapter;
@@ -78,8 +77,6 @@ public class EditProfileActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
-                //intent = new Intent(this, ProfileActivity.class);
-                //startActivity(intent);
                 return true;
         }
 

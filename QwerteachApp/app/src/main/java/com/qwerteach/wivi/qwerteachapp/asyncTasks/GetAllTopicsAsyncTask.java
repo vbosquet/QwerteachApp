@@ -11,14 +11,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Created by wivi on 31/10/16.
+ * Created by wivi on 23/11/16.
  */
 
-public class DisplayInfosGroupTopicsAsyncTack extends AsyncTask<String, String, String> {
+public class GetAllTopicsAsyncTask extends AsyncTask<String, String, String> {
 
-    private IDisplayInfosGroupTopics callback;
+    private IGetAllTopics callback;
 
-    public DisplayInfosGroupTopicsAsyncTack(IDisplayInfosGroupTopics callback) {
+    public GetAllTopicsAsyncTask(IGetAllTopics callback) {
         this.callback = callback;
     }
 
@@ -27,7 +27,7 @@ public class DisplayInfosGroupTopicsAsyncTack extends AsyncTask<String, String, 
 
         try {
 
-            URL url = new URL("http://192.168.0.111:3000/api/find_group_topics");
+            URL url = new URL("http://192.168.0.111:3000/api/find_topics");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.connect();
@@ -44,8 +44,6 @@ public class DisplayInfosGroupTopicsAsyncTack extends AsyncTask<String, String, 
             bufferedReader.close();
             inputStream.close();
 
-            Log.i("STRINGBUILDER", stringBuilder.toString());
-
             return stringBuilder.toString();
 
         } catch (IOException e) {
@@ -58,10 +56,10 @@ public class DisplayInfosGroupTopicsAsyncTack extends AsyncTask<String, String, 
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.displayInfosGroupTopics(string);
+        callback.displayTopics(string);
     }
 
-    public interface IDisplayInfosGroupTopics {
-        void displayInfosGroupTopics(String string);
+    public interface IGetAllTopics {
+        void displayTopics(String string);
     }
 }

@@ -1,12 +1,11 @@
 package com.qwerteach.wivi.qwerteachapp;
 
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,31 +14,44 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayTopicLevelsAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.models.Level;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
+import static android.R.attr.focusable;
 import static android.R.attr.format;
+import static android.R.attr.top;
 import static java.util.Calendar.DATE;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
-public class TeacherProfile extends AppCompatActivity {
+public class TeacherProfile extends AppCompatActivity implements DisplayTopicLevelsAsyncTask.IDisplayTopicLevels{
 
     Teacher teacher;
     SmallAd smallAd;
     TextView teacherName, teacherDescription, teacherOccupation, teacherAge, courseMaterialNames, minPrice;
     Button contactTeacherButton;
-    ArrayList<SmallAdPrice> smallAdPrices;
+    ArrayList<SmallAd> smallAds;
+    ArrayList<Level> levels;
+    ArrayList<String> topicGroupTitleList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +60,6 @@ public class TeacherProfile extends AppCompatActivity {
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-
-        smallAdPrices = new ArrayList<>();
 
         teacherName = (TextView) findViewById(R.id.firstname_and_lastanme_text_view);
         teacherDescription = (TextView) findViewById(R.id.description_text_view);
@@ -65,6 +75,21 @@ public class TeacherProfile extends AppCompatActivity {
             smallAd = (SmallAd) getIntent().getSerializableExtra("smallAd");
         }
 
+        smallAds = new ArrayList<>();
+        levels = new ArrayList<>();
+        topicGroupTitleList = new ArrayList<>();
+        smallAds = teacher.getSmallAds();
+
+        for (int i = 0; i < smallAds.size(); i++) {
+            int topicId = smallAds.get(i).getTopicId();
+            DisplayTopicLevelsAsyncTask displayTopicLevelsAsyncTask = new DisplayTopicLevelsAsyncTask(this);
+            displayTopicLevelsAsyncTask.execute(topicId);
+        }
+
+        displayTeacherProfileInfos();
+    }
+
+    public void displayTeacherProfileInfos() {
         teacherName.setText(teacher.getFirstName() + " " + teacher.getLastName());
         teacherOccupation.setText(teacher.getOccupation());
         String text = teacher.getDescription();
@@ -128,6 +153,11 @@ public class TeacherProfile extends AppCompatActivity {
     }
 
     public void didTouchSeeDetailedPrices(View view) {
+        createAlertDialog();
+    }
+
+
+    public void createAlertDialog() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.detailed_prices_alert_dialog, null);
@@ -138,20 +168,94 @@ public class TeacherProfile extends AppCompatActivity {
 
         title.setText("Tarif(s) de " + teacher.getFirstName());
 
-        smallAdPrices = smallAd.getSmallAdPrices();
+        for (int i = 0; i < smallAds.size(); i++) {
+            String topicTitle = smallAds.get(i).getTitle();
+            String topicGroupTitle = topicGroupTitleList.get(i);
+            addSmallAdTitlesToAlertDialog(topicTitle, topicGroupTitle, alertDialog);
 
-        for (int i = 0; i < smallAdPrices.size(); i++) {
-            String priceString = String.valueOf(smallAdPrices.get(i).getPrice());
-            LinearLayout linearLayout = new LinearLayout(this);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            linearLayout.setOrientation(LinearLayout.VERTICAL);
-            TextView price = new TextView(this);
-            price.setText(priceString);
-            linearLayout.addView(price);
-            alertDialog.addView(linearLayout, params);
+            ArrayList<SmallAdPrice> smallAdPrices = smallAds.get(i).getSmallAdPrices();
+
+            for (int j = 0; j < smallAdPrices.size(); j++) {
+                int levelId = smallAdPrices.get(j).getLevelId();
+                String price = String.valueOf(smallAdPrices.get(j).getPrice());
+                String levelName = "";
+
+                for (int k = 0; k < levels.size(); k++) {
+                    if (levels.get(k).getLevelId() == levelId) {
+                        levelName = levels.get(k).getLevelName();
+                    }
+                }
+
+                addSmallAdLevelsAndPricesToAlertDialog(price, levelName, alertDialog);
+            }
         }
 
         AlertDialog dialog = builder.create();
         dialog.show();
+
+    }
+
+    public void addSmallAdTitlesToAlertDialog(String topicTitle, String topicGroupTitle, LinearLayout alertDialog) {
+        LinearLayout titleLinearLayout = new LinearLayout(this);
+        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        titleLinearLayout.setOrientation(LinearLayout.VERTICAL);
+        TextView topic = new TextView(this);
+        topic.setText(topicGroupTitle + " - " + topicTitle);
+        topic.setPadding(0, 20, 0, 20);
+        topic.setTextColor(this.getColor(R.color.colorPrimary));
+        titleLinearLayout.addView(topic);
+        alertDialog.addView(titleLinearLayout, titleParams);
+    }
+
+    public void addSmallAdLevelsAndPricesToAlertDialog(String priceString, String levelName, LinearLayout alertDialog) {
+        LinearLayout linearLayout = new LinearLayout(this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+
+        TextView level = new TextView(this);
+        TextView price = new TextView(this);
+
+        level.setText(levelName);
+        price.setText(priceString + " €/h");
+
+        TableRow.LayoutParams levelParams = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.7f);
+        TableRow.LayoutParams priceParams = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.3f);
+        level.setLayoutParams(levelParams);
+        price.setLayoutParams(priceParams);
+
+        linearLayout.addView(level);
+        linearLayout.addView(price);
+
+        alertDialog.addView(linearLayout, params);
+
+    }
+
+    @Override
+    public void displayTopicLevels(String string) {
+
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            JSONArray jsonArray = jsonObject.getJSONArray("levels");
+            String topicGroupTitle = jsonObject.getString("topic_group_title");
+            topicGroupTitleList.add(topicGroupTitle);
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonData = jsonArray.getJSONObject(i);
+                int levelId = jsonData.getInt("id");
+                String levelName = jsonData.getString("fr");
+                Level level = new Level(levelId, levelName);
+                levels.add(level);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void didTouchLessonReservationButton(View view) {
+        Intent intent = new Intent(this, LessonReservationActivity.class);
+        intent.putStringArrayListExtra("topicGroup", topicGroupTitleList);
+        intent.putExtra("smallAds", smallAds);
+        startActivity(intent);
     }
 }
