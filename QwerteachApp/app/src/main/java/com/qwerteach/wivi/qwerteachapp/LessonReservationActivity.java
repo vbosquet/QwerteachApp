@@ -1,8 +1,11 @@
 package com.qwerteach.wivi.qwerteachapp;
 
 import android.app.DialogFragment;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.icu.text.SimpleDateFormat;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -16,7 +19,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.CreateLessonRequestAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosTopicsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayTopicLevelsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.fragments.DatePickerFragment;
@@ -24,6 +29,7 @@ import com.qwerteach.wivi.qwerteachapp.fragments.TimePickerFragment;
 import com.qwerteach.wivi.qwerteachapp.models.Level;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
+import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.Topic;
 
 import org.json.JSONArray;
@@ -38,7 +44,9 @@ import java.util.Locale;
 import java.util.Map;
 
 public class LessonReservationActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
-        DisplayInfosTopicsAsyncTask.IDisplayTopicInfos, DisplayTopicLevelsAsyncTask.IDisplayTopicLevels {
+        DisplayInfosTopicsAsyncTask.IDisplayTopicInfos,
+        DisplayTopicLevelsAsyncTask.IDisplayTopicLevels,
+        CreateLessonRequestAsyncTask.ICreateLessonRequest {
 
     TextView timeTextView, dateTextView, totalPriceTextView;
     Spinner hourSpinner, minutSpinner, topicGroupSpinner, topicSpinner, levelSpinner;
@@ -47,8 +55,10 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
     ArrayList<Topic> topics;
     ArrayList<Level> levels;
     HashMap<String, Double> prices;
-    String hour = "00", minut = "00";
-    String currentLevelName = "";
+    String hour = "00", minute = "00";
+    String currentLevelName = "", currentTopicTitle = "";
+    Teacher teacher;
+    String studentId, userEmail, userToken;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -63,6 +73,7 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
         if (extras != null) {
             topicGroupTitleList = getIntent().getStringArrayListExtra("topicGroup");
             smallAds = (ArrayList<SmallAd>) getIntent().getSerializableExtra("smallAds");
+            teacher = (Teacher) getIntent().getSerializableExtra("teacher");
         }
 
         for (int j = 0; j < smallAds.size(); j++) {
@@ -70,6 +81,11 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
             DisplayTopicLevelsAsyncTask displayTopicLevelsAsyncTask = new DisplayTopicLevelsAsyncTask(this);
             displayTopicLevelsAsyncTask.execute(topicId);
         }
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        studentId = preferences.getString("userId", "");
+        userEmail = preferences.getString("email", "");
+        userToken = preferences.getString("token", "");
 
         topicGroupTitleList = new ArrayList<>(new LinkedHashSet<>(topicGroupTitleList));
         topicTitleList = new ArrayList<>();
@@ -148,11 +164,11 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
         switch (adapterView.getId()) {
             case R.id.hour_spinner:
                 hour = adapterView.getItemAtPosition(i).toString();
-                setTotalPrice(hour, minut);
+                setTotalPrice(hour, minute);
                 break;
             case R.id.minut_spinner:
-                minut = adapterView.getItemAtPosition(i).toString();
-                setTotalPrice(hour, minut);
+                minute = adapterView.getItemAtPosition(i).toString();
+                setTotalPrice(hour, minute);
                 break;
             case R.id.topic_group_spinner:
                 String topicGroup = adapterView.getItemAtPosition(i).toString();
@@ -160,12 +176,13 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
                 displayInfosTopicsAsyncTask.execute(topicGroup);
                 break;
             case R.id.topic_spinner:
+                currentTopicTitle = adapterView.getItemAtPosition(i).toString();
                 displayLevelSpinnerItems(i);
 
                 break;
             case R.id.level_spinner:
                 currentLevelName = adapterView.getItemAtPosition(i).toString();
-                setTotalPrice(hour, minut);
+                setTotalPrice(hour, minute);
                 break;
         }
     }
@@ -218,15 +235,15 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
         topicTitleList = new ArrayList<>(new LinkedHashSet<>(topicTitleList));
     }
 
-    public void setTotalPrice(String hourString, String minutString) {
-        Integer newMinutInt = 0;
-        if (!minut.equals("00")) {
-            Double minutDouble = Double.parseDouble(minutString);
-            Double newMinutDouble = 100 / (60 / minutDouble);
-            newMinutInt = newMinutDouble.intValue();
+    public void setTotalPrice(String hourString, String minuteString) {
+        Integer newMinuteInt = 0;
+        if (!minute.equals("00")) {
+            Double minuteDouble = Double.parseDouble(minuteString);
+            Double newMinuteDouble = 100 / (60 / minuteDouble);
+            newMinuteInt = newMinuteDouble.intValue();
         }
 
-        String totalDurationString = hourString + "." + newMinutInt;
+        String totalDurationString = hourString + "." + newMinuteInt;
         Double totalDurationDouble = Double.parseDouble(totalDurationString.toString());
         Double totalPrice = 0.0;
         for (Map.Entry<String, Double> entry : prices.entrySet()) {
@@ -240,6 +257,30 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
     }
 
     public void didTouchBookingLessonButton(View view) {
+        int teacherId = teacher.getTeacherId();
+        int levelId = 0;
+        int topicId = 0;
+        String date = dateTextView.getText().toString();
+        String time = timeTextView.getText().toString();
+        String timeStart = date + " " + time;
+        String hours = hour;
+        String minutes = minute;
+
+        for (int i = 0; i < levels.size(); i++) {
+            if (currentLevelName.equals(levels.get(i).getLevelName())) {
+                levelId = levels.get(i).getLevelId();
+            }
+        }
+
+        for (int i = 0; i < topics.size(); i++) {
+            if (currentTopicTitle.equals(topics.get(i).getTopicTitle())) {
+                topicId = topics.get(i).getTopicId();
+            }
+        }
+
+        CreateLessonRequestAsyncTask createLessonRequestAsyncTask = new CreateLessonRequestAsyncTask(this);
+        createLessonRequestAsyncTask.execute(teacherId, studentId, levelId, topicId, timeStart, hours, minutes, false, userEmail, userToken);
+
     }
 
     @Override
@@ -298,6 +339,24 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
                 }
             }
         }
+    }
+
+    @Override
+    public void createLessonRequest(String string) {
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            String message = jsonObject.getString("message");
+
+            if (message.equals("no account")) {
+                Intent intent = new Intent(this, VirtualWalletActivity.class);
+                startActivity(intent);
+
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 }
 

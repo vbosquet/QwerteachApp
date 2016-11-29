@@ -69,7 +69,6 @@ public class AdTabFragment extends Fragment implements DisplayInfosSmallAdAsyncT
         floatingActionButton = (FloatingActionButton) view.findViewById(R.id.floating_action_button);
         floatingActionButton.setOnClickListener(this);
         startDisplayInfosSmallAdAsyncTask();
-
         return  view;
     }
 

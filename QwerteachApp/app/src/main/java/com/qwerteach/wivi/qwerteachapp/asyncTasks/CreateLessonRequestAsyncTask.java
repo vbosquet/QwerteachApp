@@ -15,32 +15,44 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Created by wivi on 27/10/16.
+ * Created by wivi on 29/11/16.
  */
 
-public class DisplayInfosProfileAsyncTask extends AsyncTask<String, String, String> {
+public class CreateLessonRequestAsyncTask extends AsyncTask<Object, String, String> {
 
-    private IDisplayInfosProfile callback;
+    private ICreateLessonRequest callback;
 
-    public DisplayInfosProfileAsyncTask(IDisplayInfosProfile callback) {
+    public CreateLessonRequestAsyncTask(ICreateLessonRequest callback) {
         this.callback = callback;
     }
 
     @Override
-    protected String doInBackground(String... strings) {
-        String userId = strings[0];
-        String email = strings[1];
-        String token = strings[2];
+    protected String doInBackground(Object... objects) {
+        int teacherId = (int) objects[0];
+        String studentId = (String) objects[1];
+        int levelId = (int) objects[2];
+        int topicId = (int) objects[3];
+        String timeStart = (String) objects[4];
+        String hours = (String) objects[5];
+        String minutes = (String) objects[6];
+        Boolean freeLesson = (Boolean) objects[7];
+        String email = (String) objects[8];
+        String token = (String) objects[9];
 
         try {
 
-            JSONObject json = new JSONObject();
-            JSONObject userJson = new JSONObject();
+            JSONObject jsonObject = new JSONObject();
+            JSONObject requestJson = new JSONObject();
+            jsonObject.put("student_id", studentId);
+            jsonObject.put("level_id", levelId);
+            jsonObject.put("topic_id", topicId);
+            jsonObject.put("time_start", timeStart);
+            jsonObject.put("hours", hours);
+            jsonObject.put("minutes", minutes);
+            jsonObject.put("free_lesson", freeLesson);
+            requestJson.put("request", jsonObject);
 
-            json.put("id", userId);
-            userJson.put("user", json);
-
-            URL url = new URL("http://192.168.0.111:3000/api/profiles/display");
+            URL url = new URL("http://192.168.0.111:3000/api/users/" + teacherId + "/lesson_requests");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);
@@ -50,7 +62,7 @@ public class DisplayInfosProfileAsyncTask extends AsyncTask<String, String, Stri
             httpURLConnection.setRequestMethod("POST");
 
             OutputStream os = httpURLConnection.getOutputStream();
-            os.write(userJson.toString().getBytes("UTF-8"));
+            os.write(requestJson.toString().getBytes("UTF-8"));
             os.flush();
             os.close();
 
@@ -66,9 +78,11 @@ public class DisplayInfosProfileAsyncTask extends AsyncTask<String, String, Stri
             bufferedReader.close();
             inputStream.close();
 
+            Log.i("STRINGBUILDER", stringBuilder.toString());
+
             return stringBuilder.toString();
 
-        } catch (JSONException | IOException e) {
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
 
@@ -78,10 +92,10 @@ public class DisplayInfosProfileAsyncTask extends AsyncTask<String, String, Stri
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.displayUserInfosProfile(string);
+        callback.createLessonRequest(string);
     }
 
-    public interface IDisplayInfosProfile {
-        void displayUserInfosProfile(String string);
+    public interface ICreateLessonRequest {
+        void createLessonRequest(String string);
     }
 }

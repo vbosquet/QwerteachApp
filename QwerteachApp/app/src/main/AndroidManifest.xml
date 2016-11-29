@@ -66,8 +66,11 @@
                 android:resource="@xml/searchable" />
         </activity>
         <activity android:name=".TeacherProfile" />
-        <activity android:name=".LessonReservationActivity"
-            android:label="@string/lesson_reservation_activity_title"/>
+        <activity
+            android:name=".LessonReservationActivity"
+            android:label="@string/lesson_reservation_activity_title" />
+        <activity android:name=".VirtualWalletActivity"
+            android:label="@string/virtual_wallet_activity_title"/>
     </application>
 
 </manifest>

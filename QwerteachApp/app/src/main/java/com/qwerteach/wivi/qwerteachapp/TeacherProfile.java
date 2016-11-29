@@ -1,6 +1,8 @@
 package com.qwerteach.wivi.qwerteachapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +20,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayTopicLevelsAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.NewLessonRequestAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Level;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
@@ -43,7 +46,8 @@ import static java.util.Calendar.DATE;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
-public class TeacherProfile extends AppCompatActivity implements DisplayTopicLevelsAsyncTask.IDisplayTopicLevels{
+public class TeacherProfile extends AppCompatActivity implements DisplayTopicLevelsAsyncTask.IDisplayTopicLevels,
+        NewLessonRequestAsyncTask.INewLessonRequest {
 
     Teacher teacher;
     SmallAd smallAd;
@@ -52,6 +56,7 @@ public class TeacherProfile extends AppCompatActivity implements DisplayTopicLev
     ArrayList<SmallAd> smallAds;
     ArrayList<Level> levels;
     ArrayList<String> topicGroupTitleList;
+    String email, token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +84,10 @@ public class TeacherProfile extends AppCompatActivity implements DisplayTopicLev
         levels = new ArrayList<>();
         topicGroupTitleList = new ArrayList<>();
         smallAds = teacher.getSmallAds();
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        email = preferences.getString("email", "");
+        token = preferences.getString("token", "");
 
         for (int i = 0; i < smallAds.size(); i++) {
             int topicId = smallAds.get(i).getTopicId();
@@ -253,9 +262,28 @@ public class TeacherProfile extends AppCompatActivity implements DisplayTopicLev
     }
 
     public void didTouchLessonReservationButton(View view) {
-        Intent intent = new Intent(this, LessonReservationActivity.class);
-        intent.putStringArrayListExtra("topicGroup", topicGroupTitleList);
-        intent.putExtra("smallAds", smallAds);
-        startActivity(intent);
+        String teacherId = String.valueOf(teacher.getTeacherId());
+        NewLessonRequestAsyncTask newLessonRequestAsyncTask = new NewLessonRequestAsyncTask(this);
+        newLessonRequestAsyncTask.execute(teacherId, email, token);
+    }
+
+    @Override
+    public void lessonRequest(String string) {
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            String success = jsonObject.getString("success");
+
+            if (success.equals("true")) {
+                Intent intent = new Intent(this, LessonReservationActivity.class);
+                intent.putStringArrayListExtra("topicGroup", topicGroupTitleList);
+                intent.putExtra("smallAds", smallAds);
+                intent.putExtra("teacher", teacher);
+                startActivity(intent);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 }

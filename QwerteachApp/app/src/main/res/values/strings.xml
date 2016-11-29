@@ -131,4 +131,13 @@
         <item>45</item>
     </string-array>
     <string name="booking_lesson_button">RESERVER</string>
+    <string name="virtual_wallet_activity_title">Portefeuille virtuel</string>
+    <string name="address_text_view">Adresse</string>
+    <string name="street_number_text_view">N°</string>
+    <string name="postal_code_text_view">Code postal</string>
+    <string name="city_name_text_view">Ville</string>
+    <string name="region_name_text_view">Région</string>
+    <string name="country_name_text_view">Pays</string>
+    <string name="nationality_text_view">Nationalité</string>
+    <string name="residence_place_text_view">Lieu de résidence</string>
 </resources>

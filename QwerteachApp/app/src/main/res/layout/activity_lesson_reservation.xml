@@ -112,7 +112,8 @@
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
                     android:layout_marginBottom="@dimen/activity_vertical_margin"
-                    android:layout_weight="0.5">
+                    android:layout_weight="0.5"
+                    android:layout_marginRight="10dp">
 
                     <Spinner
                         android:id="@+id/hour_spinner"
@@ -131,7 +132,8 @@
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
                     android:layout_marginBottom="@dimen/activity_vertical_margin"
-                    android:layout_weight="0.5">
+                    android:layout_weight="0.5"
+                    android:layout_marginLeft="10dp">
 
                     <Spinner
                         android:id="@+id/minut_spinner"

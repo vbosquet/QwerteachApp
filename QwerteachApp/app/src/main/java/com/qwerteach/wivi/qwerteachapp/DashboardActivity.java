@@ -53,6 +53,11 @@ public class DashboardActivity extends AppCompatActivity {
                 Object o = mDrawerList.getItemAtPosition(position);
                 String action = o.toString();
 
+                if (action.equals(menuDrawerItems[3])) {
+                    Intent intent = new Intent(getApplicationContext(), VirtualWalletActivity.class);
+                    startActivity(intent);
+                }
+
                 if(action.equals(menuDrawerItems[4])) {
                     Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
                     startActivity(intent);
