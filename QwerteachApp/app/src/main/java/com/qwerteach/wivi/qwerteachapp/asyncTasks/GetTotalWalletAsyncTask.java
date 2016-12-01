@@ -15,61 +15,42 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Created by wivi on 29/11/16.
+ * Created by wivi on 30/11/16.
  */
 
-public class CreateNewWalletAsyncTask extends AsyncTask<String, String, String> {
+public class GetTotalWalletAsyncTask extends AsyncTask<String, String, String> {
 
-    private ICreateNewWallet callback;
+    private IGetTotalWallet callback;
 
-    public CreateNewWalletAsyncTask(ICreateNewWallet callback) {
+    public GetTotalWalletAsyncTask(IGetTotalWallet callback) {
         this.callback = callback;
     }
 
     @Override
     protected String doInBackground(String... strings) {
-        String userId = strings[0];
-        String email = strings[1];
-        String token = strings[2];
-        String firstName = strings[3];
-        String lastName = strings[4];
-        String address = strings[5];
-        String streetNumber = strings[6];
-        String postalCode = strings[7];
-        String city = strings[8];
-        String region = strings[9];
-        String country = strings[10];
-        String residencePlace = strings[11];
-        String nationality = strings[12];
+        String email = strings[0];
+        String token = strings[1];
+        String userId = strings[2];
 
         try {
-            JSONObject jsonObject = new JSONObject();
-            JSONObject accountJson = new JSONObject();
 
-            jsonObject.put("first_name", firstName);
-            jsonObject.put("last_name", lastName);
-            jsonObject.put("address_line1", address);
-            jsonObject.put("address_line2", streetNumber);
-            jsonObject.put("postal_code", postalCode);
-            jsonObject.put("city", city);
-            jsonObject.put("country", country);
-            jsonObject.put("region", region);
-            jsonObject.put("country_of_residence", residencePlace);
-            jsonObject.put("nationality", nationality);
+            JSONObject json = new JSONObject();
+            JSONObject userJson = new JSONObject();
 
-            accountJson.put("account", jsonObject);
+            json.put("id", userId);
+            userJson.put("user", json);
 
-            URL url = new URL("http://192.168.0.111:3000/api/user/mangopay/edit_wallet");
+            URL url = new URL("http://192.168.0.111:3000/api/wallets/get_total_wallet");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);
             httpURLConnection.addRequestProperty("X-User-Token", token);
             httpURLConnection.setDoOutput(true);
             httpURLConnection.setDoInput(true);
-            httpURLConnection.setRequestMethod("PUT");
+            httpURLConnection.setRequestMethod("POST");
 
             OutputStream os = httpURLConnection.getOutputStream();
-            os.write(accountJson.toString().getBytes("UTF-8"));
+            os.write(userJson.toString().getBytes("UTF-8"));
             os.flush();
             os.close();
 
@@ -91,17 +72,16 @@ public class CreateNewWalletAsyncTask extends AsyncTask<String, String, String> 
             e.printStackTrace();
         }
 
-
         return null;
     }
 
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.confirmationCreationNewWallet(string);
+        callback.displayTotalWallet(string);
     }
 
-    public interface ICreateNewWallet {
-        void confirmationCreationNewWallet(String string);
+    public interface IGetTotalWallet {
+        void displayTotalWallet(String string);
     }
 }

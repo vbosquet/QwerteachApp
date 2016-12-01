@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.CreateNewWalletAsyncTask;
@@ -171,6 +172,22 @@ public class CreateVirtualWalletFragment extends Fragment implements DisplayInfo
 
     @Override
     public void confirmationCreationNewWallet(String string) {
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            String message = jsonObject.getString("message");
+
+            if (message.equals("true")) {
+                Toast.makeText(getContext(), R.string.registration_new_wallet_success_toast_message, Toast.LENGTH_SHORT).show();
+                getActivity().finish();
+
+            } else if (message.equals("errors")) {
+                Toast.makeText(getContext(), R.string.registration_new_wallet_erros_toast_messsage, Toast.LENGTH_SHORT).show();
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
     }
 

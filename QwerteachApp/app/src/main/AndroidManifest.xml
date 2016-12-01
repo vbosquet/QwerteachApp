@@ -69,8 +69,11 @@
         <activity
             android:name=".LessonReservationActivity"
             android:label="@string/lesson_reservation_activity_title" />
-        <activity android:name=".VirtualWalletActivity"
-            android:label="@string/virtual_wallet_activity_title"/>
+        <activity
+            android:name=".VirtualWalletActivity"
+            android:label="@string/virtual_wallet_activity_title" />
+        <activity android:name=".PaymentMethod"
+            android:label="@string/payment_method_activity_title"/>
     </application>
 
 </manifest>

@@ -55,6 +55,9 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_teacher);
 
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
         query = getIntent().getStringExtra("query");
 
         listView = (ListView) findViewById(R.id.teacher_list_view);
@@ -113,6 +116,12 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -229,6 +238,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
         Intent intent = new Intent(this, TeacherProfile.class);
         intent.putExtra("teacher", teacherList.get(position));
         intent.putExtra("smallAd", smallAd);
+        intent.putExtra("query", query);
         startActivity(intent);
     }
 

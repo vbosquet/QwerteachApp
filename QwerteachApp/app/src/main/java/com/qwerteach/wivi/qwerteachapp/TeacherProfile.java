@@ -56,7 +56,7 @@ public class TeacherProfile extends AppCompatActivity implements DisplayTopicLev
     ArrayList<SmallAd> smallAds;
     ArrayList<Level> levels;
     ArrayList<String> topicGroupTitleList;
-    String email, token;
+    String email, token, query;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +78,10 @@ public class TeacherProfile extends AppCompatActivity implements DisplayTopicLev
         if (extras != null) {
             teacher = (Teacher) getIntent().getSerializableExtra("teacher");
             smallAd = (SmallAd) getIntent().getSerializableExtra("smallAd");
+            query = getIntent().getStringExtra("query");
         }
+
+        actionBar.setTitle(query);
 
         smallAds = new ArrayList<>();
         levels = new ArrayList<>();

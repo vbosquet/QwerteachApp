@@ -346,11 +346,24 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
         try {
             JSONObject jsonObject = new JSONObject(string);
             String message = jsonObject.getString("message");
+            JSONObject cardRegistrationJson = jsonObject.getJSONObject("card_registration");
+            int cardId;
+
+            if (cardRegistrationJson.isNull("card_id")) {
+                cardId = 0;
+            } else {
+                cardId = cardRegistrationJson.getInt("card_id");
+            }
 
             if (message.equals("no account")) {
                 Intent intent = new Intent(this, VirtualWalletActivity.class);
                 startActivity(intent);
 
+            } else if (message.equals("true")) {
+                Intent intent = new Intent(this, PaymentMethod.class);
+                intent.putExtra("totalPrice", totalPriceTextView.getText().toString());
+                intent.putExtra("teacher", teacher);
+                startActivity(intent);
             }
 
         } catch (JSONException e) {

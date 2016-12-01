@@ -140,4 +140,12 @@
     <string name="country_name_text_view">Pays</string>
     <string name="nationality_text_view">Nationalité</string>
     <string name="residence_place_text_view">Lieu de résidence</string>
+    <string name="registration_new_wallet_success_toast_message">Votre Portefeuille virtuel a été créé avec succes.</string>
+    <string name="registration_new_wallet_erros_toast_messsage">Impossible de créer votre Portefeuille virtuel. Veuillez remplir tous les champs.</string>
+    <string name="payment_method_activity_title">Paiement</string>
+    <string name="payment_with_virtual_wallet">Payer avec mon Portefeuille virtuel</string>
+    <string name="payment_with_bancontact">Payer par Bancontact</string>
+    <string name="payment_with_credit_card">Payer par carte de crédit</string>
+    <string name="choosing_other_payment_method_text_view">Choisir un autre type de paiement</string>
+    <string name="lesson_reservation_finish_button">Finaliser la demande de cours</string>
 </resources>
