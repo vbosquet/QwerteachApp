@@ -19,7 +19,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.CreateLessonRequestAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosTopicsAsyncTask;
@@ -31,6 +30,7 @@ import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.Topic;
+import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,6 +54,7 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
     ArrayList<SmallAd> smallAds;
     ArrayList<Topic> topics;
     ArrayList<Level> levels;
+    ArrayList<UserCreditCard> userCreditCards;
     HashMap<String, Double> prices;
     String hour = "00", minute = "00";
     String currentLevelName = "", currentTopicTitle = "";
@@ -93,6 +94,7 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
         topics = new ArrayList<>();
         levels = new ArrayList<>();
         prices = new HashMap<>();
+        userCreditCards = new ArrayList<>();
 
         timeTextView = (TextView) findViewById(R.id.time_picker_text_view);
         dateTextView = (TextView) findViewById(R.id.date_picker_text_view);
@@ -343,26 +345,31 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
 
     @Override
     public void createLessonRequest(String string) {
+
+        Log.i("LESSON_REQUEST", string);
         try {
             JSONObject jsonObject = new JSONObject(string);
             String message = jsonObject.getString("message");
-            JSONObject cardRegistrationJson = jsonObject.getJSONObject("card_registration");
-            int cardId;
-
-            if (cardRegistrationJson.isNull("card_id")) {
-                cardId = 0;
-            } else {
-                cardId = cardRegistrationJson.getInt("card_id");
-            }
 
             if (message.equals("no account")) {
                 Intent intent = new Intent(this, VirtualWalletActivity.class);
                 startActivity(intent);
 
             } else if (message.equals("true")) {
+                JSONArray jsonArray = jsonObject.getJSONArray("user_cards");
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonData = jsonArray.getJSONObject(i);
+                    String alias = jsonData.getString("alias");
+                    String cardId = jsonData.getString("id");
+                    UserCreditCard userCreditCard = new UserCreditCard(alias, cardId);
+                    userCreditCards.add(userCreditCard);
+                }
+
                 Intent intent = new Intent(this, PaymentMethod.class);
                 intent.putExtra("totalPrice", totalPriceTextView.getText().toString());
                 intent.putExtra("teacher", teacher);
+                intent.putExtra("userCreditCardList", userCreditCards);
                 startActivity(intent);
             }
 

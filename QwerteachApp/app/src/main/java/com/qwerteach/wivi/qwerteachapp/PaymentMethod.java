@@ -25,8 +25,11 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.RedirectURLAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetTotalWalletAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.PayLessonAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.PayLessonWithCreditCardAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.PayLessonWithTransfertOrBancontactAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 
 import org.json.JSONException;
@@ -38,9 +41,10 @@ import java.util.Collections;
 
 public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAsyncTask.IGetTotalWallet,
         AdapterView.OnItemSelectedListener,
-        PayLessonAsyncTask.IPayWithTransfert,
-        CompoundButton.OnCheckedChangeListener {
-
+        PayLessonWithTransfertOrBancontactAsyncTask.IPayWithTransfertOrBancontact,
+        CompoundButton.OnCheckedChangeListener,
+        PayLessonWithCreditCardAsyncTask.IPayWithCreditCard,
+        RedirectURLAsyncTask.IRedirectURL {
     String totalPrice;
     String userId, email, token;
     TextView totalWalletTextView, confirmationPaymentMessage;
@@ -51,6 +55,8 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
     String paymentMode = "";
     Teacher teacher;
     int teacherId;
+    String cardId, currentAlias;
+    ArrayList<UserCreditCard> userCreditCards;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,12 +66,15 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        userCreditCards = new ArrayList<>();
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             totalPrice = getIntent().getStringExtra("totalPrice");
             teacher = (Teacher) getIntent().getSerializableExtra("teacher");
-
+            userCreditCards = (ArrayList<UserCreditCard>) getIntent().getSerializableExtra("userCreditCardList");
         }
+
 
         teacherId = teacher.getTeacherId();
 
@@ -142,9 +151,12 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
         String otherPaymentMethodName = adapterView.getItemAtPosition(i).toString();
 
         if (otherPaymentMethodName.equals(otherPaymentMethods.get(1))) {
-            setCreditCardForm();
+            paymentMode = "cd";
+            //addNewCreditCard();
+            setCreditCardChoice();
 
         } else if (otherPaymentMethodName.equals(otherPaymentMethods.get(2))) {
+            paymentMode = "bancontact";
             setBancontactForm();
         }
     }
@@ -154,7 +166,7 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
 
     }
 
-    public void setCreditCardForm() {
+    public void addNewCreditCard() {
 
         float scale = this.getResources().getDisplayMetrics().density;
         int dpAsPixels = (int) (10 * scale + 0.5f);
@@ -380,20 +392,81 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
                 "banque pour finaliser le paiement.");
         messageTextView.setGravity(Gravity.CENTER);
         otherPaymentMethodDetailsLayout.addView(messageTextView);
-        paymentMode = "bancontact";
     }
 
     public void setCreditCardChoice() {
-        //TODO
+        float scale = this.getResources().getDisplayMetrics().density;
+        int dpAsPixels = (int) (10 * scale + 0.5f);
+
+        ArrayList<String> creditCardAlias = new ArrayList<>();
+        for (int i = 0; i < userCreditCards.size(); i++) {
+            String alias = userCreditCards.get(i).getAlias();
+            creditCardAlias.add(alias);
+        }
+
+
+        TextView titleTextView = new TextView(this);
+        Spinner creditCarsAliasSpinner = new Spinner(this);
+        LinearLayout creditCardAliasLinearLayout = new LinearLayout(this);
+
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams layoutParamsForLinearLayout = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+
+        layoutParams.setMargins(0, 0, 0, dpAsPixels);
+        layoutParamsForLinearLayout.setMargins(0, 0, 0, dpAsPixels);
+
+        titleTextView.setLayoutParams(layoutParams);
+        titleTextView.setText("Sélectionnez une de vos cartes de crédit");
+
+        ArrayAdapter creditCardAliasAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, creditCardAlias);
+        creditCardAliasAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        creditCarsAliasSpinner.setAdapter(creditCardAliasAdapter);
+        creditCarsAliasSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                currentAlias = adapterView.getItemAtPosition(i).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        creditCardAliasLinearLayout.setLayoutParams(layoutParamsForLinearLayout);
+        creditCardAliasLinearLayout.setOrientation(LinearLayout.VERTICAL);
+        creditCardAliasLinearLayout.setBackgroundResource(R.drawable.edit_text_border);
+        creditCardAliasLinearLayout.setPadding(dpAsPixels, dpAsPixels, dpAsPixels, dpAsPixels);
+        creditCardAliasLinearLayout.addView(creditCarsAliasSpinner);
+
+        otherPaymentMethodDetailsLayout.addView(titleTextView);
+        otherPaymentMethodDetailsLayout.addView(creditCardAliasLinearLayout);
+
     }
 
     public void didTouchPaymentButton(View view) {
-        PayLessonAsyncTask payLessonAsyncTask = new PayLessonAsyncTask(this);
-        payLessonAsyncTask.execute(email, token, teacherId, paymentMode);
+        if (paymentMode.equals("transfert")) {
+            PayLessonWithTransfertOrBancontactAsyncTask payLessonWithTransfertOrBancontactAsyncTask =
+                    new PayLessonWithTransfertOrBancontactAsyncTask(this);
+            payLessonWithTransfertOrBancontactAsyncTask.execute(email, token, teacherId, paymentMode);
+        } else if (paymentMode.equals("cd")) {
+            for (int i = 0; i < userCreditCards.size(); i++) {
+                if (userCreditCards.get(i).getAlias().equals(currentAlias)) {
+                    cardId = userCreditCards.get(i).getCardId();
+                }
+            }
+
+            startPayLessonWithCreditCardAsyncTask();
+
+        } else if (paymentMode.equals("bancontact")) {
+            PayLessonWithTransfertOrBancontactAsyncTask payLessonWithTransfertOrBancontactAsyncTask = new
+                    PayLessonWithTransfertOrBancontactAsyncTask(this);
+            payLessonWithTransfertOrBancontactAsyncTask.execute(email, token, teacherId, paymentMode);
+        }
     }
 
     @Override
-    public void confirmationMessageFromPayment(String string) {
+    public void confirmationMessageFromPaymentWithTransfertOrBancontact(String string) {
         try {
             JSONObject jsonObject = new JSONObject(string);
             String message = jsonObject.getString("message");
@@ -403,6 +476,10 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
                 getTotalWalletAsyncTask.execute(email, token, userId);
                 payementWithVirtualWallet.setChecked(false);
                 confirmationPaymentMessage.setText("Merci ! Votre demande a bien été envoyée au professeur.");
+
+            } else if (message.equals("result")) {
+                String returURL = jsonObject.getString("url");
+                Log.i("URL", returURL);
             }
 
         } catch (JSONException e) {
@@ -419,6 +496,45 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
         } else {
             paymentMode = "";
         }
+
+    }
+
+    @Override
+    public void confirmationMessagePaymentWithCreditCard(String string) {
+
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+
+            String message = jsonObject.getString("message");
+
+            if (message.equals("result")) {
+                String secureModeReturnUrl = jsonObject.getString("url");
+
+                //RedirectURLAsyncTask redirectURLAsyncTask = new RedirectURLAsyncTask(this);
+                //redirectURLAsyncTask.execute(email, token, secureModeReturnUrl);
+
+            } else if (message.equals("finish")) {
+                GetTotalWalletAsyncTask getTotalWalletAsyncTask = new GetTotalWalletAsyncTask(this);
+                getTotalWalletAsyncTask.execute(email, token, userId);
+                payementWithVirtualWallet.setChecked(false);
+                confirmationPaymentMessage.setText("Merci ! Votre demande a bien été envoyée au professeur.");
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void startPayLessonWithCreditCardAsyncTask() {
+
+        PayLessonWithCreditCardAsyncTask payLessonWithCreditCardAsyncTask = new PayLessonWithCreditCardAsyncTask(this);
+        payLessonWithCreditCardAsyncTask.execute(email, token, teacherId, paymentMode, cardId);
+    }
+
+    @Override
+    public void redirectURL(String string) {
+        //Log.i("CREDIT_CARD_PROCESS", string);
 
     }
 }

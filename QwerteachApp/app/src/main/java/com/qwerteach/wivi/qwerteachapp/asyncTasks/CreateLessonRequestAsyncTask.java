@@ -78,8 +78,6 @@ public class CreateLessonRequestAsyncTask extends AsyncTask<Object, String, Stri
             bufferedReader.close();
             inputStream.close();
 
-            Log.i("STRINGBUILDER", stringBuilder.toString());
-
             return stringBuilder.toString();
 
         } catch (IOException | JSONException e) {

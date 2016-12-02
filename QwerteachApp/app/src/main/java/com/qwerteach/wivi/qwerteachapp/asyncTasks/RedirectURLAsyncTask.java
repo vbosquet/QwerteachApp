@@ -11,34 +11,31 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Created by wivi on 1/12/16.
+ * Created by wivi on 2/12/16.
  */
 
-public class PayLessonAsyncTask extends AsyncTask<Object, String, String> {
+public class RedirectURLAsyncTask extends AsyncTask<Object, String, String> {
 
-    private IPayWithTransfert callback;
+    private IRedirectURL callback;
 
-    public PayLessonAsyncTask(IPayWithTransfert callback) {
+    public RedirectURLAsyncTask(IRedirectURL callback) {
         this.callback = callback;
     }
 
     @Override
     protected String doInBackground(Object... objects) {
+
         String email = (String) objects[0];
         String token = (String) objects[1];
-        int teacherId = (int) objects[2];
-        String paymentMode = (String) objects[3];
+        String newURL = (String) objects[2];
 
         try {
 
-            URL url = new URL("http://192.168.0.111:3000/api/users/" + teacherId + "/lesson_requests/payment?mode=" + paymentMode);
+            URL url = new URL(newURL);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-            httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);
             httpURLConnection.addRequestProperty("X-User-Token", token);
-            httpURLConnection.setDoOutput(true);
-            httpURLConnection.setDoInput(true);
-            httpURLConnection.setRequestMethod("PUT");
+            httpURLConnection.setRequestMethod("GET");
 
             InputStream inputStream = httpURLConnection.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
@@ -52,26 +49,24 @@ public class PayLessonAsyncTask extends AsyncTask<Object, String, String> {
             bufferedReader.close();
             inputStream.close();
 
+            Log.i("STRINGBUILDER", stringBuilder.toString());
+
             return stringBuilder.toString();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-
-
-
         return null;
     }
 
     @Override
-
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.confirmationMessageFromPayment(string);
+        callback.redirectURL(string);
     }
 
-    public interface IPayWithTransfert {
-        void confirmationMessageFromPayment(String string);
+    public interface IRedirectURL {
+        void redirectURL(String string);
     }
 }
