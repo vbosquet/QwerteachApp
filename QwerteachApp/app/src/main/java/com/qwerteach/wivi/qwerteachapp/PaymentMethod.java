@@ -1,6 +1,8 @@
 package com.qwerteach.wivi.qwerteachapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.LayoutParams;
@@ -24,8 +26,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.RedirectURLAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetTotalWalletAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.PayLessonWithCreditCardAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.PayLessonWithTransfertOrBancontactAsyncTask;
@@ -43,11 +45,11 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
         AdapterView.OnItemSelectedListener,
         PayLessonWithTransfertOrBancontactAsyncTask.IPayWithTransfertOrBancontact,
         CompoundButton.OnCheckedChangeListener,
-        PayLessonWithCreditCardAsyncTask.IPayWithCreditCard,
-        RedirectURLAsyncTask.IRedirectURL {
+        PayLessonWithCreditCardAsyncTask.IPayWithCreditCard {
+
     String totalPrice;
     String userId, email, token;
-    TextView totalWalletTextView, confirmationPaymentMessage;
+    TextView totalWalletTextView;
     Spinner otherPaymentMethodSpinner;
     CheckBox payementWithVirtualWallet;
     LinearLayout otherPaymentMethodDetailsLayout;
@@ -96,7 +98,6 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
         otherPaymentMethods.add("Bancontact");
 
         totalWalletTextView = (TextView) findViewById(R.id.total_wallet_text_view);
-        confirmationPaymentMessage = (TextView) findViewById(R.id.confirmation_payment_message);
         otherPaymentMethodSpinner = (Spinner) findViewById(R.id.other_paiment_method_spinner);
         payementWithVirtualWallet = (CheckBox) findViewById(R.id.payment_with_virtual_wallet);
         otherPaymentMethodDetailsLayout = (LinearLayout) findViewById(R.id.other_payment_method_details_layout);
@@ -475,11 +476,15 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
                 GetTotalWalletAsyncTask getTotalWalletAsyncTask = new GetTotalWalletAsyncTask(this);
                 getTotalWalletAsyncTask.execute(email, token, userId);
                 payementWithVirtualWallet.setChecked(false);
-                confirmationPaymentMessage.setText("Merci ! Votre demande a bien été envoyée au professeur.");
+                Toast.makeText(this, "Merci ! Votre demande a bien été envoyée au professeur.", Toast.LENGTH_LONG).show();
 
             } else if (message.equals("result")) {
-                String returURL = jsonObject.getString("url");
-                Log.i("URL", returURL);
+                String returnURL = jsonObject.getString("url");
+
+                Intent intent = new Intent(this, MangoPayWebViewActivity.class);
+                intent.putExtra("url", returnURL);
+                startActivity(intent);
+
             }
 
         } catch (JSONException e) {
@@ -510,14 +515,12 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
             if (message.equals("result")) {
                 String secureModeReturnUrl = jsonObject.getString("url");
 
-                //RedirectURLAsyncTask redirectURLAsyncTask = new RedirectURLAsyncTask(this);
-                //redirectURLAsyncTask.execute(email, token, secureModeReturnUrl);
 
             } else if (message.equals("finish")) {
                 GetTotalWalletAsyncTask getTotalWalletAsyncTask = new GetTotalWalletAsyncTask(this);
                 getTotalWalletAsyncTask.execute(email, token, userId);
                 payementWithVirtualWallet.setChecked(false);
-                confirmationPaymentMessage.setText("Merci ! Votre demande a bien été envoyée au professeur.");
+                Toast.makeText(this, "Merci ! Votre demande a bien été envoyée au professeur.", Toast.LENGTH_LONG).show();
             }
 
         } catch (JSONException e) {
@@ -530,11 +533,5 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
 
         PayLessonWithCreditCardAsyncTask payLessonWithCreditCardAsyncTask = new PayLessonWithCreditCardAsyncTask(this);
         payLessonWithCreditCardAsyncTask.execute(email, token, teacherId, paymentMode, cardId);
-    }
-
-    @Override
-    public void redirectURL(String string) {
-        //Log.i("CREDIT_CARD_PROCESS", string);
-
     }
 }

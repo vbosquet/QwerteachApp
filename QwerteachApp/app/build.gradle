@@ -32,4 +32,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.github.arimorty:floatingsearchview:2.0.3'
     compile 'com.mangopay.android.sdk:card-registration-library:1.0.1'
+    compile 'org.jsoup:jsoup:1.10.1'
 }

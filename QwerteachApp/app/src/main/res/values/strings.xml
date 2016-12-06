@@ -148,4 +148,5 @@
     <string name="payment_with_credit_card">Payer par carte de crédit</string>
     <string name="choosing_other_payment_method_text_view">Choisir un autre type de paiement</string>
     <string name="lesson_reservation_finish_button">Finaliser la demande de cours</string>
+    <string name="mango_pay_web_view_activity_title">Finaliser le paiement</string>
 </resources>

@@ -72,8 +72,12 @@
         <activity
             android:name=".VirtualWalletActivity"
             android:label="@string/virtual_wallet_activity_title" />
-        <activity android:name=".PaymentMethod"
-            android:label="@string/payment_method_activity_title"/>
+        <activity
+            android:name=".PaymentMethod"
+            android:label="@string/payment_method_activity_title" />
+        <activity android:name=".MangoPayWebViewActivity"
+            android:label="@string/mango_pay_web_view_activity_title"
+            android:parentActivityName=".PaymentMethod"/>
     </application>
 
 </manifest>
