@@ -3,7 +3,10 @@ package com.qwerteach.wivi.qwerteachapp;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.icu.text.DateFormat;
 import android.icu.text.SimpleDateFormat;
+import android.icu.util.Calendar;
+import android.icu.util.TimeZone;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
@@ -25,6 +28,7 @@ import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosTopicsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayTopicLevelsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.fragments.DatePickerFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.TimePickerFragment;
+import com.qwerteach.wivi.qwerteachapp.models.CardRegistrationData;
 import com.qwerteach.wivi.qwerteachapp.models.Level;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
@@ -54,12 +58,12 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
     ArrayList<SmallAd> smallAds;
     ArrayList<Topic> topics;
     ArrayList<Level> levels;
-    ArrayList<UserCreditCard> userCreditCards;
     HashMap<String, Double> prices;
     String hour = "00", minute = "00";
     String currentLevelName = "", currentTopicTitle = "";
     Teacher teacher;
     String studentId, userEmail, userToken;
+    Double totalPrice;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -94,7 +98,6 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
         topics = new ArrayList<>();
         levels = new ArrayList<>();
         prices = new HashMap<>();
-        userCreditCards = new ArrayList<>();
 
         timeTextView = (TextView) findViewById(R.id.time_picker_text_view);
         dateTextView = (TextView) findViewById(R.id.date_picker_text_view);
@@ -105,11 +108,15 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
         levelSpinner = (Spinner) findViewById(R.id.level_spinner);
         totalPriceTextView = (TextView) findViewById(R.id.total_price_text_view);
 
-        Date date = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault());
-        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-        String currentDate = dateFormat.format(date);
-        String currentTime = timeFormat.format(date);
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT+1:00"));
+        Date currentLocalTime = cal.getTime();
+        DateFormat tf = new SimpleDateFormat("HH:mm");
+        DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
+        tf.setTimeZone(TimeZone.getTimeZone("GMT+1:00"));
+        String currentTime = tf.format(currentLocalTime);
+        String currentDate = df.format(currentLocalTime);
+
+
 
         dateTextView.setText(currentDate);
         timeTextView.setText(currentTime);
@@ -247,7 +254,7 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
 
         String totalDurationString = hourString + "." + newMinuteInt;
         Double totalDurationDouble = Double.parseDouble(totalDurationString.toString());
-        Double totalPrice = 0.0;
+        totalPrice = 0.0;
         for (Map.Entry<String, Double> entry : prices.entrySet()) {
             if (currentLevelName.equals(entry.getKey())) {
                 Double price = entry.getValue();
@@ -346,7 +353,8 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
     @Override
     public void createLessonRequest(String string) {
 
-        Log.i("LESSON_REQUEST", string);
+        ArrayList<UserCreditCard> userCreditCards = new ArrayList<>();
+
         try {
             JSONObject jsonObject = new JSONObject(string);
             String message = jsonObject.getString("message");
@@ -356,20 +364,33 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
                 startActivity(intent);
 
             } else if (message.equals("true")) {
-                JSONArray jsonArray = jsonObject.getJSONArray("user_cards");
 
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject jsonData = jsonArray.getJSONObject(i);
-                    String alias = jsonData.getString("alias");
-                    String cardId = jsonData.getString("id");
-                    UserCreditCard userCreditCard = new UserCreditCard(alias, cardId);
-                    userCreditCards.add(userCreditCard);
+                JSONArray userCardJsonArray = jsonObject.getJSONArray("user_cards");
+
+                if (userCardJsonArray.length() > 0) {
+                    for (int i = 0; i < userCardJsonArray.length(); i++) {
+                        JSONObject jsonData = userCardJsonArray.getJSONObject(i);
+                        String alias = jsonData.getString("alias");
+                        String cardId = jsonData.getString("id");
+                        UserCreditCard userCreditCard = new UserCreditCard(alias, cardId);
+                        userCreditCards.add(userCreditCard);
+                    }
+
                 }
 
+                JSONObject cardRegistrationJsonObject = jsonObject.getJSONObject("card_registration");
+                String accessKey = cardRegistrationJsonObject.getString("access_key");
+                String preRegistrationData = cardRegistrationJsonObject.getString("preregistration_data");
+                String cardRegistrationURL = cardRegistrationJsonObject.getString("card_registration_url");
+                String cardPreregistrationId = cardRegistrationJsonObject.getString("id");
+                CardRegistrationData cardRegistrationData = new CardRegistrationData(accessKey,
+                        preRegistrationData, cardRegistrationURL, cardPreregistrationId);
+
                 Intent intent = new Intent(this, PaymentMethod.class);
-                intent.putExtra("totalPrice", totalPriceTextView.getText().toString());
+                intent.putExtra("totalPrice", totalPrice);
                 intent.putExtra("teacher", teacher);
                 intent.putExtra("userCreditCardList", userCreditCards);
+                intent.putExtra("cardRegistration", cardRegistrationData);
                 startActivity(intent);
             }
 

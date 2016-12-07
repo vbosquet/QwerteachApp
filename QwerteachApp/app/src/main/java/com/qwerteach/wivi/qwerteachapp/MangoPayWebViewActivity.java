@@ -73,10 +73,7 @@ public class MangoPayWebViewActivity extends AppCompatActivity implements Redire
         Set<String> args = uri.getQueryParameterNames();
         String transactionId = uri.getQueryParameter("transactionId");
 
-
         String newURL = protocol + "://" + server + "/api" + path + "?transactionId=" + transactionId;
-
-        Log.i("NEWURL", newURL);
 
         BancontactProcessAsyncTask bancontactProcessAsyncTask = new BancontactProcessAsyncTask(this);
         bancontactProcessAsyncTask.execute(email, token, newURL);
@@ -91,14 +88,11 @@ public class MangoPayWebViewActivity extends AppCompatActivity implements Redire
     @Override
     public void getBancontactProcess(String string) {
 
-        Log.i("STRING", string);
-
         try {
             JSONObject jsonObject = new JSONObject(string);
             String message = jsonObject.getString("success");
 
             if (message.equals("true")) {
-                MangoPayWebViewActivity.this.finish();
                 Toast.makeText(this, "Merci ! Votre demande a bien été envoyée au professeur.", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(getApplicationContext(), PaymentMethod.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);

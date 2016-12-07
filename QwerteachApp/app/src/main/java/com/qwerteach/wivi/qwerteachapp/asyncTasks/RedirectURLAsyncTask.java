@@ -1,6 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.asyncTasks;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,6 +47,8 @@ public class RedirectURLAsyncTask extends AsyncTask<Object, String, String> {
 
             bufferedReader.close();
             inputStream.close();
+
+            Log.i("STRINGBUILDER", stringBuilder.toString());
 
             return stringBuilder.toString();
 

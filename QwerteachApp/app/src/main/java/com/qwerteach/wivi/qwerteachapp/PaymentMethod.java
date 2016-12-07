@@ -2,7 +2,6 @@ package com.qwerteach.wivi.qwerteachapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.LayoutParams;
@@ -28,9 +27,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mangopay.android.sdk.Callback;
+import com.mangopay.android.sdk.MangoPayBuilder;
+import com.mangopay.android.sdk.model.CardRegistration;
+import com.mangopay.android.sdk.model.exception.MangoException;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetTotalWalletAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.PayLessonWithCreditCardAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.PayLessonWithTransfertOrBancontactAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.models.CardRegistrationData;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 
@@ -47,18 +51,20 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
         CompoundButton.OnCheckedChangeListener,
         PayLessonWithCreditCardAsyncTask.IPayWithCreditCard {
 
-    String totalPrice;
+    Double totalPrice;
     String userId, email, token;
     TextView totalWalletTextView;
     Spinner otherPaymentMethodSpinner;
-    CheckBox payementWithVirtualWallet;
+    CheckBox paymentWithVirtualWallet;
     LinearLayout otherPaymentMethodDetailsLayout;
-    ArrayList<String> otherPaymentMethods, months, years, creditCardNames;
+    ArrayList<String> otherPaymentMethods, months, years;
     String paymentMode = "";
     Teacher teacher;
-    int teacherId;
+    int teacherId, totalWallet;
     String cardId, currentAlias;
     ArrayList<UserCreditCard> userCreditCards;
+    EditText cardNumberEditText;
+    CardRegistrationData cardRegistrationData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,9 +78,10 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            totalPrice = getIntent().getStringExtra("totalPrice");
+            totalPrice = getIntent().getDoubleExtra("totalPrice", 0.0);
             teacher = (Teacher) getIntent().getSerializableExtra("teacher");
             userCreditCards = (ArrayList<UserCreditCard>) getIntent().getSerializableExtra("userCreditCardList");
+            cardRegistrationData = (CardRegistrationData) getIntent().getSerializableExtra("cardRegistration");
         }
 
 
@@ -90,7 +97,6 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
 
         months = new ArrayList<>();
         years = new ArrayList<>();
-        creditCardNames = new ArrayList<>();
 
         otherPaymentMethods = new ArrayList<>();
         otherPaymentMethods.add("Type de paiement");
@@ -99,10 +105,10 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
 
         totalWalletTextView = (TextView) findViewById(R.id.total_wallet_text_view);
         otherPaymentMethodSpinner = (Spinner) findViewById(R.id.other_paiment_method_spinner);
-        payementWithVirtualWallet = (CheckBox) findViewById(R.id.payment_with_virtual_wallet);
+        paymentWithVirtualWallet = (CheckBox) findViewById(R.id.payment_with_virtual_wallet);
         otherPaymentMethodDetailsLayout = (LinearLayout) findViewById(R.id.other_payment_method_details_layout);
 
-        payementWithVirtualWallet.setOnCheckedChangeListener(this);
+        paymentWithVirtualWallet.setOnCheckedChangeListener(this);
 
         ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, otherPaymentMethods);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -132,7 +138,7 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
     public void displayTotalWallet(String string) {
         try {
             JSONObject jsonObject = new JSONObject(string);
-            int totalWallet = jsonObject.getInt("total_wallet");
+            totalWallet = jsonObject.getInt("total_wallet");
             totalWalletTextView.setText("Solde de mon Portefeuille : " + totalWallet/100 + "€");
 
         } catch (JSONException e) {
@@ -147,14 +153,18 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
         otherPaymentMethodDetailsLayout.removeAllViews();
         months.clear();
         years.clear();
-        creditCardNames.clear();
 
         String otherPaymentMethodName = adapterView.getItemAtPosition(i).toString();
 
         if (otherPaymentMethodName.equals(otherPaymentMethods.get(1))) {
             paymentMode = "cd";
-            //addNewCreditCard();
-            setCreditCardChoice();
+
+            if (userCreditCards.size() > 0) {
+                setCreditCardChoice();
+
+            } else {
+                otherPaymentMethodDetailsLayout.addView(addNewCreditCard());
+            }
 
         } else if (otherPaymentMethodName.equals(otherPaymentMethods.get(2))) {
             paymentMode = "bancontact";
@@ -167,14 +177,15 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
 
     }
 
-    public void addNewCreditCard() {
+    public LinearLayout addNewCreditCard() {
+
+        LinearLayout mainLinearLayout = new LinearLayout(this);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        mainLinearLayout.setLayoutParams(layoutParams);
+        mainLinearLayout.setOrientation(LinearLayout.VERTICAL);
 
         float scale = this.getResources().getDisplayMetrics().density;
         int dpAsPixels = (int) (10 * scale + 0.5f);
-
-        creditCardNames.add("VISA");
-        creditCardNames.add("MasterCard");
-        creditCardNames.add("CB");
 
         months.add("mm");
         for (int j = 1; j <= 12; j++) {
@@ -186,37 +197,30 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
         }
 
         int thisYear = Calendar.getInstance().get(Calendar.YEAR);
-        for (int j = 1990; j <= thisYear; j++) {
+        for (int j = 2026; j >= thisYear; j--) {
             years.add(Integer.toString(j));
         }
 
         Collections.reverse(years);
         years.add("aaaa");
 
-        TextView nameTextView = new TextView(this);
-        TextView cardNumberTextView = new TextView(this);
         TextView endDateTextView = new TextView(this);
         TextView cvvTextView = new TextView(this);
-        TextView creditCardNameTextView = new TextView(this);
+        TextView cardNumberTextView = new TextView(this);
 
-        EditText nameEditText = new EditText(this);
-        EditText cardNumberEditText = new EditText(this);
+        cardNumberEditText = new EditText(this);
         EditText cvvEditText = new EditText(this);
 
         Spinner endMonthSpinner = new Spinner(this);
         Spinner endYearSpinner = new Spinner(this);
-        Spinner creditCardTitleSpinner = new Spinner(this);
 
         LinearLayout endDateLinearLayout = new LinearLayout(this);
         LinearLayout endMonthSpinnerLinearLayout = new LinearLayout(this);
         LinearLayout endYearSpinnerLinearLayout = new LinearLayout(this);
-        LinearLayout creditCardTitleSpinnerLinearLayout = new LinearLayout(this);
 
-        nameTextView.setText("Nom et prénom du titulaire");
         cardNumberTextView.setText("Numéro de carte");
         endDateTextView.setText("Date expiration");
         cvvTextView.setText("CVV");
-        creditCardNameTextView.setText("Sélectionnez le type de votre carte");
 
         LinearLayout.LayoutParams layoutParamsForTextView = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         LinearLayout.LayoutParams layoutParamsForLongEditText = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -229,18 +233,12 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
         layoutParamsForLinearLayout.setMargins(0, 0, 0, dpAsPixels);
         layoutParamsForSpinner.setMargins(0, 0, dpAsPixels, 0);
 
-        nameTextView.setLayoutParams(layoutParamsForTextView);
         cardNumberTextView.setLayoutParams(layoutParamsForTextView);
         endDateTextView.setLayoutParams(layoutParamsForTextView);
         cvvTextView.setLayoutParams(layoutParamsForTextView);
-        creditCardNameTextView.setLayoutParams(layoutParamsForTextView);
 
-        nameEditText.setLayoutParams(layoutParamsForLongEditText);
         cardNumberEditText.setLayoutParams(layoutParamsForLongEditText);
         cvvEditText.setLayoutParams(layoutParamsForShortEditText);
-
-        nameEditText.setBackgroundResource(R.drawable.edit_text_border);
-        nameEditText.setPadding(dpAsPixels, dpAsPixels, dpAsPixels, dpAsPixels);
 
         cardNumberEditText.setBackgroundResource(R.drawable.edit_text_border);
         cardNumberEditText.setPadding(dpAsPixels, dpAsPixels, dpAsPixels, dpAsPixels);
@@ -256,20 +254,6 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
         filters[0] = new InputFilter.LengthFilter(3);
         cvvEditText .setFilters(filters);
 
-        ArrayAdapter creditCardTitlesAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, creditCardNames);
-        creditCardTitlesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        creditCardTitleSpinner.setAdapter(creditCardTitlesAdapter);
-        creditCardTitleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
 
         ArrayAdapter monthsAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, months) {
             @Override
@@ -356,33 +340,24 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
         endYearSpinnerLinearLayout.setBackgroundResource(R.drawable.edit_text_border);
         endYearSpinnerLinearLayout.setPadding(dpAsPixels, dpAsPixels, dpAsPixels, dpAsPixels);
 
-        creditCardTitleSpinnerLinearLayout.setLayoutParams(layoutParamsForLinearLayout);
-        creditCardTitleSpinnerLinearLayout.setOrientation(LinearLayout.VERTICAL);
-        creditCardTitleSpinnerLinearLayout.setBackgroundResource(R.drawable.edit_text_border);
-        creditCardTitleSpinnerLinearLayout.setPadding(dpAsPixels, dpAsPixels, dpAsPixels, dpAsPixels);
-
         endMonthSpinnerLinearLayout.addView(endMonthSpinner);
         endYearSpinnerLinearLayout.addView(endYearSpinner);
         endDateLinearLayout.addView(endMonthSpinnerLinearLayout);
         endDateLinearLayout.addView(endYearSpinnerLinearLayout);
 
-        creditCardTitleSpinnerLinearLayout.addView(creditCardTitleSpinner);
+        mainLinearLayout.addView(cardNumberTextView);
+        mainLinearLayout.addView(cardNumberEditText);
+        mainLinearLayout.addView(endDateTextView);
+        mainLinearLayout.addView(endDateLinearLayout);
+        mainLinearLayout.addView(cvvTextView);
+        mainLinearLayout.addView(cvvEditText);
 
-        otherPaymentMethodDetailsLayout.addView(creditCardNameTextView);
-        otherPaymentMethodDetailsLayout.addView(creditCardTitleSpinnerLinearLayout);
-        otherPaymentMethodDetailsLayout.addView(nameTextView);
-        otherPaymentMethodDetailsLayout.addView(nameEditText);
-        otherPaymentMethodDetailsLayout.addView(cardNumberTextView);
-        otherPaymentMethodDetailsLayout.addView(cardNumberEditText);
-        otherPaymentMethodDetailsLayout.addView(endDateTextView);
-        otherPaymentMethodDetailsLayout.addView(endDateLinearLayout);
-        otherPaymentMethodDetailsLayout.addView(cvvTextView);
-        otherPaymentMethodDetailsLayout.addView(cvvEditText);
+        return mainLinearLayout;
 
     }
 
     public void setBancontactForm() {
-        payementWithVirtualWallet.setChecked(false);
+        paymentWithVirtualWallet.setChecked(false);
         float scale = this.getResources().getDisplayMetrics().density;
         int dpAsPixels = (int) (10 * scale + 0.5f);
         TextView messageTextView = new TextView(this);
@@ -399,7 +374,8 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
         float scale = this.getResources().getDisplayMetrics().density;
         int dpAsPixels = (int) (10 * scale + 0.5f);
 
-        ArrayList<String> creditCardAlias = new ArrayList<>();
+        final ArrayList<String> creditCardAlias = new ArrayList<>();
+        creditCardAlias.add("Nouvelle carte de crédit");
         for (int i = 0; i < userCreditCards.size(); i++) {
             String alias = userCreditCards.get(i).getAlias();
             creditCardAlias.add(alias);
@@ -407,8 +383,9 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
 
 
         TextView titleTextView = new TextView(this);
-        Spinner creditCarsAliasSpinner = new Spinner(this);
+        final Spinner creditCarsAliasSpinner = new Spinner(this);
         LinearLayout creditCardAliasLinearLayout = new LinearLayout(this);
+        final LinearLayout newCrediCardFormLinearLayout = new LinearLayout(this);
 
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         LinearLayout.LayoutParams layoutParamsForLinearLayout = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -426,6 +403,12 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 currentAlias = adapterView.getItemAtPosition(i).toString();
+
+                if (currentAlias.equals(creditCardAlias.get(0))) {
+                    newCrediCardFormLinearLayout.addView(addNewCreditCard());
+                } else {
+                    newCrediCardFormLinearLayout.removeAllViews();
+                }
             }
 
             @Override
@@ -442,22 +425,63 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
 
         otherPaymentMethodDetailsLayout.addView(titleTextView);
         otherPaymentMethodDetailsLayout.addView(creditCardAliasLinearLayout);
+        otherPaymentMethodDetailsLayout.addView(newCrediCardFormLinearLayout);
 
     }
 
     public void didTouchPaymentButton(View view) {
         if (paymentMode.equals("transfert")) {
-            PayLessonWithTransfertOrBancontactAsyncTask payLessonWithTransfertOrBancontactAsyncTask =
-                    new PayLessonWithTransfertOrBancontactAsyncTask(this);
-            payLessonWithTransfertOrBancontactAsyncTask.execute(email, token, teacherId, paymentMode);
-        } else if (paymentMode.equals("cd")) {
-            for (int i = 0; i < userCreditCards.size(); i++) {
-                if (userCreditCards.get(i).getAlias().equals(currentAlias)) {
-                    cardId = userCreditCards.get(i).getCardId();
-                }
+            if (totalWallet < totalPrice) {
+                Toast.makeText(this, R.string.total_wallet_insufficient_toast_message, Toast.LENGTH_SHORT).show();
+
+            } else {
+                PayLessonWithTransfertOrBancontactAsyncTask payLessonWithTransfertOrBancontactAsyncTask =
+                        new PayLessonWithTransfertOrBancontactAsyncTask(this);
+                payLessonWithTransfertOrBancontactAsyncTask.execute(email, token, teacherId, paymentMode);
+
             }
 
-            startPayLessonWithCreditCardAsyncTask();
+        } else if (paymentMode.equals("cd")) {
+
+            if (!currentAlias.equals("Nouvelle carte de crédit")) {
+                for (int i = 0; i < userCreditCards.size(); i++) {
+                    if (userCreditCards.get(i).getAlias().equals(currentAlias)) {
+                        cardId = userCreditCards.get(i).getCardId();
+                    }
+                }
+
+                startPayLessonWithCreditCardAsyncTask();
+
+            } else  {
+                String cardNumber = "3569990000000132";
+                String expirationDate = "0920";
+                String securityCode = "123";
+
+                MangoPayBuilder builder = new MangoPayBuilder(this);
+                builder.baseURL("https://api.sandbox.mangopay.com")
+                        .clientId("qwerteachrails")
+                        .accessKey(cardRegistrationData.getAccessKey())
+                        .cardRegistrationURL(cardRegistrationData.getCardRegistrationURL())
+                        .preregistrationData(cardRegistrationData.getPreRegistrationData())
+                        .cardPreregistrationId(cardRegistrationData.getCardPreregistrationId())
+                        .cardNumber(cardNumber)
+                        .cardExpirationDate(expirationDate)
+                        .cardCvx(securityCode)
+                        .callback(new Callback() {
+                            @Override public void success(CardRegistration cardRegistration) {
+                                Log.d(MainActivity.class.getSimpleName(), cardRegistration.toString());
+                                cardId = cardRegistration.getCardId();
+                                startPayLessonWithCreditCardAsyncTask();
+                            }
+
+                            @Override
+                            public void failure(MangoException error) {
+                                Toast.makeText(PaymentMethod.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+
+                        }).start();
+
+            }
 
         } else if (paymentMode.equals("bancontact")) {
             PayLessonWithTransfertOrBancontactAsyncTask payLessonWithTransfertOrBancontactAsyncTask = new
@@ -475,8 +499,8 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
             if (message.equals("finish")) {
                 GetTotalWalletAsyncTask getTotalWalletAsyncTask = new GetTotalWalletAsyncTask(this);
                 getTotalWalletAsyncTask.execute(email, token, userId);
-                payementWithVirtualWallet.setChecked(false);
-                Toast.makeText(this, "Merci ! Votre demande a bien été envoyée au professeur.", Toast.LENGTH_LONG).show();
+                paymentWithVirtualWallet.setChecked(false);
+                Toast.makeText(this, R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
 
             } else if (message.equals("result")) {
                 String returnURL = jsonObject.getString("url");
@@ -509,17 +533,20 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
 
         try {
             JSONObject jsonObject = new JSONObject(string);
-
             String message = jsonObject.getString("message");
 
             if (message.equals("result")) {
                 String secureModeReturnUrl = jsonObject.getString("url");
+                Log.i("SECURE_MODE_URL", secureModeReturnUrl);
 
+                Intent intent = new Intent(this, RegisterNewCardActivity.class);
+                intent.putExtra("url", secureModeReturnUrl);
+                startActivity(intent);
 
             } else if (message.equals("finish")) {
                 GetTotalWalletAsyncTask getTotalWalletAsyncTask = new GetTotalWalletAsyncTask(this);
                 getTotalWalletAsyncTask.execute(email, token, userId);
-                payementWithVirtualWallet.setChecked(false);
+                paymentWithVirtualWallet.setChecked(false);
                 Toast.makeText(this, "Merci ! Votre demande a bien été envoyée au professeur.", Toast.LENGTH_LONG).show();
             }
 

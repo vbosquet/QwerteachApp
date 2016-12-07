@@ -1,7 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp.asyncTasks;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,20 +10,20 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Created by wivi on 6/12/16.
+ * Created by wivi on 7/12/16.
  */
 
-public class BancontactProcessAsyncTask extends AsyncTask<Object, String, String> {
+public class CreditCardProcessAsyncTask extends AsyncTask<Object, String, String> {
 
-    private IBancontactProcess callback;
+    private ICreditCardProcess callback;
 
-    public BancontactProcessAsyncTask(IBancontactProcess callback) {
+    public CreditCardProcessAsyncTask(ICreditCardProcess callback) {
         this.callback = callback;
     }
 
-
     @Override
     protected String doInBackground(Object... objects) {
+
         String email = (String) objects[0];
         String token = (String) objects[1];
         String newURL = (String) objects[2];
@@ -61,10 +60,10 @@ public class BancontactProcessAsyncTask extends AsyncTask<Object, String, String
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.getBancontactProcess(string);
+        callback.getCreditCardProcess(string);
     }
 
-    public interface IBancontactProcess {
-        void getBancontactProcess(String string);
+    public interface ICreditCardProcess {
+        void getCreditCardProcess(String string);
     }
 }
