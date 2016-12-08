@@ -13,7 +13,6 @@ import android.support.annotation.RequiresApi;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -44,7 +43,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.Locale;
 import java.util.Map;
 
 public class LessonReservationActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
@@ -386,7 +384,7 @@ public class LessonReservationActivity extends AppCompatActivity implements Adap
                 CardRegistrationData cardRegistrationData = new CardRegistrationData(accessKey,
                         preRegistrationData, cardRegistrationURL, cardPreregistrationId);
 
-                Intent intent = new Intent(this, PaymentMethod.class);
+                Intent intent = new Intent(this, PaymentMethodActivity.class);
                 intent.putExtra("totalPrice", totalPrice);
                 intent.putExtra("teacher", teacher);
                 intent.putExtra("userCreditCardList", userCreditCards);

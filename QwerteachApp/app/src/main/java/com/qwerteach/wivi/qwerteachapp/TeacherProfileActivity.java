@@ -46,7 +46,7 @@ import static java.util.Calendar.DATE;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
-public class TeacherProfile extends AppCompatActivity implements DisplayTopicLevelsAsyncTask.IDisplayTopicLevels,
+public class TeacherProfileActivity extends AppCompatActivity implements DisplayTopicLevelsAsyncTask.IDisplayTopicLevels,
         NewLessonRequestAsyncTask.INewLessonRequest {
 
     Teacher teacher;

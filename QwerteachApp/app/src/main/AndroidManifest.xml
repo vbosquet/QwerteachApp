@@ -65,7 +65,7 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
-        <activity android:name=".TeacherProfile" />
+        <activity android:name=".TeacherProfileActivity" />
         <activity
             android:name=".LessonReservationActivity"
             android:label="@string/lesson_reservation_activity_title" />
@@ -73,13 +73,15 @@
             android:name=".VirtualWalletActivity"
             android:label="@string/virtual_wallet_activity_title" />
         <activity
-            android:name=".PaymentMethod"
+            android:name=".PaymentMethodActivity"
             android:label="@string/payment_method_activity_title" />
         <activity
             android:name=".MangoPayWebViewActivity"
             android:label="@string/mango_pay_web_view_activity_title"
-            android:parentActivityName=".PaymentMethod" />
-        <activity android:name=".RegisterNewCardActivity"></activity>
+            android:parentActivityName=".PaymentMethodActivity" />
+        <activity android:name=".RegisterNewCardActivity" />
+        <activity android:name=".MyLessonsActivity"
+            android:label="@string/my_lessons_activity_title"/>
     </application>
 
 </manifest>

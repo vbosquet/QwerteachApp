@@ -1,12 +1,11 @@
 package com.qwerteach.wivi.qwerteachapp;
-;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -30,6 +29,9 @@ public class RegisterNewCardActivity extends AppCompatActivity implements Credit
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_new_card);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -57,12 +59,12 @@ public class RegisterNewCardActivity extends AppCompatActivity implements Credit
 
             if (message.equals("true")) {
                 Toast.makeText(this, R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(getApplicationContext(), PaymentMethod.class);
+                Intent intent = new Intent(getApplicationContext(), PaymentMethodActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             } else {
                 Toast.makeText(getApplicationContext(), "Il y a eu un problème lors de la réservation. Le cours n\'a pas été réservé.", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(getApplicationContext(), PaymentMethod.class);
+                Intent intent = new Intent(getApplicationContext(), PaymentMethodActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             }

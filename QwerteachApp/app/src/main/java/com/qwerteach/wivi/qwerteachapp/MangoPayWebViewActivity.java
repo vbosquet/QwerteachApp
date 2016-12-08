@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.BancontactProcessAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.RedirectURLAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -94,12 +93,12 @@ public class MangoPayWebViewActivity extends AppCompatActivity implements Redire
 
             if (message.equals("true")) {
                 Toast.makeText(this, "Merci ! Votre demande a bien été envoyée au professeur.", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(getApplicationContext(), PaymentMethod.class);
+                Intent intent = new Intent(getApplicationContext(), PaymentMethodActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             } else {
                 Toast.makeText(getApplicationContext(), "Il y a eu un problème lors de la réservation. Le cours n\'a pas été réservé.", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(getApplicationContext(), PaymentMethod.class);
+                Intent intent = new Intent(getApplicationContext(), PaymentMethodActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             }
@@ -128,7 +127,7 @@ public class MangoPayWebViewActivity extends AppCompatActivity implements Redire
 
             } else if (url.equals("https://homologation-secure-p.payline.com/webpayment/step1.do?reqCode=prepareStep1")) {
                 Toast.makeText(getApplicationContext(), "Il y a eu un problème lors de la réservation. Le cours n\'a pas été réservé.", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(getApplicationContext(), PaymentMethod.class);
+                Intent intent = new Intent(getApplicationContext(), PaymentMethodActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             } else {

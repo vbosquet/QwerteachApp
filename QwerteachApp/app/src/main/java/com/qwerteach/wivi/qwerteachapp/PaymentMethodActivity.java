@@ -45,7 +45,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 
-public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAsyncTask.IGetTotalWallet,
+public class PaymentMethodActivity extends AppCompatActivity implements GetTotalWalletAsyncTask.IGetTotalWallet,
         AdapterView.OnItemSelectedListener,
         PayLessonWithTransfertOrBancontactAsyncTask.IPayWithTransfertOrBancontact,
         CompoundButton.OnCheckedChangeListener,
@@ -61,9 +61,9 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
     String paymentMode = "";
     Teacher teacher;
     int teacherId, totalWallet;
-    String cardId, currentAlias;
+    String cardId, currentAlias, currentMonth, currentYear;
     ArrayList<UserCreditCard> userCreditCards;
-    EditText cardNumberEditText;
+    EditText cardNumberEditText, cvvEditText;
     CardRegistrationData cardRegistrationData;
 
     @Override
@@ -209,7 +209,7 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
         TextView cardNumberTextView = new TextView(this);
 
         cardNumberEditText = new EditText(this);
-        EditText cvvEditText = new EditText(this);
+        cvvEditText = new EditText(this);
 
         Spinner endMonthSpinner = new Spinner(this);
         Spinner endYearSpinner = new Spinner(this);
@@ -281,7 +281,7 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
         endMonthSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
+                currentMonth = adapterView.getItemAtPosition(i).toString();
             }
 
             @Override
@@ -318,6 +318,7 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
         endYearSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                currentYear = adapterView.getItemAtPosition(i).toString();
 
             }
 
@@ -453,9 +454,10 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
                 startPayLessonWithCreditCardAsyncTask();
 
             } else  {
-                String cardNumber = "3569990000000132";
-                String expirationDate = "0920";
-                String securityCode = "123";
+                String year = currentYear.substring(2);
+                String cardNumber = cardNumberEditText.getText().toString();
+                String expirationDate = currentMonth + year;
+                String securityCode = cvvEditText.getText().toString();
 
                 MangoPayBuilder builder = new MangoPayBuilder(this);
                 builder.baseURL("https://api.sandbox.mangopay.com")
@@ -476,7 +478,7 @@ public class PaymentMethod extends AppCompatActivity implements GetTotalWalletAs
 
                             @Override
                             public void failure(MangoException error) {
-                                Toast.makeText(PaymentMethod.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                                Toast.makeText(PaymentMethodActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
                             }
 
                         }).start();
