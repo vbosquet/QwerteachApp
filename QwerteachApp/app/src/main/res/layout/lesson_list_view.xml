@@ -40,15 +40,35 @@
         android:layout_marginBottom="10dp"
         android:textSize="17dp"/>
 
-    <Button
-        android:id="@+id/cancel_lesson_button"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/cancel_lesson_button"
-        android:onClick="didTouchCancelLessonButton"
-        android:background="@color/colorPrimary"
-        android:textColor="@color/white"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"/>
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/cancel_lesson_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel_lesson_button"
+            android:onClick="didTouchCancelLessonButton"
+            android:background="@color/red"
+            android:textColor="@color/white"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_marginRight="10dp"/>
+
+        <Button
+            android:id="@+id/update_lesson_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/update_lesson_button"
+            android:onClick="didTouchUpdateLessonButton"
+            android:background="@color/green"
+            android:textColor="@color/white"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"/>
+
+
+    </LinearLayout>
 
 </LinearLayout>

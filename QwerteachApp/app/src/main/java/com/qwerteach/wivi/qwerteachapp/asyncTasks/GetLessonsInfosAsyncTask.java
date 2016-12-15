@@ -15,49 +15,44 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Created by wivi on 10/11/16.
+ * Created by wivi on 15/12/16.
  */
 
-public class SaveInfosFormationAsyncTask extends AsyncTask<Object, String, String> {
+public class GetLessonsInfosAsyncTask extends AsyncTask<Object, String, String> {
 
-    private ISaveInfosFormation callback;
+    IGetLessonInfos callback;
 
-    public SaveInfosFormationAsyncTask(ISaveInfosFormation callback) {
+    public GetLessonsInfosAsyncTask(IGetLessonInfos callback) {
         this.callback = callback;
     }
 
-
     @Override
     protected String doInBackground(Object... objects) {
-        String userId = (String) objects[0];
-        String profession = (String) objects[1];
-        String description = (String) objects[2];
-        int levelId = (int) objects[3];
-        String email = (String) objects[4];
-        String token = (String) objects[5];
+        String email = (String) objects[0];
+        String token = (String) objects[1];
+        int topicId = (int) objects[2];
+        int topicGroupId = (int) objects[3];
+        int levelId = (int) objects[4];
+        int lessonId = (int) objects[5];
 
+        JSONObject jsonObject = new JSONObject();
         try {
+            jsonObject.put("topic_id", topicId);
+            jsonObject.put("topic_group_id", topicGroupId);
+            jsonObject.put("level_id", levelId);
+            jsonObject.put("lesson_id", lessonId);
 
-            JSONObject json = new JSONObject();
-            JSONObject userJson = new JSONObject();
-
-            json.put("occupation", profession);
-            json.put("description", description);
-            json.put("user_id", userId);
-            json.put("level_id", levelId);
-            userJson.put("user", json);
-
-            URL url = new URL("http://192.168.0.111:3000/api/profiles/" + userId);
+            URL url = new URL("http://192.168.0.111:3000/api/lessons/find_lesson_infos");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);
             httpURLConnection.addRequestProperty("X-User-Token", token);
             httpURLConnection.setDoOutput(true);
             httpURLConnection.setDoInput(true);
-            httpURLConnection.setRequestMethod("PUT");
+            httpURLConnection.setRequestMethod("POST");
 
             OutputStream os = httpURLConnection.getOutputStream();
-            os.write(userJson.toString().getBytes("UTF-8"));
+            os.write(jsonObject.toString().getBytes("UTF-8"));
             os.flush();
             os.close();
 
@@ -75,10 +70,11 @@ public class SaveInfosFormationAsyncTask extends AsyncTask<Object, String, Strin
 
             return stringBuilder.toString();
 
+
+
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
-
 
 
         return null;
@@ -87,10 +83,10 @@ public class SaveInfosFormationAsyncTask extends AsyncTask<Object, String, Strin
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.confirmationRegistrationMessage(string);
+        callback.displayLessonInfos(string);
     }
 
-    public interface ISaveInfosFormation {
-        void confirmationRegistrationMessage(String string);
+    public interface IGetLessonInfos {
+        void displayLessonInfos(String string);
     }
 }

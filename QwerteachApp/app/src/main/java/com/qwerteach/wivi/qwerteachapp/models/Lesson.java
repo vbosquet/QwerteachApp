@@ -1,14 +1,18 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import java.io.Serializable;
+
 /**
  * Created by wivi on 7/12/16.
  */
 
-public class Lesson {
+public class Lesson implements Serializable {
 
     private int lessonId;
     private int teacherId;
     private int topicId;
+    private int topicGroupId;
+    private int levelId;
     private String price;
     private String timeStart;
     private String teacherFirstName;
@@ -18,10 +22,12 @@ public class Lesson {
     private boolean expired;
     private boolean canceled;
 
-    public Lesson(int lessonId, int teacherId, int topicId, String price) {
+    public Lesson(int lessonId, int teacherId, int topicId, int topicGroupId, int levelId, String price) {
         this.lessonId = lessonId;
         this.teacherId = teacherId;
         this.topicId = topicId;
+        this.topicGroupId = topicGroupId;
+        this.levelId = levelId;
         this.price = price;
     }
 
@@ -47,6 +53,22 @@ public class Lesson {
 
     public void setTopicId(int topicId) {
         this.topicId = topicId;
+    }
+
+    public int getTopicGroupId() {
+        return topicGroupId;
+    }
+
+    public void setTopicGroupId(int topicGroupId) {
+        this.topicGroupId = topicGroupId;
+    }
+
+    public int getLevelId() {
+        return levelId;
+    }
+
+    public void setLevelId(int levelId) {
+        this.levelId = levelId;
     }
 
     public String getPrice() {
