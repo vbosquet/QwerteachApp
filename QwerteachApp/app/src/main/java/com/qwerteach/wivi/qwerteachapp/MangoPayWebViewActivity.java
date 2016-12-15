@@ -92,12 +92,18 @@ public class MangoPayWebViewActivity extends AppCompatActivity implements Redire
             String message = jsonObject.getString("success");
 
             if (message.equals("true")) {
-                Toast.makeText(this, "Merci ! Votre demande a bien été envoyée au professeur.", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(getApplicationContext(), PaymentMethodActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                Toast.makeText(this, R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(getApplicationContext(), MyLessonsActivity.class);
+                //intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
+
+            } else if (message.equals("loaded")) {
+                Toast.makeText(this, R.string.load_wallet_by_credit_card_sucess_toast_message, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(getApplicationContext(), VirtualWalletActivity.class);
+                startActivity(intent);
+
             } else {
-                Toast.makeText(getApplicationContext(), "Il y a eu un problème lors de la réservation. Le cours n\'a pas été réservé.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), R.string.payment_error_toast_message, Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(getApplicationContext(), PaymentMethodActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
@@ -126,7 +132,7 @@ public class MangoPayWebViewActivity extends AppCompatActivity implements Redire
                 startActivity(intent);
 
             } else if (url.equals("https://homologation-secure-p.payline.com/webpayment/step1.do?reqCode=prepareStep1")) {
-                Toast.makeText(getApplicationContext(), "Il y a eu un problème lors de la réservation. Le cours n\'a pas été réservé.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), R.string.payment_error_toast_message, Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(getApplicationContext(), PaymentMethodActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);

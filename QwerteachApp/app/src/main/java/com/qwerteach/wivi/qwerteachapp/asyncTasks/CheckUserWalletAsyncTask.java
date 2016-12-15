@@ -14,23 +14,22 @@ import java.net.URL;
  * Created by wivi on 8/12/16.
  */
 
-public class CancelLessonAsyncTask extends AsyncTask<Object, String, String>{
+public class CheckUserWalletAsyncTask extends AsyncTask<String, String, String> {
 
-    private ICancelLesson callback;
+    private ICheckUserWallet callback;
 
-    public CancelLessonAsyncTask(ICancelLesson callback) {
+    public CheckUserWalletAsyncTask(ICheckUserWallet callback) {
         this.callback = callback;
     }
 
     @Override
-    protected String doInBackground(Object... objects) {
-        int lessonId = (int) objects[0];
-        String email = (String) objects[1];
-        String token = (String) objects[2];
+    protected String doInBackground(String... strings) {
+        String email = strings[0];
+        String token = strings[1];
 
         try {
 
-            URL url = new URL("http://192.168.0.111:3000/api/lessons/" + lessonId + "/cancel");
+            URL url = new URL("http://192.168.0.111:3000/api/wallets/check_user_wallet");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.addRequestProperty("X-User-Email", email);
             connection.addRequestProperty("X-User-Token", token);
@@ -42,7 +41,7 @@ public class CancelLessonAsyncTask extends AsyncTask<Object, String, String>{
             StringBuilder stringBuilder = new StringBuilder();
             String line;
 
-            while((line = bufferedReader.readLine()) != null) {
+            while ((line = bufferedReader.readLine()) != null) {
                 stringBuilder.append(line);
             }
 
@@ -56,15 +55,16 @@ public class CancelLessonAsyncTask extends AsyncTask<Object, String, String>{
         }
 
         return null;
+
     }
 
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.cancelConfirmationMessage(string);
+        callback.checkUserWallet(string);
     }
 
-    public interface ICancelLesson {
-        void cancelConfirmationMessage(String string);
+    public interface ICheckUserWallet {
+        void checkUserWallet(String string);
     }
 }

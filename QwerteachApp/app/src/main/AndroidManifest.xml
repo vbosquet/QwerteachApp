@@ -71,7 +71,8 @@
             android:label="@string/lesson_reservation_activity_title" />
         <activity
             android:name=".VirtualWalletActivity"
-            android:label="@string/virtual_wallet_activity_title" />
+            android:label="@string/virtual_wallet_activity_title"
+            android:parentActivityName=".DashboardActivity"/>
         <activity
             android:name=".PaymentMethodActivity"
             android:label="@string/payment_method_activity_title" />
@@ -80,8 +81,12 @@
             android:label="@string/mango_pay_web_view_activity_title"
             android:parentActivityName=".PaymentMethodActivity" />
         <activity android:name=".RegisterNewCardActivity" />
-        <activity android:name=".MyLessonsActivity"
-            android:label="@string/my_lessons_activity_title"/>
+        <activity
+            android:name=".MyLessonsActivity"
+            android:label="@string/my_lessons_activity_title"
+            android:parentActivityName=".DashboardActivity"/>
+        <activity android:name=".ReloadWalletActivity"
+            android:label="@string/reload_wallet_activity_title" />
     </application>
 
 </manifest>

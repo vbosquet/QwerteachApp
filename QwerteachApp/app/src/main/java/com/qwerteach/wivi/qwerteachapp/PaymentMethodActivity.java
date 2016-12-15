@@ -163,6 +163,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements GetTotal
                 setCreditCardChoice();
 
             } else {
+                currentAlias = "Nouvelle carte de crédit";
                 otherPaymentMethodDetailsLayout.addView(addNewCreditCard());
             }
 
@@ -400,6 +401,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements GetTotal
         ArrayAdapter creditCardAliasAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, creditCardAlias);
         creditCardAliasAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         creditCarsAliasSpinner.setAdapter(creditCardAliasAdapter);
+        creditCarsAliasSpinner.setSelection(1);
         creditCarsAliasSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -503,10 +505,11 @@ public class PaymentMethodActivity extends AppCompatActivity implements GetTotal
                 getTotalWalletAsyncTask.execute(email, token, userId);
                 paymentWithVirtualWallet.setChecked(false);
                 Toast.makeText(this, R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(this, MyLessonsActivity.class);
+                startActivity(intent);
 
             } else if (message.equals("result")) {
                 String returnURL = jsonObject.getString("url");
-
                 Intent intent = new Intent(this, MangoPayWebViewActivity.class);
                 intent.putExtra("url", returnURL);
                 startActivity(intent);
@@ -539,8 +542,6 @@ public class PaymentMethodActivity extends AppCompatActivity implements GetTotal
 
             if (message.equals("result")) {
                 String secureModeReturnUrl = jsonObject.getString("url");
-                Log.i("SECURE_MODE_URL", secureModeReturnUrl);
-
                 Intent intent = new Intent(this, RegisterNewCardActivity.class);
                 intent.putExtra("url", secureModeReturnUrl);
                 startActivity(intent);
@@ -549,7 +550,9 @@ public class PaymentMethodActivity extends AppCompatActivity implements GetTotal
                 GetTotalWalletAsyncTask getTotalWalletAsyncTask = new GetTotalWalletAsyncTask(this);
                 getTotalWalletAsyncTask.execute(email, token, userId);
                 paymentWithVirtualWallet.setChecked(false);
-                Toast.makeText(this, "Merci ! Votre demande a bien été envoyée au professeur.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(this, MyLessonsActivity.class);
+                startActivity(intent);
             }
 
         } catch (JSONException e) {

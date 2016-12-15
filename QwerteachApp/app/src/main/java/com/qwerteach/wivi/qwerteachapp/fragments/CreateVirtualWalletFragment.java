@@ -4,8 +4,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -18,7 +22,6 @@ import android.widget.Toast;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.CreateNewWalletAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosProfileAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosTopicsAsyncTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -67,12 +70,18 @@ public class CreateVirtualWalletFragment extends Fragment implements DisplayInfo
         }
 
         Collections.sort(countries);
+
+        setHasOptionsMenu(true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         startDisplayInfosProfileAsyncTask();
+
         view = inflater.inflate(R.layout.fragment_create_virtual_wallet, container, false);
+
+        getActivity().setTitle(getResources().getString(R.string.create_new_virtual_wallet_fragment_title));
+
         firstNameEditText = (EditText) view.findViewById(R.id.firstname_edit_text);
         lastNameEditText = (EditText) view.findViewById(R.id.lastname_edit_text);
         addressEditText = (EditText) view.findViewById(R.id.address_edit_text);
@@ -166,7 +175,7 @@ public class CreateVirtualWalletFragment extends Fragment implements DisplayInfo
         String region = regionEditText.getText().toString();
 
         CreateNewWalletAsyncTask createNewWalletAsyncTask = new CreateNewWalletAsyncTask(this);
-        createNewWalletAsyncTask.execute(userId, email, token, firstName, lastName, address,
+        createNewWalletAsyncTask.execute(email, token, firstName, lastName, address,
                 streetNumber, postalCode, city, region, countryCode, regionCode, nationalityCode);
     }
 
@@ -178,7 +187,7 @@ public class CreateVirtualWalletFragment extends Fragment implements DisplayInfo
 
             if (message.equals("true")) {
                 Toast.makeText(getContext(), R.string.registration_new_wallet_success_toast_message, Toast.LENGTH_SHORT).show();
-                getActivity().finish();
+                getActivity().getSupportFragmentManager().popBackStack();
 
             } else if (message.equals("errors")) {
                 Toast.makeText(getContext(), R.string.registration_new_wallet_erros_toast_messsage, Toast.LENGTH_SHORT).show();
@@ -201,5 +210,11 @@ public class CreateVirtualWalletFragment extends Fragment implements DisplayInfo
         }
 
         return newCountryCode;
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(final Menu menu) {
+        menu.findItem(R.id.reload_wallet_button).setVisible(false);
+        super.onPrepareOptionsMenu(menu);
     }
 }

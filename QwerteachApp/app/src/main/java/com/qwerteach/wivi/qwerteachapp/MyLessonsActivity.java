@@ -1,5 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
@@ -63,7 +64,8 @@ public class MyLessonsActivity extends AppCompatActivity implements GetAllMyLess
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
+                Intent intent = new Intent(this, DashboardActivity.class);
+                startActivity(intent);
                 return true;
         }
 
@@ -176,12 +178,13 @@ public class MyLessonsActivity extends AppCompatActivity implements GetAllMyLess
 
         try {
             JSONObject jsonObject = new JSONObject(string);
-            JSONObject lessonJson = jsonObject.getJSONObject("lesson");
             String message = jsonObject.getString("message");
             String success = jsonObject.getString("success");
-            int lessonId = lessonJson.getInt("id");
 
             if (success.equals("true")) {
+                JSONObject lessonJson = jsonObject.getJSONObject("lesson");
+                int lessonId = lessonJson.getInt("id");
+
                 for (int i = 0; i < lessons.size(); i++) {
                     if (lessonId == lessons.get(i).getLessonId()) {
                         lessons.get(i).setCanceled(true);

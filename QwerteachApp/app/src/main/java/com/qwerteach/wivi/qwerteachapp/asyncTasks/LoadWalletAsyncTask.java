@@ -15,50 +15,38 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Created by wivi on 29/11/16.
+ * Created by wivi on 12/12/16.
  */
 
-public class CreateNewWalletAsyncTask extends AsyncTask<String, String, String> {
+public class LoadWalletAsyncTask extends AsyncTask<String, String, String> {
 
-    private ICreateNewWallet callback;
+    private ILoadWallet callback;
 
-    public CreateNewWalletAsyncTask(ICreateNewWallet callback) {
+    public LoadWalletAsyncTask(ILoadWallet callback) {
         this.callback = callback;
     }
 
     @Override
     protected String doInBackground(String... strings) {
+
         String email = strings[0];
         String token = strings[1];
-        String firstName = strings[2];
-        String lastName = strings[3];
-        String address = strings[4];
-        String streetNumber = strings[5];
-        String postalCode = strings[6];
-        String city = strings[7];
-        String region = strings[8];
-        String country = strings[9];
-        String residencePlace = strings[10];
-        String nationality = strings[11];
+        String amount = strings[2];
+        String cardType = strings[3];
+        String cardId = strings[4];
 
         try {
+
             JSONObject jsonObject = new JSONObject();
-            JSONObject accountJson = new JSONObject();
+            jsonObject.put("amount", amount);
 
-            jsonObject.put("first_name", firstName);
-            jsonObject.put("last_name", lastName);
-            jsonObject.put("address_line1", address);
-            jsonObject.put("address_line2", streetNumber);
-            jsonObject.put("postal_code", postalCode);
-            jsonObject.put("city", city);
-            jsonObject.put("country", country);
-            jsonObject.put("region", region);
-            jsonObject.put("country_of_residence", residencePlace);
-            jsonObject.put("nationality", nationality);
+            if (cardId != null) {
+                jsonObject.put("card", cardId);
+            }
 
-            accountJson.put("account", jsonObject);
+            jsonObject.put("card_type", cardType);
 
-            URL url = new URL("http://192.168.0.111:3000/api/user/mangopay/edit_wallet");
+            URL url = new URL("http://192.168.0.111:3000/api/user/mangopay/direct_debit");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);
@@ -68,7 +56,7 @@ public class CreateNewWalletAsyncTask extends AsyncTask<String, String, String> 
             httpURLConnection.setRequestMethod("PUT");
 
             OutputStream os = httpURLConnection.getOutputStream();
-            os.write(accountJson.toString().getBytes("UTF-8"));
+            os.write(jsonObject.toString().getBytes("UTF-8"));
             os.flush();
             os.close();
 
@@ -86,10 +74,9 @@ public class CreateNewWalletAsyncTask extends AsyncTask<String, String, String> 
 
             return stringBuilder.toString();
 
-        } catch (JSONException | IOException e) {
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
-
 
         return null;
     }
@@ -97,10 +84,10 @@ public class CreateNewWalletAsyncTask extends AsyncTask<String, String, String> 
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.confirmationCreationNewWallet(string);
+        callback.loadWallet(string);
     }
 
-    public interface ICreateNewWallet {
-        void confirmationCreationNewWallet(String string);
+    public interface ILoadWallet {
+        void loadWallet(String string);
     }
 }

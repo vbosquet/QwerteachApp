@@ -1,7 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp.asyncTasks;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,26 +10,26 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Created by wivi on 8/12/16.
+ * Created by wivi on 9/12/16.
  */
 
-public class CancelLessonAsyncTask extends AsyncTask<Object, String, String>{
+public class GetAllWalletInfosAsyncTask extends AsyncTask<String, String, String> {
 
-    private ICancelLesson callback;
+    private IGetAllWalletInfos callback;
 
-    public CancelLessonAsyncTask(ICancelLesson callback) {
+    public GetAllWalletInfosAsyncTask(IGetAllWalletInfos callback) {
         this.callback = callback;
     }
 
+
     @Override
-    protected String doInBackground(Object... objects) {
-        int lessonId = (int) objects[0];
-        String email = (String) objects[1];
-        String token = (String) objects[2];
+    protected String doInBackground(String... strings) {
+        String email = strings[0];
+        String token = strings[1];
 
         try {
 
-            URL url = new URL("http://192.168.0.111:3000/api/lessons/" + lessonId + "/cancel");
+            URL url = new URL("http://192.168.0.111:3000/api/user/mangopay/index_wallet");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.addRequestProperty("X-User-Email", email);
             connection.addRequestProperty("X-User-Token", token);
@@ -61,10 +60,10 @@ public class CancelLessonAsyncTask extends AsyncTask<Object, String, String>{
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.cancelConfirmationMessage(string);
+        callback.getAllWalletInfos(string);
     }
 
-    public interface ICancelLesson {
-        void cancelConfirmationMessage(String string);
+    public interface IGetAllWalletInfos {
+        void getAllWalletInfos(String string);
     }
 }

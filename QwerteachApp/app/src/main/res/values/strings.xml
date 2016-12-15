@@ -140,7 +140,7 @@
     <string name="country_name_text_view">Pays</string>
     <string name="nationality_text_view">Nationalité</string>
     <string name="residence_place_text_view">Lieu de résidence</string>
-    <string name="registration_new_wallet_success_toast_message">Votre Portefeuille virtuel a été créé avec succes.</string>
+    <string name="registration_new_wallet_success_toast_message">Votre Portefeuille virtuel a été créé avec succès.</string>
     <string name="registration_new_wallet_erros_toast_messsage">Impossible de créer votre Portefeuille virtuel. Veuillez remplir tous les champs.</string>
     <string name="payment_method_activity_title">Paiement</string>
     <string name="payment_with_virtual_wallet">Payer avec mon Portefeuille virtuel</string>
@@ -150,10 +150,20 @@
     <string name="lesson_reservation_finish_button">Finaliser la demande de cours</string>
     <string name="mango_pay_web_view_activity_title">Finaliser le paiement</string>
     <string name="payment_success_toast_message">Merci ! Votre demande a bien été envoyée au professeur.</string>
+    <string name="payment_error_toast_message">Il y a eu un problème lors de la réservation. Le cours n\'a pas été réservé.</string>
     <string name="total_wallet_insufficient_toast_message">Vous ne possédez pas suffisamment de crédits sur votre Portefeuille.</string>
     <string name="my_lessons_activity_title">Mes cours</string>
     <string name="lesson_expired_status">Demande de cours expirée</string>
     <string name="lesson_canceled_status">Demande de cours annulée</string>
     <string name="lesson_to_validate">En attente de validation</string>
     <string name="cancel_lesson_button">Annuler le cours</string>
+    <string name="updating_wallet_success_toast_message">Vos informations ont été enregistrées avec succès.</string>
+    <string name="updating_wallet_error_toast_message">Impossible d\'enregistrer vos informations. Veuillez réessayer.</string>
+    <string name="reload_wallet_button">RECHARGER</string>
+    <string name="reload_wallet_activity_title">Recharger Portefeuille</string>
+    <string name="amount_tewt_view">Montant</string>
+    <string name="payment_method_text_view">Mode de payement</string>
+    <string name="load_wallet_by_credit_card_sucess_toast_message">La transaction s\'est correctement déroulée.</string>
+    <string name="create_new_virtual_wallet_fragment_title">Créer Portefeuille Virtuel</string>
+    <string name="no_credit_card_for_easy_payment_text_view">Vous n\'avez aucune carte enregistrée</string>
 </resources>

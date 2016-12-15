@@ -10,27 +10,28 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import javax.net.ssl.HttpsURLConnection;
+
 /**
- * Created by wivi on 8/12/16.
+ * Created by wivi on 2/12/16.
  */
 
-public class CancelLessonAsyncTask extends AsyncTask<Object, String, String>{
+public class GetPreRegistrationCardDataAsyncTask extends AsyncTask<String, String, String> {
 
-    private ICancelLesson callback;
+    private IGetPreRegistrationData callback;
 
-    public CancelLessonAsyncTask(ICancelLesson callback) {
+    public GetPreRegistrationCardDataAsyncTask(IGetPreRegistrationData callback) {
         this.callback = callback;
     }
 
     @Override
-    protected String doInBackground(Object... objects) {
-        int lessonId = (int) objects[0];
-        String email = (String) objects[1];
-        String token = (String) objects[2];
+    protected String doInBackground(String... strings) {
+        String email = strings[0];
+        String token = strings[1];
 
         try {
 
-            URL url = new URL("http://192.168.0.111:3000/api/lessons/" + lessonId + "/cancel");
+            URL url = new URL("http://192.168.0.111:3000/api/user/mangopay/card_info");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.addRequestProperty("X-User-Email", email);
             connection.addRequestProperty("X-User-Token", token);
@@ -55,16 +56,17 @@ public class CancelLessonAsyncTask extends AsyncTask<Object, String, String>{
             e.printStackTrace();
         }
 
+
         return null;
     }
 
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.cancelConfirmationMessage(string);
+        callback.getPreRegistrationData(string);
     }
 
-    public interface ICancelLesson {
-        void cancelConfirmationMessage(String string);
+    public interface IGetPreRegistrationData {
+        void getPreRegistrationData(String string);
     }
 }

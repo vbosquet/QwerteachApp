@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -53,17 +54,25 @@ public class RegisterNewCardActivity extends AppCompatActivity implements Credit
     @Override
     public void getCreditCardProcess(String string) {
 
+        Log.i("STRING", string);
+
         try {
             JSONObject jsonObject = new JSONObject(string);
             String message = jsonObject.getString("success");
 
             if (message.equals("true")) {
                 Toast.makeText(this, R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(getApplicationContext(), PaymentMethodActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                Intent intent = new Intent(getApplicationContext(), MyLessonsActivity.class);
+                //intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
+
+            } else if (message.equals("loaded")) {
+                Toast.makeText(this, R.string.load_wallet_by_credit_card_sucess_toast_message, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(getApplicationContext(), VirtualWalletActivity.class);
+                startActivity(intent);
+
             } else {
-                Toast.makeText(getApplicationContext(), "Il y a eu un problème lors de la réservation. Le cours n\'a pas été réservé.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), R.string.payment_error_toast_message, Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(getApplicationContext(), PaymentMethodActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
