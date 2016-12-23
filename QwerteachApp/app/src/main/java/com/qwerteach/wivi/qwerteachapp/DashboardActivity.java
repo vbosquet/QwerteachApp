@@ -60,6 +60,11 @@ public class DashboardActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
 
+                if (action.equals(menuDrawerItems[2])) {
+                    Intent intent = new Intent(getApplicationContext(), MyMessagesActivity.class);
+                    startActivity(intent);
+                }
+
                 if (action.equals(menuDrawerItems[3])) {
                     Intent intent = new Intent(getApplicationContext(), VirtualWalletActivity.class);
                     startActivity(intent);

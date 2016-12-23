@@ -10,17 +10,16 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Created by wivi on 9/12/16.
+ * Created by wivi on 22/12/16.
  */
 
-public class GetAllWalletInfosAsyncTask extends AsyncTask<String, String, String> {
+public class GetAllConversationsAsyncTask extends AsyncTask<String, String, String> {
 
-    private IGetAllWalletInfos callback;
+    private IGetAllConversations callback;
 
-    public GetAllWalletInfosAsyncTask(IGetAllWalletInfos callback) {
+    public GetAllConversationsAsyncTask(IGetAllConversations callback) {
         this.callback = callback;
     }
-
 
     @Override
     protected String doInBackground(String... strings) {
@@ -29,7 +28,7 @@ public class GetAllWalletInfosAsyncTask extends AsyncTask<String, String, String
 
         try {
 
-            URL url = new URL("http://192.168.0.108:3000/api/user/mangopay/index_wallet");
+            URL url = new URL("http://192.168.0.108:3000/api/mailbox/inbox");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.addRequestProperty("X-User-Email", email);
             connection.addRequestProperty("X-User-Token", token);
@@ -60,10 +59,10 @@ public class GetAllWalletInfosAsyncTask extends AsyncTask<String, String, String
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.getAllWalletInfos(string);
+        callback.getAllConversations(string);
     }
 
-    public interface IGetAllWalletInfos {
-        void getAllWalletInfos(String string);
+    public interface IGetAllConversations {
+        void getAllConversations(String string);
     }
 }

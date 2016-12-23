@@ -72,7 +72,7 @@
         <activity
             android:name=".VirtualWalletActivity"
             android:label="@string/virtual_wallet_activity_title"
-            android:parentActivityName=".DashboardActivity"/>
+            android:parentActivityName=".DashboardActivity" />
         <activity
             android:name=".PaymentMethodActivity"
             android:label="@string/payment_method_activity_title" />
@@ -84,9 +84,15 @@
         <activity
             android:name=".MyLessonsActivity"
             android:label="@string/my_lessons_activity_title"
-            android:parentActivityName=".DashboardActivity"/>
-        <activity android:name=".ReloadWalletActivity"
+            android:parentActivityName=".DashboardActivity" />
+        <activity
+            android:name=".ReloadWalletActivity"
             android:label="@string/reload_wallet_activity_title" />
+        <activity
+            android:name=".MyMessagesActivity"
+            android:label="@string/my_messages_activity_title"
+            android:parentActivityName=".DashboardActivity" />
+        <activity android:name=".ChatActivity"></activity>
     </application>
 
 </manifest>

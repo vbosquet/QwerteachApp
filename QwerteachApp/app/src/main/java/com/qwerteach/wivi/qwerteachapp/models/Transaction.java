@@ -6,18 +6,18 @@ package com.qwerteach.wivi.qwerteachapp.models;
 
 public class Transaction {
 
-    private int transactionId;
+    private String transactionId;
     private String date;
     private String type;
-    private int authorId;
-    private int creditedUserId;
+    private String authorId;
+    private String creditedUserId;
     private String creditedAmount;
     private String debitedAmount;
     private String fees;
     private String authorName;
     private String creditedUserName;
 
-    public Transaction(int transactionId, String date, String type, int authorId, int creditedUserId, String creditedAmount, String debitedAmount, String fees) {
+    public Transaction(String transactionId, String date, String type, String authorId, String creditedUserId, String creditedAmount, String debitedAmount, String fees) {
         this.transactionId = transactionId;
         this.date = date;
         this.type = type;
@@ -28,11 +28,11 @@ public class Transaction {
         this.fees = fees;
     }
 
-    public int getTransactionId() {
+    public String getTransactionId() {
         return transactionId;
     }
 
-    public void setTransactionId(int transactionId) {
+    public void setTransactionId(String transactionId) {
         this.transactionId = transactionId;
     }
 
@@ -52,19 +52,19 @@ public class Transaction {
         this.type = type;
     }
 
-    public int getAuthorId() {
+    public String getAuthorId() {
         return authorId;
     }
 
-    public void setAuthorId(int authorId) {
+    public void setAuthorId(String authorId) {
         this.authorId = authorId;
     }
 
-    public int getCreditedUserId() {
+    public String getCreditedUserId() {
         return creditedUserId;
     }
 
-    public void setCreditedUserId(int creditedUserId) {
+    public void setCreditedUserId(String creditedUserId) {
         this.creditedUserId = creditedUserId;
     }
 

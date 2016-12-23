@@ -108,11 +108,22 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
 
     @Override
     public void displayConfirmationRegistrationInfosProfile(String string) {
+
         try {
             JSONObject jsonObject = new JSONObject(string);
             String regsitrationConfirmation = jsonObject.getString("success");
 
             if (regsitrationConfirmation.equals("true")) {
+                JSONObject userJson = jsonObject.getJSONObject("user");
+                String firstName = userJson.getString("firstname");
+                String lastName = userJson.getString("lastname");
+
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString("lastName", lastName);
+                editor.putString("firstName", firstName);
+                editor.apply();
+
                 Toast.makeText(getContext(), R.string.infos_profile_registration_success_toast, Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getContext(), R.string.infos_profile_registration_error_toast, Toast.LENGTH_SHORT).show();

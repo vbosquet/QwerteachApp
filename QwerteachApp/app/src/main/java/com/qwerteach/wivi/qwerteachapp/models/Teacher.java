@@ -20,6 +20,16 @@ public class Teacher implements Serializable{
     private ArrayList<Double> priceList;
     private ArrayList<SmallAd> smallAds;
 
+    public Teacher() {
+
+    }
+
+    public Teacher(int teacherId, String firstName, String lastName) {
+        this.teacherId = teacherId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
     public Teacher(int id, String firstName, String lastName, String description, String occupation, String birthDate) {
         this.teacherId = id;
         this.firstName = firstName;

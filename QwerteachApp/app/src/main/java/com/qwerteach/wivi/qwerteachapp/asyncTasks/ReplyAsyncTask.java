@@ -1,9 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp.asyncTasks;
 
 import android.os.AsyncTask;
-import android.util.Log;
-
-import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,40 +12,43 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 
 /**
- * Created by wivi on 22/11/16.
+ * Created by wivi on 23/12/16.
  */
 
-public class DisplayTopicLevelsAsyncTask extends AsyncTask<Object, String, String> {
+public class ReplyAsyncTask extends AsyncTask<Object, String, String> {
 
-    private IDisplayTopicLevels callback;
+    private IReply callback;
 
-    public DisplayTopicLevelsAsyncTask(IDisplayTopicLevels callback) {
+    public ReplyAsyncTask(IReply callback) {
         this.callback = callback;
     }
 
     @Override
     protected String doInBackground(Object... objects) {
-        int topicId = (int) objects[0];
+        String email = (String) objects[0];
+        String token = (String) objects[1];
+        String message = (String) objects[2];
+        int conversationId = (int) objects[3];
 
         try {
 
             JSONObject json = new JSONObject();
-            JSONObject topicJson = new JSONObject();
-            json.put("topic_id", topicId);
-            topicJson.put("topic", json);
 
-            URL url = new URL("http://192.168.0.108:3000/api/find_topics/find_levels");
+            json.put("body", message);
+
+            URL url = new URL("http://192.168.0.108:3000/api/conversations/" + conversationId + "/reply");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            httpURLConnection.addRequestProperty("X-User-Email", email);
+            httpURLConnection.addRequestProperty("X-User-Token", token);
             httpURLConnection.setDoOutput(true);
             httpURLConnection.setDoInput(true);
             httpURLConnection.setRequestMethod("POST");
 
             OutputStream os = httpURLConnection.getOutputStream();
-            os.write(topicJson.toString().getBytes("UTF-8"));
+            os.write(json.toString().getBytes("UTF-8"));
             os.flush();
             os.close();
 
@@ -70,18 +70,16 @@ public class DisplayTopicLevelsAsyncTask extends AsyncTask<Object, String, Strin
             e.printStackTrace();
         }
 
-
-
         return null;
     }
 
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.displayTopicLevels(string);
+        callback.confirmationMessage(string);
     }
 
-    public interface IDisplayTopicLevels {
-        void displayTopicLevels(String string);
+    public interface IReply {
+        void confirmationMessage(String string);
     }
 }

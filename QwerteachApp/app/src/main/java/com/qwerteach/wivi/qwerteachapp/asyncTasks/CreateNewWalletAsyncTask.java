@@ -58,7 +58,7 @@ public class CreateNewWalletAsyncTask extends AsyncTask<String, String, String> 
 
             accountJson.put("account", jsonObject);
 
-            URL url = new URL("http://192.168.0.111:3000/api/user/mangopay/edit_wallet");
+            URL url = new URL("http://192.168.0.108:3000/api/user/mangopay/edit_wallet");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);

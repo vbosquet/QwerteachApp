@@ -156,7 +156,6 @@ public class UpdateLessonFragment extends Fragment implements GetLessonsInfosAsy
 
     @Override
     public void updateConfirmationMessage(String string) {
-        Log.i("CONFIRMATION_MESSAGE", string);
         try {
             JSONObject jsonObject = new JSONObject(string);
             String success = jsonObject.getString("success");

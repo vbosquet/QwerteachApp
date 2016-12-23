@@ -83,9 +83,9 @@ public class PaymentHistoryTabFragment extends Fragment implements GetAllWalletI
                 JSONObject fees = jsonData.getJSONObject("fees");
                 int feesAmount = fees.getInt("amount") / 100;
                 String feesCurrency = fees.getString("currency");
-                int transactionId = jsonData.getInt("id");
-                int authorId = jsonData.getInt("author_id");
-                int creditedUserId = jsonData.getInt("credited_user_id");
+                String transactionId = jsonData.getString("id");
+                String authorId = jsonData.getString("author_id");
+                String creditedUserId = jsonData.getString("credited_user_id");
                 String type = jsonData.getString("type");
                 String date = jsonData.getString("creation_date");
                 String transactionDate = getDate(date);
@@ -113,7 +113,7 @@ public class PaymentHistoryTabFragment extends Fragment implements GetAllWalletI
 
     }
 
-    public void startFindUsersByMangoIdAsyncTask(int authorId, int creditedUserId, int transactionId) {
+    public void startFindUsersByMangoIdAsyncTask(String authorId, String creditedUserId, String transactionId) {
         FindUsersByMangoIdAsyncTask findUsersByMangoIdAsyncTask = new FindUsersByMangoIdAsyncTask(this);
         findUsersByMangoIdAsyncTask.execute(email, token, authorId, creditedUserId, transactionId);
     }
@@ -132,17 +132,17 @@ public class PaymentHistoryTabFragment extends Fragment implements GetAllWalletI
             JSONObject jsonObject = new JSONObject(string);
             String authorName = jsonObject.getString("author");
             String creditedUserName = jsonObject.getString("credited_user");
-            int transactionId = jsonObject.getInt("transaction");
+            String transactionId = jsonObject.getString("transaction");
 
             for (int i = 0; i < transactions.size(); i++) {
-                int id = transactions.get(i).getTransactionId();
+                String id = transactions.get(i).getTransactionId();
 
-                if (id == transactionId) {
+                if (id.equals(transactionId)) {
                     transactions.get(i).setAuthorName(authorName);
                     transactions.get(i).setCreditedUserName(creditedUserName);
                 }
 
-                if (id == transactions.get(transactions.size() - 1).getTransactionId()) {
+                if (id.equals(transactions.get(transactions.size() - 1).getTransactionId())) {
                     setTransactionsListView();
                 }
             }

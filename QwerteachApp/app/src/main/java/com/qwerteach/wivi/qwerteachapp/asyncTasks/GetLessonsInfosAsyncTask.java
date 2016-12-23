@@ -42,7 +42,7 @@ public class GetLessonsInfosAsyncTask extends AsyncTask<Object, String, String> 
             jsonObject.put("level_id", levelId);
             jsonObject.put("lesson_id", lessonId);
 
-            URL url = new URL("http://192.168.0.111:3000/api/lessons/find_lesson_infos");
+            URL url = new URL("http://192.168.0.108:3000/api/lessons/find_lesson_infos");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);

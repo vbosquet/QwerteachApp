@@ -1,5 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -8,6 +9,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,12 +17,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayTopicLevelsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.NewLessonRequestAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.SendMessageToTeacherAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Level;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
@@ -47,7 +52,8 @@ import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
 public class TeacherProfileActivity extends AppCompatActivity implements DisplayTopicLevelsAsyncTask.IDisplayTopicLevels,
-        NewLessonRequestAsyncTask.INewLessonRequest {
+        NewLessonRequestAsyncTask.INewLessonRequest,
+        SendMessageToTeacherAsyncTask.ISendMessageToTeacher {
 
     Teacher teacher;
     SmallAd smallAd;
@@ -56,7 +62,7 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
     ArrayList<SmallAd> smallAds;
     ArrayList<Level> levels;
     ArrayList<String> topicGroupTitleList;
-    String email, token, query;
+    String email, token, query, firstName, lastName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +97,8 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         email = preferences.getString("email", "");
         token = preferences.getString("token", "");
+        firstName = preferences.getString("firstName", "");
+        lastName = preferences.getString("lastName", "");
 
         for (int i = 0; i < smallAds.size(); i++) {
             int topicId = smallAds.get(i).getTopicId();
@@ -162,6 +170,46 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
     }
 
     public void didTouchContactButton(View view) {
+        createContactTeacherAlertDialog();
+    }
+
+    public void createContactTeacherAlertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View content = inflater.inflate(R.layout.alert_dialog_contact_teacher, null);
+        builder.setView(content);
+
+        TextView titleTextView = (TextView) content.findViewById(R.id.alert_dialog_title);
+        final EditText userMessageEditText = (EditText) content.findViewById(R.id.alert_dialog_user_message);
+
+        String message = ("Posez une question à " + teacher.getFirstName());
+        titleTextView.setText(message);
+
+        builder.setPositiveButton("ENVOYER", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                String body = userMessageEditText.getText().toString();
+                int recipient = teacher.getTeacherId();
+                String subject = firstName + " " + lastName + " vous pose une question !";
+
+                startSendMessageToTeacherAsyncTask(body, subject, recipient);
+
+            }
+        });
+        builder.setNegativeButton("ANNULER", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+
+        builder.create().show();
+
+    }
+
+    public void startSendMessageToTeacherAsyncTask(String body, String subject, int recipient) {
+        SendMessageToTeacherAsyncTask sendMessageToTeacherAsyncTask = new SendMessageToTeacherAsyncTask(this);
+        sendMessageToTeacherAsyncTask.execute(email, token, subject, body, recipient);
     }
 
     public void didTouchSeeDetailedPrices(View view) {
@@ -283,6 +331,22 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
                 intent.putExtra("teacher", teacher);
                 startActivity(intent);
             }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void confirmationMessage(String string) {
+
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            String message = jsonObject.getString("message");
+            Intent intent = new Intent(this, MyMessagesActivity.class);
+            startActivity(intent);
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
 
         } catch (JSONException e) {
             e.printStackTrace();

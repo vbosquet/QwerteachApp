@@ -39,7 +39,7 @@ public class PayLessonWithCreditCardAsyncTask extends AsyncTask<Object, String, 
 
         try {
 
-            URL url = new URL("http://192.168.0.111:3000/api/users/" + teacherId + "/lesson_requests/payment?card_id="+ cardId
+            URL url = new URL("http://192.168.0.108:3000/api/users/" + teacherId + "/lesson_requests/payment?card_id="+ cardId
                     +"&mode=" + paymentMode);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");

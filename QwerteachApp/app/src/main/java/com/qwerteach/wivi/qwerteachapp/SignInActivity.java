@@ -147,12 +147,16 @@ public class SignInActivity extends AppCompatActivity implements SignInActivityA
                 String userId = jsonUser.getString("id");
                 String email = jsonUser.getString("email");
                 String token = jsonUser.getString("authentication_token");
+                String firstName = jsonUser.getString("firstname");
+                String lastName = jsonUser.getString("lastname");
 
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString("userId", userId);
                 editor.putString("email", email);
                 editor.putString("token", token);
+                editor.putString("firstName", firstName);
+                editor.putString("lastName", lastName);
                 editor.apply();
 
                 Toast.makeText(this, R.string.connection_success_toast, Toast.LENGTH_SHORT).show();
