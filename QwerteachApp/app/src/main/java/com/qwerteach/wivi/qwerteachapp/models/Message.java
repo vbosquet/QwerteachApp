@@ -13,14 +13,16 @@ public class Message implements Serializable{
     private int senderId;
     private int conversationId;
     private String creationDate;
+    private boolean isMine;
 
-    public Message(int messageId, String body, String subject, int senderId, int conversationId, String creationDate) {
+    public Message(int messageId, String body, String subject, int senderId, int conversationId, String creationDate, boolean isMine) {
         this.messageId = messageId;
         this.body = body;
         this.subject = subject;
         this.senderId = senderId;
         this.conversationId = conversationId;
         this.creationDate = creationDate;
+        this.isMine = isMine;
     }
 
     public int getMessageId() {
@@ -69,5 +71,13 @@ public class Message implements Serializable{
 
     public void setCreationDate(String creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public boolean isMine() {
+        return isMine;
+    }
+
+    public void setMine(boolean mine) {
+        isMine = mine;
     }
 }

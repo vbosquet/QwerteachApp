@@ -8,4 +8,6 @@
     <color name="white">#ffffff</color>
     <color name="green">#4b8500</color>
     <color name="red">#9d0707</color>
+    <color name="message_out_color">#75C07C</color>
+    <color name="message_in_color">#E166E1</color>
 </resources>

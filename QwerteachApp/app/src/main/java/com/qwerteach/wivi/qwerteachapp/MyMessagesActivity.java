@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.FindUsersByMangoIdAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllConversationsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Conversation;
 import com.qwerteach.wivi.qwerteachapp.models.ConversationAdapter;
@@ -28,7 +29,7 @@ import java.util.ArrayList;
 
 public class MyMessagesActivity extends AppCompatActivity implements GetAllConversationsAsyncTask.IGetAllConversations, AdapterView.OnItemClickListener {
 
-    String email, token;
+    String email, token, userId;
     ArrayList<Conversation> conversationsList;
     ArrayList<Teacher> teachersList;
     ListView conversationListView;
@@ -49,6 +50,7 @@ public class MyMessagesActivity extends AppCompatActivity implements GetAllConve
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         email = preferences.getString("email", "");
         token = preferences.getString("token", "");
+        userId = preferences.getString("userId", "");
 
         GetAllConversationsAsyncTask getAllConversationsAsyncTask = new GetAllConversationsAsyncTask(this);
         getAllConversationsAsyncTask.execute(email, token);
@@ -100,7 +102,12 @@ public class MyMessagesActivity extends AppCompatActivity implements GetAllConve
                     int messageConversationId = messagesData.getInt("conversation_id");
                     String creationDate = messagesData.getString("created_at");
 
-                    Message message = new Message(messageId, body, subject, senderId, messageConversationId, creationDate);
+                    boolean isMine = false;
+                    if (userId.equals(String.valueOf(senderId))) {
+                        isMine = true;
+                    }
+
+                    Message message = new Message(messageId, body, subject, senderId, messageConversationId, creationDate, isMine);
 
                     if (messageConversationId == conversationId) {
                         messagesList.add(message);

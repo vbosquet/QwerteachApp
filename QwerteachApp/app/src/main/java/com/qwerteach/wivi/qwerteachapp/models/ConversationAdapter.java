@@ -66,7 +66,7 @@ public class ConversationAdapter extends ArrayAdapter<Conversation> {
 
     public Date getDate(String dateToFormat) {
 
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         Date date = null;
         try {
             date = format.parse(dateToFormat);

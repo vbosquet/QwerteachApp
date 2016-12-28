@@ -1,5 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
@@ -13,20 +14,25 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllMessagesAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.ReplyAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Conversation;
 import com.qwerteach.wivi.qwerteachapp.models.Message;
 import com.qwerteach.wivi.qwerteachapp.models.MessageAdapter;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
-public class ChatActivity extends AppCompatActivity implements ReplyAsyncTask.IReply{
+public class ChatActivity extends AppCompatActivity implements ReplyAsyncTask.IReply,
+        GetAllMessagesAsyncTask.IGetAllMessages{
 
     Conversation conversation;
     ListView messageListView;
     ArrayList<Message> messages;
     EditText messageToSendEditText;
-    String email, token;
+    String email, token, userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +47,7 @@ public class ChatActivity extends AppCompatActivity implements ReplyAsyncTask.IR
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         email = preferences.getString("email", "");
         token = preferences.getString("token", "");
+        userId = preferences.getString("userId", "");
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -64,7 +71,8 @@ public class ChatActivity extends AppCompatActivity implements ReplyAsyncTask.IR
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
+                Intent intent = new Intent(this, MyMessagesActivity.class);
+                startActivity(intent);
                 return true;
         }
 
@@ -86,6 +94,40 @@ public class ChatActivity extends AppCompatActivity implements ReplyAsyncTask.IR
 
     @Override
     public void confirmationMessage(String string) {
-        Log.i("CONFIRMATION_MESSAGE", string);
+
+        int conversationId = conversation.getConversationId();
+        GetAllMessagesAsyncTask getAllMessagesAsyncTask = new GetAllMessagesAsyncTask(this);
+        getAllMessagesAsyncTask.execute(email, token, conversationId);
+    }
+
+    @Override
+    public void getAllMessages(String string) {
+
+        messageToSendEditText.setText("");
+
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            JSONObject lastMessage = jsonObject.getJSONObject("last_message");
+
+            int messagesId = lastMessage.getInt("id");
+            String body = lastMessage.getString("body");
+            String subject = lastMessage.getString("subject");
+            int senderId = lastMessage.getInt("sender_id");
+            int conversationId = lastMessage.getInt("conversation_id");
+            String creationDate = lastMessage.getString("created_at");
+
+            boolean isMine = false;
+            if (userId.equals(String.valueOf(senderId))) {
+                isMine = true;
+            }
+
+            Message message = new Message(messagesId, body, subject, senderId, conversationId, creationDate, isMine);
+            messages.add(message);
+
+            displayMessagesListView();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }
