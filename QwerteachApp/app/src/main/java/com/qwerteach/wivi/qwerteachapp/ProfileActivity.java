@@ -63,7 +63,8 @@ public class ProfileActivity extends AppCompatActivity implements DisplayInfosPr
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
+                intent = new Intent(this, DashboardActivity.class);
+                startActivity(intent);
                 return true;
             case R.id.edit_profile_button:
                 intent = new Intent(this, EditProfileActivity.class);

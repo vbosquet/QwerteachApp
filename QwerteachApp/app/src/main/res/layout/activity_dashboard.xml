@@ -14,7 +14,9 @@
         android:paddingTop="@dimen/activity_vertical_margin"
         tools:context=".DashboardActivity"
         android:orientation="vertical"
-        android:id="@+id/my_container">
+        android:id="@+id/my_container"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
 
         <android.support.v7.widget.SearchView
             android:id="@+id/search_view"

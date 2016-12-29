@@ -157,6 +157,7 @@ public class SignInActivity extends AppCompatActivity implements SignInActivityA
                 editor.putString("token", token);
                 editor.putString("firstName", firstName);
                 editor.putString("lastName", lastName);
+                editor.putBoolean("isLogin", true);
                 editor.apply();
 
                 Toast.makeText(this, R.string.connection_success_toast, Toast.LENGTH_SHORT).show();

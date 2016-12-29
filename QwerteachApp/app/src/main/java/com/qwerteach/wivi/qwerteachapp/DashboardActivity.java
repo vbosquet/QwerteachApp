@@ -3,7 +3,9 @@ package com.qwerteach.wivi.qwerteachapp;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -140,6 +142,14 @@ public class DashboardActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.sign_out_button:
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putBoolean("isLogin", false);
+                editor.apply();
+
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+
                 return true;
         }
 
