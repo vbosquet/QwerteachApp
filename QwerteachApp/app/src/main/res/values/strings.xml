@@ -156,7 +156,8 @@
     <string name="lesson_expired_status">Demande de cours expirée</string>
     <string name="lesson_canceled_status">Demande de cours annulée</string>
     <string name="lesson_to_validate">En attente de validation</string>
-    <string name="cancel_lesson_button">Annuler le cours</string>
+    <string name="lesson_to_accept">Acceptez-vous cette demande de cours ?</string>
+    <string name="cancel_lesson_button">Annuler</string>
     <string name="updating_wallet_success_toast_message">Vos informations ont été enregistrées avec succès.</string>
     <string name="updating_wallet_error_toast_message">Impossible d\'enregistrer vos informations. Veuillez réessayer.</string>
     <string name="reload_wallet_button">RECHARGER</string>
@@ -166,6 +167,11 @@
     <string name="load_wallet_by_credit_card_sucess_toast_message">La transaction s\'est correctement déroulée.</string>
     <string name="create_new_virtual_wallet_fragment_title">Créer Portefeuille Virtuel</string>
     <string name="no_credit_card_for_easy_payment_text_view">Vous n\'avez aucune carte enregistrée</string>
-    <string name="update_lesson_button">Modifier le cours</string>
     <string name="my_messages_activity_title">Mes messages</string>
+    <string name="new_conversation_button">NOUVEAU</string>
+    <string name="refuse_lesson_button">Refuser</string>
+    <string name="accept_lesson_button">Accepter</string>
+    <string name="update_lesson_button">Modifier</string>
+    <string name="lesson_refused_status">Demande de cours refusée</string>
+    <string name="lesson_accepted_status">Demande de cours validée</string>
 </resources>

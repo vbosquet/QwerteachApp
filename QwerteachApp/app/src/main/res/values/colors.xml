@@ -10,4 +10,5 @@
     <color name="red">#9d0707</color>
     <color name="message_out_color">#75C07C</color>
     <color name="message_in_color">#E166E1</color>
+    <color name="orange">#EC940B</color>
 </resources>

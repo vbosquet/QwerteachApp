@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -145,7 +144,7 @@ public class UpdateLessonFragment extends Fragment implements GetLessonsInfosAsy
     }
 
     public void didTouchUpdateLessonButton() {
-        int lessonId =lesson.getLessonId();
+        int lessonId = lesson.getLessonId();
         String newDate = dateTextView.getText().toString();
         String newTime = timeTextView.getText().toString();
         String timeStart = newDate + " " + newTime;

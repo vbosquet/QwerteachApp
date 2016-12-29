@@ -1,36 +1,16 @@
 package com.qwerteach.wivi.qwerteachapp;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ListView;
-import android.widget.Toast;
 
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.CancelLessonAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllMyLessonsAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetTopicAndTeacherInfosAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.UpdateLessonAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.fragments.CreateNewLessonFragment;
-import com.qwerteach.wivi.qwerteachapp.fragments.CreateVirtualWalletFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.MyLessonsListViewFragment;
-import com.qwerteach.wivi.qwerteachapp.models.Lesson;
-import com.qwerteach.wivi.qwerteachapp.models.LessonsAdapter;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 
 public class MyLessonsActivity extends AppCompatActivity {
 

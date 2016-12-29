@@ -64,8 +64,7 @@ public class ConversationAdapter extends ArrayAdapter<Conversation> {
         TextView creationDate;
     }
 
-    public Date getDate(String dateToFormat) {
-
+    public static Date getDate(String dateToFormat) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         Date date = null;
         try {
@@ -77,7 +76,7 @@ public class ConversationAdapter extends ArrayAdapter<Conversation> {
 
     }
 
-    public String getTime(Date oldDate) {
+    public static String getTime(Date oldDate) {
         Date currentDate = new Date();
 
         long diff = currentDate.getTime() - oldDate.getTime();

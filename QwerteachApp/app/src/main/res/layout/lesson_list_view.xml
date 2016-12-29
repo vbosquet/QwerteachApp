@@ -34,7 +34,7 @@
         android:layout_marginBottom="10dp"/>
 
     <TextView
-        android:id="@+id/lesson_expired_status_text_view"
+        android:id="@+id/lesson_status_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
@@ -46,12 +46,11 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/cancel_lesson_button"
+            android:id="@+id/accept_lesson_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/cancel_lesson_button"
-            android:onClick="didTouchCancelLessonButton"
-            android:background="@color/red"
+            android:text="@string/accept_lesson_button"
+            android:background="@color/green"
             android:textColor="@color/white"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
@@ -62,11 +61,31 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/update_lesson_button"
-            android:onClick="didTouchUpdateLessonButton"
-            android:background="@color/green"
+            android:background="@color/orange"
             android:textColor="@color/white"
             android:paddingLeft="10dp"
-            android:paddingRight="10dp"/>
+            android:paddingRight="10dp"
+            android:layout_marginRight="10dp"/>
+
+        <Button
+            android:id="@+id/cancel_lesson_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel_lesson_button"
+            android:background="@color/red"
+            android:textColor="@color/white"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp" />
+
+        <Button
+            android:id="@+id/refuse_lesson_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/refuse_lesson_button"
+            android:background="@color/red"
+            android:textColor="@color/white"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp" />
 
 
     </LinearLayout>

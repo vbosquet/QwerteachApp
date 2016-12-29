@@ -19,18 +19,18 @@ import java.util.HashMap;
  * Created by wivi on 8/12/16.
  */
 
-public class GetTopicAndTeacherInfosAsyncTask extends AsyncTask<Object, String, String> {
+public class GetTopicAndUserInfosAsyncTask extends AsyncTask<Object, String, String> {
 
-    private IGetTopicAndTeacherInfos callback;
+    private IGetTopicAndUserInfos callback;
 
-    public GetTopicAndTeacherInfosAsyncTask(IGetTopicAndTeacherInfos callback) {
+    public GetTopicAndUserInfosAsyncTask(IGetTopicAndUserInfos callback) {
         this.callback = callback;
     }
 
 
     @Override
     protected String doInBackground(Object... objects) {
-        int teacherId = (int) objects[0];
+        int userId = (int) objects[0];
         int topicId = (int) objects[1];
         String email = (String) objects[2];
         String token = (String) objects[3];
@@ -39,11 +39,11 @@ public class GetTopicAndTeacherInfosAsyncTask extends AsyncTask<Object, String, 
         JSONObject jsonObject = new JSONObject();
 
         try {
-            jsonObject.put("teacher_id", teacherId);
+            jsonObject.put("user_id", userId);
             jsonObject.put("topic_id", topicId);
             jsonObject.put("lesson_id", lessonId);
 
-            URL url = new URL("http://192.168.0.108:3000/api/lessons/find_topic_and_teacher");
+            URL url = new URL("http://192.168.0.108:3000/api/lessons/find_topic_and_user");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);
@@ -82,11 +82,11 @@ public class GetTopicAndTeacherInfosAsyncTask extends AsyncTask<Object, String, 
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.getTopicAndTeacherInfos(string);
+        callback.getTopicAndUserInfos(string);
     }
 
 
-    public interface IGetTopicAndTeacherInfos {
-        void getTopicAndTeacherInfos(String string);
+    public interface IGetTopicAndUserInfos {
+        void getTopicAndUserInfos(String string);
     }
 }

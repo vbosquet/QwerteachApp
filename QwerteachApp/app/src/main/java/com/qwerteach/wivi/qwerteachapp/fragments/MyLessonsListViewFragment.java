@@ -9,14 +9,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.qwerteach.wivi.qwerteachapp.R;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.AcceptLessonAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.CancelLessonAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllMyLessonsAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetTopicAndTeacherInfosAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetTopicAndUserInfosAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.RefuseLessonAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 import com.qwerteach.wivi.qwerteachapp.models.LessonsAdapter;
 
@@ -31,16 +32,18 @@ import java.util.ArrayList;
  */
 
 public class MyLessonsListViewFragment extends Fragment implements GetAllMyLessonsAsyncTask.IGetAllLessons,
-        GetTopicAndTeacherInfosAsyncTask.IGetTopicAndTeacherInfos,
-        CancelLessonAsyncTask.ICancelLesson {
+        GetTopicAndUserInfosAsyncTask.IGetTopicAndUserInfos,
+        CancelLessonAsyncTask.ICancelLesson,
+        RefuseLessonAsyncTask.IRefuseLesson,
+        AcceptLessonAsyncTask.IAcceptLesson {
 
     View view;
-    String email, token;
+    String email, token, userId;
     ArrayList<Lesson> lessons;
     ListView lessonListView;
 
     public static MyLessonsListViewFragment newInstance() {
-        MyLessonsListViewFragment myLessonsListViewFragment= new MyLessonsListViewFragment();
+        MyLessonsListViewFragment myLessonsListViewFragment = new MyLessonsListViewFragment();
         return myLessonsListViewFragment;
     }
 
@@ -55,7 +58,8 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         email = preferences.getString("email", "");
-        token =preferences.getString("token", "");
+        token = preferences.getString("token", "");
+        userId = preferences.getString("userId", "");
 
         lessons = new ArrayList<>();
         lessonListView = (ListView) view.findViewById(R.id.lesson_list_view);
@@ -68,6 +72,7 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
 
     @Override
     public void getAllMyLessons(String string) {
+
         try {
             JSONObject jsonObject = new JSONObject(string);
             JSONArray jsonArray = jsonObject.getJSONArray("lessons");
@@ -75,19 +80,29 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonData = jsonArray.getJSONObject(i);
                 int lessonId = jsonData.getInt("id");
+                int studentId = jsonData.getInt("student_id");
                 int teacherId = jsonData.getInt("teacher_id");
                 int topicId = jsonData.getInt("topic_id");
                 int topicGroupId = jsonData.getInt("topic_group_id");
                 int levelId = jsonData.getInt("level_id");
+                String status = jsonData.getString("status");
                 String price = jsonData.getString("price");
-                Lesson lesson = new Lesson(lessonId, teacherId, topicId, topicGroupId, levelId, price);
+                Lesson lesson = new Lesson(lessonId, studentId, teacherId, topicId, topicGroupId, levelId, status, price);
                 lessons.add(lesson);
             }
 
 
             for (int i = 0; i < lessons.size(); i++) {
-                GetTopicAndTeacherInfosAsyncTask getTopicAndTeacherInfosAsyncTask = new GetTopicAndTeacherInfosAsyncTask(this);
-                getTopicAndTeacherInfosAsyncTask.execute(lessons.get(i).getTeacherId(), lessons.get(i).getTopicId(),
+                int userToFind;
+
+                if (String.valueOf(lessons.get(i).getTeacherId()).equals(userId)) {
+                    userToFind = lessons.get(i).getStudentId();
+                } else {
+                    userToFind = lessons.get(i).getTeacherId();
+                }
+
+                GetTopicAndUserInfosAsyncTask getTopicAndUserInfosAsyncTask = new GetTopicAndUserInfosAsyncTask(this);
+                getTopicAndUserInfosAsyncTask.execute(userToFind, lessons.get(i).getTopicId(),
                         email, token, lessons.get(i).getLessonId());
             }
 
@@ -98,21 +113,22 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
     }
 
     @Override
-    public void getTopicAndTeacherInfos(String string) {
+    public void getTopicAndUserInfos(String string) {
+
         try {
             JSONObject jsonObject = new JSONObject(string);
-            JSONObject teacherJson = jsonObject.getJSONObject("teacher");
+            JSONObject userJson = jsonObject.getJSONObject("user");
             JSONObject topicJson = jsonObject.getJSONObject("topic");
             JSONObject lessonJson = jsonObject.getJSONObject("lesson");
-            JSONObject durationJson = lessonJson.getJSONObject("duration");
+            JSONObject durationJson = jsonObject.getJSONObject("duration");
+            String timeStart = jsonObject.getString("time_start");
+            boolean expired = jsonObject.getBoolean("expired");
 
-            String teacherFirstName = teacherJson.getString("firstname");
-            String teacherLastName = teacherJson.getString("lastname");
+            String userFirstName = userJson.getString("firstname");
+            String userLastName = userJson.getString("lastname");
             String topicTitle = topicJson.getString("title");
-            String timeStart = lessonJson.getString("time_start");
-            boolean isExpired = lessonJson.getBoolean("expired");
-            boolean isCanceled = lessonJson.getBoolean("canceled");
-            int lessonId = lessonJson.getInt("lesson_id");
+            String status = lessonJson.getString("status");
+            int lessonId = lessonJson.getInt("id");
             int hours = durationJson.getInt("hours");
             int minutes = durationJson.getInt("minutes");
             String duration;
@@ -127,13 +143,17 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
                 int id = lessons.get(i).getLessonId();
 
                 if (id == lessonId) {
-                    lessons.get(i).setTeacherFirstName(teacherFirstName);
-                    lessons.get(i).setTeacherLastName(teacherLastName);
+                    lessons.get(i).setUserFirstName(userFirstName);
+                    lessons.get(i).setUserLastName(userLastName);
                     lessons.get(i).setTopicTitle(topicTitle);
                     lessons.get(i).setDuration(duration);
                     lessons.get(i).setTimeStart(timeStart);
-                    lessons.get(i).setExpired(isExpired);
-                    lessons.get(i).setCanceled(isCanceled);
+
+                    if (expired) {
+                        lessons.get(i).setStatus("expired");
+                    } else {
+                        lessons.get(i).setStatus(status);
+                    }
                 }
 
 
@@ -155,7 +175,6 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
     }
 
     public void didTouchCancelLessonButton(int lessonId) {
-
         CancelLessonAsyncTask cancelLessonAsyncTask = new CancelLessonAsyncTask(this);
         cancelLessonAsyncTask.execute(lessonId, email, token);
     }
@@ -168,32 +187,57 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
         transaction.commit();
     }
 
+    public void didTouchAcceptLessonButton(int lessonId) {
+        AcceptLessonAsyncTask acceptLessonAsyncTask = new AcceptLessonAsyncTask(this);
+        acceptLessonAsyncTask.execute(lessonId, email, token);
+    }
+
+    public void didTouchRefuseLessonButton(int lessonId) {
+        RefuseLessonAsyncTask refuseLessonAsyncTask = new RefuseLessonAsyncTask(this);
+        refuseLessonAsyncTask.execute(lessonId, email, token);
+    }
+
     @Override
     public void cancelConfirmationMessage(String string) {
+        displayConfirmationMessage(string);
+    }
 
+    @Override
+    public void refuseConfirmationMessage(String string) {
+        displayConfirmationMessage(string);
+
+    }
+
+    @Override
+    public void acceptConfirmationMessage(String string) {
+        displayConfirmationMessage(string);
+    }
+
+    public void displayConfirmationMessage(String string) {
         try {
             JSONObject jsonObject = new JSONObject(string);
-            String message = jsonObject.getString("message");
             String success = jsonObject.getString("success");
+            String message = jsonObject.getString("message");
 
             if (success.equals("true")) {
                 JSONObject lessonJson = jsonObject.getJSONObject("lesson");
                 int lessonId = lessonJson.getInt("id");
+                String status = lessonJson.getString("status");
 
                 for (int i = 0; i < lessons.size(); i++) {
                     if (lessonId == lessons.get(i).getLessonId()) {
-                        lessons.get(i).setCanceled(true);
+                        lessons.get(i).setStatus(status);
                     }
                 }
 
                 displayLessonListView();
             }
 
-
             Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
     }
 }

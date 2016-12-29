@@ -59,7 +59,7 @@ public class MyMessagesActivity extends AppCompatActivity implements GetAllConve
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.my_lessons_menu, menu);
+        inflater.inflate(R.menu.my_messages_menu, menu);
         return true;
     }
 
@@ -69,6 +69,8 @@ public class MyMessagesActivity extends AppCompatActivity implements GetAllConve
             case android.R.id.home:
                 Intent intent = new Intent(this, DashboardActivity.class);
                 startActivity(intent);
+                return true;
+            case R.id.new_conversation_button:
                 return true;
         }
 

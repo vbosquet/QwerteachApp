@@ -9,25 +9,28 @@ import java.io.Serializable;
 public class Lesson implements Serializable {
 
     private int lessonId;
+    private int studentId;
     private int teacherId;
     private int topicId;
     private int topicGroupId;
     private int levelId;
+
+    private String status;
     private String price;
     private String timeStart;
-    private String teacherFirstName;
-    private String teacherLastName;
+    private String userFirstName;
+    private String userLastName;
     private String topicTitle;
     private String duration;
-    private boolean expired;
-    private boolean canceled;
 
-    public Lesson(int lessonId, int teacherId, int topicId, int topicGroupId, int levelId, String price) {
+    public Lesson(int lessonId, int studentId, int teacherId, int topicId, int topicGroupId, int levelId, String status, String price) {
         this.lessonId = lessonId;
+        this.studentId = studentId;
         this.teacherId = teacherId;
         this.topicId = topicId;
         this.topicGroupId = topicGroupId;
         this.levelId = levelId;
+        this.status = status;
         this.price = price;
     }
 
@@ -37,6 +40,14 @@ public class Lesson implements Serializable {
 
     public void setLessonId(int lessonId) {
         this.lessonId = lessonId;
+    }
+
+    public int getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(int studentId) {
+        this.studentId = studentId;
     }
 
     public int getTeacherId() {
@@ -79,6 +90,14 @@ public class Lesson implements Serializable {
         this.price = price;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public String getTimeStart() {
         return timeStart;
     }
@@ -87,20 +106,20 @@ public class Lesson implements Serializable {
         this.timeStart = timeStart;
     }
 
-    public String getTeacherFirstName() {
-        return teacherFirstName;
+    public String getUserFirstName() {
+        return userFirstName;
     }
 
-    public void setTeacherFirstName(String teacherFirstName) {
-        this.teacherFirstName = teacherFirstName;
+    public void setUserFirstName(String userFirstName) {
+        this.userFirstName = userFirstName;
     }
 
-    public String getTeacherLastName() {
-        return teacherLastName;
+    public String getUserLastName() {
+        return userLastName;
     }
 
-    public void setTeacherLastName(String teacherLastName) {
-        this.teacherLastName = teacherLastName;
+    public void setUserLastName(String userLastName) {
+        this.userLastName = userLastName;
     }
 
     public String getTopicTitle() {
@@ -117,21 +136,5 @@ public class Lesson implements Serializable {
 
     public void setDuration(String duration) {
         this.duration = duration;
-    }
-
-    public boolean isExpired() {
-        return expired;
-    }
-
-    public void setExpired(boolean expired) {
-        this.expired = expired;
-    }
-
-    public boolean isCanceled() {
-        return canceled;
-    }
-
-    public void setCanceled(boolean canceled) {
-        this.canceled = canceled;
     }
 }
