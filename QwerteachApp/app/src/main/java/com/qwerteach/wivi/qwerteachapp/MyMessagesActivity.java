@@ -27,7 +27,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class MyMessagesActivity extends AppCompatActivity implements GetAllConversationsAsyncTask.IGetAllConversations, AdapterView.OnItemClickListener {
+public class MyMessagesActivity extends AppCompatActivity implements GetAllConversationsAsyncTask.IGetAllConversations,
+        AdapterView.OnItemClickListener {
 
     String email, token, userId;
     ArrayList<Conversation> conversationsList;

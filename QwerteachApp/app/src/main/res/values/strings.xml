@@ -174,4 +174,7 @@
     <string name="update_lesson_button">Modifier</string>
     <string name="lesson_refused_status">Demande de cours refusée</string>
     <string name="lesson_accepted_status">Demande de cours validée</string>
+    <string name="lesson_past_status">Votre cours s\'est-il bien passé ?</string>
+    <string name="no_button">Non</string>
+    <string name="yes_button">Oui</string>
 </resources>

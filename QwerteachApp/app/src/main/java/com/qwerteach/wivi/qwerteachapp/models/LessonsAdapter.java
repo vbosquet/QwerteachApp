@@ -45,11 +45,13 @@ public class LessonsAdapter extends ArrayAdapter<Lesson> {
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String userId = preferences.getString("userId", "");
+        String timeStart = lesson.getTimeStart();
 
         if(convertView == null) {
             viewHolder = new LessonsAdapter.ViewHolder();
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.lesson_list_view, parent, false);
+
             viewHolder.lessonTitle = (TextView) convertView.findViewById(R.id.lesson_title_text_view);
             viewHolder.lessonStartTime = (TextView) convertView.findViewById(R.id.lesson_start_time_text_view);
             viewHolder.lessonDuration = (TextView) convertView.findViewById(R.id.lesson_duration_text_view);
@@ -59,6 +61,9 @@ public class LessonsAdapter extends ArrayAdapter<Lesson> {
             viewHolder.lessonUpdate = (Button) convertView.findViewById(R.id.update_lesson_button);
             viewHolder.lessonAccept = (Button) convertView.findViewById(R.id.accept_lesson_button);
             viewHolder.lessonRefuse = (Button) convertView.findViewById(R.id.refuse_lesson_button);
+            viewHolder.positiveReviewButton = (Button) convertView.findViewById(R.id.yes_button);
+            viewHolder.negativeReviewButton = (Button) convertView.findViewById(R.id.no_button);
+
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (LessonsAdapter.ViewHolder) convertView.getTag();
@@ -66,7 +71,7 @@ public class LessonsAdapter extends ArrayAdapter<Lesson> {
 
         viewHolder.lessonTitle.setText("Cours de " + lesson.getTopicTitle() +  " avec " +
                 lesson.getUserFirstName() + " " + lesson.getUserLastName());
-        viewHolder.lessonStartTime.setText("Prévu le " + lesson.getTimeStart());
+        viewHolder.lessonStartTime.setText("Prévu le " + lesson.getDate(timeStart) + " à " + lesson.getTime(timeStart));
         viewHolder.lessonDuration.setText("Durée : " + lesson.getDuration());
         viewHolder.lessonPrice.setText("Prix : " + lesson.getPrice() + " €");
 
@@ -118,6 +123,11 @@ public class LessonsAdapter extends ArrayAdapter<Lesson> {
             viewHolder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
             displayCancelButtonOnly(viewHolder);
 
+        } else if (lesson.getStatus().equals("past")){
+            viewHolder.lessonStatus.setText(R.string.lesson_past_status);
+            viewHolder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
+            displayReviewButtons(viewHolder);
+
         } else if (userId.equals(String.valueOf(lesson.getTeacherId()))
                 && lesson.getStatus().equals("pending_teacher")) {
             viewHolder.lessonStatus.setText(R.string.lesson_to_accept);
@@ -150,6 +160,8 @@ public class LessonsAdapter extends ArrayAdapter<Lesson> {
         Button lessonUpdate;
         Button lessonAccept;
         Button lessonRefuse;
+        Button positiveReviewButton;
+        Button negativeReviewButton;
     }
 
     public static void displayAcceptLessonButton(ViewHolder viewHolder) {
@@ -157,6 +169,8 @@ public class LessonsAdapter extends ArrayAdapter<Lesson> {
         viewHolder.lessonAccept.setVisibility(View.VISIBLE);
         viewHolder.lessonRefuse.setVisibility(View.VISIBLE);
         viewHolder.lessonUpdate.setVisibility(View.VISIBLE);
+        viewHolder.positiveReviewButton.setVisibility(View.GONE);
+        viewHolder.negativeReviewButton.setVisibility(View.GONE);
     }
 
     public static void removeAllButtons(ViewHolder viewHolder) {
@@ -164,6 +178,8 @@ public class LessonsAdapter extends ArrayAdapter<Lesson> {
         viewHolder.lessonAccept.setVisibility(View.GONE);
         viewHolder.lessonRefuse.setVisibility(View.GONE);
         viewHolder.lessonUpdate.setVisibility(View.GONE);
+        viewHolder.positiveReviewButton.setVisibility(View.GONE);
+        viewHolder.negativeReviewButton.setVisibility(View.GONE);
     }
 
     public static void removeAcceptLessonButton(ViewHolder viewHolder) {
@@ -171,6 +187,8 @@ public class LessonsAdapter extends ArrayAdapter<Lesson> {
         viewHolder.lessonUpdate.setVisibility(View.VISIBLE);
         viewHolder.lessonAccept.setVisibility(View.GONE);
         viewHolder.lessonRefuse.setVisibility(View.GONE);
+        viewHolder.positiveReviewButton.setVisibility(View.GONE);
+        viewHolder.negativeReviewButton.setVisibility(View.GONE);
     }
 
     public static void displayCancelButtonOnly(ViewHolder viewHolder) {
@@ -178,5 +196,16 @@ public class LessonsAdapter extends ArrayAdapter<Lesson> {
         viewHolder.lessonUpdate.setVisibility(View.GONE);
         viewHolder.lessonAccept.setVisibility(View.GONE);
         viewHolder.lessonRefuse.setVisibility(View.GONE);
+        viewHolder.positiveReviewButton.setVisibility(View.GONE);
+        viewHolder.negativeReviewButton.setVisibility(View.GONE);
+    }
+
+    public static void displayReviewButtons(ViewHolder viewHolder) {
+        viewHolder.lessonCancel.setVisibility(View.GONE);
+        viewHolder.lessonAccept.setVisibility(View.GONE);
+        viewHolder.lessonRefuse.setVisibility(View.GONE);
+        viewHolder.lessonUpdate.setVisibility(View.GONE);
+        viewHolder.positiveReviewButton.setVisibility(View.VISIBLE);
+        viewHolder.negativeReviewButton.setVisibility(View.VISIBLE);
     }
 }

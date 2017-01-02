@@ -34,6 +34,7 @@ public class GetLessonsInfosAsyncTask extends AsyncTask<Object, String, String> 
         int topicGroupId = (int) objects[3];
         int levelId = (int) objects[4];
         int lessonId = (int) objects[5];
+        int userId = (int) objects[6];
 
         JSONObject jsonObject = new JSONObject();
         try {
@@ -41,6 +42,7 @@ public class GetLessonsInfosAsyncTask extends AsyncTask<Object, String, String> 
             jsonObject.put("topic_group_id", topicGroupId);
             jsonObject.put("level_id", levelId);
             jsonObject.put("lesson_id", lessonId);
+            jsonObject.put("user_id", userId);
 
             URL url = new URL("http://192.168.0.108:3000/api/lessons/find_lesson_infos");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
@@ -69,7 +71,6 @@ public class GetLessonsInfosAsyncTask extends AsyncTask<Object, String, String> 
             inputStream.close();
 
             return stringBuilder.toString();
-
 
 
         } catch (JSONException | IOException e) {

@@ -24,7 +24,7 @@ import org.json.JSONObject;
  * Created by wivi on 15/12/16.
  */
 
-public class UpdateLessonFragment extends Fragment implements GetLessonsInfosAsyncTask.IGetLessonInfos,
+public class UpdateLessonFragment extends Fragment implements
         View.OnClickListener, UpdateLessonAsyncTask.IUpdateLesson {
 
     View view;
@@ -52,13 +52,6 @@ public class UpdateLessonFragment extends Fragment implements GetLessonsInfosAsy
         if (getArguments() != null) {
             lesson = (Lesson) getArguments().getSerializable("lesson");
         }
-
-        int topicId = lesson.getTopicId();
-        int topicGroupId = lesson.getTopicGroupId();
-        int levelId = lesson.getLevelId();
-        int lessonId = lesson.getLessonId();
-
-        startGetLessonInfosAsyncTask(topicId, topicGroupId, levelId, lessonId);
     }
 
     @Override
@@ -75,54 +68,19 @@ public class UpdateLessonFragment extends Fragment implements GetLessonsInfosAsy
         timePickerButton = (Button) view.findViewById(R.id.time_picker_button);
         saveLessonInfosButton = (Button) view.findViewById(R.id.save_lesson_infos_button);
 
+        dateTextView.setText(lesson.getDate(lesson.getTimeStart()));
+        timeTextView.setText(lesson.getTime(lesson.getTimeStart()));
+        topicTextView.setText(lesson.getTopicTitle());
+        topicGroupTextView.setText(lesson.getTopicGroupTitle());
+        levelTextView.setText(lesson.getLevel());
+        totalPriceTextView.setText(lesson.getPrice() + " €");
+        lessonDurationTextView.setText(lesson.getDuration());
+
         datePickerButton.setOnClickListener(this);
         timePickerButton.setOnClickListener(this);
         saveLessonInfosButton.setOnClickListener(this);
 
         return  view;
-    }
-
-    @Override
-    public void displayLessonInfos(String string) {
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONObject durationJson = jsonObject.getJSONObject("duration");
-            JSONObject timeStartJson = jsonObject.getJSONObject("time_start");
-
-            String topicTitle = jsonObject.getString("topic");
-            String topicGroupTitle = jsonObject.getString("topic_group");
-            String level = jsonObject.getString("level");
-            int hours = durationJson.getInt("hours");
-            int minutes = durationJson.getInt("minutes");
-            String date = timeStartJson.getString("date");
-            String time = timeStartJson.getString("time");
-
-            String duration;
-
-            if (minutes == 0) {
-                duration = hours + "h";
-            } else {
-                duration = hours + "h" + minutes;
-            }
-
-            dateTextView.setText(date);
-            timeTextView.setText(time);
-            topicTextView.setText(topicTitle);
-            topicGroupTextView.setText(topicGroupTitle);
-            levelTextView.setText(level);
-            totalPriceTextView.setText(lesson.getPrice() + " €");
-            lessonDurationTextView.setText(duration);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void startGetLessonInfosAsyncTask(int topicId, int topicGroupId, int levelId, int lessonId) {
-        GetLessonsInfosAsyncTask getLessonsInfosAsyncTask = new GetLessonsInfosAsyncTask(this);
-        getLessonsInfosAsyncTask.execute(email, token, topicId, topicGroupId, levelId, lessonId);
     }
 
     @Override

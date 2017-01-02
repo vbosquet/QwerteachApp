@@ -1,6 +1,11 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetLessonsInfosAsyncTask;
+
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by wivi on 7/12/16.
@@ -15,15 +20,18 @@ public class Lesson implements Serializable {
     private int topicGroupId;
     private int levelId;
 
+    private String timeStart;
     private String status;
     private String price;
-    private String timeStart;
     private String userFirstName;
     private String userLastName;
     private String topicTitle;
+    private String topicGroupTitle;
+    private String level;
     private String duration;
 
-    public Lesson(int lessonId, int studentId, int teacherId, int topicId, int topicGroupId, int levelId, String status, String price) {
+    public Lesson(int lessonId, int studentId, int teacherId, int topicId, int topicGroupId,
+                  int levelId, String status, String price, String timeStart) {
         this.lessonId = lessonId;
         this.studentId = studentId;
         this.teacherId = teacherId;
@@ -32,6 +40,7 @@ public class Lesson implements Serializable {
         this.levelId = levelId;
         this.status = status;
         this.price = price;
+        this.timeStart = timeStart;
     }
 
     public int getLessonId() {
@@ -98,14 +107,6 @@ public class Lesson implements Serializable {
         this.status = status;
     }
 
-    public String getTimeStart() {
-        return timeStart;
-    }
-
-    public void setTimeStart(String timeStart) {
-        this.timeStart = timeStart;
-    }
-
     public String getUserFirstName() {
         return userFirstName;
     }
@@ -130,11 +131,102 @@ public class Lesson implements Serializable {
         this.topicTitle = topicTitle;
     }
 
+    public String getTopicGroupTitle() {
+        return topicGroupTitle;
+    }
+
+    public void setTopicGroupTitle(String topicGroupTitle) {
+        this.topicGroupTitle = topicGroupTitle;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
     public String getDuration() {
         return duration;
     }
 
-    public void setDuration(String duration) {
+    public void setDuration(int hours, int minutes) {
+        String duration = calculateLessonDuration(hours, minutes);
         this.duration = duration;
+    }
+
+    public String getTimeStart() {
+        return timeStart;
+    }
+
+    public void setTimeStart(String timeStart) {
+        this.timeStart = timeStart;
+    }
+
+    public String calculateLessonDuration(int hours, int minutes) {
+        String duration;
+        if (minutes == 0) {
+            duration = hours + "h";
+        } else {
+            duration = hours + "h" + minutes;
+        }
+
+        return duration;
+    }
+
+    public String getMonth(String dateToFormat) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        String month = null;
+        try {
+            Date date = dateFormat.parse(dateToFormat);
+            month = (String) android.text.format.DateFormat.format("MMMM", date);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return  month;
+
+    }
+
+    public String getDay(String dateToFormat) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        String day = null;
+        try {
+            Date date = dateFormat.parse(dateToFormat);
+            day = (String) android.text.format.DateFormat.format("dd", date);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return  day;
+
+    }
+
+    public String getDate(String dateToFormat) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        String dateFormated = null;
+        try {
+            Date date = dateFormat.parse(dateToFormat);
+            dateFormated = (String) android.text.format.DateFormat.format("dd/MM/yyyy", date);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return  dateFormated;
+
+    }
+
+    public String getTime(String dateToFormat) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        String time = null;
+        try {
+            Date date = dateFormat.parse(dateToFormat);
+            time = (String) android.text.format.DateFormat.format("HH:mm", date);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return time;
     }
 }

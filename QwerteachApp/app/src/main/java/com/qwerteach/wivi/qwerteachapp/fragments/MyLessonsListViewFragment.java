@@ -16,7 +16,7 @@ import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.AcceptLessonAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.CancelLessonAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllMyLessonsAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetTopicAndUserInfosAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetLessonsInfosAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.RefuseLessonAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 import com.qwerteach.wivi.qwerteachapp.models.LessonsAdapter;
@@ -32,10 +32,10 @@ import java.util.ArrayList;
  */
 
 public class MyLessonsListViewFragment extends Fragment implements GetAllMyLessonsAsyncTask.IGetAllLessons,
-        GetTopicAndUserInfosAsyncTask.IGetTopicAndUserInfos,
         CancelLessonAsyncTask.ICancelLesson,
         RefuseLessonAsyncTask.IRefuseLesson,
-        AcceptLessonAsyncTask.IAcceptLesson {
+        AcceptLessonAsyncTask.IAcceptLesson,
+        GetLessonsInfosAsyncTask.IGetLessonInfos{
 
     View view;
     String email, token, userId;
@@ -87,24 +87,14 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
                 int levelId = jsonData.getInt("level_id");
                 String status = jsonData.getString("status");
                 String price = jsonData.getString("price");
-                Lesson lesson = new Lesson(lessonId, studentId, teacherId, topicId, topicGroupId, levelId, status, price);
+                String timeStart = jsonData.getString("time_start");
+
+                Lesson lesson = new Lesson(lessonId, studentId,
+                        teacherId, topicId, topicGroupId, levelId, status, price, timeStart);
                 lessons.add(lesson);
             }
 
-
-            for (int i = 0; i < lessons.size(); i++) {
-                int userToFind;
-
-                if (String.valueOf(lessons.get(i).getTeacherId()).equals(userId)) {
-                    userToFind = lessons.get(i).getStudentId();
-                } else {
-                    userToFind = lessons.get(i).getTeacherId();
-                }
-
-                GetTopicAndUserInfosAsyncTask getTopicAndUserInfosAsyncTask = new GetTopicAndUserInfosAsyncTask(this);
-                getTopicAndUserInfosAsyncTask.execute(userToFind, lessons.get(i).getTopicId(),
-                        email, token, lessons.get(i).getLessonId());
-            }
+            startGetLessonInfosAsyncTask();
 
 
         } catch (JSONException e) {
@@ -112,59 +102,23 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
         }
     }
 
-    @Override
-    public void getTopicAndUserInfos(String string) {
+    public void startGetLessonInfosAsyncTask() {
+        for (int i = 0; i < lessons.size(); i++) {
+            int userToFind;
 
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONObject userJson = jsonObject.getJSONObject("user");
-            JSONObject topicJson = jsonObject.getJSONObject("topic");
-            JSONObject lessonJson = jsonObject.getJSONObject("lesson");
-            JSONObject durationJson = jsonObject.getJSONObject("duration");
-            String timeStart = jsonObject.getString("time_start");
-            boolean expired = jsonObject.getBoolean("expired");
-
-            String userFirstName = userJson.getString("firstname");
-            String userLastName = userJson.getString("lastname");
-            String topicTitle = topicJson.getString("title");
-            String status = lessonJson.getString("status");
-            int lessonId = lessonJson.getInt("id");
-            int hours = durationJson.getInt("hours");
-            int minutes = durationJson.getInt("minutes");
-            String duration;
-
-            if (minutes == 0) {
-                duration = hours + "h";
+            if (String.valueOf(lessons.get(i).getTeacherId()).equals(userId)) {
+                userToFind = lessons.get(i).getStudentId();
             } else {
-                duration = hours + "h" + minutes;
+                userToFind = lessons.get(i).getTeacherId();
             }
 
-            for (int i = 0; i < lessons.size(); i++) {
-                int id = lessons.get(i).getLessonId();
+            int topicId = lessons.get(i).getTopicId();
+            int topicGroupId = lessons.get(i).getTopicGroupId();
+            int levelId = lessons.get(i).getLevelId();
+            int lessonId = lessons.get(i).getLessonId();
 
-                if (id == lessonId) {
-                    lessons.get(i).setUserFirstName(userFirstName);
-                    lessons.get(i).setUserLastName(userLastName);
-                    lessons.get(i).setTopicTitle(topicTitle);
-                    lessons.get(i).setDuration(duration);
-                    lessons.get(i).setTimeStart(timeStart);
-
-                    if (expired) {
-                        lessons.get(i).setStatus("expired");
-                    } else {
-                        lessons.get(i).setStatus(status);
-                    }
-                }
-
-
-                if (lessonId == lessons.get(lessons.size() - 1).getLessonId()) {
-                    displayLessonListView();
-                }
-            }
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
+            GetLessonsInfosAsyncTask getLessonsInfosAsyncTask = new GetLessonsInfosAsyncTask(this);
+            getLessonsInfosAsyncTask.execute(email, token, topicId, topicGroupId, levelId, lessonId, userToFind);
         }
     }
 
@@ -239,5 +193,56 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void displayLessonInfos(String string) {
+
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            JSONObject durationJson = jsonObject.getJSONObject("duration");
+            JSONObject userJson = jsonObject.getJSONObject("user");
+
+            boolean expired = jsonObject.getBoolean("expired");
+            boolean past = jsonObject.getBoolean("past");
+
+            int lessonId = jsonObject.getInt("lesson_id");
+            int hours = durationJson.getInt("hours");
+            int minutes = durationJson.getInt("minutes");
+
+            String topicTitle = jsonObject.getString("topic");
+            String topicGroupTitle = jsonObject.getString("topic_group");
+            String level = jsonObject.getString("level");
+            String userFirstName = userJson.getString("firstname");
+            String userLastName = userJson.getString("lastname");
+
+            for (int i = 0; i < lessons.size(); i++) {
+                int id = lessons.get(i).getLessonId();
+
+                if (id == lessonId) {
+                    lessons.get(i).setUserFirstName(userFirstName);
+                    lessons.get(i).setUserLastName(userLastName);
+                    lessons.get(i).setTopicTitle(topicTitle);
+                    lessons.get(i).setTopicGroupTitle(topicGroupTitle);
+                    lessons.get(i).setLevel(level);
+                    lessons.get(i).setDuration(hours, minutes);
+
+                    if (expired) {
+                        lessons.get(i).setStatus("expired");
+                    } else if (past && lessons.get(i).getStatus().equals("created")) {
+                        lessons.get(i).setStatus("past");
+                    }
+                }
+
+
+                if (lessonId == lessons.get(lessons.size() - 1).getLessonId()) {
+                    displayLessonListView();
+                }
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }
