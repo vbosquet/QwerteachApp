@@ -1,7 +1,5 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetLessonsInfosAsyncTask;
-
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -29,6 +27,10 @@ public class Lesson implements Serializable {
     private String topicGroupTitle;
     private String level;
     private String duration;
+
+    public Lesson(){
+
+    }
 
     public Lesson(int lessonId, int studentId, int teacherId, int topicId, int topicGroupId,
                   int levelId, String status, String price, String timeStart) {

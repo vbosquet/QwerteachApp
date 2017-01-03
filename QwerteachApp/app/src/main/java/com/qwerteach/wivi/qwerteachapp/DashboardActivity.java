@@ -1,82 +1,44 @@
 package com.qwerteach.wivi.qwerteachapp;
 
-import android.app.SearchManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayDashboardInfosAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetLessonsInfosAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.models.Lesson;
-import com.qwerteach.wivi.qwerteachapp.models.UpcomingLessonAdapter;
+import com.qwerteach.wivi.qwerteachapp.fragments.DashboardFragment;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-
-public class DashboardActivity extends AppCompatActivity implements
-        DisplayDashboardInfosAsyncTask.IGetDashboardInfos,
-        GetLessonsInfosAsyncTask.IGetLessonInfos {
+public class DashboardActivity extends AppCompatActivity {
 
     String[] menuDrawerItems = {"Home", "Mes cours", "Mes messages", "Mon portefeuille", "Mon profil", "Devenir professeur"};
     DrawerLayout mDrawerLayout;
     ActionBarDrawerToggle mDrawerToggle;
-    ListView mDrawerList, upcomingLessonListView;
-    LinearLayout upcomingLessonLinearLayout;
-    TextView upcomingLessonsTextView;
+    ListView mDrawerList;
     CharSequence mDrawerTitle, mTitle;
-    String email, token, userId;
-    ArrayList<Lesson> upcomingLessons;
+    Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        upcomingLessonListView = (ListView) findViewById(R.id.upcoming_lesson_list_view);
-        upcomingLessonsTextView = (TextView) findViewById(R.id.upcoming_lesson_text_view);
-        upcomingLessonLinearLayout = (LinearLayout) findViewById(R.id.upcoming_lesson_linear_layout);
-
-        upcomingLessons = new ArrayList<>();
-
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        userId = preferences.getString("userId", "");
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
-
-        DisplayDashboardInfosAsyncTask displayDashboardInfosAsyncTask = new DisplayDashboardInfosAsyncTask(this);
-        displayDashboardInfosAsyncTask.execute(email, token);
-
-        SearchManager searchManager = (SearchManager) getSystemService(this.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) findViewById(R.id.search_view);
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setIconifiedByDefault(false);
-        searchView.setSubmitButtonEnabled(true);
-
-        Intent intent = getIntent();
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            doMySearch(query);
-        }
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.add(R.id.fragment_container, DashboardFragment.newInstance());
+        transaction.commit();
 
         mTitle = mDrawerTitle = getTitle();
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -183,117 +145,23 @@ public class DashboardActivity extends AppCompatActivity implements
                 editor.putBoolean("isLogin", false);
                 editor.apply();
 
-                Intent intent = new Intent(this, MainActivity.class);
+                intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
+
+                return true;
+
+            case android.R.id.home:
+                int count = getSupportFragmentManager().getBackStackEntryCount();
+                if (count == 0) {
+                    intent = new Intent(this, DashboardActivity.class);
+                    startActivity(intent);
+                } else {
+                    getSupportFragmentManager().popBackStack();
+                }
 
                 return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public void doMySearch(String query) {
-        Intent intent = new Intent(this, SearchTeacherActivity.class);
-        intent.putExtra("query", query);
-        startActivity(intent);
-    }
-
-    @Override
-    public void displayDashboardInfos(String string) {
-
-        Log.i("DASHBOARD", string);
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONArray upcomingLessonsJsonArray = jsonObject.getJSONArray("upcoming_lessons");
-            JSONArray toDoListJsonArray = jsonObject.getJSONArray("to_do_list");
-
-            for (int i = 0; i < upcomingLessonsJsonArray.length(); i++) {
-                JSONObject jsonData = upcomingLessonsJsonArray.getJSONObject(i);
-                int lessonId = jsonData.getInt("id");
-                int studentId = jsonData.getInt("student_id");
-                int teacherId = jsonData.getInt("teacher_id");
-                int topicId =jsonData.getInt("topic_id");
-                int topicGroupId = jsonData.getInt("topic_group_id");
-                int levelId = jsonData.getInt("level_id");
-                String status = jsonData.getString("status");
-                String price = jsonData.getString("price");
-                String timeStart = jsonData.getString("time_start");
-
-                Lesson lesson = new Lesson(lessonId, studentId,
-                        teacherId, topicId, topicGroupId, levelId, status, price, timeStart);
-                upcomingLessons.add(lesson);
-            }
-
-            startGetLessonInfosAsyncTask();
-
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void startGetLessonInfosAsyncTask() {
-        for (int i = 0; i < upcomingLessons.size(); i++) {
-            int userToFind;
-
-            if (String.valueOf(upcomingLessons.get(i).getTeacherId()).equals(userId)) {
-                userToFind = upcomingLessons.get(i).getStudentId();
-            } else {
-                userToFind = upcomingLessons.get(i).getTeacherId();
-            }
-
-            int topicId = upcomingLessons.get(i).getTopicId();
-            int topicGroupId = upcomingLessons.get(i).getTopicGroupId();
-            int levelId = upcomingLessons.get(i).getLevelId();
-            int lessonId = upcomingLessons.get(i).getLessonId();
-
-            GetLessonsInfosAsyncTask getLessonsInfosAsyncTask = new GetLessonsInfosAsyncTask(this);
-            getLessonsInfosAsyncTask.execute(email, token, topicId, topicGroupId, levelId, lessonId, userToFind);
-        }
-    }
-
-    @Override
-    public void displayLessonInfos(String string) {
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONObject userJson = jsonObject.getJSONObject("user");
-            JSONObject durationJson = jsonObject.getJSONObject("duration");
-
-            String firstName = userJson.getString("firstname");
-            String topicTitle = jsonObject.getString("topic");
-            int lessonId = jsonObject.getInt("lesson_id");
-            int hours = durationJson.getInt("hours");
-            int minutes = durationJson.getInt("minutes");
-
-            for (int i = 0; i < upcomingLessons.size(); i++) {
-                int id = upcomingLessons.get(i).getLessonId();
-
-                if (id == lessonId) {
-                    upcomingLessons.get(i).setUserFirstName(firstName);
-                    upcomingLessons.get(i).setTopicTitle(topicTitle);
-                    upcomingLessons.get(i).setDuration(hours, minutes);
-                }
-
-                if (lessonId == upcomingLessons.get(upcomingLessons.size() - 1).getLessonId()
-                        && upcomingLessons.size() > 0) {
-                    displayUpcomingLessonListView();
-                }
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void displayUpcomingLessonListView() {
-        upcomingLessonsTextView.setText(upcomingLessons.size() + " cours à venir");
-        upcomingLessonLinearLayout.setVisibility(View.VISIBLE);
-
-        UpcomingLessonAdapter upcomingLessonAdapter = new UpcomingLessonAdapter(this, upcomingLessons);
-        upcomingLessonListView.setAdapter(upcomingLessonAdapter);
     }
 }

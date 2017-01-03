@@ -177,4 +177,8 @@
     <string name="lesson_past_status">Votre cours s\'est-il bien passé ?</string>
     <string name="no_button">Non</string>
     <string name="yes_button">Oui</string>
+    <string name="to_do_list_text_view">To do list</string>
+    <string name="asf_for_feed_back_text_view">Comment s\'est passé votre cours ?</string>
+    <string name="positive_feed_back_button">Tout s\'est bien passé</string>
+    <string name="negative_feed_back_button">Signaler un problème</string>
 </resources>
