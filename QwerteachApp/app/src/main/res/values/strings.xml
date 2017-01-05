@@ -181,4 +181,21 @@
     <string name="asf_for_feed_back_text_view">Comment s\'est passé votre cours ?</string>
     <string name="positive_feed_back_button">Tout s\'est bien passé</string>
     <string name="negative_feed_back_button">Signaler un problème</string>
+    <string name="lesson_disputed_status">Ce cours est en litige. Si ce n\'est pas déjà fait, un administrateur de Qwerteach prendra contact avec vous dans les plus brefs délais. </string>
+    <string name="review_button">Laisser un avis</string>
+    <string name="teacher_review_dialog_title">Laisser un avis</string>
+    <string name="teacher_review_dialog_positive_button">Valider</string>
+    <string name="teacher_review_dialog_negative_button">Annuler</string>
+    <string name="teacher_review_dialog_note_text_view">Note</string>
+    <string name="teacher_review_dialog_comment_text_view">Commentaire</string>
+    <string-array name="note_spinner_item">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+    <string name="create_review_positive_success_message">Votre avis a bien été enregistré</string>
+    <string name="create_review_negative_success_message">Il y a eu une erreur. Impossible d\'enregistrer votre avis. Essayer à nouveau.</string>
 </resources>

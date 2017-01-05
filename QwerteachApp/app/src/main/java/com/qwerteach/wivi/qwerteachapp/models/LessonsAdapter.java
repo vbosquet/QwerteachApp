@@ -103,45 +103,89 @@ public class LessonsAdapter extends ArrayAdapter<Lesson> {
             }
         });
 
+        viewHolder.positiveReviewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fragment.didTouchPositiveReviewButton(lesson.getLessonId());
+            }
+        });
+
+        viewHolder.negativeReviewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fragment.didTouchNegativeReviewButton(lesson.getLessonId());
+            }
+        });
+
         if (lesson.getStatus().equals("expired")) {
+            viewHolder.lessonStatus.setVisibility(View.VISIBLE);
             viewHolder.lessonStatus.setText(R.string.lesson_expired_status);
             viewHolder.lessonStatus.setTextColor(context.getResources().getColor(R.color.red));
             removeAllButtons(viewHolder);
 
         } else if (lesson.getStatus().equals("refused")) {
+            viewHolder.lessonStatus.setVisibility(View.VISIBLE);
             viewHolder.lessonStatus.setText(R.string.lesson_refused_status);
             viewHolder.lessonStatus.setTextColor(context.getResources().getColor(R.color.red));
             removeAllButtons(viewHolder);
 
-        } else if (lesson.getStatus().equals("canceled")){
+        } else if (lesson.getStatus().equals("canceled")) {
+            viewHolder.lessonStatus.setVisibility(View.VISIBLE);
             viewHolder.lessonStatus.setText(R.string.lesson_canceled_status);
             viewHolder.lessonStatus.setTextColor(context.getResources().getColor(R.color.red));
             removeAllButtons(viewHolder);
 
         } else if (lesson.getStatus().equals("created")) {
+            viewHolder.lessonStatus.setVisibility(View.VISIBLE);
             viewHolder.lessonStatus.setText(R.string.lesson_accepted_status);
             viewHolder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
             displayCancelButtonOnly(viewHolder);
 
-        } else if (lesson.getStatus().equals("past")){
+        } else if (lesson.getStatus().equals("past") && !lesson.getPaymentStatus().equals("paid")
+                && !lesson.getPaymentStatus().equals("disputed")) {
+            viewHolder.lessonStatus.setVisibility(View.VISIBLE);
             viewHolder.lessonStatus.setText(R.string.lesson_past_status);
             viewHolder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
             displayReviewButtons(viewHolder);
 
         } else if (userId.equals(String.valueOf(lesson.getTeacherId()))
                 && lesson.getStatus().equals("pending_teacher")) {
+            viewHolder.lessonStatus.setVisibility(View.VISIBLE);
             viewHolder.lessonStatus.setText(R.string.lesson_to_accept);
             viewHolder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
             displayAcceptLessonButton(viewHolder);
 
         } else if (userId.equals(String.valueOf(lesson.getStudentId()))
                 && lesson.getStatus().equals("pending_student")) {
+            viewHolder.lessonStatus.setVisibility(View.VISIBLE);
             viewHolder.lessonStatus.setText(R.string.lesson_to_accept);
             viewHolder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
             displayAcceptLessonButton(viewHolder);
 
+        } else if (lesson.getPaymentStatus().equals("paid") && lesson.isReviewNeeded()) {
+            viewHolder.lessonStatus.setVisibility(View.VISIBLE);
+            viewHolder.lessonStatus.setText("Laissez un commentaire à "
+                    + lesson.getUserFirstName() + " "+ lesson.getUserLastName());
+            viewHolder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
+            removeAllButtons(viewHolder);
+
+        } else if (lesson.getPaymentStatus().equals("disputed") && userId.equals(String.valueOf(lesson.getStudentId()))) {
+            viewHolder.lessonStatus.setVisibility(View.VISIBLE);
+            viewHolder.lessonStatus.setText(R.string.lesson_disputed_status);
+            viewHolder.lessonStatus.setTextColor(context.getResources().getColor(R.color.orange));
+            removeAllButtons(viewHolder);
+
+        } else if (lesson.getPaymentStatus().equals("disputed") && userId.equals(String.valueOf(lesson.getTeacherId()))) {
+            viewHolder.lessonStatus.setVisibility(View.GONE);
+            removeAllButtons(viewHolder);
+
+        } else if (lesson.getPaymentStatus().equals("paid") && !lesson.isReviewNeeded() && lesson.getStatus().equals("past")) {
+            viewHolder.lessonStatus.setVisibility(View.GONE);
+            removeAllButtons(viewHolder);
+
         } else {
             viewHolder.lessonStatus.setText(R.string.lesson_to_validate);
+            viewHolder.lessonStatus.setVisibility(View.VISIBLE);
             viewHolder.lessonStatus.setTextColor(context.getResources().getColor(R.color.orange));
             removeAcceptLessonButton(viewHolder);
 

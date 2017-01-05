@@ -349,7 +349,6 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
 
     @Override
     public void loadWallet(String string) {
-        Log.i("STRING", string);
 
         try {
             JSONObject jsonObject =new JSONObject(string);
@@ -417,13 +416,6 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
     }
 
     public void startLoadWalletAsyncTask() {
-        Log.i("AMOUNT", currentAmount);
-        Log.i("CARD_TYPE", cardType);
-
-        if (cardId != null) {
-            Log.i("CARD_ID", cardId);
-        }
-
         LoadWalletAsyncTask loadWalletAsyncTask = new LoadWalletAsyncTask(this);
         loadWalletAsyncTask.execute(email, token, currentAmount, cardType, cardId);
     }

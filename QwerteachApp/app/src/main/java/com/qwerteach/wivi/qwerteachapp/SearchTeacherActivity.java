@@ -1,5 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.support.v4.view.MenuItemCompat;
@@ -48,6 +49,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
     int userId;
     int currentSearchSortingOption = 0;
     String query;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +69,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
         menuItems = new ArrayList<>();
         searchSortingOptionNameToDisplay = new ArrayList<>();
         searchSortingOptionNameToSendToAsyncTask = new ArrayList<>();
+        progressDialog = new ProgressDialog(this);
 
         menuItems.add(query);
 
@@ -286,6 +289,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
             }
 
             if (userId == teacherList.get(teacherList.size() - 1).getTeacherId()) {
+                progressDialog.dismiss();
                 displayTeacherListView();
             }
 
@@ -367,5 +371,15 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
 
         SearchTeacherAsyncTask searchTeacherAsyncTask = new SearchTeacherAsyncTask(this);
         searchTeacherAsyncTask.execute(query, searchSortingOption);
+
+        startProgressDialog();
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 }

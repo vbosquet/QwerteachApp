@@ -1,5 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -12,11 +14,14 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.qwerteach.wivi.qwerteachapp.DashboardActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.AcceptLessonAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.CancelLessonAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisputeAsyncTack;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllMyLessonsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetLessonsInfosAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.PayTeacherAsyncTack;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.RefuseLessonAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 import com.qwerteach.wivi.qwerteachapp.models.LessonsAdapter;
@@ -35,12 +40,15 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
         CancelLessonAsyncTask.ICancelLesson,
         RefuseLessonAsyncTask.IRefuseLesson,
         AcceptLessonAsyncTask.IAcceptLesson,
-        GetLessonsInfosAsyncTask.IGetLessonInfos{
+        GetLessonsInfosAsyncTask.IGetLessonInfos,
+        PayTeacherAsyncTack.IPayTeacher,
+        DisputeAsyncTack.IDispute {
 
     View view;
     String email, token, userId;
     ArrayList<Lesson> lessons;
     ListView lessonListView;
+    ProgressDialog progressDialog;
 
     public static MyLessonsListViewFragment newInstance() {
         MyLessonsListViewFragment myLessonsListViewFragment = new MyLessonsListViewFragment();
@@ -63,9 +71,11 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
 
         lessons = new ArrayList<>();
         lessonListView = (ListView) view.findViewById(R.id.lesson_list_view);
+        progressDialog = new ProgressDialog(getContext());
 
         GetAllMyLessonsAsyncTask getAllMyLessonsAsyncTask = new GetAllMyLessonsAsyncTask(this);
         getAllMyLessonsAsyncTask.execute(email, token);
+        startProgressDialog();
 
         return  view;
     }
@@ -103,13 +113,17 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
     }
 
     public void startGetLessonInfosAsyncTask() {
+
         for (int i = 0; i < lessons.size(); i++) {
             int userToFind;
+            boolean checkIfNeedReview;
 
             if (String.valueOf(lessons.get(i).getTeacherId()).equals(userId)) {
                 userToFind = lessons.get(i).getStudentId();
+                checkIfNeedReview = false;
             } else {
                 userToFind = lessons.get(i).getTeacherId();
+                checkIfNeedReview = true;
             }
 
             int topicId = lessons.get(i).getTopicId();
@@ -118,7 +132,7 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
             int lessonId = lessons.get(i).getLessonId();
 
             GetLessonsInfosAsyncTask getLessonsInfosAsyncTask = new GetLessonsInfosAsyncTask(this);
-            getLessonsInfosAsyncTask.execute(email, token, topicId, topicGroupId, levelId, lessonId, userToFind);
+            getLessonsInfosAsyncTask.execute(email, token, topicId, topicGroupId, levelId, lessonId, userToFind, checkIfNeedReview);
         }
     }
 
@@ -151,6 +165,16 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
         refuseLessonAsyncTask.execute(lessonId, email, token);
     }
 
+    public void didTouchPositiveReviewButton(int lessonId) {
+        PayTeacherAsyncTack payTeacherAsyncTack = new PayTeacherAsyncTack(this);
+        payTeacherAsyncTack.execute(lessonId, email, token);
+    }
+
+    public void didTouchNegativeReviewButton(int lessonId) {
+        DisputeAsyncTack disputeAsyncTack = new DisputeAsyncTack(this);
+        disputeAsyncTack.execute(lessonId, email, token);
+    }
+
     @Override
     public void cancelConfirmationMessage(String string) {
         displayConfirmationMessage(string);
@@ -173,6 +197,8 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
             String success = jsonObject.getString("success");
             String message = jsonObject.getString("message");
 
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+
             if (success.equals("true")) {
                 JSONObject lessonJson = jsonObject.getJSONObject("lesson");
                 int lessonId = lessonJson.getInt("id");
@@ -186,8 +212,6 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
 
                 displayLessonListView();
             }
-
-            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -205,6 +229,7 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
 
             boolean expired = jsonObject.getBoolean("expired");
             boolean past = jsonObject.getBoolean("past");
+            boolean reviewNeed = jsonObject.getBoolean("review_needed");
 
             int lessonId = jsonObject.getInt("lesson_id");
             int hours = durationJson.getInt("hours");
@@ -215,6 +240,7 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
             String level = jsonObject.getString("level");
             String userFirstName = userJson.getString("firstname");
             String userLastName = userJson.getString("lastname");
+            String paymentStatus = jsonObject.getString("payment_status");
 
             for (int i = 0; i < lessons.size(); i++) {
                 int id = lessons.get(i).getLessonId();
@@ -226,17 +252,25 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
                     lessons.get(i).setTopicGroupTitle(topicGroupTitle);
                     lessons.get(i).setLevel(level);
                     lessons.get(i).setDuration(hours, minutes);
+                    lessons.get(i).setPaymentStatus(paymentStatus);
 
                     if (expired) {
                         lessons.get(i).setStatus("expired");
                     } else if (past && lessons.get(i).getStatus().equals("created")) {
                         lessons.get(i).setStatus("past");
                     }
+
+                    if (reviewNeed) {
+                        lessons.get(i).setReviewNeeded(true);
+                    } else {
+                        lessons.get(i).setReviewNeeded(false);
+                    }
                 }
 
 
                 if (lessonId == lessons.get(lessons.size() - 1).getLessonId()) {
                     displayLessonListView();
+                    progressDialog.dismiss();
                 }
             }
 
@@ -244,5 +278,51 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void payTeacherConfirmationMessage(String string) {
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            String success = jsonObject.getString("success");
+            String message = jsonObject.getString("message");
+
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+
+            if (success.equals("true")) {
+                displayLessonListView();
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void disputeConfirmationMessage(String string) {
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            String success = jsonObject.getString("success");
+            String message = jsonObject.getString("message");
+
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+
+            if (success.equals("true")) {
+                displayLessonListView();
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 }

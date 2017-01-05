@@ -1,5 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -15,6 +16,7 @@ import android.widget.ListView;
 
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllWalletInfosAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCardAdapter;
 
@@ -34,6 +36,7 @@ public class BankAccountInfosTabFragment extends Fragment  implements GetAllWall
     String email, token;
     ArrayList<UserCreditCard> userCreditCards;
     ListView userCreditCardsListView;
+    ProgressDialog progressDialog;
 
     public static BankAccountInfosTabFragment newInstance() {
         BankAccountInfosTabFragment bankAccountInfosTabFragment = new BankAccountInfosTabFragment();
@@ -49,8 +52,7 @@ public class BankAccountInfosTabFragment extends Fragment  implements GetAllWall
         token = preferences.getString("token", "");
 
         userCreditCards = new ArrayList<>();
-
-        startGetAllWalletInfosAsyncTask();
+        progressDialog = new ProgressDialog(getContext());
 
     }
 
@@ -58,12 +60,22 @@ public class BankAccountInfosTabFragment extends Fragment  implements GetAllWall
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         view  = inflater.inflate(R.layout.fragment_bank_account_infos_tab, container, false);
         userCreditCardsListView = (ListView) view.findViewById(R.id.user_credit_cards_list_view);
+        startGetAllWalletInfosAsyncTask();
         return view;
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 
     public void startGetAllWalletInfosAsyncTask() {
         GetAllWalletInfosAsyncTask getAllWalletInfosAsyncTask = new GetAllWalletInfosAsyncTask(this);
         getAllWalletInfosAsyncTask.execute(email, token);
+        startProgressDialog();
 
     }
 
@@ -92,6 +104,7 @@ public class BankAccountInfosTabFragment extends Fragment  implements GetAllWall
 
             }
 
+            progressDialog.dismiss();
             setUserCreditCardsListView();
 
         } catch (JSONException e) {

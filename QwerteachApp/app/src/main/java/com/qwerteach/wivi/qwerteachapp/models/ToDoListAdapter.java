@@ -93,6 +93,20 @@ public class ToDoListAdapter extends ArrayAdapter<Lesson> {
             }
         });
 
+        viewHolder.positiveFeedBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                callback.didTouchPositiveFeedBackButton(lesson.getLessonId());
+            }
+        });
+
+        viewHolder.negativeFeedBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                callback.didTouchNegativeFeedBackButton(lesson.getLessonId());
+            }
+        });
+
 
         if (lesson.getStatus().equals("past")) {
             viewHolder.toDoTitle.setText(R.string.asf_for_feed_back_text_view);
@@ -131,5 +145,7 @@ public class ToDoListAdapter extends ArrayAdapter<Lesson> {
         void didTouchRefuseLessonButton(int lessonId);
         void didTouchAcceptLessonButton(int lessonId);
         void didTouchUpdateLessonButton(Lesson lesson);
+        void didTouchPositiveFeedBackButton(int lessonId);
+        void didTouchNegativeFeedBackButton(int lessonId);
     }
 }

@@ -27,6 +27,9 @@ public class Lesson implements Serializable {
     private String topicGroupTitle;
     private String level;
     private String duration;
+    private String paymentStatus;
+
+    private boolean reviewNeeded;
 
     public Lesson(){
 
@@ -151,6 +154,26 @@ public class Lesson implements Serializable {
 
     public String getDuration() {
         return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public boolean isReviewNeeded() {
+        return reviewNeeded;
+    }
+
+    public void setReviewNeeded(boolean reviewNeeded) {
+        this.reviewNeeded = reviewNeeded;
     }
 
     public void setDuration(int hours, int minutes) {

@@ -1,7 +1,8 @@
 package com.qwerteach.wivi.qwerteachapp.asyncTasks;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,9 +22,21 @@ import java.net.URL;
 public class LoadWalletAsyncTask extends AsyncTask<String, String, String> {
 
     private ILoadWallet callback;
+    private ProgressDialog progressDialog;
 
     public LoadWalletAsyncTask(ILoadWallet callback) {
         this.callback = callback;
+        this.progressDialog = new ProgressDialog((Context) callback);
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 
     @Override
@@ -84,6 +97,7 @@ public class LoadWalletAsyncTask extends AsyncTask<String, String, String> {
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
+        progressDialog.dismiss();
         callback.loadWallet(string);
     }
 

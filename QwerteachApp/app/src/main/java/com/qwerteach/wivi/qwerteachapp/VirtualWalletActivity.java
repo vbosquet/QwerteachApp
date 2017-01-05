@@ -244,7 +244,7 @@ public class VirtualWalletActivity extends AppCompatActivity implements CheckUse
 
     }
 
-    public static class MyAdapter extends FragmentPagerAdapter {
+    public class MyAdapter extends FragmentPagerAdapter {
 
         public MyAdapter(FragmentManager fm) {
             super(fm);

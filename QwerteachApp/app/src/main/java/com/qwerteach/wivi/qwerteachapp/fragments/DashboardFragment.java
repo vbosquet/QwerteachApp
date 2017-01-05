@@ -1,19 +1,26 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,10 +28,16 @@ import com.qwerteach.wivi.qwerteachapp.DashboardActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.SearchTeacherActivity;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.AcceptLessonAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.CreateReviewAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayDashboardInfosAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosProfileAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisputeAsyncTack;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetLessonsInfosAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.PayTeacherAsyncTack;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.RefuseLessonAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
+import com.qwerteach.wivi.qwerteachapp.models.Teacher;
+import com.qwerteach.wivi.qwerteachapp.models.TeacherToReviewAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.ToDoListAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.UpcomingLessonAdapter;
 
@@ -42,13 +55,19 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
         GetLessonsInfosAsyncTask.IGetLessonInfos,
         ToDoListAdapter.ILessonManagementButtons,
         AcceptLessonAsyncTask.IAcceptLesson,
-        RefuseLessonAsyncTask.IRefuseLesson {
+        RefuseLessonAsyncTask.IRefuseLesson,
+        PayTeacherAsyncTack.IPayTeacher,
+        DisputeAsyncTack.IDispute,
+        DisplayInfosProfileAsyncTask.IDisplayInfosProfile,
+        CreateReviewAsyncTask.ICreateReview {
 
     LinearLayout upcomingLessonLinearLayout, toDoListLinearLayout;
     TextView upcomingLessonsTextView;
-    String email, token, userId;
+    String email, token, userId, note, comment;
     ArrayList<Lesson> upcomingLessons, toDoList;
+    ArrayList<Teacher> teachersToReview;
     View view;
+    ProgressDialog progressDialog;
 
     public static DashboardFragment newInstance() {
         DashboardFragment dashboardFragment = new DashboardFragment();
@@ -70,14 +89,13 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
 
         upcomingLessons = new ArrayList<>();
         toDoList = new ArrayList<>();
+        teachersToReview = new ArrayList<>();
+        progressDialog = new ProgressDialog(getContext());
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         email = preferences.getString("email", "");
         token = preferences.getString("token", "");
         userId = preferences.getString("userId", "");
-
-        DisplayDashboardInfosAsyncTask displayDashboardInfosAsyncTask = new DisplayDashboardInfosAsyncTask(this);
-        displayDashboardInfosAsyncTask.execute(email, token);
 
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) view.findViewById(R.id.search_view);
@@ -91,6 +109,10 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
             doMySearch(query);
         }
 
+        DisplayDashboardInfosAsyncTask displayDashboardInfosAsyncTask = new DisplayDashboardInfosAsyncTask(this);
+        displayDashboardInfosAsyncTask.execute(email, token);
+        startProgressDialog();
+
         return  view;
     }
 
@@ -102,9 +124,13 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
 
     @Override
     public void displayDashboardInfos(String string) {
+
+        Log.i("DASHBOARD", string);
+
         try {
             JSONObject jsonObject = new JSONObject(string);
             JSONArray upcomingLessonsJsonArray = jsonObject.getJSONArray("upcoming_lessons");
+            JSONArray reviewAskedJsonArray = jsonObject.getJSONArray("review_asked");
             JSONArray toDoListJsonArray = jsonObject.getJSONArray("to_do_list");
 
             if (upcomingLessonsJsonArray.length() > 0) {
@@ -121,6 +147,26 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
                 }
 
                 getToDoListInfos();
+            }
+
+            if (reviewAskedJsonArray.length() > 0) {
+                for (int i = 0; i < reviewAskedJsonArray.length(); i++) {
+                    int teacherId = (int) reviewAskedJsonArray.get(i);
+                    Teacher teacher = new Teacher(teacherId);
+                    teachersToReview.add(teacher);
+                }
+
+                getTeachersInfos();
+            }
+
+            if (reviewAskedJsonArray.length() > 0  || toDoListJsonArray.length() > 0) {
+                toDoListLinearLayout.setVisibility(View.VISIBLE);
+                progressDialog.dismiss();
+            }
+
+            if (reviewAskedJsonArray.length() == 0 && upcomingLessonsJsonArray.length() == 0
+                    && toDoListJsonArray.length() == 0) {
+                progressDialog.dismiss();
             }
 
         } catch (JSONException e) {
@@ -177,7 +223,7 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
             int lessonId = toDoList.get(i).getLessonId();
 
             GetLessonsInfosAsyncTask getLessonsInfosAsyncTask = new GetLessonsInfosAsyncTask(this);
-            getLessonsInfosAsyncTask.execute(email, token, topicId, topicGroupId, levelId, lessonId, userToFind);
+            getLessonsInfosAsyncTask.execute(email, token, topicId, topicGroupId, levelId, lessonId, userToFind, false);
         }
     }
 
@@ -197,7 +243,15 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
             int lessonId = upcomingLessons.get(i).getLessonId();
 
             GetLessonsInfosAsyncTask getLessonsInfosAsyncTask = new GetLessonsInfosAsyncTask(this);
-            getLessonsInfosAsyncTask.execute(email, token, topicId, topicGroupId, levelId, lessonId, userToFind);
+            getLessonsInfosAsyncTask.execute(email, token, topicId, topicGroupId, levelId, lessonId, userToFind, false);
+        }
+    }
+
+    public void getTeachersInfos() {
+        for (int i = 0; i < teachersToReview.size(); i++) {
+            int teacherId = teachersToReview.get(i).getTeacherId();
+            DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
+            displayInfosProfileAsyncTask.execute(String.valueOf(teacherId), email, token);
         }
     }
 
@@ -238,7 +292,6 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
                 if (lessonId == toDoList.get(toDoList.size() - 1).getLessonId()) {
                     displayToDoListView(i);
                 }
-
             }
 
             for (int i = 0; i < upcomingLessons.size(); i++) {
@@ -262,8 +315,8 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
     }
 
     public void displayToDoListView(int i) {
-        toDoListLinearLayout.setVisibility(View.VISIBLE);
         LinearLayout toDoListView = (LinearLayout) view.findViewById(R.id.to_do_list);
+        toDoListView.setVisibility(View.VISIBLE);
         ToDoListAdapter toDoListAdapter = new ToDoListAdapter(getContext(), toDoList);
         toDoListAdapter.setCallback(this);
         View view = toDoListAdapter.getView(i, null, null);
@@ -278,6 +331,14 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
         UpcomingLessonAdapter upcomingLessonAdapter = new UpcomingLessonAdapter(getContext(), upcomingLessons);
         View view = upcomingLessonAdapter.getView(i, null, null);
         upcomingLessonView.addView(view);
+    }
+
+    public void displayTeachersToReviewListView(int i) {
+        LinearLayout teacherToReviewListView = (LinearLayout) view.findViewById(R.id.teacher_to_review);
+        teacherToReviewListView.setVisibility(View.VISIBLE);
+        TeacherToReviewAdapter teacherToReviewAdapter = new TeacherToReviewAdapter(getContext(), teachersToReview, DashboardFragment.this);
+        View view = teacherToReviewAdapter.getView(i, null, null);
+        teacherToReviewListView.addView(view);
     }
 
     @Override
@@ -299,6 +360,19 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
         transaction.replace(R.id.fragment_container, newFragment);
         transaction.addToBackStack(null);
         transaction.commit();
+    }
+
+    @Override
+    public void didTouchPositiveFeedBackButton(int lessonId) {
+        PayTeacherAsyncTack payTeacherAsyncTack = new PayTeacherAsyncTack(this);
+        payTeacherAsyncTack.execute(lessonId, email, token);
+    }
+
+    @Override
+    public void didTouchNegativeFeedBackButton(int lessonId) {
+        DisputeAsyncTack disputeAsyncTack = new DisputeAsyncTack(this);
+        disputeAsyncTack.execute(lessonId, email, token);
+
     }
 
     @Override
@@ -337,5 +411,150 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void payTeacherConfirmationMessage(String string) {
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            String success = jsonObject.getString("success");
+            String message = jsonObject.getString("message");
+
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+
+            if (success.equals("true")) {
+                Intent intent = new Intent(getContext(), DashboardActivity.class);
+                startActivity(intent);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void disputeConfirmationMessage(String string) {
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            String success = jsonObject.getString("success");
+            String message = jsonObject.getString("message");
+
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+
+            if (success.equals("true")) {
+                Intent intent = new Intent(getContext(), DashboardActivity.class);
+                startActivity(intent);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void displayUserInfosProfile(String string) {
+
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            JSONObject userJson = jsonObject.getJSONObject("user");
+
+            int teacherId = userJson.getInt("id");
+            String firstName = userJson.getString("firstname");
+            String lastName = userJson.getString("lastname");
+
+            for (int i = 0; i < teachersToReview.size(); i++) {
+                int id = teachersToReview.get(i).getTeacherId();
+
+                if (id == teacherId) {
+                    teachersToReview.get(i).setFirstName(firstName);
+                    teachersToReview.get(i).setLastName(lastName);
+                }
+
+                if (teacherId == teachersToReview.get(teachersToReview.size() - 1).getTeacherId()) {
+                    displayTeachersToReviewListView(i);
+                }
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void didTouchTeacherReviewButton(final int teacherId) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        View dialogView = inflater.inflate(R.layout.dialog_teacher_review, null);
+        final EditText commentEditText = (EditText) dialogView.findViewById(R.id.comment_edit_text);
+        final Spinner noteSpinner = (Spinner) dialogView.findViewById(R.id.note_spinner);
+
+        ArrayAdapter adapter = ArrayAdapter.createFromResource(getContext(), R.array.note_spinner_item, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        noteSpinner.setAdapter(adapter);
+        noteSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                note = adapterView.getItemAtPosition(i).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        builder.setView(dialogView);
+        builder.setTitle(R.string.teacher_review_dialog_title);
+        builder.setPositiveButton(R.string.teacher_review_dialog_positive_button, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                comment = commentEditText.getText().toString();
+                startCreateReviewAsyncTask(teacherId);
+            }
+        });
+
+        builder.setNegativeButton(R.string.teacher_review_dialog_negative_button, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+
+        builder.create().show();
+    }
+
+    @Override
+    public void createReviewConfirmationMessage(String string) {
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            String success = jsonObject.getString("success");
+
+            if (success.equals("true")) {
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.detach(this).attach(this).commit();
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), R.string.create_review_positive_success_message, Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getContext(), R.string.create_review_negative_success_message, Toast.LENGTH_LONG).show();
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void startCreateReviewAsyncTask(int teacherId) {
+        CreateReviewAsyncTask createReviewAsyncTask = new CreateReviewAsyncTask(this);
+        createReviewAsyncTask.execute(teacherId, email, token, comment, note);
+        startProgressDialog();
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 }

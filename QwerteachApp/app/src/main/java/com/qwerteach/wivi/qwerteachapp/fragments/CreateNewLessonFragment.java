@@ -1,6 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
 import android.app.DialogFragment;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.icu.text.DateFormat;
@@ -71,6 +72,7 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
     Teacher teacher;
     Double totalPrice;
     Bundle savedState;
+    ProgressDialog progressDialog;
 
 
     public static CreateNewLessonFragment newInstance() {
@@ -112,6 +114,7 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         topics = new ArrayList<>();
         levels = new ArrayList<>();
         prices = new HashMap<>();
+        progressDialog = new ProgressDialog(getContext());
 
         timeTextView = (TextView) view.findViewById(R.id.time_picker_text_view);
         dateTextView = (TextView) view.findViewById(R.id.date_picker_text_view);
@@ -366,6 +369,7 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
 
         CreateLessonRequestAsyncTask createLessonRequestAsyncTask = new CreateLessonRequestAsyncTask(this);
         createLessonRequestAsyncTask.execute(teacherId, studentId, levelId, topicId, timeStart, hours, minutes, false, userEmail, userToken);
+        startProgressDialog();
 
     }
 
@@ -426,6 +430,7 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
 
             if (message.equals("no account")) {
 
+                progressDialog.dismiss();
                 Fragment newFragment = CreateVirtualWalletFragment.newInstance();
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 transaction.replace(R.id.fragment_container, newFragment);
@@ -455,6 +460,8 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
                 CardRegistrationData cardRegistrationData = new CardRegistrationData(accessKey,
                         preRegistrationData, cardRegistrationURL, cardPreregistrationId);
 
+                progressDialog.dismiss();
+
                 Intent intent = new Intent(getContext(), PaymentMethodActivity.class);
                 intent.putExtra("totalPrice", totalPrice);
                 intent.putExtra("teacher", teacher);
@@ -467,5 +474,13 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
             e.printStackTrace();
         }
 
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 }
