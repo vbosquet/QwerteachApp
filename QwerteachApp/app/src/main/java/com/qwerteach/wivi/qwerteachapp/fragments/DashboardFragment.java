@@ -111,7 +111,6 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
 
         DisplayDashboardInfosAsyncTask displayDashboardInfosAsyncTask = new DisplayDashboardInfosAsyncTask(this);
         displayDashboardInfosAsyncTask.execute(email, token);
-        startProgressDialog();
 
         return  view;
     }
@@ -161,12 +160,6 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
 
             if (reviewAskedJsonArray.length() > 0  || toDoListJsonArray.length() > 0) {
                 toDoListLinearLayout.setVisibility(View.VISIBLE);
-                progressDialog.dismiss();
-            }
-
-            if (reviewAskedJsonArray.length() == 0 && upcomingLessonsJsonArray.length() == 0
-                    && toDoListJsonArray.length() == 0) {
-                progressDialog.dismiss();
             }
 
         } catch (JSONException e) {

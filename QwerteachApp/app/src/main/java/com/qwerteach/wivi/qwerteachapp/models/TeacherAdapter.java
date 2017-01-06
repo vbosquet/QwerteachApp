@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.qwerteach.wivi.qwerteachapp.R;
@@ -36,6 +37,8 @@ public class TeacherAdapter extends ArrayAdapter<Teacher> {
             viewHolder.description = (TextView) convertView.findViewById(R.id.teach_description_text_view);
             viewHolder.materialCourseNames = (TextView) convertView.findViewById(R.id.teacher_course_material_names_text_view);
             viewHolder.minPrice = (TextView) convertView.findViewById(R.id.teacher_min_price);
+            viewHolder.ratingBar = (RatingBar) convertView.findViewById(R.id.rating_bar);
+            viewHolder.numberOfReviews = (TextView) convertView.findViewById(R.id.number_of_reviews);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -48,7 +51,9 @@ public class TeacherAdapter extends ArrayAdapter<Teacher> {
         text= text.replace("</p>", "<br>");
         viewHolder.description.setText(Html.fromHtml(text), TextView.BufferType.SPANNABLE);
         viewHolder.materialCourseNames.setText(teacher.getTopicTitleList());
-        viewHolder.minPrice.setText("A partir de " +teacher.getMinPrice() + " €/h");
+        viewHolder.minPrice.setText(teacher.getMinPrice() + " €/h");
+        viewHolder.ratingBar.setRating(teacher.getRating());
+        viewHolder.numberOfReviews.setText(teacher.getNumberOfReviews() + " commentaire(s)");
 
         return convertView;
     }
@@ -58,5 +63,7 @@ public class TeacherAdapter extends ArrayAdapter<Teacher> {
         TextView description;
         TextView materialCourseNames;
         TextView minPrice;
+        TextView numberOfReviews;
+        RatingBar ratingBar;
     }
 }

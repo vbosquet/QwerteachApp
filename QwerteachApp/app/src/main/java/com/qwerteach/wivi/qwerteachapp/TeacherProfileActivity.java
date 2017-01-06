@@ -19,14 +19,17 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosProfileAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayTopicLevelsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.NewLessonRequestAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.SendMessageToTeacherAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Level;
+import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
@@ -53,7 +56,8 @@ import static java.util.Calendar.YEAR;
 
 public class TeacherProfileActivity extends AppCompatActivity implements DisplayTopicLevelsAsyncTask.IDisplayTopicLevels,
         NewLessonRequestAsyncTask.INewLessonRequest,
-        SendMessageToTeacherAsyncTask.ISendMessageToTeacher {
+        SendMessageToTeacherAsyncTask.ISendMessageToTeacher,
+        DisplayInfosProfileAsyncTask.IDisplayInfosProfile {
 
     Teacher teacher;
     SmallAd smallAd;
@@ -62,7 +66,11 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
     ArrayList<SmallAd> smallAds;
     ArrayList<Level> levels;
     ArrayList<String> topicGroupTitleList;
+    ArrayList<Review> reviews;
     String email, token, query, firstName, lastName;
+    LinearLayout lastReview;
+    TextView senderFirstName, reviewText, sendingDate, readMoreComments;
+    RatingBar ratingBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +101,7 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
         levels = new ArrayList<>();
         topicGroupTitleList = new ArrayList<>();
         smallAds = teacher.getSmallAds();
+        reviews = teacher.getReviews();
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         email = preferences.getString("email", "");
@@ -104,6 +113,16 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
             int topicId = smallAds.get(i).getTopicId();
             DisplayTopicLevelsAsyncTask displayTopicLevelsAsyncTask = new DisplayTopicLevelsAsyncTask(this);
             displayTopicLevelsAsyncTask.execute(topicId);
+        }
+
+
+        if (reviews != null) {
+            for (int i = 0; i < reviews.size(); i++) {
+                int senderId = reviews.get(i).getSenderId();
+                DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
+                displayInfosProfileAsyncTask.execute(String.valueOf(senderId), email, token);
+            }
+
         }
 
         displayTeacherProfileInfos();
@@ -351,6 +370,60 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+    }
+
+    @Override
+    public void displayUserInfosProfile(String string) {
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            String success = jsonObject.getString("success");
+
+            if (success.equals("true")) {
+                JSONObject userJson = jsonObject.getJSONObject("user");
+                int userId = userJson.getInt("id");
+                String firstName = userJson.getString("firstname");
+
+                for (int i = 0; i < reviews.size(); i++) {
+                    if (userId == reviews.get(i).getSenderId()) {
+                        reviews.get(i).setSenderFirstName(firstName);
+                    }
+
+                    if (userId == reviews.get(reviews.size() - 1).getSenderId()) {
+                        displayLastComment(firstName);
+                    }
+                }
+
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void didTouchReadComments(View view) {
+
+        Intent intent = new Intent(this, ReadCommentsActivity.class);
+        intent.putExtra("reviews", reviews);
+        startActivity(intent);
+    }
+
+    public void displayLastComment(String firstName) {
+        lastReview = (LinearLayout) findViewById(R.id.last_comment);
+        senderFirstName = (TextView) findViewById(R.id.sender_first_name);
+        reviewText = (TextView) findViewById(R.id.review_text);
+        sendingDate = (TextView) findViewById(R.id.sending_date);
+        readMoreComments = (TextView) findViewById(R.id.read_more_comments);
+        ratingBar = (RatingBar) findViewById(R.id.rating_bar);
+
+        lastReview.setVisibility(View.VISIBLE);
+        senderFirstName.setText(firstName);
+        reviewText.setText(reviews.get(0).getReviewText());
+        String dateToFormat = reviews.get(0).getCreationDate();
+        sendingDate.setText(reviews.get(0).getMonth(dateToFormat) + " "
+                + reviews.get(0).getYear(dateToFormat));
+        readMoreComments.setText("Lire " + teacher.getNumberOfReviews() + " commentaire(s)");
+        ratingBar.setRating(teacher.getRating());
 
     }
 }

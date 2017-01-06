@@ -23,6 +23,7 @@ import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosSmallAdAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplaySmallAdPriceAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllTopicsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.SearchTeacherAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
@@ -129,26 +130,60 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
 
     @Override
     public void displaySearchResults(String string) {
+
         try {
             JSONObject jsonObject = new JSONObject(string);
             JSONArray searchJsonArray = jsonObject.getJSONArray("pagin");
             JSONArray optionsJsonArray = jsonObject.getJSONArray("options");
+            JSONArray ratingJsonArray = jsonObject.getJSONArray("rating");
+            JSONArray numberOfReviewsJsonArray = jsonObject.getJSONArray("number_of_reviews");
+            JSONArray reviewsReceived = jsonObject.getJSONArray("reviews_received");
 
             if (searchJsonArray.length() > 0) {
                 for (int i = 0; i < searchJsonArray.length(); i++) {
-                    JSONObject jsonData = searchJsonArray.getJSONObject(i);
-                    int id = jsonData.getInt("id");
-                    String firstName = jsonData.getString("firstname");
-                    String lastName = jsonData.getString("lastname");
-                    String description = jsonData.getString("description");
-                    String occupation = jsonData.getString("occupation");
-                    String birthDate = jsonData.getString("birthdate");
+                    JSONObject teacherData = searchJsonArray.getJSONObject(i);
+                    JSONArray teacherReviews = reviewsReceived.getJSONArray(i);
+
+                    int id = teacherData.getInt("id");
+                    String firstName = teacherData.getString("firstname");
+                    String lastName = teacherData.getString("lastname");
+                    String description = teacherData.getString("description");
+                    String occupation = teacherData.getString("occupation");
+                    String birthDate = teacherData.getString("birthdate");
                     Teacher teacher = new Teacher(id, firstName, lastName, description, occupation, birthDate);
+
+                    float rating;
+                    if (!ratingJsonArray.get(i).toString().equals("null")) {
+                        rating = ratingJsonArray.getLong(i);
+                        teacher.setRating(rating);
+                    }
+
+                    int numberOfReviews = numberOfReviewsJsonArray.getInt(i);
+                    teacher.setNumberOfReviews(numberOfReviews);
+
+                    if (teacherReviews.length() > 0) {
+                        ArrayList<Review> reviews = new ArrayList<>();
+                        for (int j = 0; j < teacherReviews.length(); j++) {
+                            JSONObject reviewData = teacherReviews.getJSONObject(j);
+                            int reviewId = reviewData.getInt("id");
+                            int senderId = reviewData.getInt("sender_id");
+                            int subjectId = reviewData.getInt("subject_id");
+                            String reviewText = reviewData.getString("review_text");
+                            int note = reviewData.getInt("note");
+                            String creationDate = reviewData.getString("created_at");
+                            Review review = new Review(reviewId, senderId, subjectId, reviewText, note, creationDate);
+                            reviews.add(review);
+                        }
+
+                        teacher.setReviews(reviews);
+                    }
+
                     teacherList.add(teacher);
 
                     DisplayInfosSmallAdAsyncTask displayInfosSmallAdAsyncTask = new DisplayInfosSmallAdAsyncTask(this);
                     displayInfosSmallAdAsyncTask.execute(String.valueOf(id));
                 }
+
             } else {
                 Toast.makeText(this, R.string.no_result_found_toast_message, Toast.LENGTH_SHORT).show();
             }
@@ -288,7 +323,8 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
                 }
             }
 
-            if (userId == teacherList.get(teacherList.size() - 1).getTeacherId()) {
+            if (teacherList.size() > 0
+                    && userId == teacherList.get(teacherList.size() - 1).getTeacherId()) {
                 progressDialog.dismiss();
                 displayTeacherListView();
             }

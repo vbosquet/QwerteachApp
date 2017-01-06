@@ -92,8 +92,11 @@
             android:name=".MyMessagesActivity"
             android:label="@string/my_messages_activity_title"
             android:parentActivityName=".DashboardActivity" />
-        <activity android:name=".ChatActivity"
-            android:parentActivityName=".MyMessagesActivity"/>
+        <activity
+            android:name=".ChatActivity"
+            android:parentActivityName=".MyMessagesActivity" />
+        <activity android:name=".ReadCommentsActivity"
+            android:label="@string/read_comments_activity_title"/>
     </application>
 
 </manifest>

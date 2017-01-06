@@ -1,23 +1,30 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.qwerteach.wivi.qwerteachapp.DashboardActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.AcceptLessonAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.CancelLessonAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.CreateReviewAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisputeAsyncTack;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllMyLessonsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetLessonsInfosAsyncTask;
@@ -42,10 +49,11 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
         AcceptLessonAsyncTask.IAcceptLesson,
         GetLessonsInfosAsyncTask.IGetLessonInfos,
         PayTeacherAsyncTack.IPayTeacher,
-        DisputeAsyncTack.IDispute {
+        DisputeAsyncTack.IDispute,
+        CreateReviewAsyncTask.ICreateReview {
 
     View view;
-    String email, token, userId;
+    String email, token, userId, note, comment;
     ArrayList<Lesson> lessons;
     ListView lessonListView;
     ProgressDialog progressDialog;
@@ -168,11 +176,56 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
     public void didTouchPositiveReviewButton(int lessonId) {
         PayTeacherAsyncTack payTeacherAsyncTack = new PayTeacherAsyncTack(this);
         payTeacherAsyncTack.execute(lessonId, email, token);
+        startProgressDialog();
     }
 
     public void didTouchNegativeReviewButton(int lessonId) {
         DisputeAsyncTack disputeAsyncTack = new DisputeAsyncTack(this);
         disputeAsyncTack.execute(lessonId, email, token);
+        startProgressDialog();
+    }
+
+    public void didTouchReviewButton(final int teacherId) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        View dialogView = inflater.inflate(R.layout.dialog_teacher_review, null);
+        final EditText commentEditText = (EditText) dialogView.findViewById(R.id.comment_edit_text);
+        final Spinner noteSpinner = (Spinner) dialogView.findViewById(R.id.note_spinner);
+
+        ArrayAdapter adapter = ArrayAdapter.createFromResource(getContext(), R.array.note_spinner_item, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        noteSpinner.setAdapter(adapter);
+        noteSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                note = adapterView.getItemAtPosition(i).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        builder.setView(dialogView);
+        builder.setTitle(R.string.teacher_review_dialog_title);
+        builder.setPositiveButton(R.string.teacher_review_dialog_positive_button, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                comment = commentEditText.getText().toString();
+                startCreateReviewAsyncTask(teacherId);
+            }
+        });
+
+        builder.setNegativeButton(R.string.teacher_review_dialog_negative_button, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+
+        builder.create().show();
+
     }
 
     @Override
@@ -290,7 +343,8 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
             Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
 
             if (success.equals("true")) {
-                displayLessonListView();
+                refreshFragment();
+                progressDialog.dismiss();
             }
 
         } catch (JSONException e) {
@@ -309,7 +363,8 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
             Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
 
             if (success.equals("true")) {
-                displayLessonListView();
+                refreshFragment();
+                progressDialog.dismiss();
             }
 
         } catch (JSONException e) {
@@ -324,5 +379,36 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setCancelable(true);
         progressDialog.show();
+    }
+
+    public void startCreateReviewAsyncTask(int teacherId) {
+        CreateReviewAsyncTask createReviewAsyncTask = new CreateReviewAsyncTask(this);
+        createReviewAsyncTask.execute(teacherId, email, token, comment, note);
+        startProgressDialog();
+    }
+
+    public void refreshFragment() {
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.detach(this).attach(this).commit();
+    }
+
+    @Override
+    public void createReviewConfirmationMessage(String string) {
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            String success = jsonObject.getString("success");
+
+            if (success.equals("true")) {
+                Toast.makeText(getContext(), R.string.create_review_positive_success_message, Toast.LENGTH_LONG).show();
+                refreshFragment();
+                progressDialog.dismiss();
+
+            } else {
+                Toast.makeText(getContext(), R.string.create_review_negative_success_message, Toast.LENGTH_LONG).show();
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

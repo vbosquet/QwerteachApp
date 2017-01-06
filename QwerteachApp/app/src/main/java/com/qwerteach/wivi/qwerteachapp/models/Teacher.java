@@ -19,6 +19,9 @@ public class Teacher implements Serializable{
     private ArrayList<String> topicTitleList;
     private ArrayList<Double> priceList;
     private ArrayList<SmallAd> smallAds;
+    private ArrayList<Review> reviews;
+    private int numberOfReviews;
+    private float rating;
 
     public Teacher() {
 
@@ -144,5 +147,29 @@ public class Teacher implements Serializable{
 
     public void addSmallAds(SmallAd smallAd) {
         this.smallAds.add(smallAd);
+    }
+
+    public int getNumberOfReviews() {
+        return numberOfReviews;
+    }
+
+    public void setNumberOfReviews(int numberOfReviews) {
+        this.numberOfReviews = numberOfReviews;
+    }
+
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
+    }
+
+    public ArrayList<Review> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(ArrayList<Review> reviews) {
+        this.reviews = reviews;
     }
 }

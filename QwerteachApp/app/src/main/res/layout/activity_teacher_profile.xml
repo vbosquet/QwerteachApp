@@ -110,6 +110,68 @@
             android:paddingBottom="10dp"
             android:gravity="top|left" />
 
+        <LinearLayout
+            android:id="@+id/last_comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:background="@drawable/text_view_bottom_border"
+            android:paddingBottom="10dp"
+            android:gravity="top|left">
+
+            <TextView
+                android:id="@+id/sender_first_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:textColor="@color/dark"/>
+
+            <TextView
+                android:id="@+id/sending_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="10dp"/>
+
+            <TextView
+                android:id="@+id/review_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="5"
+                android:textSize="17dp"
+                android:paddingBottom="20dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:clickable="true"
+                android:onClick="didTouchReadComments">
+
+                <TextView
+                    android:id="@+id/read_more_comments"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimary"
+                    android:layout_marginRight="15dp"/>
+
+                <RatingBar
+                    android:id="@+id/rating_bar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="?android:attr/ratingBarStyleSmall"
+                    android:numStars="5"
+                    android:stepSize="0.1"
+                    android:isIndicator="true"
+                    android:rating="0" />
+
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
         <Button
             android:id="@+id/contact_button"
             android:layout_width="match_parent"
