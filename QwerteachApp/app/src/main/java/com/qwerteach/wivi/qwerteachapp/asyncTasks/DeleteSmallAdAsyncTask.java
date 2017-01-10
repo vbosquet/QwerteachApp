@@ -1,5 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.asyncTasks;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -21,14 +23,28 @@ import java.net.URL;
 public class DeleteSmallAdAsyncTask extends AsyncTask<Object, String, String> {
 
     private IDeleteSmallAd callback;
+    private ProgressDialog progressDialog;
 
     public DeleteSmallAdAsyncTask(IDeleteSmallAd callback) {
         this.callback = callback;
+        progressDialog = new ProgressDialog((Context) callback);
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 
     @Override
     protected String doInBackground(Object... objects) {
         int advertId = (int) objects[0];
+        String email = (String) objects[1];
+        String token = (String) objects[2];
 
 
         try {
@@ -42,6 +58,8 @@ public class DeleteSmallAdAsyncTask extends AsyncTask<Object, String, String> {
             URL url = new URL("http://192.168.0.108:3000/api/adverts/delete");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            httpURLConnection.addRequestProperty("X-User-Email", email);
+            httpURLConnection.addRequestProperty("X-User-Token", token);
             httpURLConnection.setDoOutput(true);
             httpURLConnection.setDoInput(true);
             httpURLConnection.setRequestMethod("POST");
@@ -63,8 +81,6 @@ public class DeleteSmallAdAsyncTask extends AsyncTask<Object, String, String> {
             bufferedReader.close();
             inputStream.close();
 
-            Log.i("STRINGBUILDER", stringBuilder.toString());
-
             return stringBuilder.toString();
 
         } catch (JSONException | IOException e) {
@@ -79,6 +95,7 @@ public class DeleteSmallAdAsyncTask extends AsyncTask<Object, String, String> {
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
+        progressDialog.dismiss();
         callback.confirmationDeleteSmallAdMessage(string);
     }
 

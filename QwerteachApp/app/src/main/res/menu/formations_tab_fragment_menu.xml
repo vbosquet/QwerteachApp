@@ -2,9 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/save_profile_button"
+    <!--<item android:id="@+id/save_profile_button"
         android:title="@string/save_profile_button"
         android:icon="@mipmap/ic_content_save"
-        app:showAsAction="always"/>
+        app:showAsAction="always"/>-->
 
 </menu>

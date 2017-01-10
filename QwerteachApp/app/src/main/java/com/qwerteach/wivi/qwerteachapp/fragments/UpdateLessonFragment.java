@@ -1,6 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
 import android.app.DialogFragment;
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;;
 import android.preference.PreferenceManager;
@@ -33,6 +34,7 @@ public class UpdateLessonFragment extends Fragment implements
     TextView topicGroupTextView, topicTextView, levelTextView, totalPriceTextView, lessonDurationTextView, dateTextView, timeTextView;
     Button datePickerButton, timePickerButton, saveLessonInfosButton;
     String email, token;
+    ProgressDialog progressDialog;
 
     public static UpdateLessonFragment newInstance(Lesson lesson) {
         UpdateLessonFragment updateLessonFragment = new UpdateLessonFragment();
@@ -53,6 +55,8 @@ public class UpdateLessonFragment extends Fragment implements
         if (getArguments() != null) {
             lesson = (Lesson) getArguments().getSerializable("lesson");
         }
+
+        progressDialog = new ProgressDialog(getContext());
     }
 
     @Override
@@ -110,6 +114,7 @@ public class UpdateLessonFragment extends Fragment implements
 
         UpdateLessonAsyncTask updateLessonAsyncTask = new UpdateLessonAsyncTask(this);
         updateLessonAsyncTask.execute(lessonId, email, token, timeStart);
+        startProgressDialog();
     }
 
     @Override
@@ -120,6 +125,7 @@ public class UpdateLessonFragment extends Fragment implements
             String message = jsonObject.getString("message");
 
             if (success.equals("true")) {
+                progressDialog.dismiss();
                 Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
                 getActivity().getSupportFragmentManager().popBackStack();
 
@@ -134,5 +140,13 @@ public class UpdateLessonFragment extends Fragment implements
             e.printStackTrace();
         }
 
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 }

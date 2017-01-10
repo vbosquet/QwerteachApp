@@ -51,7 +51,7 @@ public class ChatActivity extends AppCompatActivity implements ReplyAsyncTask.IR
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle(conversation.getTeacher().getFirstName());
+        actionBar.setTitle(conversation.getUser().getFirstName());
 
         messageToSendEditText = (EditText) findViewById(R.id.message_to_send_edit_text);
         messageListView = (ListView) findViewById(R.id.message_list_view);

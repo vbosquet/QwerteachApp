@@ -346,7 +346,7 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
     }
 
     public void didTouchCreateNewLessonButton() {
-        int teacherId = teacher.getTeacherId();
+        int teacherId = teacher.getUser().getUserId();
         int levelId = 0;
         int topicId = 0;
         String date = dateTextView.getText().toString();

@@ -1,6 +1,8 @@
 package com.qwerteach.wivi.qwerteachapp;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
@@ -25,6 +27,7 @@ import java.util.Set;
 public class RegisterNewCardActivity extends AppCompatActivity implements CreditCardProcessAsyncTask.ICreditCardProcess {
 
     String url, email, token;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,17 +47,14 @@ public class RegisterNewCardActivity extends AppCompatActivity implements Credit
         token = preferences.getString("token", "");
 
         WebView myWebView = (WebView) findViewById(R.id.webview);
-        myWebView.loadUrl(url);
-
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         myWebView.setWebViewClient(new RegisterNewCardActivity.MyWebViewClient());
+        myWebView.loadUrl(url);
     }
 
     @Override
     public void getCreditCardProcess(String string) {
-
-        Log.i("STRING", string);
 
         try {
             JSONObject jsonObject = new JSONObject(string);
@@ -63,7 +63,6 @@ public class RegisterNewCardActivity extends AppCompatActivity implements Credit
             if (message.equals("true")) {
                 Toast.makeText(this, R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(getApplicationContext(), MyLessonsActivity.class);
-                //intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
 
             } else if (message.equals("loaded")) {
@@ -74,7 +73,7 @@ public class RegisterNewCardActivity extends AppCompatActivity implements Credit
             } else {
                 Toast.makeText(getApplicationContext(), R.string.payment_error_toast_message, Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(getApplicationContext(), PaymentMethodActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                //intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             }
 
@@ -87,18 +86,32 @@ public class RegisterNewCardActivity extends AppCompatActivity implements Credit
     private class MyWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-
             Uri uri = Uri.parse(url);
             String protocol = uri.getScheme();
             String server = uri.getAuthority();
             String path = uri.getPath();
-            Set<String> args = uri.getQueryParameterNames();
             String transactionId = uri.getQueryParameter("transactionId");
 
             String newURL = protocol + "://" + server + "/api" + path + "?transactionId=" + transactionId;
             startCreditCardAsyncTask(newURL);
 
             return true;
+        }
+
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            super.onPageStarted(view, url, favicon);
+            progressDialog = new ProgressDialog(RegisterNewCardActivity.this);
+            progressDialog.setMessage("Loading...");
+            progressDialog.show();
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            super.onPageFinished(view, url);
+            if (progressDialog != null) {
+                progressDialog.dismiss();
+            }
         }
     }
 
@@ -124,4 +137,5 @@ public class RegisterNewCardActivity extends AppCompatActivity implements Credit
         CreditCardProcessAsyncTask creditCardProcessAsyncTask = new CreditCardProcessAsyncTask(this);
         creditCardProcessAsyncTask.execute(email, token, url);
     }
+
 }

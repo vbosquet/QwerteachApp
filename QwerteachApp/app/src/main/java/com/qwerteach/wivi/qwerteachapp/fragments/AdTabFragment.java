@@ -50,6 +50,7 @@ public class AdTabFragment extends Fragment implements DisplayInfosSmallAdAsyncT
     ListView listView;
     SmallAdAdapter smallAdAdapter;
     Boolean postulanceAccepted;
+    String userId, email, token;
 
     public static AdTabFragment newInstance() {
         AdTabFragment adTabFragment = new AdTabFragment();
@@ -59,6 +60,12 @@ public class AdTabFragment extends Fragment implements DisplayInfosSmallAdAsyncT
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        userId = preferences.getString("userId", "");
+        email = preferences.getString("email", "");
+        token = preferences.getString("token", "");
+
         startDisplayInfosProfileAsynTack();
     }
 
@@ -128,16 +135,13 @@ public class AdTabFragment extends Fragment implements DisplayInfosSmallAdAsyncT
     }
 
     public void startDisplayInfosSmallAdAsyncTask() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String userId = preferences.getString("userId", "");
-
         DisplayInfosSmallAdAsyncTask displayInfosSmallAdAsyncTask = new DisplayInfosSmallAdAsyncTask(this);
-        displayInfosSmallAdAsyncTask.execute(userId);
+        displayInfosSmallAdAsyncTask.execute(userId, email, token);
     }
 
     public void startDeleteSmallAdAsyncTask(int advertId) {
         DeleteSmallAdAsyncTask deleteSmallAdAsyncTask = new DeleteSmallAdAsyncTask(this);
-        deleteSmallAdAsyncTask.execute(advertId);
+        deleteSmallAdAsyncTask.execute(advertId, email, token);
     }
 
     @Override
@@ -184,12 +188,6 @@ public class AdTabFragment extends Fragment implements DisplayInfosSmallAdAsyncT
     }
 
     public void startDisplayInfosProfileAsynTack() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String userId = preferences.getString("userId", "");
-        String email = preferences.getString("email", "");
-        String token = preferences.getString("token", "");
-
-
         DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
         displayInfosProfileAsyncTask.execute(userId, email, token);
     }

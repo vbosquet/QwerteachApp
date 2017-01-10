@@ -1,5 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -71,6 +72,7 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
     LinearLayout lastReview;
     TextView senderFirstName, reviewText, sendingDate, readMoreComments;
     RatingBar ratingBar;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,11 +99,11 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
 
         actionBar.setTitle(query);
 
-        smallAds = new ArrayList<>();
         levels = new ArrayList<>();
         topicGroupTitleList = new ArrayList<>();
         smallAds = teacher.getSmallAds();
         reviews = teacher.getReviews();
+        progressDialog = new ProgressDialog(this);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         email = preferences.getString("email", "");
@@ -121,6 +123,7 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
                 int senderId = reviews.get(i).getSenderId();
                 DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
                 displayInfosProfileAsyncTask.execute(String.valueOf(senderId), email, token);
+                startProgressDialog();
             }
 
         }
@@ -129,28 +132,16 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
     }
 
     public void displayTeacherProfileInfos() {
-        teacherName.setText(teacher.getFirstName() + " " + teacher.getLastName());
-        teacherOccupation.setText(teacher.getOccupation());
-        String text = teacher.getDescription();
+        teacherName.setText(teacher.getUser().getFirstName() + " " + teacher.getUser().getLastName());
+        teacherOccupation.setText(teacher.getUser().getOccupation());
+        String text = teacher.getUser().getDescription();
         text = text.replace("\\n\\n", "");
         text = text.replace("\\n", "");
         teacherDescription.setText(Html.fromHtml(text), TextView.BufferType.SPANNABLE);
-        contactTeacherButton.setText("Contacter " + teacher.getFirstName());
+        contactTeacherButton.setText("Contacter " + teacher.getUser().getFirstName());
         courseMaterialNames.setText(teacher.getTopicTitleList());
         minPrice.setText("A partir de " +teacher.getMinPrice() + " €/h");
-
-        Date currentDate = new Date();
-        currentDate.getTime();
-
-        try {
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-            Date birthDate = format.parse(teacher.getBirthDate());
-            int age = getDiffBetYears(birthDate, currentDate);
-            teacherAge.setText(age + " ans");
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        teacherAge.setText(teacher.getUser().getAge() + " ans");
     }
 
     @Override
@@ -171,23 +162,6 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
         return super.onOptionsItemSelected(item);
     }
 
-    public static int getDiffBetYears(Date first, Date last) {
-        Calendar firstDate = getCalendar(first);
-        Calendar secDate = getCalendar(last);
-        int diff = secDate.get(YEAR) - firstDate.get(YEAR);
-        if (firstDate.get(MONTH) > secDate.get(MONTH) ||
-                (firstDate.get(MONTH) == secDate.get(MONTH) && firstDate.get(DATE) > secDate.get(DATE))) {
-            diff--;
-        }
-        return diff;
-    }
-
-    public static Calendar getCalendar(Date date) {
-        Calendar cal = Calendar.getInstance(Locale.US);
-        cal.setTime(date);
-        return cal;
-    }
-
     public void didTouchContactButton(View view) {
         createContactTeacherAlertDialog();
     }
@@ -201,14 +175,14 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
         TextView titleTextView = (TextView) content.findViewById(R.id.alert_dialog_title);
         final EditText userMessageEditText = (EditText) content.findViewById(R.id.alert_dialog_user_message);
 
-        String message = ("Posez une question à " + teacher.getFirstName());
+        String message = ("Posez une question à " + teacher.getUser().getFirstName());
         titleTextView.setText(message);
 
         builder.setPositiveButton("ENVOYER", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 String body = userMessageEditText.getText().toString();
-                int recipient = teacher.getTeacherId();
+                int recipient = teacher.getUser().getUserId();
                 String subject = firstName + " " + lastName + " vous pose une question !";
 
                 startSendMessageToTeacherAsyncTask(body, subject, recipient);
@@ -245,7 +219,7 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
         TextView title = (TextView) dialogView.findViewById(R.id.title);
         LinearLayout alertDialog = (LinearLayout) dialogView.findViewById(R.id.alert_dialog_linear_layout);
 
-        title.setText("Tarif(s) de " + teacher.getFirstName());
+        title.setText("Tarif(s) de " + teacher.getUser().getFirstName());
 
         for (int i = 0; i < smallAds.size(); i++) {
             String topicTitle = smallAds.get(i).getTitle();
@@ -332,7 +306,7 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
     }
 
     public void didTouchLessonReservationButton(View view) {
-        String teacherId = String.valueOf(teacher.getTeacherId());
+        String teacherId = String.valueOf(teacher.getUser().getUserId());
         NewLessonRequestAsyncTask newLessonRequestAsyncTask = new NewLessonRequestAsyncTask(this);
         newLessonRequestAsyncTask.execute(teacherId, email, token);
     }
@@ -363,9 +337,9 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
         try {
             JSONObject jsonObject = new JSONObject(string);
             String message = jsonObject.getString("message");
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, MyMessagesActivity.class);
             startActivity(intent);
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -390,6 +364,7 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
                     }
 
                     if (userId == reviews.get(reviews.size() - 1).getSenderId()) {
+                        progressDialog.dismiss();
                         displayLastComment(firstName);
                     }
                 }
@@ -416,14 +391,28 @@ public class TeacherProfileActivity extends AppCompatActivity implements Display
         readMoreComments = (TextView) findViewById(R.id.read_more_comments);
         ratingBar = (RatingBar) findViewById(R.id.rating_bar);
 
+        int lastPosition = reviews.size() - 1;
+
         lastReview.setVisibility(View.VISIBLE);
         senderFirstName.setText(firstName);
-        reviewText.setText(reviews.get(0).getReviewText());
-        String dateToFormat = reviews.get(0).getCreationDate();
-        sendingDate.setText(reviews.get(0).getMonth(dateToFormat) + " "
-                + reviews.get(0).getYear(dateToFormat));
+        reviewText.setText(reviews.get(lastPosition).getReviewText());
+        String dateToFormat = reviews.get(lastPosition).getCreationDate();
+        sendingDate.setText(reviews.get(lastPosition).getMonth(dateToFormat) + " "
+                + reviews.get(lastPosition).getYear(dateToFormat));
         readMoreComments.setText("Lire " + teacher.getNumberOfReviews() + " commentaire(s)");
         ratingBar.setRating(teacher.getRating());
 
+        if (reviews.size() > 1) {
+            readMoreComments.setVisibility(View.VISIBLE);
+        }
+
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 }

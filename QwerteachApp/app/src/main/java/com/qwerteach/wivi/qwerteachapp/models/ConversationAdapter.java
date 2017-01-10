@@ -51,7 +51,7 @@ public class ConversationAdapter extends ArrayAdapter<Conversation> {
         Date newDate = getDate(dateToFormat);
         String time = getTime(newDate);
 
-        viewHolder.recipient.setText(conversation.getTeacher().getFirstName());
+        viewHolder.recipient.setText(conversation.getUser().getFirstName());
         viewHolder.body.setText(lastMessage);
         viewHolder.creationDate.setText("Il y a " + time);
 

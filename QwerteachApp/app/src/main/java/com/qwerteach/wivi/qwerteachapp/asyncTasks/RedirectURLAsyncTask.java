@@ -1,5 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.asyncTasks;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -15,10 +17,23 @@ import java.net.URL;
  */
 
 public class RedirectURLAsyncTask extends AsyncTask<Object, String, String> {
+
     private IRedirectURL callback;
+    private ProgressDialog progressDialog;
 
     public RedirectURLAsyncTask(IRedirectURL callback) {
         this.callback = callback;
+        progressDialog = new ProgressDialog((Context) callback);
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 
     @Override
@@ -48,8 +63,6 @@ public class RedirectURLAsyncTask extends AsyncTask<Object, String, String> {
             bufferedReader.close();
             inputStream.close();
 
-            Log.i("STRINGBUILDER", stringBuilder.toString());
-
             return stringBuilder.toString();
 
         } catch (IOException e) {
@@ -62,6 +75,7 @@ public class RedirectURLAsyncTask extends AsyncTask<Object, String, String> {
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
+        progressDialog.dismiss();
         callback.redirectURL(string);
     }
 

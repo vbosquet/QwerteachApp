@@ -1,6 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -41,14 +42,16 @@ import java.util.ArrayList;
 
 public class FormationsTabFragment extends Fragment implements DisplaySchoolLevelsAsyncTask.IDisplaySchoolLevels,
         AdapterView.OnItemSelectedListener,
-        DisplayInfosProfileAsyncTask.IDisplayInfosProfile, SaveInfosFormationAsyncTask.ISaveInfosFormation {
+        DisplayInfosProfileAsyncTask.IDisplayInfosProfile, SaveInfosFormationAsyncTask.ISaveInfosFormation, View.OnClickListener {
 
     EditText professionEditText, userDescriptionEditTet;
+    Button saveInfosButton;
     Spinner levelSpinner;
     ArrayList<Level> levels;
     View view;
-    String levelName, defaultTextForLevelSpinner;
+    String levelName, defaultTextForLevelSpinner, userId, email, token;
     int levelId;
+    ProgressDialog progressDialog;
 
     public static FormationsTabFragment newInstance() {
         FormationsTabFragment formationsTabFragment = new FormationsTabFragment();
@@ -59,7 +62,13 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        userId = preferences.getString("userId", "");
+        email = preferences.getString("email", "");
+        token = preferences.getString("token", "");
+
         levels = new ArrayList<>();
+        progressDialog = new ProgressDialog(getContext());
         startDisplayInfosProfileAsynTack();
     }
 
@@ -69,7 +78,9 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
         professionEditText = (EditText) view.findViewById(R.id.profession);
         userDescriptionEditTet = (EditText) view.findViewById(R.id.description);
         levelSpinner = (Spinner) view.findViewById(R.id.spinner_level);
-        setHasOptionsMenu(true);
+        saveInfosButton = (Button) view.findViewById(R.id.save_infos_button);
+        saveInfosButton.setOnClickListener(this);
+        //setHasOptionsMenu(true);
 
         return view;
     }
@@ -124,23 +135,12 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
     }
 
     public void startDisplayInfosProfileAsynTack() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String userId = preferences.getString("userId", "");
-        String email = preferences.getString("email", "");
-        String token = preferences.getString("token", "");
-
         DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
         displayInfosProfileAsyncTask.execute(userId, email, token);
     }
 
     public void startSaveInfosFormationTabAsyncTask() {
         int levelId = 0;
-
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String userId = preferences.getString("userId", "");
-        String email = preferences.getString("email", "");
-        String token = preferences.getString("token", "");
-
         String profession = professionEditText.getText().toString();
         String userDescription = userDescriptionEditTet.getText().toString();
 
@@ -153,6 +153,7 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
 
         SaveInfosFormationAsyncTask saveInfosFormationAsyncTask = new SaveInfosFormationAsyncTask(this);
         saveInfosFormationAsyncTask.execute(userId, profession, userDescription, levelId, email, token);
+        startProgressDialog();
 
     }
 
@@ -163,11 +164,11 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        /*switch (item.getItemId()) {
             case R.id.save_profile_button:
                 startSaveInfosFormationTabAsyncTask();
                 return true;
-        }
+        }*/
 
         return super.onOptionsItemSelected(item);
     }
@@ -201,6 +202,7 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
         try {
             JSONObject jsonObject = new JSONObject(string);
             String regsitrationConfirmation = jsonObject.getString("success");
+            progressDialog.dismiss();
 
             if (regsitrationConfirmation.equals("true")) {
                 Toast.makeText(getContext(), R.string.infos_profile_registration_success_toast, Toast.LENGTH_SHORT).show();
@@ -225,5 +227,20 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
             }
         }
         return index;
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view.getId() == R.id.save_infos_button) {
+            startSaveInfosFormationTabAsyncTask();
+        }
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 }

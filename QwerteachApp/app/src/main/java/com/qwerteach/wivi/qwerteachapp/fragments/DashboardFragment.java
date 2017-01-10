@@ -40,6 +40,7 @@ import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.TeacherToReviewAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.ToDoListAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.UpcomingLessonAdapter;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -77,6 +78,13 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        email = preferences.getString("email", "");
+        token = preferences.getString("token", "");
+        userId = preferences.getString("userId", "");
+
+        progressDialog = new ProgressDialog(getContext());
     }
 
     @Override
@@ -90,12 +98,6 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
         upcomingLessons = new ArrayList<>();
         toDoList = new ArrayList<>();
         teachersToReview = new ArrayList<>();
-        progressDialog = new ProgressDialog(getContext());
-
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
-        userId = preferences.getString("userId", "");
 
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) view.findViewById(R.id.search_view);
@@ -111,6 +113,7 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
 
         DisplayDashboardInfosAsyncTask displayDashboardInfosAsyncTask = new DisplayDashboardInfosAsyncTask(this);
         displayDashboardInfosAsyncTask.execute(email, token);
+        startProgressDialog();
 
         return  view;
     }
@@ -151,7 +154,10 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
             if (reviewAskedJsonArray.length() > 0) {
                 for (int i = 0; i < reviewAskedJsonArray.length(); i++) {
                     int teacherId = (int) reviewAskedJsonArray.get(i);
-                    Teacher teacher = new Teacher(teacherId);
+                    User user = new User();
+                    user.setUserId(teacherId);
+                    Teacher teacher = new Teacher();
+                    teacher.setUser(user);
                     teachersToReview.add(teacher);
                 }
 
@@ -242,7 +248,7 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
 
     public void getTeachersInfos() {
         for (int i = 0; i < teachersToReview.size(); i++) {
-            int teacherId = teachersToReview.get(i).getTeacherId();
+            int teacherId = teachersToReview.get(i).getUser().getUserId();
             DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
             displayInfosProfileAsyncTask.execute(String.valueOf(teacherId), email, token);
         }
@@ -314,6 +320,7 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
         toDoListAdapter.setCallback(this);
         View view = toDoListAdapter.getView(i, null, null);
         toDoListView.addView(view);
+        progressDialog.dismiss();
 
     }
 
@@ -324,6 +331,7 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
         UpcomingLessonAdapter upcomingLessonAdapter = new UpcomingLessonAdapter(getContext(), upcomingLessons);
         View view = upcomingLessonAdapter.getView(i, null, null);
         upcomingLessonView.addView(view);
+        progressDialog.dismiss();
     }
 
     public void displayTeachersToReviewListView(int i) {
@@ -332,18 +340,21 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
         TeacherToReviewAdapter teacherToReviewAdapter = new TeacherToReviewAdapter(getContext(), teachersToReview, DashboardFragment.this);
         View view = teacherToReviewAdapter.getView(i, null, null);
         teacherToReviewListView.addView(view);
+        progressDialog.dismiss();
     }
 
     @Override
     public void didTouchRefuseLessonButton(int lessonId) {
         RefuseLessonAsyncTask refuseLessonAsyncTask = new RefuseLessonAsyncTask(this);
         refuseLessonAsyncTask.execute(lessonId, email, token);
+        startProgressDialog();
     }
 
     @Override
     public void didTouchAcceptLessonButton(int lessonId) {
         AcceptLessonAsyncTask acceptLessonAsyncTask = new AcceptLessonAsyncTask(this);
         acceptLessonAsyncTask.execute(lessonId, email, token);
+        startProgressDialog();
     }
 
     @Override
@@ -359,12 +370,14 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
     public void didTouchPositiveFeedBackButton(int lessonId) {
         PayTeacherAsyncTack payTeacherAsyncTack = new PayTeacherAsyncTack(this);
         payTeacherAsyncTack.execute(lessonId, email, token);
+        startProgressDialog();
     }
 
     @Override
     public void didTouchNegativeFeedBackButton(int lessonId) {
         DisputeAsyncTack disputeAsyncTack = new DisputeAsyncTack(this);
         disputeAsyncTack.execute(lessonId, email, token);
+        startProgressDialog();
 
     }
 
@@ -396,6 +409,7 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
                 }
             }
 
+            progressDialog.dismiss();
             Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
             Intent intent = new Intent(getContext(), DashboardActivity.class);
             startActivity(intent);
@@ -413,6 +427,7 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
             String success = jsonObject.getString("success");
             String message = jsonObject.getString("message");
 
+            progressDialog.dismiss();
             Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
 
             if (success.equals("true")) {
@@ -432,6 +447,7 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
             String success = jsonObject.getString("success");
             String message = jsonObject.getString("message");
 
+            progressDialog.dismiss();
             Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
 
             if (success.equals("true")) {
@@ -456,14 +472,14 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
             String lastName = userJson.getString("lastname");
 
             for (int i = 0; i < teachersToReview.size(); i++) {
-                int id = teachersToReview.get(i).getTeacherId();
+                int id = teachersToReview.get(i).getUser().getUserId();
 
                 if (id == teacherId) {
-                    teachersToReview.get(i).setFirstName(firstName);
-                    teachersToReview.get(i).setLastName(lastName);
+                    teachersToReview.get(i).getUser().setFirstName(firstName);
+                    teachersToReview.get(i).getUser().setLastName(lastName);
                 }
 
-                if (teacherId == teachersToReview.get(teachersToReview.size() - 1).getTeacherId()) {
+                if (teacherId == teachersToReview.get(teachersToReview.size() - 1).getUser().getUserId()) {
                     displayTeachersToReviewListView(i);
                 }
             }
@@ -523,10 +539,10 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
             String success = jsonObject.getString("success");
 
             if (success.equals("true")) {
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.detach(this).attach(this).commit();
                 progressDialog.dismiss();
                 Toast.makeText(getContext(), R.string.create_review_positive_success_message, Toast.LENGTH_LONG).show();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.detach(this).attach(this).commit();
             } else {
                 Toast.makeText(getContext(), R.string.create_review_negative_success_message, Toast.LENGTH_LONG).show();
             }

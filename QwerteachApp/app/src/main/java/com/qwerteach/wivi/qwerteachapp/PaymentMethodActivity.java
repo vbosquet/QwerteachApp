@@ -1,5 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -85,7 +86,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements GetTotal
         }
 
 
-        teacherId = teacher.getTeacherId();
+        teacherId = teacher.getUser().getUserId();
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         userId = preferences.getString("userId", "");
@@ -445,7 +446,6 @@ public class PaymentMethodActivity extends AppCompatActivity implements GetTotal
             }
 
         } else if (paymentMode.equals("cd")) {
-
             if (!currentAlias.equals("Nouvelle carte de crédit")) {
                 for (int i = 0; i < userCreditCards.size(); i++) {
                     if (userCreditCards.get(i).getAlias().equals(currentAlias)) {
@@ -501,9 +501,6 @@ public class PaymentMethodActivity extends AppCompatActivity implements GetTotal
             String message = jsonObject.getString("message");
 
             if (message.equals("finish")) {
-                GetTotalWalletAsyncTask getTotalWalletAsyncTask = new GetTotalWalletAsyncTask(this);
-                getTotalWalletAsyncTask.execute(email, token, userId);
-                paymentWithVirtualWallet.setChecked(false);
                 Toast.makeText(this, R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(this, MyLessonsActivity.class);
                 startActivity(intent);
@@ -547,9 +544,6 @@ public class PaymentMethodActivity extends AppCompatActivity implements GetTotal
                 startActivity(intent);
 
             } else if (message.equals("finish")) {
-                GetTotalWalletAsyncTask getTotalWalletAsyncTask = new GetTotalWalletAsyncTask(this);
-                getTotalWalletAsyncTask.execute(email, token, userId);
-                paymentWithVirtualWallet.setChecked(false);
                 Toast.makeText(this, R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(this, MyLessonsActivity.class);
                 startActivity(intent);
@@ -562,7 +556,6 @@ public class PaymentMethodActivity extends AppCompatActivity implements GetTotal
     }
 
     public void startPayLessonWithCreditCardAsyncTask() {
-
         PayLessonWithCreditCardAsyncTask payLessonWithCreditCardAsyncTask = new PayLessonWithCreditCardAsyncTask(this);
         payLessonWithCreditCardAsyncTask.execute(email, token, teacherId, paymentMode, cardId);
     }

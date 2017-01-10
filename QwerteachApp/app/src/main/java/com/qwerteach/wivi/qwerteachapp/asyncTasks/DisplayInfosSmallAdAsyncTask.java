@@ -28,8 +28,9 @@ public class DisplayInfosSmallAdAsyncTask extends AsyncTask<String, String, Stri
 
     @Override
     protected String doInBackground(String... strings) {
-
         String userId = strings[0];
+        String email = strings[1];
+        String token = strings[2];
 
         try {
 
@@ -39,9 +40,11 @@ public class DisplayInfosSmallAdAsyncTask extends AsyncTask<String, String, Stri
             json.put("id", userId);
             userJson.put("user", json);
 
-            URL url = new URL("http://192.168.0.108:3000/api/adverts/show");
+            URL url = new URL("http://192.168.0.108:3000/api/adverts/find_adverts");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            httpURLConnection.addRequestProperty("X-User-Email", email);
+            httpURLConnection.addRequestProperty("X-User-Token", token);
             httpURLConnection.setDoOutput(true);
             httpURLConnection.setDoInput(true);
             httpURLConnection.setRequestMethod("POST");

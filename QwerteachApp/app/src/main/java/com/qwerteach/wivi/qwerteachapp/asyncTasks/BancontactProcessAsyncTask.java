@@ -1,5 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.asyncTasks;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -17,9 +19,21 @@ import java.net.URL;
 public class BancontactProcessAsyncTask extends AsyncTask<Object, String, String> {
 
     private IBancontactProcess callback;
+    private ProgressDialog progressDialog;
 
     public BancontactProcessAsyncTask(IBancontactProcess callback) {
         this.callback = callback;
+        progressDialog = new ProgressDialog((Context) callback);
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 
 
@@ -61,6 +75,7 @@ public class BancontactProcessAsyncTask extends AsyncTask<Object, String, String
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
+        progressDialog.dismiss();
         callback.getBancontactProcess(string);
     }
 

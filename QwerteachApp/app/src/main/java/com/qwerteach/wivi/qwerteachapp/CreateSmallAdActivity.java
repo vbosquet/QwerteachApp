@@ -46,7 +46,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
     EditText otherCourseMaterialEditText, descriptionEditText, fixCoursePriceEditText;
     LinearLayout checkboxesLinearLayout, coursePriceLinearLayout;
     Spinner categoryCourseSpinner, courseMaterialSpinner;
-    String courseMaterialName, userId, courseCategoryName;
+    String courseMaterialName, userId, email, token, courseCategoryName;
     ArrayList<EditText> coursePriceEditTextList;
     ArrayList<TopicGroup> topicGroups;
     ArrayList<Topic> topics;
@@ -71,6 +71,8 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         userId = preferences.getString("userId", "");
+        email = preferences.getString("email", "");
+        token = preferences.getString("token", "");
 
         topicGroups = new ArrayList<>();
         topics = new ArrayList<>();
@@ -128,7 +130,6 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-
         courseCategoryName = topicGroups.get(position).getTopicGroupTitle();
         DisplayInfosTopicsAsyncTask displayInfosTopicsAsyncTask = new DisplayInfosTopicsAsyncTask(this);
         displayInfosTopicsAsyncTask.execute(courseCategoryName);

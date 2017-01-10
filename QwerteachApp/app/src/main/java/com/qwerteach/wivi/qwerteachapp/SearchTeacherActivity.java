@@ -2,7 +2,9 @@ package com.qwerteach.wivi.qwerteachapp;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
+import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +30,7 @@ import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.TeacherAdapter;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,7 +52,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
     Spinner searchSortingOptionsSpinner;
     int userId;
     int currentSearchSortingOption = 0;
-    String query;
+    String query, email, token;
     ProgressDialog progressDialog;
 
     @Override
@@ -64,6 +67,10 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
 
         listView = (ListView) findViewById(R.id.teacher_list_view);
         searchSortingOptionsSpinner = (Spinner) findViewById(R.id.search_sorting_options_spinner);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        email = preferences.getString("email", "");
+        token = preferences.getString("token", "");
 
         teacherList = new ArrayList<>();
         smallAds = new ArrayList<>();
@@ -150,7 +157,10 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
                     String description = teacherData.getString("description");
                     String occupation = teacherData.getString("occupation");
                     String birthDate = teacherData.getString("birthdate");
-                    Teacher teacher = new Teacher(id, firstName, lastName, description, occupation, birthDate);
+
+                    User user = new User(id, firstName, lastName, birthDate, occupation, description);
+                    Teacher teacher = new Teacher();
+                    teacher.setUser(user);
 
                     float rating;
                     if (!ratingJsonArray.get(i).toString().equals("null")) {
@@ -181,7 +191,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
                     teacherList.add(teacher);
 
                     DisplayInfosSmallAdAsyncTask displayInfosSmallAdAsyncTask = new DisplayInfosSmallAdAsyncTask(this);
-                    displayInfosSmallAdAsyncTask.execute(String.valueOf(id));
+                    displayInfosSmallAdAsyncTask.execute(String.valueOf(id), email, token);
                 }
 
             } else {
@@ -238,12 +248,12 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
                 }
 
                 DisplaySmallAdPriceAsyncTask displaySmallAdPriceAsyncTask = new DisplaySmallAdPriceAsyncTask(this);
-                displaySmallAdPriceAsyncTask.execute(smallAdId);
+                displaySmallAdPriceAsyncTask.execute(smallAdId, email, token);
 
             }
 
             for (int i = 0; i < teacherList.size(); i++) {
-                if (userId == teacherList.get(i).getTeacherId()) {
+                if (userId == teacherList.get(i).getUser().getUserId()) {
                     teacherList.get(i).setTopicTitleList(topicTitleList);
                 }
             }
@@ -261,7 +271,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
 
     public void didTouchReadMoreTextView(View view) {
         int position = listView.getPositionForView(view);
-        int teacherId = teacherList.get(position).getTeacherId();
+        int teacherId = teacherList.get(position).getUser().getUserId();
 
         SmallAd smallAd = new SmallAd();
 
@@ -310,7 +320,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
                     newUserId = smallAds.get(i).getUserId();
                     smallAds.get(i).setSmallAdPrices(smallAdPrices);
                     for (int j = 0; j < teacherList.size(); j++) {
-                        if (newUserId == teacherList.get(j).getTeacherId()) {
+                        if (newUserId == teacherList.get(j).getUser().getUserId()) {
                             teacherList.get(j).addSmallAds(smallAds.get(i));
                         }
                     }
@@ -318,13 +328,13 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
             }
 
             for (int i = 0; i < teacherList.size(); i++) {
-                if (newUserId == teacherList.get(i).getTeacherId()) {
+                if (newUserId == teacherList.get(i).getUser().getUserId()) {
                     teacherList.get(i).addPriceToPriceList(coursePriceList);
                 }
             }
 
             if (teacherList.size() > 0
-                    && userId == teacherList.get(teacherList.size() - 1).getTeacherId()) {
+                    && userId == teacherList.get(teacherList.size() - 1).getUser().getUserId()) {
                 progressDialog.dismiss();
                 displayTeacherListView();
             }

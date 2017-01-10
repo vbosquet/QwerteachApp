@@ -144,6 +144,12 @@
                 android:textColorHint="#dfdfdf"
                 android:inputType="phone"/>
 
+            <Button
+                android:id="@+id/save_infos_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/save_profile_button"/>
+
         </LinearLayout>
 
     </LinearLayout>

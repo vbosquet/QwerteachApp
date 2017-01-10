@@ -1,5 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.asyncTasks;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -27,9 +29,21 @@ import java.util.ArrayList;
 public class SaveSmallAdAsyncTask extends AsyncTask<Object, String, String> {
 
     private ISaveSmallAdInfos callback;
+    private ProgressDialog progressDialog;
 
     public SaveSmallAdAsyncTask(ISaveSmallAdInfos callback) {
         this.callback = callback;
+        progressDialog = new ProgressDialog((Context) callback);
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 
     @Override
@@ -41,6 +55,8 @@ public class SaveSmallAdAsyncTask extends AsyncTask<Object, String, String> {
         String description = (String) objects[3];
         String userId = (String) objects[4];
         ArrayList<Level> levels = (ArrayList<Level>) objects[5];
+        String email = (String) objects[6];
+        String token = (String) objects[7];
 
 
         try {
@@ -92,6 +108,8 @@ public class SaveSmallAdAsyncTask extends AsyncTask<Object, String, String> {
             URL url = new URL("http://192.168.0.108:3000/api/adverts/create");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            httpURLConnection.addRequestProperty("X-User-Email", email);
+            httpURLConnection.addRequestProperty("X-User-Token", token);
             httpURLConnection.setDoOutput(true);
             httpURLConnection.setDoInput(true);
             httpURLConnection.setRequestMethod("POST");
@@ -125,6 +143,7 @@ public class SaveSmallAdAsyncTask extends AsyncTask<Object, String, String> {
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
+        progressDialog.dismiss();
         callback.displayRegistrationConfirmationMessage(string);
     }
 

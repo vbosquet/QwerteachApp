@@ -10,75 +10,18 @@ import java.util.Collections;
 
 public class Teacher implements Serializable{
 
-    private int teacherId;
-    private String firstName;
-    private String lastName;
-    private String description;
-    private String occupation;
-    private String birthDate;
     private ArrayList<String> topicTitleList;
     private ArrayList<Double> priceList;
     private ArrayList<SmallAd> smallAds;
     private ArrayList<Review> reviews;
     private int numberOfReviews;
     private float rating;
+    private User user;
 
     public Teacher() {
-
-    }
-
-    public Teacher(int teacherId) {
-        this.teacherId = teacherId;
-    }
-
-    public Teacher(int teacherId, String firstName, String lastName) {
-        this.teacherId = teacherId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-    }
-
-    public Teacher(int id, String firstName, String lastName, String description, String occupation, String birthDate) {
-        this.teacherId = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.description = description;
-        this.occupation = occupation;
-        this.birthDate = birthDate;
         topicTitleList = new ArrayList<>();
         priceList = new ArrayList<>();
         smallAds = new ArrayList<>();
-    }
-
-    public int getTeacherId() {
-        return teacherId;
-    }
-
-    public void setTeacherId(int teacherId) {
-        this.teacherId = teacherId;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getTopicTitleList() {
@@ -121,22 +64,6 @@ public class Teacher implements Serializable{
         Collections.sort(priceList);
     }
 
-    public String getOccupation() {
-        return occupation;
-    }
-
-    public void setOccupation(String occupation) {
-        this.occupation = occupation;
-    }
-
-    public String getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(String birthDate) {
-        this.birthDate = birthDate;
-    }
-
     public ArrayList<Double> getPriceList() {
         return priceList;
     }
@@ -171,5 +98,17 @@ public class Teacher implements Serializable{
 
     public void setReviews(ArrayList<Review> reviews) {
         this.reviews = reviews;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setSmallAds(ArrayList<SmallAd> smallAds) {
+        this.smallAds = smallAds;
     }
 }

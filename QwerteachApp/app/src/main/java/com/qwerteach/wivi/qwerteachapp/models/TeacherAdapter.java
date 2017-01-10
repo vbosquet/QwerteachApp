@@ -44,8 +44,8 @@ public class TeacherAdapter extends ArrayAdapter<Teacher> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        viewHolder.teacherName.setText(teacher.getFirstName() + " " + teacher.getLastName());
-        String text = teacher.getDescription();
+        viewHolder.teacherName.setText(teacher.getUser().getFirstName() + " " + teacher.getUser().getLastName());
+        String text = teacher.getUser().getDescription();
         text = text.replace("\\n\\n", "");
         text = text.replace("<p>", "");
         text= text.replace("</p>", "<br>");

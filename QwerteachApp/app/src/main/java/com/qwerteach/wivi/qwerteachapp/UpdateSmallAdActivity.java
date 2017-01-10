@@ -1,7 +1,9 @@
 package com.qwerteach.wivi.qwerteachapp;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
@@ -55,6 +57,7 @@ public class UpdateSmallAdActivity extends AppCompatActivity implements GetAllGr
     EditText otherCourseMaterialEditText, fixCoursePriceEditText, descriptionEditText;
     LinearLayout checkboxesLinearLayout, coursePriceLinearLayout;
     CheckBox variableCoursePriceCheckbox;
+    String email, token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +78,10 @@ public class UpdateSmallAdActivity extends AppCompatActivity implements GetAllGr
         fixCoursePriceEditText = (EditText) findViewById(R.id.fix_course_price);
         descriptionEditText = (EditText) findViewById(R.id.description);
         variableCoursePriceCheckbox = (CheckBox) findViewById(R.id.variable_course_price);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        email = preferences.getString("email", "");
+        token = preferences.getString("token", "");
 
         topicGroups = new ArrayList<>();
         topics = new ArrayList<>();
@@ -153,7 +160,7 @@ public class UpdateSmallAdActivity extends AppCompatActivity implements GetAllGr
         String description = descriptionEditText.getText().toString();
 
         EditSmallAdAsyncTask editSmallAdAsyncTask = new EditSmallAdAsyncTask(this);
-        editSmallAdAsyncTask.execute(topicGroup, topic, levels, otherCourseMaterialName, description, smallAd.getAdvertId());
+        editSmallAdAsyncTask.execute(topicGroup, topic, levels, otherCourseMaterialName, description, smallAd.getAdvertId(), email, token);
     }
 
     @Override
@@ -273,7 +280,7 @@ public class UpdateSmallAdActivity extends AppCompatActivity implements GetAllGr
             courseMaterialSpinner.setSelection(position);
 
             DisplaySmallAdPriceAsyncTask displaySmallAdPriceAsyncTask = new DisplaySmallAdPriceAsyncTask(this);
-            displaySmallAdPriceAsyncTask.execute(smallAd.getAdvertId());
+            displaySmallAdPriceAsyncTask.execute(smallAd.getAdvertId(), email, token);
 
             courseMaterialSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
@@ -482,7 +489,7 @@ public class UpdateSmallAdActivity extends AppCompatActivity implements GetAllGr
     }
 
     @Override
-    public void confirmationRegsitrationMessage(String string) {
+    public void confirmationRegistrationMessage(String string) {
         try {
             JSONObject jsonObject = new JSONObject(string);
             String confirmationRegistration = jsonObject.getString("success");

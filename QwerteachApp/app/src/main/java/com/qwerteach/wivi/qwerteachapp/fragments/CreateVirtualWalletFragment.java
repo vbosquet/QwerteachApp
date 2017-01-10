@@ -1,5 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -49,6 +50,7 @@ public class CreateVirtualWalletFragment extends Fragment implements DisplayInfo
     String userId, email, token;
     Button saveButton;
     Locale[] locales;
+    ProgressDialog progressDialog;
 
     public static CreateVirtualWalletFragment newInstance() {
         CreateVirtualWalletFragment createVirtualWalletFragment = new CreateVirtualWalletFragment();
@@ -61,6 +63,7 @@ public class CreateVirtualWalletFragment extends Fragment implements DisplayInfo
 
         locales = Locale.getAvailableLocales();
         countries = new ArrayList<>();
+        progressDialog = new ProgressDialog(getContext());
 
         for (Locale locale : locales) {
             String country = locale.getDisplayCountry();
@@ -177,6 +180,7 @@ public class CreateVirtualWalletFragment extends Fragment implements DisplayInfo
         CreateNewWalletAsyncTask createNewWalletAsyncTask = new CreateNewWalletAsyncTask(this);
         createNewWalletAsyncTask.execute(email, token, firstName, lastName, address,
                 streetNumber, postalCode, city, region, countryCode, regionCode, nationalityCode);
+        startProgressDialog();
     }
 
     @Override
@@ -186,6 +190,7 @@ public class CreateVirtualWalletFragment extends Fragment implements DisplayInfo
             String message = jsonObject.getString("message");
 
             if (message.equals("true")) {
+                progressDialog.dismiss();
                 Toast.makeText(getContext(), R.string.registration_new_wallet_success_toast_message, Toast.LENGTH_SHORT).show();
                 getActivity().getSupportFragmentManager().popBackStack();
 
@@ -214,7 +219,18 @@ public class CreateVirtualWalletFragment extends Fragment implements DisplayInfo
 
     @Override
     public void onPrepareOptionsMenu(final Menu menu) {
-        menu.findItem(R.id.reload_wallet_button).setVisible(false);
+        if (menu.findItem(R.id.reload_wallet_button) != null) {
+            menu.findItem(R.id.reload_wallet_button).setVisible(false);
+        }
+
         super.onPrepareOptionsMenu(menu);
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 }

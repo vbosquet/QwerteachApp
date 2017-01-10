@@ -7,9 +7,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosProfileAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Review;
+import com.qwerteach.wivi.qwerteachapp.models.ReviewAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 
@@ -18,6 +21,7 @@ import java.util.ArrayList;
 public class ReadCommentsActivity extends AppCompatActivity {
 
     ArrayList<Review> reviews;
+    ListView commentListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,16 +31,19 @@ public class ReadCommentsActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        commentListView = (ListView) findViewById(R.id.comments_list_view);
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             reviews = (ArrayList<Review>) getIntent().getSerializableExtra("reviews");
         }
 
-        if (reviews != null) {
-            for (int i = 0; i < reviews.size(); i++) {
-                Log.i("SENDER_NAME", reviews.get(i).getSenderFirstName());
-            }
-        }
+        displayCommentListView();
+    }
+
+    public void displayCommentListView() {
+        ReviewAdapter reviewAdapter = new ReviewAdapter(this, reviews);
+        commentListView.setAdapter(reviewAdapter);
     }
 
     @Override

@@ -153,6 +153,7 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
     public void didTouchCancelLessonButton(int lessonId) {
         CancelLessonAsyncTask cancelLessonAsyncTask = new CancelLessonAsyncTask(this);
         cancelLessonAsyncTask.execute(lessonId, email, token);
+        startProgressDialog();
     }
 
     public void didTouchUpdateLessonButton(Lesson lesson) {
@@ -166,11 +167,13 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
     public void didTouchAcceptLessonButton(int lessonId) {
         AcceptLessonAsyncTask acceptLessonAsyncTask = new AcceptLessonAsyncTask(this);
         acceptLessonAsyncTask.execute(lessonId, email, token);
+        startProgressDialog();
     }
 
     public void didTouchRefuseLessonButton(int lessonId) {
         RefuseLessonAsyncTask refuseLessonAsyncTask = new RefuseLessonAsyncTask(this);
         refuseLessonAsyncTask.execute(lessonId, email, token);
+        startProgressDialog();
     }
 
     public void didTouchPositiveReviewButton(int lessonId) {
@@ -250,8 +253,6 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
             String success = jsonObject.getString("success");
             String message = jsonObject.getString("message");
 
-            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-
             if (success.equals("true")) {
                 JSONObject lessonJson = jsonObject.getJSONObject("lesson");
                 int lessonId = lessonJson.getInt("id");
@@ -263,6 +264,8 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
                     }
                 }
 
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
                 displayLessonListView();
             }
 
@@ -322,8 +325,8 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
 
 
                 if (lessonId == lessons.get(lessons.size() - 1).getLessonId()) {
-                    displayLessonListView();
                     progressDialog.dismiss();
+                    displayLessonListView();
                 }
             }
 
@@ -340,11 +343,11 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
             String success = jsonObject.getString("success");
             String message = jsonObject.getString("message");
 
+            progressDialog.dismiss();
             Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
 
             if (success.equals("true")) {
                 refreshFragment();
-                progressDialog.dismiss();
             }
 
         } catch (JSONException e) {
@@ -360,11 +363,11 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
             String success = jsonObject.getString("success");
             String message = jsonObject.getString("message");
 
+            progressDialog.dismiss();
             Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
 
             if (success.equals("true")) {
                 refreshFragment();
-                progressDialog.dismiss();
             }
 
         } catch (JSONException e) {
@@ -399,9 +402,9 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
             String success = jsonObject.getString("success");
 
             if (success.equals("true")) {
+                progressDialog.dismiss();
                 Toast.makeText(getContext(), R.string.create_review_positive_success_message, Toast.LENGTH_LONG).show();
                 refreshFragment();
-                progressDialog.dismiss();
 
             } else {
                 Toast.makeText(getContext(), R.string.create_review_negative_success_message, Toast.LENGTH_LONG).show();

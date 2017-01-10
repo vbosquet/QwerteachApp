@@ -1,5 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.asyncTasks;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 
 import java.io.BufferedReader;
@@ -16,9 +18,21 @@ import java.net.URL;
 public class CreditCardProcessAsyncTask extends AsyncTask<Object, String, String> {
 
     private ICreditCardProcess callback;
+    private ProgressDialog progressDialog;
 
     public CreditCardProcessAsyncTask(ICreditCardProcess callback) {
         this.callback = callback;
+        progressDialog = new ProgressDialog((Context) callback);
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 
     @Override
@@ -60,6 +74,7 @@ public class CreditCardProcessAsyncTask extends AsyncTask<Object, String, String
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
+        progressDialog.dismiss();
         callback.getCreditCardProcess(string);
     }
 

@@ -29,6 +29,8 @@ public class DisplaySmallAdPriceAsyncTask extends AsyncTask<Object, String, Stri
     @Override
     protected String doInBackground(Object... objects) {
         int smallAdId = (int) objects[0];
+        String email = (String) objects[1];
+        String token = (String) objects[2];
 
         try {
 
@@ -41,6 +43,8 @@ public class DisplaySmallAdPriceAsyncTask extends AsyncTask<Object, String, Stri
             URL url = new URL("http://192.168.0.108:3000/api/adverts/find_advert_prices");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            httpURLConnection.addRequestProperty("X-User-Email", email);
+            httpURLConnection.addRequestProperty("X-User-Token", token);
             httpURLConnection.setDoOutput(true);
             httpURLConnection.setDoInput(true);
             httpURLConnection.setRequestMethod("POST");

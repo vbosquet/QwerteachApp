@@ -43,11 +43,11 @@ public class TeacherToReviewAdapter extends ArrayAdapter<Teacher> {
             viewHolder = (TeacherToReviewAdapter.ViewHolder) convertView.getTag();
         }
 
-        viewHolder.title.setText("Recommandez-vous " + teacher.getFirstName() + " ?");
+        viewHolder.title.setText("Recommandez-vous " + teacher.getUser().getFirstName() + " ?");
         viewHolder.reviewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fragment.didTouchTeacherReviewButton(teacher.getTeacherId());
+                fragment.didTouchTeacherReviewButton(teacher.getUser().getUserId());
             }
         });
 

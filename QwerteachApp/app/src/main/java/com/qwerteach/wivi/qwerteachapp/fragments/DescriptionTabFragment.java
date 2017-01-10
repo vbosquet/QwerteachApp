@@ -1,6 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
@@ -38,13 +39,13 @@ import java.util.Locale;
 public class DescriptionTabFragment extends Fragment implements SaveInfosProfileAsyncTask.ISaveInfosProfile,
         DisplayInfosProfileAsyncTask.IDisplayInfosProfile, View.OnClickListener {
 
-    EditText firstNameEditText;
-    EditText lastNameEditText;
-    EditText birthDateEditText;
-    EditText phoneNumberEditText;
+    EditText firstNameEditText, lastNameEditText, birthDateEditText, phoneNumberEditText;
     Calendar calendar;
     View view;
     DatePickerDialog.OnDateSetListener dateSetListener;
+    String userId, email, token;
+    ProgressDialog progressDialog;
+    Button saveInfosButton;
 
     public static DescriptionTabFragment newInstance() {
         DescriptionTabFragment descriptionTabFragment = new DescriptionTabFragment();
@@ -54,6 +55,13 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        userId = preferences.getString("userId", "");
+        email = preferences.getString("email", "");
+        token = preferences.getString("token", "");
+
+        progressDialog = new ProgressDialog(getContext());
         startDisplayInfosProfileAsynTack();
     }
 
@@ -77,9 +85,12 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
         lastNameEditText = (EditText) view.findViewById(R.id.lastname);
         birthDateEditText = (EditText) view.findViewById(R.id.birthdate);
         phoneNumberEditText = (EditText) view.findViewById(R.id.phoneNumber);
-        birthDateEditText.setOnClickListener(this);
+        saveInfosButton = (Button) view.findViewById(R.id.save_infos_button);
 
-        setHasOptionsMenu(true);
+        birthDateEditText.setOnClickListener(this);
+        saveInfosButton.setOnClickListener(this);
+
+        //setHasOptionsMenu(true);
 
         return view;
     }
@@ -92,11 +103,6 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
     }
 
     public void startSaveInfosProfileTabAsyncTask() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String userId = preferences.getString("userId", "");
-        String email = preferences.getString("email", "");
-        String token = preferences.getString("token", "");
-
         String firstName = firstNameEditText.getText().toString();
         String lastName = lastNameEditText.getText().toString();
         String birthDate = birthDateEditText.getText().toString();
@@ -104,6 +110,7 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
 
         SaveInfosProfileAsyncTask saveInfosProfileAsyncTask = new SaveInfosProfileAsyncTask(this);
         saveInfosProfileAsyncTask.execute(firstName, lastName, birthDate, userId, phoneNumber, email, token);
+        startProgressDialog();
     }
 
     @Override
@@ -112,19 +119,20 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
         try {
             JSONObject jsonObject = new JSONObject(string);
             String regsitrationConfirmation = jsonObject.getString("success");
+            progressDialog.dismiss();
 
             if (regsitrationConfirmation.equals("true")) {
                 JSONObject userJson = jsonObject.getJSONObject("user");
                 String firstName = userJson.getString("firstname");
                 String lastName = userJson.getString("lastname");
 
+                Toast.makeText(getContext(), R.string.infos_profile_registration_success_toast, Toast.LENGTH_SHORT).show();
+
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString("lastName", lastName);
                 editor.putString("firstName", firstName);
                 editor.apply();
-
-                Toast.makeText(getContext(), R.string.infos_profile_registration_success_toast, Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getContext(), R.string.infos_profile_registration_error_toast, Toast.LENGTH_SHORT).show();
             }
@@ -161,12 +169,6 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
     }
 
     public void startDisplayInfosProfileAsynTack() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String userId = preferences.getString("userId", "");
-        String email = preferences.getString("email", "");
-        String token = preferences.getString("token", "");
-
-
         DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
         displayInfosProfileAsyncTask.execute(userId, email, token);
     }
@@ -180,6 +182,10 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
                     calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
                     calendar.get(Calendar.DAY_OF_MONTH)).show();
         }
+
+        if (view.getId() == R.id.save_infos_button) {
+            startSaveInfosProfileTabAsyncTask();
+        }
     }
 
     @Override
@@ -189,12 +195,20 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        /*switch (item.getItemId()) {
             case R.id.save_profile_button:
                 startSaveInfosProfileTabAsyncTask();
                 return true;
-        }
+        }*/
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 }

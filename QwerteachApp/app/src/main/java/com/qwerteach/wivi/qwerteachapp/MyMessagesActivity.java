@@ -20,6 +20,7 @@ import com.qwerteach.wivi.qwerteachapp.models.Conversation;
 import com.qwerteach.wivi.qwerteachapp.models.ConversationAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.Message;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,7 +33,7 @@ public class MyMessagesActivity extends AppCompatActivity implements GetAllConve
 
     String email, token, userId;
     ArrayList<Conversation> conversationsList;
-    ArrayList<Teacher> teachersList;
+    ArrayList<User> usersList;
     ListView conversationListView;
 
     @Override
@@ -46,7 +47,7 @@ public class MyMessagesActivity extends AppCompatActivity implements GetAllConve
         conversationListView = (ListView) findViewById(R.id.conversation_list_view);
 
         conversationsList = new ArrayList<>();
-        teachersList = new ArrayList<>();
+        usersList = new ArrayList<>();
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         email = preferences.getString("email", "");
@@ -126,16 +127,20 @@ public class MyMessagesActivity extends AppCompatActivity implements GetAllConve
 
             for (int i = 0; i < recipients.length(); i++) {
                 JSONObject jsonData = recipients.getJSONObject(i);
-                int teacherId = jsonData.getInt("id");
+                int userId = jsonData.getInt("id");
                 String firstName = jsonData.getString("firstname");
                 String lastName = jsonData.getString("lastname");
 
-                Teacher teacher = new Teacher(teacherId, firstName, lastName);
-                teachersList.add(teacher);
+                User user = new User();
+                user.setUserId(userId);
+                user.setFirstName(firstName);
+                user.setLastName(lastName);
+
+                usersList.add(user);
             }
 
             for (int i = 0; i < conversationsList.size(); i++) {
-                conversationsList.get(i).setTeacher(teachersList.get(i));
+                conversationsList.get(i).setUser(usersList.get(i));
                 int conversationId = conversationsList.get(i).getConversationId();
 
                 if (conversationId == conversationsList.get(conversationsList.size() - 1).getConversationId()) {

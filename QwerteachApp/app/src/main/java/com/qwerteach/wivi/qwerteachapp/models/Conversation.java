@@ -12,7 +12,7 @@ public class Conversation implements Serializable{
     private String subject;
     private String conversationCreationDate;
     private String conversationUpdatingDate;
-    private Teacher teacher;
+    private User user;
     private ArrayList<Message> messages;
 
     public Conversation(int conversationId, String subject, String conversationCreationDate, String conversationUpdatingDate) {
@@ -55,12 +55,12 @@ public class Conversation implements Serializable{
         this.conversationUpdatingDate = conversationUpdatingDate;
     }
 
-    public Teacher getTeacher() {
-        return teacher;
+    public User getUser() {
+        return user;
     }
 
-    public void setTeacher(Teacher teacher) {
-        this.teacher = teacher;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public ArrayList<Message> getMessages() {

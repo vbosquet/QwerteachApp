@@ -102,6 +102,12 @@
             android:hint="@string/description_edittext_desciption_tab"
             android:textColorHint="#dfdfdf"/>
 
+        <Button
+            android:id="@+id/save_infos_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/save_profile_button"/>
+
 
     </LinearLayout>
 
