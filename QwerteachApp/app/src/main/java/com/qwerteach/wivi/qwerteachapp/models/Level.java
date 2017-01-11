@@ -1,10 +1,12 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import java.io.Serializable;
+
 /**
  * Created by wivi on 7/11/16.
  */
 
-public class Level {
+public class Level implements Serializable {
 
     private int levelId;
     private String levelName;

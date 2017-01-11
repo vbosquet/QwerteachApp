@@ -50,7 +50,7 @@ public class TeacherAdapter extends ArrayAdapter<Teacher> {
         text = text.replace("<p>", "");
         text= text.replace("</p>", "<br>");
         viewHolder.description.setText(Html.fromHtml(text), TextView.BufferType.SPANNABLE);
-        viewHolder.materialCourseNames.setText(teacher.getTopicTitleList());
+        viewHolder.materialCourseNames.setText(teacher.getTopics());
         viewHolder.minPrice.setText(teacher.getMinPrice() + " €/h");
         viewHolder.ratingBar.setRating(teacher.getRating());
         viewHolder.numberOfReviews.setText(teacher.getNumberOfReviews() + " commentaire(s)");

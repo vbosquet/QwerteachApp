@@ -62,10 +62,10 @@ public class ShowProfileInfosAsyncTask extends AsyncTask<String, String, String>
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.showProfileInos(string);
+        callback.showProfileInfos(string);
     }
 
     public interface IShowProfileInfos {
-        void showProfileInos(String string);
+        void showProfileInfos(String string);
     }
 }

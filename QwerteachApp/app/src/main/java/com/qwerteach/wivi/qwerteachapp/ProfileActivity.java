@@ -1,30 +1,22 @@
 package com.qwerteach.wivi.qwerteachapp;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.icu.util.Calendar;
-import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosProfileAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosSmallAdAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.ShowProfileInfosAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
@@ -37,16 +29,16 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class ProfileActivity extends AppCompatActivity implements DisplayInfosProfileAsyncTask.IDisplayInfosProfile,
-        DisplayInfosSmallAdAsyncTask.IDisplayInfosSmallAd,
-        ShowProfileInfosAsyncTask.IShowProfileInfos {
+public class ProfileActivity extends AppCompatActivity implements ShowProfileInfosAsyncTask.IShowProfileInfos {
 
     Intent intent;
     String userId, email, token;
     TextView firstNameAndLastNameTextView, ageTextView, occupationTextView, descriptionTextView;
-    TextView courseNamesTextView;
-    LinearLayout courseNamesLinearLayout;
-    Button contactUserButton;
+    TextView courseNamesTextView, reviewSenderTextView, reviewSendingDateTextView, reviewText;
+    TextView readMoreCommentsTextView, minPriceTextView;
+    LinearLayout courseNamesLinearLayout, lastCommentLinearLayout, priceLinearLayout;
+    Button contactUserButton, lessonReservationButton;
+    RatingBar ratingBar;
     ProgressDialog progressDialog;
     User user;
     Teacher teacher;
@@ -66,6 +58,15 @@ public class ProfileActivity extends AppCompatActivity implements DisplayInfosPr
         contactUserButton = (Button) findViewById(R.id.contact_button);
         courseNamesLinearLayout = (LinearLayout) findViewById(R.id.course_names_linear_layout);
         courseNamesTextView = (TextView) findViewById(R.id.course_names_text_view);
+        lessonReservationButton = (Button) findViewById(R.id.reservation_button);
+        lastCommentLinearLayout = (LinearLayout) findViewById(R.id.last_comment);
+        reviewSenderTextView = (TextView) findViewById(R.id.sender_first_name);
+        reviewSendingDateTextView = (TextView) findViewById(R.id.sending_date);
+        reviewText = (TextView) findViewById(R.id.review_text);
+        ratingBar = (RatingBar) findViewById(R.id.rating_bar);
+        readMoreCommentsTextView = (TextView)  findViewById(R.id.read_more_comments);
+        priceLinearLayout = (LinearLayout) findViewById(R.id.price_linear_layout);
+        minPriceTextView = (TextView) findViewById(R.id.teacher_min_price);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         userId = preferences.getString("userId", "");
@@ -79,8 +80,6 @@ public class ProfileActivity extends AppCompatActivity implements DisplayInfosPr
 
         ShowProfileInfosAsyncTask showProfileInfosAsyncTask = new ShowProfileInfosAsyncTask(this);
         showProfileInfosAsyncTask.execute(userId, email, token);
-        //DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
-        //displayInfosProfileAsyncTask.execute(userId, email, token);
         startProgressDialog();
     }
 
@@ -107,55 +106,6 @@ public class ProfileActivity extends AppCompatActivity implements DisplayInfosPr
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void displayUserInfosProfile(String string) {
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String getUserInfosProfile = jsonObject.getString("success");
-            progressDialog.dismiss();
-
-            if (getUserInfosProfile.equals("true")) {
-                JSONObject jsonData = jsonObject.getJSONObject("user");
-                int newUserId = jsonData.getInt("id");
-                String firstName = jsonData.getString("firstname");
-                String lastName = jsonData.getString("lastname");
-                String birthdate = jsonData.getString("birthdate");
-                String occupation = jsonData.getString("occupation");
-                String description = jsonData.getString("description");
-                String phoneNumber = jsonData.getString("phonenumber");
-                boolean postulanceAccepted = jsonData.getBoolean("postulance_accepted");
-
-                user.setUserId(newUserId);
-                user.setFirstName(firstName);
-                user.setLastName(lastName);
-                user.setBirthdate(birthdate);
-                user.setOccupation(occupation);
-                user.setDescription(description);
-                user.setPhoneNumber(phoneNumber);
-                user.setPostulanceAccepted(postulanceAccepted);
-
-                if (postulanceAccepted) {
-                    DisplayInfosSmallAdAsyncTask displayInfosSmallAdAsyncTask = new DisplayInfosSmallAdAsyncTask(this);
-                    displayInfosSmallAdAsyncTask.execute(userId, email, token);
-
-                } else {
-                    progressDialog.dismiss();
-                    firstNameAndLastNameTextView.setText(firstName + " " + lastName);
-                    ageTextView.setText(user.getAge() + " ans");
-                    occupationTextView.setText(occupation);
-                    descriptionTextView.setText(description);
-                    contactUserButton.setText("Contacter " + firstName);
-                }
-
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     public void didTouchContactButton(View view) {
     }
 
@@ -168,61 +118,7 @@ public class ProfileActivity extends AppCompatActivity implements DisplayInfosPr
     }
 
     @Override
-    public void displayInfosSmallAd(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String success = jsonObject.getString("success");
-
-            if (success.equals("true")) {
-                ArrayList<String> topicTitleList = new ArrayList<>();
-                ArrayList<SmallAd> smallAds = new ArrayList<>();
-                JSONArray smallAdJsonArray = jsonObject.getJSONArray("advert");
-                JSONArray topicTitleJsonArray = jsonObject.getJSONArray("topic_title");
-
-                for (int i = 0; i < smallAdJsonArray.length(); i++) {
-                    JSONObject jsonData = smallAdJsonArray.getJSONObject(i);
-                    int smallAdId = jsonData.getInt("id");
-                    String otherName = jsonData.getString("other_name");
-                    String topicTitle = topicTitleJsonArray.getString(i);
-                    String description = jsonData.getString("description");
-                    int topicId = jsonData.getInt("topic_id");
-                    int topicGroupId = jsonData.getInt("topic_group_id");
-
-                    if(topicTitle.equals("Other")) {
-                        SmallAd smallAd = new SmallAd(otherName, smallAdId, topicId, topicGroupId, description);
-                        topicTitleList.add(otherName);
-                        smallAds.add(smallAd);
-                    } else {
-                        SmallAd smallAd = new SmallAd(topicTitle, smallAdId, topicId, topicGroupId, description);
-                        topicTitleList.add(topicTitle);
-                        smallAds.add(smallAd);
-                    }
-                }
-
-                teacher.setUser(user);
-                teacher.setTopicTitleList(topicTitleList);
-                teacher.setSmallAds(smallAds);
-
-
-                progressDialog.dismiss();
-                firstNameAndLastNameTextView.setText(user.getFirstName() + " " + user.getLastName());
-                ageTextView.setText(user.getAge() + " ans");
-                occupationTextView.setText(user.getOccupation());
-                descriptionTextView.setText(user.getDescription());
-                contactUserButton.setText("Contacter " + user.getFirstName());
-                courseNamesLinearLayout.setVisibility(View.VISIBLE);
-                courseNamesTextView.setText(teacher.getTopicTitleList());
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void showProfileInos(String string) {
-        progressDialog.dismiss();
-        Log.i("USER_INFOS", string);
+    public void showProfileInfos(String string) {
 
         try {
             JSONObject jsonObject = new JSONObject(string);
@@ -246,19 +142,21 @@ public class ProfileActivity extends AppCompatActivity implements DisplayInfosPr
             user.setPostulanceAccepted(postulanceAccepted);
 
             if (postulanceAccepted) {
-                float avgJson = jsonObject.getLong("avg");
+                float avg = jsonObject.getLong("avg");
+                double minPrice = jsonObject.getDouble("min_price");
                 JSONArray notesJson = jsonObject.getJSONArray("notes");
                 JSONArray reviewsJson = jsonObject.getJSONArray("reviews");
-                JSONArray pricesJson = jsonObject.getJSONArray("prices");
                 JSONArray advertsJson = jsonObject.getJSONArray("adverts");
+                JSONArray topicsJson = jsonObject.getJSONArray("topics");
+                JSONArray reviewsSanderNamesJson = jsonObject.getJSONArray("review_sender_names");
 
                 ArrayList<SmallAd> smallAds = new ArrayList<>();
-                ArrayList<Double> prices = new ArrayList<>();
                 ArrayList<Review> reviews = new ArrayList<>();
 
                 for (int i = 0; i < advertsJson.length(); i++) {
-                    JSONObject jsonData = advertsJson.getJSONObject(i);
 
+                    JSONObject jsonData = advertsJson.getJSONObject(i);
+                    String topicTitle = topicsJson.getString(i);
                     int smallAdId = jsonData.getInt("id");
                     int topicId = jsonData.getInt("topic_id");
                     int topicGroupId = jsonData.getInt("topic_group_id");
@@ -271,6 +169,7 @@ public class ProfileActivity extends AppCompatActivity implements DisplayInfosPr
                     smallAd.setTopicGroupId(topicGroupId);
                     smallAd.setUserId(userId);
                     smallAd.setDescription(smallAdDescription);
+                    smallAd.setTitle(topicTitle);
 
                     smallAds.add(smallAd);
                 }
@@ -284,17 +183,62 @@ public class ProfileActivity extends AppCompatActivity implements DisplayInfosPr
                     String reviewText = jsonData.getString("review_text");
                     int note = jsonData.getInt("note");
                     String creationDate = jsonData.getString("created_at");
+                    String senderFirstName = reviewsSanderNamesJson.getString(i);
 
                     Review review = new Review(reviewId, senderId, subjectId, reviewText, note, creationDate);
+                    review.setSenderFirstName(senderFirstName);
                     reviews.add(review);
                 }
 
-
+                teacher.setUser(user);
+                teacher.setSmallAds(smallAds);
+                teacher.setReviews(reviews);
+                teacher.setRating(avg);
+                teacher.setNumberOfReviews(notesJson.length());
+                teacher.setMinPrice(minPrice);
             }
+
+            progressDialog.dismiss();
+            displayProfileInfos();
+
 
 
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void displayProfileInfos() {
+        firstNameAndLastNameTextView.setText(user.getFirstName() + " " + user.getLastName());
+        ageTextView.setText(user.getAge() + " ans");
+        occupationTextView.setText(user.getOccupation());
+        descriptionTextView.setText(user.getDescription());
+        contactUserButton.setText("Contacter " + user.getFirstName());
+        courseNamesLinearLayout.setVisibility(View.VISIBLE);
+        courseNamesTextView.setText(teacher.getTopics());
+        lessonReservationButton.setVisibility(View.VISIBLE);
+        priceLinearLayout.setVisibility(View.VISIBLE);
+        minPriceTextView.setText("A partir de " + teacher.getMinPrice() + " €/h");
+        courseNamesTextView.setText(teacher.getTopics());
+
+        if (teacher.getNumberOfReviews() > 0) {
+            displayLastComment();
+        }
+    }
+
+    public void displayLastComment() {
+        lastCommentLinearLayout.setVisibility(View.VISIBLE);
+        int lastPosition = teacher.getReviews().size() - 1;
+        String dateToFormat = teacher.getReviews().get(lastPosition).getCreationDate();
+        reviewSendingDateTextView.setText(teacher.getReviews().get(lastPosition).getMonth(dateToFormat)
+                + " " + teacher.getReviews().get(lastPosition).getYear(dateToFormat));
+        ratingBar.setRating(teacher.getRating());
+        reviewText.setText(teacher.getReviews().get(lastPosition).getReviewText());
+        reviewSenderTextView.setText(teacher.getReviews().get(lastPosition).getSenderFirstName());
+
+        if (teacher.getReviews().size() > 1) {
+            readMoreCommentsTextView.setVisibility(View.VISIBLE);
+            readMoreCommentsTextView.setText("Lire " + teacher.getNumberOfReviews() + " commentaire(s)");
         }
     }
 }

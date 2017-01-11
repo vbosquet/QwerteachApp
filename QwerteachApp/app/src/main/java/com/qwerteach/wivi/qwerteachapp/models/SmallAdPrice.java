@@ -7,18 +7,12 @@ import java.io.Serializable;
  */
 
 public class SmallAdPrice implements Serializable{
-    int id;
-    int smallAdId;
-    int levelId;
-    double price;
+    private int id;
+    private int levelId;
+    private double price;
 
-    public SmallAdPrice() {
-
-    }
-
-    public SmallAdPrice(int id, int smallAdId, int levelId, double price) {
+    public SmallAdPrice(int id, int levelId, double price) {
         this.id = id;
-        this.smallAdId = smallAdId;
         this.levelId = levelId;
         this.price = price;
     }
@@ -29,14 +23,6 @@ public class SmallAdPrice implements Serializable{
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getSmallAdId() {
-        return smallAdId;
-    }
-
-    public void setSmallAdId(int smallAdId) {
-        this.smallAdId = smallAdId;
     }
 
     public int getLevelId() {

@@ -334,7 +334,7 @@ public class UpdateSmallAdActivity extends AppCompatActivity implements GetAllGr
                 int smallAdId = jsonData.getInt("advert_id");
                 int levelId = jsonData.getInt("level_id");
                 double price = jsonData.getDouble("price");
-                SmallAdPrice smallAdPrice = new SmallAdPrice(id, smallAdId, levelId, price);
+                SmallAdPrice smallAdPrice = new SmallAdPrice(id, levelId, price);
                 prices.add(smallAdPrice);
             }
 

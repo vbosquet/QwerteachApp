@@ -125,7 +125,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
         String description = descriptionEditText.getText().toString();
 
         SaveSmallAdAsyncTask saveSmallAdAsyncTask = new SaveSmallAdAsyncTask(this);
-        saveSmallAdAsyncTask.execute(topicGroup, topic, otherCourseMaterialName, description, userId, levels);
+        saveSmallAdAsyncTask.execute(topicGroup, topic, otherCourseMaterialName, description, userId, levels, email, token);
     }
 
     @Override

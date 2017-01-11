@@ -21,10 +21,9 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosSmallAdAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplaySmallAdPriceAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllTopicsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.SearchTeacherAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.ShowProfileInfosAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
@@ -38,19 +37,16 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class SearchTeacherActivity extends AppCompatActivity implements SearchTeacherAsyncTask.ISearchTeacher,
-        DisplayInfosSmallAdAsyncTask.IDisplayInfosSmallAd,
-        DisplaySmallAdPriceAsyncTask.IDisplaySmallAdPrice,
+public class SearchTeacherActivity extends AppCompatActivity implements
+        SearchTeacherAsyncTask.ISearchTeacher,
         AdapterView.OnItemSelectedListener,
-        GetAllTopicsAsyncTask.IGetAllTopics {
+        GetAllTopicsAsyncTask.IGetAllTopics,
+        ShowProfileInfosAsyncTask.IShowProfileInfos {
 
     ArrayList<Teacher> teacherList;
-    ArrayList<SmallAd>smallAds;
-    ArrayList<String> menuItems;
-    ArrayList<String> searchSortingOptionNameToDisplay, searchSortingOptionNameToSendToAsyncTask;
+    ArrayList<String> menuItems, searchSortingOptionNameToDisplay, searchSortingOptionNameToSendToAsyncTask;
     ListView listView;
     Spinner searchSortingOptionsSpinner;
-    int userId;
     int currentSearchSortingOption = 0;
     String query, email, token;
     ProgressDialog progressDialog;
@@ -73,7 +69,6 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
         token = preferences.getString("token", "");
 
         teacherList = new ArrayList<>();
-        smallAds = new ArrayList<>();
         menuItems = new ArrayList<>();
         searchSortingOptionNameToDisplay = new ArrayList<>();
         searchSortingOptionNameToSendToAsyncTask = new ArrayList<>();
@@ -140,58 +135,26 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
 
         try {
             JSONObject jsonObject = new JSONObject(string);
-            JSONArray searchJsonArray = jsonObject.getJSONArray("pagin");
+            JSONArray pagin = jsonObject.getJSONArray("pagin");
             JSONArray optionsJsonArray = jsonObject.getJSONArray("options");
-            JSONArray ratingJsonArray = jsonObject.getJSONArray("rating");
-            JSONArray numberOfReviewsJsonArray = jsonObject.getJSONArray("number_of_reviews");
-            JSONArray reviewsReceived = jsonObject.getJSONArray("reviews_received");
 
-            if (searchJsonArray.length() > 0) {
-                for (int i = 0; i < searchJsonArray.length(); i++) {
-                    JSONObject teacherData = searchJsonArray.getJSONObject(i);
-                    JSONArray teacherReviews = reviewsReceived.getJSONArray(i);
+            if (pagin.length() > 0) {
+                for (int i = 0; i < pagin.length(); i++) {
+                    JSONObject jsonData = pagin.getJSONObject(i);
+                    int userId = jsonData.getInt("id");
+                    String firstName = jsonData.getString("firstname");
+                    String lastName = jsonData.getString("lastname");
+                    String birthdate = jsonData.getString("birthdate");
+                    String description = jsonData.getString("description");
+                    String occupation = jsonData.getString("occupation");
 
-                    int id = teacherData.getInt("id");
-                    String firstName = teacherData.getString("firstname");
-                    String lastName = teacherData.getString("lastname");
-                    String description = teacherData.getString("description");
-                    String occupation = teacherData.getString("occupation");
-                    String birthDate = teacherData.getString("birthdate");
-
-                    User user = new User(id, firstName, lastName, birthDate, occupation, description);
+                    User user = new User(userId, firstName, lastName, birthdate, occupation, description);
                     Teacher teacher = new Teacher();
                     teacher.setUser(user);
-
-                    float rating;
-                    if (!ratingJsonArray.get(i).toString().equals("null")) {
-                        rating = ratingJsonArray.getLong(i);
-                        teacher.setRating(rating);
-                    }
-
-                    int numberOfReviews = numberOfReviewsJsonArray.getInt(i);
-                    teacher.setNumberOfReviews(numberOfReviews);
-
-                    if (teacherReviews.length() > 0) {
-                        ArrayList<Review> reviews = new ArrayList<>();
-                        for (int j = 0; j < teacherReviews.length(); j++) {
-                            JSONObject reviewData = teacherReviews.getJSONObject(j);
-                            int reviewId = reviewData.getInt("id");
-                            int senderId = reviewData.getInt("sender_id");
-                            int subjectId = reviewData.getInt("subject_id");
-                            String reviewText = reviewData.getString("review_text");
-                            int note = reviewData.getInt("note");
-                            String creationDate = reviewData.getString("created_at");
-                            Review review = new Review(reviewId, senderId, subjectId, reviewText, note, creationDate);
-                            reviews.add(review);
-                        }
-
-                        teacher.setReviews(reviews);
-                    }
-
                     teacherList.add(teacher);
 
-                    DisplayInfosSmallAdAsyncTask displayInfosSmallAdAsyncTask = new DisplayInfosSmallAdAsyncTask(this);
-                    displayInfosSmallAdAsyncTask.execute(String.valueOf(id), email, token);
+                    ShowProfileInfosAsyncTask showProfileInfosAsyncTask = new ShowProfileInfosAsyncTask(this);
+                    showProfileInfosAsyncTask.execute(String.valueOf(userId), email, token);
                 }
 
             } else {
@@ -202,62 +165,13 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
                 JSONArray jsonData = optionsJsonArray.getJSONArray(i);
 
                 String searchOptionNameToDisplay = jsonData.getString(0);
-                String searOtionNameToSend = jsonData.getString(1);
+                String searchOptionNameToSend = jsonData.getString(1);
 
                 searchSortingOptionNameToDisplay.add(searchOptionNameToDisplay);
-                searchSortingOptionNameToSendToAsyncTask.add(searOtionNameToSend);
+                searchSortingOptionNameToSendToAsyncTask.add(searchOptionNameToSend);
             }
 
             displaySearchSortingOptionsSpinner();
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void displayInfosSmallAd(String string) {
-
-        ArrayList<String> topicTitleList = new ArrayList<>();
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONArray topicTitleJsonArray = jsonObject.getJSONArray("topic_title");
-            JSONArray advertJsonArray = jsonObject.getJSONArray("advert");
-
-            for (int i = 0; i < advertJsonArray.length(); i++) {
-                JSONObject jsonData = advertJsonArray.getJSONObject(i);
-                userId = jsonData.getInt("user_id");
-                int smallAdId = jsonData.getInt("id");
-                String otherName = jsonData.getString("other_name");
-                String topicTitle = topicTitleJsonArray.getString(i);
-                String description = jsonData.getString("description");
-                int topicId = jsonData.getInt("topic_id");
-                int topicGroupId = jsonData.getInt("topic_group_id");
-
-                if(topicTitle.equals("Other")) {
-                    topicTitleList.add(otherName);
-                    SmallAd smallAd = new SmallAd(otherName, smallAdId, topicId, topicGroupId, description);
-                    smallAd.setUserId(userId);
-                    smallAds.add(smallAd);
-                } else {
-                    topicTitleList.add(topicTitle);
-                    SmallAd smallAd = new SmallAd(topicTitle, smallAdId, topicId, topicGroupId, description);
-                    smallAd.setUserId(userId);
-                    smallAds.add(smallAd);
-                }
-
-                DisplaySmallAdPriceAsyncTask displaySmallAdPriceAsyncTask = new DisplaySmallAdPriceAsyncTask(this);
-                displaySmallAdPriceAsyncTask.execute(smallAdId, email, token);
-
-            }
-
-            for (int i = 0; i < teacherList.size(); i++) {
-                if (userId == teacherList.get(i).getUser().getUserId()) {
-                    teacherList.get(i).setTopicTitleList(topicTitleList);
-                }
-            }
-
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -271,78 +185,10 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
 
     public void didTouchReadMoreTextView(View view) {
         int position = listView.getPositionForView(view);
-        int teacherId = teacherList.get(position).getUser().getUserId();
-
-        SmallAd smallAd = new SmallAd();
-
-        for (int i = 0; i < smallAds.size(); i++) {
-            if (smallAds.get(i).getUserId()== teacherId) {
-                smallAd = smallAds.get(i);
-            }
-        }
-
-
         Intent intent = new Intent(this, TeacherProfileActivity.class);
         intent.putExtra("teacher", teacherList.get(position));
-        intent.putExtra("smallAd", smallAd);
         intent.putExtra("query", query);
         startActivity(intent);
-    }
-
-    @Override
-    public void displaySmallAdPrice(String string) {
-
-        ArrayList<SmallAdPrice> smallAdPrices = new ArrayList<>();
-        ArrayList<Double> coursePriceList = new ArrayList<>();
-        int smallAdId = 0;
-        int newUserId = 0;
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONArray jsonArray = jsonObject.getJSONArray("advert_price");
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonData = jsonArray.getJSONObject(i);
-                int id = jsonData.getInt("id");
-                smallAdId = jsonData.getInt("advert_id");
-                int levelId = jsonData.getInt("level_id");
-                double price = jsonData.getDouble("price");
-                SmallAdPrice smallAdPrice = new SmallAdPrice(id, smallAdId, levelId, price);
-                smallAdPrices.add(smallAdPrice);
-            }
-
-            for (int i = 0; i < smallAdPrices.size(); i++) {
-                coursePriceList.add(smallAdPrices.get(i).getPrice());
-            }
-
-            for (int i = 0; i < smallAds.size(); i++) {
-                if (smallAdId == smallAds.get(i).getAdvertId()) {
-                    newUserId = smallAds.get(i).getUserId();
-                    smallAds.get(i).setSmallAdPrices(smallAdPrices);
-                    for (int j = 0; j < teacherList.size(); j++) {
-                        if (newUserId == teacherList.get(j).getUser().getUserId()) {
-                            teacherList.get(j).addSmallAds(smallAds.get(i));
-                        }
-                    }
-                }
-            }
-
-            for (int i = 0; i < teacherList.size(); i++) {
-                if (newUserId == teacherList.get(i).getUser().getUserId()) {
-                    teacherList.get(i).addPriceToPriceList(coursePriceList);
-                }
-            }
-
-            if (teacherList.size() > 0
-                    && userId == teacherList.get(teacherList.size() - 1).getUser().getUserId()) {
-                progressDialog.dismiss();
-                displayTeacherListView();
-            }
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -411,7 +257,6 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
 
     public void startSearchTeacherAsyncTask(String query, String searchSortingOption) {
         teacherList.clear();
-        smallAds.clear();
         searchSortingOptionNameToDisplay.clear();
         searchSortingOptionNameToSendToAsyncTask.clear();
 
@@ -427,5 +272,102 @@ public class SearchTeacherActivity extends AppCompatActivity implements SearchTe
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setCancelable(true);
         progressDialog.show();
+    }
+
+    @Override
+    public void showProfileInfos(String string) {
+
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+
+            float avg = 0;
+            if (!jsonObject.isNull("avg")) {
+                avg = jsonObject.getLong("avg");
+            }
+
+            double minPrice = jsonObject.getDouble("min_price");
+            JSONArray notesJson = jsonObject.getJSONArray("notes");
+            JSONArray reviewsJson = jsonObject.getJSONArray("reviews");
+            JSONArray advertsJson = jsonObject.getJSONArray("adverts");
+            JSONArray topicsJson = jsonObject.getJSONArray("topics");
+            JSONArray reviewsSanderNamesJson = jsonObject.getJSONArray("review_sender_names");
+            JSONObject userJson = jsonObject.getJSONObject("user");
+            int userId = userJson.getInt("id");
+            JSONArray advertPricesJson =jsonObject.getJSONArray("advert_prices");
+
+            ArrayList<SmallAd> smallAds = new ArrayList<>();
+            ArrayList<Review> reviews = new ArrayList<>();
+
+            for (int i = 0; i < advertsJson.length(); i++) {
+
+                JSONObject jsonData = advertsJson.getJSONObject(i);
+                String topicTitle = topicsJson.getString(i);
+                int smallAdId = jsonData.getInt("id");
+                int topicId = jsonData.getInt("topic_id");
+                int topicGroupId = jsonData.getInt("topic_group_id");
+                int teacherId = jsonData.getInt("user_id");
+                String smallAdDescription = jsonData.getString("description");
+
+                JSONArray advertPrices = advertPricesJson.getJSONArray(i);
+                ArrayList<SmallAdPrice> smallAdPrices = new ArrayList<>();
+
+                for (int j = 0; j < advertPrices.length(); j++) {
+                    JSONObject advertPricesData = advertPrices.getJSONObject(j);
+                    int id = advertPricesData.getInt("id");
+                    int levelId = advertPricesData.getInt("level_id");
+                    double price = advertPricesData.getDouble("price");
+
+                    SmallAdPrice smallAdPrice = new SmallAdPrice(id, levelId, price);
+                    smallAdPrices.add(smallAdPrice);
+                }
+
+                SmallAd smallAd = new SmallAd();
+                smallAd.setAdvertId(smallAdId);
+                smallAd.setTopicId(topicId);
+                smallAd.setTopicGroupId(topicGroupId);
+                smallAd.setUserId(teacherId);
+                smallAd.setDescription(smallAdDescription);
+                smallAd.setTitle(topicTitle);
+                smallAd.setSmallAdPrices(smallAdPrices);
+
+                smallAds.add(smallAd);
+            }
+
+            for (int i = 0; i < reviewsJson.length(); i++) {
+                JSONObject jsonData = reviewsJson.getJSONObject(i);
+
+                int reviewId = jsonData.getInt("id");
+                int senderId = jsonData.getInt("sender_id");
+                int subjectId = jsonData.getInt("subject_id");
+                String reviewText = jsonData.getString("review_text");
+                int note = jsonData.getInt("note");
+                String creationDate = jsonData.getString("created_at");
+                String senderFirstName = reviewsSanderNamesJson.getString(i);
+
+                Review review = new Review(reviewId, senderId, subjectId, reviewText, note, creationDate);
+                review.setSenderFirstName(senderFirstName);
+                reviews.add(review);
+            }
+
+            for (int i = 0; i < teacherList.size(); i++) {
+                if (teacherList.get(i).getUser().getUserId() == userId) {
+                    teacherList.get(i).setSmallAds(smallAds);
+                    teacherList.get(i).setReviews(reviews);
+                    teacherList.get(i).setRating(avg);
+                    teacherList.get(i).setNumberOfReviews(notesJson.length());
+                    teacherList.get(i).setMinPrice(minPrice);
+                }
+
+                if (userId == teacherList.get(teacherList.size() - 1).getUser().getUserId()) {
+                    progressDialog.dismiss();
+                    displayTeacherListView();
+                }
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 }

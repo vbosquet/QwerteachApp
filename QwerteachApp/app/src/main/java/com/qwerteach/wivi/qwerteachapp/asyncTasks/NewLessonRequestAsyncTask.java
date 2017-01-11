@@ -49,8 +49,6 @@ public class NewLessonRequestAsyncTask extends AsyncTask<String, String, String>
             bufferedReader.close();
             inputStream.close();
 
-            Log.i("STRINGBUILDER", stringBuilder.toString());
-
             return stringBuilder.toString();
 
         } catch (IOException e) {

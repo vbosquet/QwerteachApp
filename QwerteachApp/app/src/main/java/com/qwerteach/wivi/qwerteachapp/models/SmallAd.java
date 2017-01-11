@@ -15,7 +15,7 @@ public class SmallAd implements Serializable {
     private int topicGroupId;
     private String description;
     private int userId;
-    ArrayList<SmallAdPrice> smallAdPrices;
+    private ArrayList<SmallAdPrice> smallAdPrices;
 
     public SmallAd() {
     }
@@ -26,7 +26,6 @@ public class SmallAd implements Serializable {
         this.topicId = topicId;
         this.topicGroupId = topicGroupId;
         this.description = description;
-        smallAdPrices = new ArrayList<>();
     }
 
     public String getTitle() {
@@ -82,8 +81,6 @@ public class SmallAd implements Serializable {
     }
 
     public void setSmallAdPrices(ArrayList<SmallAdPrice> smallAdPrices) {
-        for (int i = 0; i < smallAdPrices.size(); i++) {
-            this.smallAdPrices.add(smallAdPrices.get(i));
-        }
+        this.smallAdPrices = smallAdPrices;
     }
 }

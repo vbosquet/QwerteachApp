@@ -52,7 +52,6 @@ import java.util.Map;
  */
 
 public class CreateNewLessonFragment extends Fragment implements AdapterView.OnItemSelectedListener,
-        DisplayTopicLevelsAsyncTask.IDisplayTopicLevels,
         View.OnClickListener,
         DisplayInfosTopicsAsyncTask.IDisplayTopicInfos,
         CreateLessonRequestAsyncTask.ICreateLessonRequest {
@@ -83,6 +82,11 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        studentId = preferences.getString("userId", "");
+        userEmail = preferences.getString("email", "");
+        userToken = preferences.getString("token", "");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -93,26 +97,16 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         Bundle extras = getActivity().getIntent().getExtras();
         if (extras != null) {
             topicGroupTitleList = getActivity().getIntent().getStringArrayListExtra("topicGroup");
-            smallAds = (ArrayList<SmallAd>) getActivity().getIntent().getSerializableExtra("smallAds");
             teacher = (Teacher) getActivity().getIntent().getSerializableExtra("teacher");
+            levels = (ArrayList<Level>) getActivity().getIntent().getSerializableExtra("level");
         }
 
-        for (int j = 0; j < smallAds.size(); j++) {
-            int topicId = smallAds.get(j).getTopicId();
-            DisplayTopicLevelsAsyncTask displayTopicLevelsAsyncTask = new DisplayTopicLevelsAsyncTask(this);
-            displayTopicLevelsAsyncTask.execute(topicId);
-        }
-
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        studentId = preferences.getString("userId", "");
-        userEmail = preferences.getString("email", "");
-        userToken = preferences.getString("token", "");
+        smallAds = teacher.getSmallAds();
 
         topicGroupTitleList = new ArrayList<>(new LinkedHashSet<>(topicGroupTitleList));
         topicTitleList = new ArrayList<>();
         levelTitleList = new ArrayList<>();
         topics = new ArrayList<>();
-        levels = new ArrayList<>();
         prices = new HashMap<>();
         progressDialog = new ProgressDialog(getContext());
 
@@ -167,9 +161,6 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
             int hourPosition = getIndexByString(hourSpinner, savedState.getString("hour"));
             int minutePosition = getIndexByString(minuteSpinner, savedState.getString("minute"));
             int topicGroupPosition = getIndexByString(topicGroupSpinner, savedState.getString("topicGroup"));
-
-            DisplayInfosTopicsAsyncTask displayInfosTopicsAsyncTask = new DisplayInfosTopicsAsyncTask(this);
-            displayInfosTopicsAsyncTask.execute(savedState.getString("topicGroup"));
 
             hourSpinner.setSelection(hourPosition);
             minuteSpinner.setSelection(minutePosition);
@@ -305,26 +296,6 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
-
-    }
-
-    @Override
-    public void displayTopicLevels(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONArray topicJsonArray = jsonObject.getJSONArray("levels");
-
-            for (int i = 0; i < topicJsonArray.length(); i++) {
-                JSONObject jsonData = topicJsonArray.getJSONObject(i);
-                int levelId = jsonData.getInt("id");
-                String levelName = jsonData.getString("fr");
-                Level level = new Level(levelId, levelName);
-                levels.add(level);
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
 
     }
 

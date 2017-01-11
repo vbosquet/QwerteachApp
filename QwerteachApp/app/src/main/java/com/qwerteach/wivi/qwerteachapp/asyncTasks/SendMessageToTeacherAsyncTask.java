@@ -23,21 +23,9 @@ import java.net.URL;
 public class SendMessageToTeacherAsyncTask extends AsyncTask<Object, String, String> {
 
     private ISendMessageToTeacher callback;
-    private ProgressDialog progressDialog;
 
     public SendMessageToTeacherAsyncTask(ISendMessageToTeacher callback) {
         this.callback = callback;
-        progressDialog = new ProgressDialog((Context) callback);
-    }
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        progressDialog.setMessage("Loading...");
-        progressDialog.setIndeterminate(false);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setCancelable(true);
-        progressDialog.show();
     }
 
     @Override
@@ -96,7 +84,6 @@ public class SendMessageToTeacherAsyncTask extends AsyncTask<Object, String, Str
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        progressDialog.dismiss();
         callback.confirmationMessage(string);
     }
 
