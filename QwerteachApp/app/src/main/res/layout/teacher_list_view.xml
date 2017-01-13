@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:clickable="true">
 
     <TextView
         android:id="@+id/teacher_min_price"
@@ -69,13 +70,12 @@
             android:layout_marginBottom="10dp" />
 
         <TextView
+            android:id="@+id/read_more_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/read_more_text_view"
             android:textColor="@color/colorPrimary"
-            android:contextClickable="true"
-            android:gravity="right"
-            android:onClick="didTouchReadMoreTextView"/>
+            android:gravity="right"/>
 
 
     </LinearLayout>

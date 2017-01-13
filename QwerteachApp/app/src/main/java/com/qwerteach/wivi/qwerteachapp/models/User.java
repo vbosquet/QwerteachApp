@@ -23,6 +23,7 @@ public class User implements Serializable {
     private String phoneNumber;
     private String occupation;
     private boolean postulanceAccepted;
+    private int levelId;
 
     public User() {
 
@@ -101,6 +102,14 @@ public class User implements Serializable {
 
     public void setPostulanceAccepted(boolean postulanceAccepted) {
         this.postulanceAccepted = postulanceAccepted;
+    }
+
+    public int getLevelId() {
+        return levelId;
+    }
+
+    public void setLevelId(int levelId) {
+        this.levelId = levelId;
     }
 
     public String getAge() {

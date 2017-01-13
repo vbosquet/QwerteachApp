@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.CreateNewWalletAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosProfileAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.ShowProfileInfosAsyncTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,10 +36,10 @@ import java.util.Locale;
  * Created by wivi on 29/11/16.
  */
 
-public class CreateVirtualWalletFragment extends Fragment implements DisplayInfosProfileAsyncTask.IDisplayInfosProfile,
-        AdapterView.OnItemSelectedListener,
+public class CreateVirtualWalletFragment extends Fragment implements AdapterView.OnItemSelectedListener,
         View.OnClickListener,
-        CreateNewWalletAsyncTask.ICreateNewWallet {
+        CreateNewWalletAsyncTask.ICreateNewWallet,
+        ShowProfileInfosAsyncTask.IShowProfileInfos {
 
     View view;
     Spinner countrySpinner, residenceSpinner, nationalitySpinner;
@@ -61,6 +62,11 @@ public class CreateVirtualWalletFragment extends Fragment implements DisplayInfo
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        userId = preferences.getString("userId", "");
+        email = preferences.getString("email", "");
+        token = preferences.getString("token", "");
+
         locales = Locale.getAvailableLocales();
         countries = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
@@ -79,8 +85,6 @@ public class CreateVirtualWalletFragment extends Fragment implements DisplayInfo
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        startDisplayInfosProfileAsyncTask();
-
         view = inflater.inflate(R.layout.fragment_create_virtual_wallet, container, false);
 
         getActivity().setTitle(getResources().getString(R.string.create_new_virtual_wallet_fragment_title));
@@ -103,6 +107,9 @@ public class CreateVirtualWalletFragment extends Fragment implements DisplayInfo
         saveButton = (Button) view.findViewById(R.id.save_infos_button);
         saveButton.setOnClickListener(this);
 
+        ShowProfileInfosAsyncTask showProfileInfosAsyncTask = new ShowProfileInfosAsyncTask(this);
+        showProfileInfosAsyncTask.execute(userId, email, token);
+
         return  view;
     }
 
@@ -111,37 +118,6 @@ public class CreateVirtualWalletFragment extends Fragment implements DisplayInfo
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(arrayAdapter);
         spinner.setOnItemSelectedListener(this);
-    }
-
-    public void startDisplayInfosProfileAsyncTask() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        userId = preferences.getString("userId", "");
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
-
-        DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
-        displayInfosProfileAsyncTask.execute(userId, email, token);
-    }
-
-    @Override
-    public void displayUserInfosProfile(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String getUserInfosProfile = jsonObject.getString("success");
-
-            if (getUserInfosProfile.equals("true")) {
-                JSONObject jsonData = jsonObject.getJSONObject("user");
-                String firstName = jsonData.getString("firstname");
-                String lastName = jsonData.getString("lastname");
-
-                firstNameEditText.setText(firstName);
-                lastNameEditText.setText(lastName);
-            }
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -232,5 +208,22 @@ public class CreateVirtualWalletFragment extends Fragment implements DisplayInfo
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setCancelable(true);
         progressDialog.show();
+    }
+
+    @Override
+    public void showProfileInfos(String string) {
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            JSONObject userJson = jsonObject.getJSONObject("user");
+
+            String firstName = userJson.getString("firstname");
+            String lastName = userJson.getString("lastname");
+
+            firstNameEditText.setText(firstName);
+            lastNameEditText.setText(lastName);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

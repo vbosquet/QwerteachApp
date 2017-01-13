@@ -84,9 +84,16 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_teacher_profile, container, false);
 
+        //Bundle from SearchTeacherActivity
         Bundle extras = getActivity().getIntent().getExtras();
         if (extras != null) {
             teacher = (Teacher) getActivity().getIntent().getSerializableExtra("teacher");
+        }
+
+        //Bundle from ProfileActivity
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            teacher = (Teacher) bundle.getSerializable("teacher");
         }
 
         reviews = teacher.getReviews();

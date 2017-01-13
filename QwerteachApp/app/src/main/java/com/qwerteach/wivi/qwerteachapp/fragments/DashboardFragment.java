@@ -168,6 +168,11 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
                 toDoListLinearLayout.setVisibility(View.VISIBLE);
             }
 
+            if (upcomingLessonsJsonArray.length() == 0 && toDoListJsonArray.length() == 0
+                    && reviewAskedJsonArray.length() == 0) {
+                progressDialog.dismiss();
+            }
+
         } catch (JSONException e) {
             e.printStackTrace();
         }

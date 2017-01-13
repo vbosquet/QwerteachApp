@@ -5,10 +5,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,15 +44,19 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         SearchTeacherAsyncTask.ISearchTeacher,
         AdapterView.OnItemSelectedListener,
         GetAllTopicsAsyncTask.IGetAllTopics,
-        ShowProfileInfosAsyncTask.IShowProfileInfos {
+        ShowProfileInfosAsyncTask.IShowProfileInfos,
+        TeacherAdapter.MyClickListener, View.OnClickListener {
 
     ArrayList<Teacher> teacherList;
     ArrayList<String> menuItems, searchSortingOptionNameToDisplay, searchSortingOptionNameToSendToAsyncTask;
-    ListView listView;
+    RecyclerView teacherRecyclerView;
+    RecyclerView.Adapter teacherAdapter;
+    RecyclerView.LayoutManager teacherLayoutManager;
     Spinner searchSortingOptionsSpinner;
-    int currentSearchSortingOption = 0;
-    String query, email, token;
+    int currentSearchSortingOption = 0, page = 1, scrollPosition = 0;
+    String query, email, token, searchSortingOption;
     ProgressDialog progressDialog;
+    FloatingActionButton floatingActionButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +68,10 @@ public class SearchTeacherActivity extends AppCompatActivity implements
 
         query = getIntent().getStringExtra("query");
 
-        listView = (ListView) findViewById(R.id.teacher_list_view);
         searchSortingOptionsSpinner = (Spinner) findViewById(R.id.search_sorting_options_spinner);
+        teacherRecyclerView = (RecyclerView) findViewById(R.id.teacher_recycler_view);
+        floatingActionButton = (FloatingActionButton) findViewById(R.id.floating_action_button);
+        floatingActionButton.setOnClickListener(this);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         email = preferences.getString("email", "");
@@ -76,7 +85,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
 
         menuItems.add(query);
 
-        startSearchTeacherAsyncTask(query, "");
+        startSearchTeacherAsyncTask(query, "", 1);
 
         GetAllTopicsAsyncTask getAllTopicsAsyncTask = new GetAllTopicsAsyncTask(this);
         getAllTopicsAsyncTask.execute();
@@ -157,8 +166,12 @@ public class SearchTeacherActivity extends AppCompatActivity implements
                     showProfileInfosAsyncTask.execute(String.valueOf(userId), email, token);
                 }
 
-            } else {
+            } else if (pagin.length() == 0 && page == 1){
+                progressDialog.dismiss();
                 Toast.makeText(this, R.string.no_result_found_toast_message, Toast.LENGTH_SHORT).show();
+
+            } else {
+                progressDialog.dismiss();
             }
 
             for (int i = 0; i < optionsJsonArray.length(); i++) {
@@ -179,16 +192,13 @@ public class SearchTeacherActivity extends AppCompatActivity implements
     }
 
     public void displayTeacherListView() {
-        TeacherAdapter teacherAdapter = new TeacherAdapter(this, teacherList);
-        listView.setAdapter(teacherAdapter);
-    }
-
-    public void didTouchReadMoreTextView(View view) {
-        int position = listView.getPositionForView(view);
-        Intent intent = new Intent(this, TeacherProfileActivity.class);
-        intent.putExtra("teacher", teacherList.get(position));
-        intent.putExtra("query", query);
-        startActivity(intent);
+        teacherAdapter = new TeacherAdapter(teacherList, this);
+        teacherRecyclerView.setHasFixedSize(true);
+        teacherLayoutManager = new LinearLayoutManager(this);
+        teacherRecyclerView.setLayoutManager(teacherLayoutManager);
+        teacherRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        teacherRecyclerView.setAdapter(teacherAdapter);
+        teacherRecyclerView.scrollToPosition(scrollPosition);
     }
 
     @Override
@@ -238,11 +248,11 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         searchSortingOptionsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String searchSortingOption = searchSortingOptionNameToSendToAsyncTask.get(i);
+                searchSortingOption = searchSortingOptionNameToSendToAsyncTask.get(i);
                 if (currentSearchSortingOption == i) {
                     return;
                 } else {
-                    startSearchTeacherAsyncTask(query, searchSortingOption);
+                    startSearchTeacherAsyncTask(query, searchSortingOption, 1);
                 }
 
                 currentSearchSortingOption = i;
@@ -255,13 +265,14 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         });
     }
 
-    public void startSearchTeacherAsyncTask(String query, String searchSortingOption) {
+    public void startSearchTeacherAsyncTask(String query, String searchSortingOption, int pageNumber) {
         teacherList.clear();
         searchSortingOptionNameToDisplay.clear();
         searchSortingOptionNameToSendToAsyncTask.clear();
+        scrollPosition = 0;
 
         SearchTeacherAsyncTask searchTeacherAsyncTask = new SearchTeacherAsyncTask(this);
-        searchTeacherAsyncTask.execute(query, searchSortingOption);
+        searchTeacherAsyncTask.execute(query, searchSortingOption, pageNumber);
 
         startProgressDialog();
     }
@@ -293,7 +304,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
             JSONArray reviewsSanderNamesJson = jsonObject.getJSONArray("review_sender_names");
             JSONObject userJson = jsonObject.getJSONObject("user");
             int userId = userJson.getInt("id");
-            JSONArray advertPricesJson =jsonObject.getJSONArray("advert_prices");
+            JSONArray advertPricesJson = jsonObject.getJSONArray("advert_prices");
 
             ArrayList<SmallAd> smallAds = new ArrayList<>();
             ArrayList<Review> reviews = new ArrayList<>();
@@ -368,6 +379,26 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+    }
+
+    @Override
+    public void onClicked(int position) {
+        Intent intent = new Intent(getApplicationContext(), TeacherProfileActivity.class);
+        intent.putExtra("teacher", teacherList.get(position));
+        intent.putExtra("query", query);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onClick(View view) {
+        searchSortingOptionNameToDisplay.clear();
+        searchSortingOptionNameToSendToAsyncTask.clear();
+        page += 1;
+        scrollPosition = teacherList.size() - 1;
+        SearchTeacherAsyncTask searchTeacherAsyncTask = new SearchTeacherAsyncTask(this);
+        searchTeacherAsyncTask.execute(query, searchSortingOption, page);
+        startProgressDialog();
 
     }
 }

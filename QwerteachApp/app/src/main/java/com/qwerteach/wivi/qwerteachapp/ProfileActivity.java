@@ -4,6 +4,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,8 +20,11 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.ShowProfileInfosAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.fragments.StudentProfileFragment;
+import com.qwerteach.wivi.qwerteachapp.fragments.TeacherProfileFragment;
 import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
+import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
@@ -33,12 +38,6 @@ public class ProfileActivity extends AppCompatActivity implements ShowProfileInf
 
     Intent intent;
     String userId, email, token;
-    TextView firstNameAndLastNameTextView, ageTextView, occupationTextView, descriptionTextView;
-    TextView courseNamesTextView, reviewSenderTextView, reviewSendingDateTextView, reviewText;
-    TextView readMoreCommentsTextView, minPriceTextView;
-    LinearLayout courseNamesLinearLayout, lastCommentLinearLayout, priceLinearLayout;
-    Button contactUserButton, lessonReservationButton;
-    RatingBar ratingBar;
     ProgressDialog progressDialog;
     User user;
     Teacher teacher;
@@ -46,27 +45,10 @@ public class ProfileActivity extends AppCompatActivity implements ShowProfileInf
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profil);
+        setContentView(R.layout.activity_profile);
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-
-        firstNameAndLastNameTextView = (TextView) findViewById(R.id.firstname_and_lastanme_text_view);
-        ageTextView = (TextView) findViewById(R.id.age_text_view);
-        occupationTextView = (TextView) findViewById(R.id.occupation_text_view);
-        descriptionTextView = (TextView) findViewById(R.id.description_text_view);
-        contactUserButton = (Button) findViewById(R.id.contact_button);
-        courseNamesLinearLayout = (LinearLayout) findViewById(R.id.course_names_linear_layout);
-        courseNamesTextView = (TextView) findViewById(R.id.course_names_text_view);
-        lessonReservationButton = (Button) findViewById(R.id.reservation_button);
-        lastCommentLinearLayout = (LinearLayout) findViewById(R.id.last_comment);
-        reviewSenderTextView = (TextView) findViewById(R.id.sender_first_name);
-        reviewSendingDateTextView = (TextView) findViewById(R.id.sending_date);
-        reviewText = (TextView) findViewById(R.id.review_text);
-        ratingBar = (RatingBar) findViewById(R.id.rating_bar);
-        readMoreCommentsTextView = (TextView)  findViewById(R.id.read_more_comments);
-        priceLinearLayout = (LinearLayout) findViewById(R.id.price_linear_layout);
-        minPriceTextView = (TextView) findViewById(R.id.teacher_min_price);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         userId = preferences.getString("userId", "");
@@ -99,6 +81,13 @@ public class ProfileActivity extends AppCompatActivity implements ShowProfileInf
                 return true;
             case R.id.edit_profile_button:
                 intent = new Intent(this, EditProfileActivity.class);
+
+                if (user.isPostulanceAccepted()) {
+                    intent.putExtra("teacher", teacher);
+                } else {
+                    intent.putExtra("student", user);
+                }
+
                 startActivity(intent);
                 return true;
         }
@@ -131,6 +120,7 @@ public class ProfileActivity extends AppCompatActivity implements ShowProfileInf
             String description = userJson.getString("description");
             String phoneNumber = userJson.getString("phonenumber");
             boolean postulanceAccepted = userJson.getBoolean("postulance_accepted");
+            int useLevelId = userJson.getInt("level_id");
 
             user.setUserId(newUserId);
             user.setFirstName(firstName);
@@ -140,15 +130,21 @@ public class ProfileActivity extends AppCompatActivity implements ShowProfileInf
             user.setDescription(description);
             user.setPhoneNumber(phoneNumber);
             user.setPostulanceAccepted(postulanceAccepted);
+            user.setLevelId(useLevelId);
 
             if (postulanceAccepted) {
-                float avg = jsonObject.getLong("avg");
+                float avg = 0;
+                if (!jsonObject.isNull("avg")) {
+                    avg = jsonObject.getLong("avg");
+                }
+
                 double minPrice = jsonObject.getDouble("min_price");
                 JSONArray notesJson = jsonObject.getJSONArray("notes");
                 JSONArray reviewsJson = jsonObject.getJSONArray("reviews");
                 JSONArray advertsJson = jsonObject.getJSONArray("adverts");
                 JSONArray topicsJson = jsonObject.getJSONArray("topics");
                 JSONArray reviewsSanderNamesJson = jsonObject.getJSONArray("review_sender_names");
+                JSONArray advertPricesJson = jsonObject.getJSONArray("advert_prices");
 
                 ArrayList<SmallAd> smallAds = new ArrayList<>();
                 ArrayList<Review> reviews = new ArrayList<>();
@@ -160,16 +156,30 @@ public class ProfileActivity extends AppCompatActivity implements ShowProfileInf
                     int smallAdId = jsonData.getInt("id");
                     int topicId = jsonData.getInt("topic_id");
                     int topicGroupId = jsonData.getInt("topic_group_id");
-                    int userId = jsonData.getInt("user_id");
+                    int teacherId = jsonData.getInt("user_id");
                     String smallAdDescription = jsonData.getString("description");
+
+                    JSONArray advertPrices = advertPricesJson.getJSONArray(i);
+                    ArrayList<SmallAdPrice> smallAdPrices = new ArrayList<>();
+
+                    for (int j = 0; j < advertPrices.length(); j++) {
+                        JSONObject advertPricesData = advertPrices.getJSONObject(j);
+                        int id = advertPricesData.getInt("id");
+                        int levelId = advertPricesData.getInt("level_id");
+                        double price = advertPricesData.getDouble("price");
+
+                        SmallAdPrice smallAdPrice = new SmallAdPrice(id, levelId, price);
+                        smallAdPrices.add(smallAdPrice);
+                    }
 
                     SmallAd smallAd = new SmallAd();
                     smallAd.setAdvertId(smallAdId);
                     smallAd.setTopicId(topicId);
                     smallAd.setTopicGroupId(topicGroupId);
-                    smallAd.setUserId(userId);
+                    smallAd.setUserId(teacherId);
                     smallAd.setDescription(smallAdDescription);
                     smallAd.setTitle(topicTitle);
+                    smallAd.setSmallAdPrices(smallAdPrices);
 
                     smallAds.add(smallAd);
                 }
@@ -196,11 +206,14 @@ public class ProfileActivity extends AppCompatActivity implements ShowProfileInf
                 teacher.setRating(avg);
                 teacher.setNumberOfReviews(notesJson.length());
                 teacher.setMinPrice(minPrice);
+
+                progressDialog.dismiss();
+                displayTeacherProfileFragment();
+
+            } else {
+                progressDialog.dismiss();
+                displayStudentProfileFragment();
             }
-
-            progressDialog.dismiss();
-            displayProfileInfos();
-
 
 
         } catch (JSONException e) {
@@ -208,37 +221,25 @@ public class ProfileActivity extends AppCompatActivity implements ShowProfileInf
         }
     }
 
-    public void displayProfileInfos() {
-        firstNameAndLastNameTextView.setText(user.getFirstName() + " " + user.getLastName());
-        ageTextView.setText(user.getAge() + " ans");
-        occupationTextView.setText(user.getOccupation());
-        descriptionTextView.setText(user.getDescription());
-        contactUserButton.setText("Contacter " + user.getFirstName());
-        courseNamesLinearLayout.setVisibility(View.VISIBLE);
-        courseNamesTextView.setText(teacher.getTopics());
-        lessonReservationButton.setVisibility(View.VISIBLE);
-        priceLinearLayout.setVisibility(View.VISIBLE);
-        minPriceTextView.setText("A partir de " + teacher.getMinPrice() + " €/h");
-        courseNamesTextView.setText(teacher.getTopics());
-
-        if (teacher.getNumberOfReviews() > 0) {
-            displayLastComment();
-        }
+    public void displayTeacherProfileFragment() {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("teacher", teacher);
+        TeacherProfileFragment teacherProfileFragment = new TeacherProfileFragment();
+        teacherProfileFragment.setArguments(bundle);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.add(R.id.fragment_container, teacherProfileFragment);
+        transaction.commit();
     }
 
-    public void displayLastComment() {
-        lastCommentLinearLayout.setVisibility(View.VISIBLE);
-        int lastPosition = teacher.getReviews().size() - 1;
-        String dateToFormat = teacher.getReviews().get(lastPosition).getCreationDate();
-        reviewSendingDateTextView.setText(teacher.getReviews().get(lastPosition).getMonth(dateToFormat)
-                + " " + teacher.getReviews().get(lastPosition).getYear(dateToFormat));
-        ratingBar.setRating(teacher.getRating());
-        reviewText.setText(teacher.getReviews().get(lastPosition).getReviewText());
-        reviewSenderTextView.setText(teacher.getReviews().get(lastPosition).getSenderFirstName());
-
-        if (teacher.getReviews().size() > 1) {
-            readMoreCommentsTextView.setVisibility(View.VISIBLE);
-            readMoreCommentsTextView.setText("Lire " + teacher.getNumberOfReviews() + " commentaire(s)");
-        }
+    public void displayStudentProfileFragment() {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("student", user);
+        StudentProfileFragment studentProfileFragment = new StudentProfileFragment();
+        studentProfileFragment.setArguments(bundle);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.add(R.id.fragment_container, studentProfileFragment);
+        transaction.commit();
     }
 }

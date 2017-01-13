@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,12 +16,13 @@ import android.widget.Toast;
 
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosProfileAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.SaveInfosProfileAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.ShowProfileInfosAsyncTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ToBecomeATeacherActivity extends AppCompatActivity implements SaveInfosProfileAsyncTask.ISaveInfosProfile,
-        DisplayInfosProfileAsyncTask.IDisplayInfosProfile {
+        ShowProfileInfosAsyncTask.IShowProfileInfos {
 
     EditText firstNameEditText;
     EditText lastNameEditText;
@@ -47,7 +49,8 @@ public class ToBecomeATeacherActivity extends AppCompatActivity implements SaveI
         emailEditText = (EditText) findViewById(R.id.email);
         phoneNumberEditText = (EditText) findViewById(R.id.phoneNumber);
 
-        startDisplayInfosProfileAsynTack();
+        ShowProfileInfosAsyncTask showProfileInfosAsyncTask = new ShowProfileInfosAsyncTask(this);
+        showProfileInfosAsyncTask.execute(userId, email, token);
     }
 
     @Override
@@ -61,7 +64,7 @@ public class ToBecomeATeacherActivity extends AppCompatActivity implements SaveI
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.cancel_button:
-                finish();
+               finish();
                 return true;
         }
 
@@ -103,38 +106,29 @@ public class ToBecomeATeacherActivity extends AppCompatActivity implements SaveI
         saveInfosProfileAsyncTask.execute(firstName, lastName, birthDate, description, userId, email, phoneNumber);
     }
 
-    public void startDisplayInfosProfileAsynTack() {
-
-        DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
-        displayInfosProfileAsyncTask.execute(userId, email, token);
-    }
-
     @Override
-    public void displayUserInfosProfile(String string) {
+    public void showProfileInfos(String string) {
+
         try {
             JSONObject jsonObject = new JSONObject(string);
-            String getUserInfosProfile = jsonObject.getString("success");
+            JSONObject userJson = jsonObject.getJSONObject("user");
 
-            if (getUserInfosProfile.equals("true")) {
-                JSONObject jsonData = jsonObject.getJSONObject("user");
-                String firstName = jsonData.getString("firstname");
-                String lastName = jsonData.getString("lastname");
-                String birthDate = jsonData.getString("birthdate");
-                String description = jsonData.getString("description");
-                String email = jsonData.getString("email");
-                String phonenumber = jsonData.getString("phonenumber");
+            String firstName = userJson.getString("firstname");
+            String lastName = userJson.getString("lastname");
+            String birthDate = userJson.getString("birthdate");
+            String description = userJson.getString("description");
+            String email = userJson.getString("email");
+            String phonenumber = userJson.getString("phonenumber");
 
-                firstNameEditText.setText(firstName);
-                lastNameEditText.setText(lastName);
-                birthDateEditText.setText(birthDate);
-                userDescriptionEditTet.setText(description);
-                emailEditText.setText(email);
-                phoneNumberEditText.setText(phonenumber);
-            }
+            firstNameEditText.setText(firstName);
+            lastNameEditText.setText(lastName);
+            birthDateEditText.setText(birthDate);
+            userDescriptionEditTet.setText(description);
+            emailEditText.setText(email);
+            phoneNumberEditText.setText(phonenumber);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
     }
 }

@@ -29,6 +29,8 @@ import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplaySchoolLevelsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.SaveInfosFormationAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.SaveInfosProfileAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Level;
+import com.qwerteach.wivi.qwerteachapp.models.Teacher;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,7 +44,8 @@ import java.util.ArrayList;
 
 public class FormationsTabFragment extends Fragment implements DisplaySchoolLevelsAsyncTask.IDisplaySchoolLevels,
         AdapterView.OnItemSelectedListener,
-        DisplayInfosProfileAsyncTask.IDisplayInfosProfile, SaveInfosFormationAsyncTask.ISaveInfosFormation, View.OnClickListener {
+        SaveInfosFormationAsyncTask.ISaveInfosFormation,
+        View.OnClickListener {
 
     EditText professionEditText, userDescriptionEditTet;
     Button saveInfosButton;
@@ -52,6 +55,8 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
     String levelName, defaultTextForLevelSpinner, userId, email, token;
     int levelId;
     ProgressDialog progressDialog;
+    Teacher teacher;
+    User user;
 
     public static FormationsTabFragment newInstance() {
         FormationsTabFragment formationsTabFragment = new FormationsTabFragment();
@@ -67,20 +72,37 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
         email = preferences.getString("email", "");
         token = preferences.getString("token", "");
 
+        Bundle extras = getActivity().getIntent().getExtras();
+        if (extras != null) {
+            teacher = (Teacher) getActivity().getIntent().getSerializableExtra("teacher");
+            user = (User) getActivity().getIntent().getSerializableExtra("student");
+        }
+
         levels = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
-        startDisplayInfosProfileAsynTack();
+
+
+        if (user != null) {
+            levelId = user.getLevelId();
+        }
+
+        if (teacher != null) {
+            levelId = teacher.getUser().getLevelId();
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_formations_tab, container, false);
+
         professionEditText = (EditText) view.findViewById(R.id.profession);
         userDescriptionEditTet = (EditText) view.findViewById(R.id.description);
         levelSpinner = (Spinner) view.findViewById(R.id.spinner_level);
         saveInfosButton = (Button) view.findViewById(R.id.save_infos_button);
         saveInfosButton.setOnClickListener(this);
-        //setHasOptionsMenu(true);
+
+        DisplaySchoolLevelsAsyncTask displaySchoolLevelsAsyncTask = new DisplaySchoolLevelsAsyncTask(this);
+        displaySchoolLevelsAsyncTask.execute();
 
         return view;
     }
@@ -118,6 +140,16 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
             levelSpinner.setSelection(position);
             levelSpinner.setOnItemSelectedListener(this);
 
+            if (user != null) {
+                professionEditText.setText(user.getOccupation());
+                userDescriptionEditTet.setText(user.getDescription());
+            }
+
+            if (teacher != null) {
+                professionEditText.setText(teacher.getUser().getOccupation());
+                userDescriptionEditTet.setText(teacher.getUser().getDescription());
+            }
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -132,11 +164,6 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
-    }
-
-    public void startDisplayInfosProfileAsynTack() {
-        DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
-        displayInfosProfileAsyncTask.execute(userId, email, token);
     }
 
     public void startSaveInfosFormationTabAsyncTask() {
@@ -164,37 +191,7 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        /*switch (item.getItemId()) {
-            case R.id.save_profile_button:
-                startSaveInfosFormationTabAsyncTask();
-                return true;
-        }*/
-
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void displayUserInfosProfile(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String getUserInfosProfile = jsonObject.getString("success");
-
-            if (getUserInfosProfile.equals("true")) {
-                JSONObject jsonData = jsonObject.getJSONObject("user");
-                String description = jsonData.getString("description");
-                String profession = jsonData.getString("occupation");
-                levelId = jsonData.getInt("level_id");
-
-                professionEditText.setText(profession);
-                userDescriptionEditTet.setText(description);
-
-                DisplaySchoolLevelsAsyncTask displaySchoolLevelsAsyncTask = new DisplaySchoolLevelsAsyncTask(this);
-                displaySchoolLevelsAsyncTask.execute();
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

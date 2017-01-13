@@ -26,6 +26,8 @@ import android.widget.Toast;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosProfileAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.SaveInfosProfileAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.R;
+import com.qwerteach.wivi.qwerteachapp.models.Teacher;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,8 +38,7 @@ import java.util.Locale;
  * Created by wivi on 26/10/16.
  */
 
-public class DescriptionTabFragment extends Fragment implements SaveInfosProfileAsyncTask.ISaveInfosProfile,
-        DisplayInfosProfileAsyncTask.IDisplayInfosProfile, View.OnClickListener {
+public class DescriptionTabFragment extends Fragment implements SaveInfosProfileAsyncTask.ISaveInfosProfile, View.OnClickListener {
 
     EditText firstNameEditText, lastNameEditText, birthDateEditText, phoneNumberEditText;
     Calendar calendar;
@@ -46,6 +47,8 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
     String userId, email, token;
     ProgressDialog progressDialog;
     Button saveInfosButton;
+    Teacher teacher;
+    User user;
 
     public static DescriptionTabFragment newInstance() {
         DescriptionTabFragment descriptionTabFragment = new DescriptionTabFragment();
@@ -61,14 +64,20 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
         email = preferences.getString("email", "");
         token = preferences.getString("token", "");
 
+        Bundle extras = getActivity().getIntent().getExtras();
+        if (extras != null) {
+            teacher = (Teacher) getActivity().getIntent().getSerializableExtra("teacher");
+            user = (User) getActivity().getIntent().getSerializableExtra("student");
+        }
+
         progressDialog = new ProgressDialog(getContext());
-        startDisplayInfosProfileAsynTack();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         view  = inflater.inflate(R.layout.fragment_description_tab, container, false);
+
         calendar = Calendar.getInstance(TimeZone.getDefault());
         dateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -90,9 +99,25 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
         birthDateEditText.setOnClickListener(this);
         saveInfosButton.setOnClickListener(this);
 
-        //setHasOptionsMenu(true);
+        displayUserInfos();
 
         return view;
+    }
+
+    public void displayUserInfos() {
+        if (user != null) {
+            firstNameEditText.setText(user.getFirstName());
+            lastNameEditText.setText(user.getLastName());
+            birthDateEditText.setText(user.getBirthdate());
+            phoneNumberEditText.setText(user.getPhoneNumber());
+        }
+
+        if (teacher != null) {
+            firstNameEditText.setText(teacher.getUser().getFirstName());
+            lastNameEditText.setText(teacher.getUser().getLastName());
+            birthDateEditText.setText(teacher.getUser().getBirthdate());
+            phoneNumberEditText.setText(teacher.getUser().getPhoneNumber());
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -143,36 +168,6 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
         }
     }
 
-    @Override
-    public void displayUserInfosProfile(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String getUserInfosProfile = jsonObject.getString("success");
-
-            if (getUserInfosProfile.equals("true")) {
-                JSONObject jsonData = jsonObject.getJSONObject("user");
-                String firstName = jsonData.getString("firstname");
-                String lastName = jsonData.getString("lastname");
-                String birthDate = jsonData.getString("birthdate");
-                String phoneNumber = jsonData.getString("phonenumber");
-
-                firstNameEditText.setText(firstName);
-                lastNameEditText.setText(lastName);
-                birthDateEditText.setText(birthDate);
-                phoneNumberEditText.setText(phoneNumber);
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void startDisplayInfosProfileAsynTack() {
-        DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
-        displayInfosProfileAsyncTask.execute(userId, email, token);
-    }
-
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onClick(View view) {
@@ -195,12 +190,6 @@ public class DescriptionTabFragment extends Fragment implements SaveInfosProfile
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        /*switch (item.getItemId()) {
-            case R.id.save_profile_button:
-                startSaveInfosProfileTabAsyncTask();
-                return true;
-        }*/
-
         return super.onOptionsItemSelected(item);
     }
 

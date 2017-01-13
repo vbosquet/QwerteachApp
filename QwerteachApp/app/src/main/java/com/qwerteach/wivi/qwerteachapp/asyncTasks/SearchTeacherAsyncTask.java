@@ -15,7 +15,7 @@ import java.net.URLEncoder;
  * Created by wivi on 16/11/16.
  */
 
-public class SearchTeacherAsyncTask extends AsyncTask<String, String, String> {
+public class SearchTeacherAsyncTask extends AsyncTask<Object, String, String> {
 
     private ISearchTeacher callback;
 
@@ -25,16 +25,18 @@ public class SearchTeacherAsyncTask extends AsyncTask<String, String, String> {
 
 
     @Override
-    protected String doInBackground(String... strings) {
-        String query = strings[0];
-        String searchSortingOption = strings[1];
+    protected String doInBackground(Object... objects) {
+        String query = (String) objects[0];
+        String searchSortingOption = (String) objects[1];
+        int pageNumber = (int) objects[2];
 
         try {
 
             String queryEncodedString = URLEncoder.encode(query, "UTF-8");
             String optionEncondedString = URLEncoder.encode(searchSortingOption, "UTF-8");
 
-            URL url = new URL("http://192.168.0.108:3000/api/profiles?topic=" + queryEncodedString + "&search_sorting=" + optionEncondedString);
+            URL url = new URL("http://192.168.0.108:3000/api/profiles?topic=" + queryEncodedString
+                    + "&search_sorting=" + optionEncondedString + "&page=" + pageNumber);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestMethod("GET");
             httpURLConnection.connect();

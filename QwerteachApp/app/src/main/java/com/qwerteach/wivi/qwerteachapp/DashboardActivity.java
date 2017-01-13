@@ -23,7 +23,7 @@ import com.qwerteach.wivi.qwerteachapp.fragments.DashboardFragment;
 
 public class DashboardActivity extends AppCompatActivity {
 
-    String[] menuDrawerItems = {"Home", "Mes cours", "Mes messages", "Mon portefeuille", "Mon profil", "Devenir professeur"};
+    String[] menuDrawerItems = {"Mes cours", "Mes messages", "Mon portefeuille", "Mon profil"};
     DrawerLayout mDrawerLayout;
     ActionBarDrawerToggle mDrawerToggle;
     ListView mDrawerList;
@@ -50,33 +50,23 @@ public class DashboardActivity extends AppCompatActivity {
                 Object o = mDrawerList.getItemAtPosition(position);
                 String action = o.toString();
 
-                if (action.equals(menuDrawerItems[0])) {
-                    Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
-                    startActivity(intent);
-                }
-
-                if(action.equals(menuDrawerItems[1])) {
+                if(action.equals(menuDrawerItems[0])) {
                     Intent intent = new Intent(getApplicationContext(), MyLessonsActivity.class);
                     startActivity(intent);
                 }
 
-                if (action.equals(menuDrawerItems[2])) {
+                if (action.equals(menuDrawerItems[1])) {
                     Intent intent = new Intent(getApplicationContext(), MyMessagesActivity.class);
                     startActivity(intent);
                 }
 
-                if (action.equals(menuDrawerItems[3])) {
+                if (action.equals(menuDrawerItems[2])) {
                     Intent intent = new Intent(getApplicationContext(), VirtualWalletActivity.class);
                     startActivity(intent);
                 }
 
-                if(action.equals(menuDrawerItems[4])) {
+                if(action.equals(menuDrawerItems[3])) {
                     Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
-                    startActivity(intent);
-                }
-
-                if(action.equals(menuDrawerItems[5])) {
-                    Intent intent = new Intent(getApplicationContext(), ToBecomeATeacherActivity.class);
                     startActivity(intent);
                 }
 
