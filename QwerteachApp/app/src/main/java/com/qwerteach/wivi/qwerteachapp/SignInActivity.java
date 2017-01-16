@@ -130,6 +130,7 @@ public class SignInActivity extends AppCompatActivity implements SignInActivityA
 
     @Override
     public void displayConfirmationConnectionMessage(String string) {
+
         try {
             JSONObject jsonObject = new JSONObject(string);
             String loginConfirmation = jsonObject.getString("success");
@@ -149,6 +150,7 @@ public class SignInActivity extends AppCompatActivity implements SignInActivityA
                 String token = jsonUser.getString("authentication_token");
                 String firstName = jsonUser.getString("firstname");
                 String lastName = jsonUser.getString("lastname");
+                boolean isTeacher = jsonUser.getBoolean("postulance_accepted");
 
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
                 SharedPreferences.Editor editor = preferences.edit();
@@ -157,6 +159,7 @@ public class SignInActivity extends AppCompatActivity implements SignInActivityA
                 editor.putString("token", token);
                 editor.putString("firstName", firstName);
                 editor.putString("lastName", lastName);
+                editor.putBoolean("isTeacher", isTeacher);
                 editor.putBoolean("isLogin", true);
                 editor.apply();
 

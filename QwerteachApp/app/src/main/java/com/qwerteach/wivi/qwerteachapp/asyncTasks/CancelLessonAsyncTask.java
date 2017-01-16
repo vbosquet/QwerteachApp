@@ -30,7 +30,7 @@ public class CancelLessonAsyncTask extends AsyncTask<Object, String, String>{
 
         try {
 
-            URL url = new URL("http://192.168.0.108:3000/api/lessons/" + lessonId + "/cancel");
+            URL url = new URL("http://192.168.0.101:3000/api/lessons/" + lessonId + "/cancel");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.addRequestProperty("X-User-Email", email);
             connection.addRequestProperty("X-User-Token", token);

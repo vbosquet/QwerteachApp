@@ -1,7 +1,5 @@
 package com.qwerteach.wivi.qwerteachapp.asyncTasks;
 
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.os.AsyncTask;
 
 import java.io.BufferedReader;
@@ -15,7 +13,7 @@ import java.net.URL;
  * Created by wivi on 9/12/16.
  */
 
-public class GetAllWalletInfosAsyncTask extends AsyncTask<String, String, String> {
+public class GetAllWalletInfosAsyncTask extends AsyncTask<Object, String, String> {
 
     private IGetAllWalletInfos callback;
 
@@ -30,13 +28,14 @@ public class GetAllWalletInfosAsyncTask extends AsyncTask<String, String, String
 
 
     @Override
-    protected String doInBackground(String... strings) {
-        String email = strings[0];
-        String token = strings[1];
+    protected String doInBackground(Object... objects) {
+        String email = (String) objects[0];
+        String token = (String) objects[1];
+        int pageNumber = (int) objects[2];
 
         try {
 
-            URL url = new URL("http://192.168.0.108:3000/api/user/mangopay/index_wallet");
+            URL url = new URL("http://192.168.0.101:3000/api/user/mangopay/index_wallet?page=" + pageNumber);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.addRequestProperty("X-User-Email", email);
             connection.addRequestProperty("X-User-Token", token);

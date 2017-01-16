@@ -14,7 +14,7 @@ import java.net.URL;
  * Created by wivi on 7/12/16.
  */
 
-public class GetAllMyLessonsAsyncTask extends AsyncTask<String, String, String> {
+public class GetAllMyLessonsAsyncTask extends AsyncTask<Object, String, String> {
 
     private IGetAllLessons callback;
 
@@ -23,13 +23,14 @@ public class GetAllMyLessonsAsyncTask extends AsyncTask<String, String, String> 
     }
 
     @Override
-    protected String doInBackground(String... strings) {
-        String email = strings[0];
-        String token = strings[1];
+    protected String doInBackground(Object... objects) {
+        String email = (String) objects[0];
+        String token = (String) objects[1];
+        int pageNumber = (int) objects[2];
 
         try {
 
-            URL url = new URL("http://192.168.0.108:3000/api/cours");
+            URL url = new URL("http://192.168.0.101:3000/api/cours?page=" + pageNumber);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.addRequestProperty("X-User-Email", email);
             connection.addRequestProperty("X-User-Token", token);

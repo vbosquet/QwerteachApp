@@ -95,7 +95,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
         bcmcCheckbox = (CheckBox) findViewById(R.id.bcmc);
         bankWireCheckbox = (CheckBox) findViewById(R.id.banck_wire);
         easyPaymentCheckBox = (CheckBox) findViewById(R.id.easy_payment);
-        cardNumberLinearLayout = (LinearLayout) findViewById(R.id.card_numer_linear_layout);
+        cardNumberLinearLayout = (LinearLayout) findViewById(R.id.card_number_linear_layout);
         creditCardListSpinner = (Spinner) findViewById(R.id.card_list_spinner);
         newCreditCardLinearLayout = (LinearLayout) findViewById(R.id.new_credit_card_linear_layout);
         cardNumberEditText = (EditText) findViewById(R.id.card_number_edit_text);
@@ -254,6 +254,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
 
                     cardType = "CB_VISA_MASTERCARD";
                     cardNumberLinearLayout.setVisibility(View.GONE);
+                    newCreditCardLinearLayout.setVisibility(View.GONE);
 
                 }
                 break;

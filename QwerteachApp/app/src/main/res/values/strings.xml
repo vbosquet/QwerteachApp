@@ -160,7 +160,7 @@
     <string name="cancel_lesson_button">Annuler</string>
     <string name="updating_wallet_success_toast_message">Vos informations ont été enregistrées avec succès.</string>
     <string name="updating_wallet_error_toast_message">Impossible d\'enregistrer vos informations. Veuillez réessayer.</string>
-    <string name="reload_wallet_button">RECHARGER</string>
+    <string name="reload_wallet_button">Recharger</string>
     <string name="reload_wallet_activity_title">Recharger Portefeuille</string>
     <string name="amount_tewt_view">Montant</string>
     <string name="payment_method_text_view">Mode de payement</string>
@@ -200,4 +200,14 @@
     <string name="create_review_negative_success_message">Il y a eu une erreur. Impossible d\'enregistrer votre avis. Essayer à nouveau.</string>
     <string name="lesson_waiting_for_payment_status">En attente</string>
     <string name="read_comments_activity_title">Commentaires</string>
+    <string name="unload_wallet_button">Décharger</string>
+    <string name="credit_cards_text_view">Cartes de crédit enregistrées</string>
+    <string name="bank_accounts_text_view">Comptes en banque enregistrés</string>
+    <string name="new_bank_account_alert_dialog_title">Ajouter un compte en banque</string>
+    <string name="bank_account_type_text_view">Type de compte</string>
+    <string name="iban_checkbox">IBAN</string>
+    <string name="united_kingdom_checkbox">Royaumes-Unis</string>
+    <string name="usa_checkbox">Etats-Unis</string>
+    <string name="canada_checkbox">Canada</string>
+    <string name="other_checkbox">Autre</string>
 </resources>

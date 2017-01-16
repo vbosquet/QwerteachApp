@@ -48,7 +48,6 @@
             android:id="@+id/teacher_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="vertical"
             android:background="@drawable/edit_text_border" />
 
         <android.support.design.widget.FloatingActionButton

@@ -38,7 +38,7 @@ public class ReplyAsyncTask extends AsyncTask<Object, String, String> {
 
             json.put("body", message);
 
-            URL url = new URL("http://192.168.0.108:3000/api/conversations/" + conversationId + "/reply");
+            URL url = new URL("http://192.168.0.101:3000/api/conversations/" + conversationId + "/reply");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);

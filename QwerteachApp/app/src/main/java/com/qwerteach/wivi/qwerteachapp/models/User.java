@@ -25,6 +25,15 @@ public class User implements Serializable {
     private boolean postulanceAccepted;
     private int levelId;
 
+    private String address;
+    private String streetNumber;
+    private String postalCode;
+    private String city;
+    private String region;
+    private String countryCode;
+    private String nationalityCode;
+    private String residencePlaceCode;
+
     public User() {
 
     }
@@ -147,4 +156,67 @@ public class User implements Serializable {
         return ageS;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getStreetNumber() {
+        return streetNumber;
+    }
+
+    public void setStreetNumber(String streetNumber) {
+        this.streetNumber = streetNumber;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
+    }
+
+    public String getNationalityCode() {
+        return nationalityCode;
+    }
+
+    public void setNationalityCode(String nationalityCode) {
+        this.nationalityCode = nationalityCode;
+    }
+
+    public String getResidencePlaceCode() {
+        return residencePlaceCode;
+    }
+
+    public void setResidencePlaceCode(String residencePlaceCode) {
+        this.residencePlaceCode = residencePlaceCode;
+    }
 }

@@ -1,6 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,52 +16,54 @@ import java.util.ArrayList;
  * Created by wivi on 9/12/16.
  */
 
-public class TransactionAdapter extends ArrayAdapter<Transaction> {
+public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.ViewHolder> {
 
-    public TransactionAdapter(Context context, ArrayList<Transaction> transactions) {
-        super(context, 0, transactions);
+    private ArrayList<Transaction> transactions;
+
+    public TransactionAdapter(ArrayList<Transaction> transactions) {
+        this.transactions = transactions;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-
-        Transaction transaction = getItem(position);
-        TransactionAdapter.ViewHolder viewHolder;
-
-        if(convertView == null) {
-            viewHolder = new TransactionAdapter.ViewHolder();
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.transaction_list_view, parent, false);
-            viewHolder.transactionDate = (TextView) convertView.findViewById(R.id.transaction_date_text_view);
-            viewHolder.transactionType = (TextView) convertView.findViewById(R.id.transaction_type_tewt_view);
-            viewHolder.transactionAuthor = (TextView) convertView.findViewById(R.id.transaction_author_text_view);
-            viewHolder.creditedUserName = (TextView) convertView.findViewById(R.id.credited_user_text_view);
-            viewHolder.creditedAmount = (TextView) convertView.findViewById(R.id.credited_amount_text_view);
-            viewHolder.debitedAmount = (TextView) convertView.findViewById(R.id.debited_amount_text_view);
-            viewHolder.fees = (TextView) convertView.findViewById(R.id.fees_text_view);
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (TransactionAdapter.ViewHolder) convertView.getTag();
-        }
-
-        viewHolder.transactionDate.setText("Date du paiement : " + transaction.getDate());
-        viewHolder.transactionType.setText("Type de paiement : " + transaction.getType());
-        viewHolder.transactionAuthor.setText("Donneur d'ordre : " + transaction.getAuthorName());
-        viewHolder.creditedUserName.setText("Bénéficiaire : " + transaction.getCreditedUserName());
-        viewHolder.creditedAmount.setText("Montant crédité : " + transaction.getCreditedAmount());
-        viewHolder.debitedAmount.setText("Montant débité : " + transaction.getDebitedAmount());
-        viewHolder.fees.setText("Frais : " + transaction.getFees());
-
-        return convertView;
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.transaction_list_view, parent, false);
+        itemView.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT));
+        return new ViewHolder(itemView);
     }
 
-    public static class ViewHolder {
-        TextView transactionDate;
-        TextView transactionType;
-        TextView transactionAuthor;
-        TextView creditedUserName;
-        TextView creditedAmount;
-        TextView debitedAmount;
-        TextView fees;
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        Transaction transaction = transactions.get(position);
+
+        holder.transactionDate.setText("Date du paiement : " + transaction.getDate());
+        holder.transactionType.setText("Type de paiement : " + transaction.getType());
+        holder.transactionAuthor.setText("Donneur d'ordre : " + transaction.getAuthorName());
+        holder.creditedUserName.setText("Bénéficiaire : " + transaction.getCreditedUserName());
+        holder.creditedAmount.setText("Montant crédité : " + transaction.getCreditedAmount());
+        holder.debitedAmount.setText("Montant débité : " + transaction.getDebitedAmount());
+        holder.fees.setText("Frais : " + transaction.getFees());
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return transactions.size();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder{
+        TextView transactionDate, transactionType, transactionAuthor,
+                creditedUserName, creditedAmount, debitedAmount, fees;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+
+            transactionDate = (TextView) itemView.findViewById(R.id.transaction_date_text_view);
+            transactionType = (TextView) itemView.findViewById(R.id.transaction_type_tewt_view);
+            transactionAuthor = (TextView) itemView.findViewById(R.id.transaction_author_text_view);
+            creditedUserName = (TextView) itemView.findViewById(R.id.credited_user_text_view);
+            creditedAmount = (TextView) itemView.findViewById(R.id.credited_amount_text_view);
+            debitedAmount = (TextView) itemView.findViewById(R.id.debited_amount_text_view);
+            fees = (TextView) itemView.findViewById(R.id.fees_text_view);
+        }
     }
 }

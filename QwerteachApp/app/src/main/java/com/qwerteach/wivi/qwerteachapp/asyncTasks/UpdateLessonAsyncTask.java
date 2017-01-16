@@ -40,7 +40,7 @@ public class UpdateLessonAsyncTask extends AsyncTask<Object, String, String> {
             jsonObject.put("time_start", timeStart);
             lessonJson.put("lesson", jsonObject);
 
-            URL url = new URL("http://192.168.0.108:3000/api/lessons/" + lessonId);
+            URL url = new URL("http://192.168.0.101:3000/api/lessons/" + lessonId);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);

@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item android:id="@+id/reload_wallet_button"
         android:title="@string/reload_wallet_button" />
+
+    <item
+        android:id="@+id/unload_wallet_button"
+        android:title="@string/unload_wallet_button"
+        android:visible="false"/>
 
 </menu>

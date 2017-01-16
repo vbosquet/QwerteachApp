@@ -6,9 +6,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +37,7 @@ import com.qwerteach.wivi.qwerteachapp.asyncTasks.PayTeacherAsyncTack;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.RefuseLessonAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 import com.qwerteach.wivi.qwerteachapp.models.LessonsAdapter;
+import com.qwerteach.wivi.qwerteachapp.models.TeacherAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,13 +56,18 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
         GetLessonsInfosAsyncTask.IGetLessonInfos,
         PayTeacherAsyncTack.IPayTeacher,
         DisputeAsyncTack.IDispute,
-        CreateReviewAsyncTask.ICreateReview {
+        CreateReviewAsyncTask.ICreateReview,
+        View.OnClickListener {
 
     View view;
     String email, token, userId, note, comment;
     ArrayList<Lesson> lessons;
-    ListView lessonListView;
+    RecyclerView lessonRecyclerView;
+    RecyclerView.Adapter lessonAdapter;
+    RecyclerView.LayoutManager lessonLayoutManager;
     ProgressDialog progressDialog;
+    FloatingActionButton floatingActionButton;
+    int page = 1, scrollPosition = 0;
 
     public static MyLessonsListViewFragment newInstance() {
         MyLessonsListViewFragment myLessonsListViewFragment = new MyLessonsListViewFragment();
@@ -78,11 +89,13 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
         userId = preferences.getString("userId", "");
 
         lessons = new ArrayList<>();
-        lessonListView = (ListView) view.findViewById(R.id.lesson_list_view);
         progressDialog = new ProgressDialog(getContext());
+        lessonRecyclerView = (RecyclerView) view.findViewById(R.id.lesson_recycler_view);
+        floatingActionButton = (FloatingActionButton) view.findViewById(R.id.floating_action_button);
+        floatingActionButton.setOnClickListener(this);
 
         GetAllMyLessonsAsyncTask getAllMyLessonsAsyncTask = new GetAllMyLessonsAsyncTask(this);
-        getAllMyLessonsAsyncTask.execute(email, token);
+        getAllMyLessonsAsyncTask.execute(email, token, page);
         startProgressDialog();
 
         return  view;
@@ -145,8 +158,13 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
     }
 
     public void displayLessonListView() {
-        LessonsAdapter lessonAdapter = new LessonsAdapter(getContext(), lessons, MyLessonsListViewFragment.this);
-        lessonListView.setAdapter(lessonAdapter);
+        lessonAdapter = new LessonsAdapter(getContext(), lessons, this);
+        lessonRecyclerView.setHasFixedSize(true);
+        lessonLayoutManager = new LinearLayoutManager(getContext());
+        lessonRecyclerView.setLayoutManager(lessonLayoutManager);
+        lessonRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        lessonRecyclerView.setAdapter(lessonAdapter);
+        lessonRecyclerView.scrollToPosition(scrollPosition);
 
     }
 
@@ -413,5 +431,15 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onClick(View view) {
+        page += 1;
+        scrollPosition = lessons.size() - 1;
+        GetAllMyLessonsAsyncTask getAllMyLessonsAsyncTask = new GetAllMyLessonsAsyncTask(this);
+        getAllMyLessonsAsyncTask.execute(email, token, page);
+        startProgressDialog();
+
     }
 }

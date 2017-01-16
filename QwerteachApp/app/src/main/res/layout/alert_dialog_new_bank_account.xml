@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:backgroundTint="@color/gray">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="17dp"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:background="@drawable/text_view_bottom_border"
+        android:paddingBottom="10dp"
+        android:textColor="@color/dark"
+        android:text="@string/new_bank_account_alert_dialog_title"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="17dp"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:text="@string/bank_account_type_text_view"
+        android:textColor="@color/dark"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/edit_text_border"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
+
+        <CheckBox
+            android:id="@+id/iban_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/iban_checkbox"/>
+
+        <CheckBox
+            android:id="@+id/united_kingdom_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/united_kingdom_checkbox"/>
+
+        <CheckBox
+            android:id="@+id/usa_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/usa_checkbox"/>
+
+        <CheckBox
+            android:id="@+id/canada_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/canada_checkbox"/>
+
+        <CheckBox
+            android:id="@+id/other_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/other_checkbox"/>
+
+    </LinearLayout>
+
+</LinearLayout>

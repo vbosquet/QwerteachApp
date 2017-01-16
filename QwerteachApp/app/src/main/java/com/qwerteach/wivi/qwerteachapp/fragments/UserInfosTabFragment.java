@@ -4,9 +4,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -14,12 +12,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.CreateNewWalletAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllWalletInfosAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,9 +29,9 @@ import java.util.Locale;
  * Created by wivi on 8/12/16.
  */
 
-public class UserInfosTabFragment extends Fragment implements GetAllWalletInfosAsyncTask.IGetAllWalletInfos,
-        AdapterView.OnItemSelectedListener,
-        View.OnClickListener, CreateNewWalletAsyncTask.ICreateNewWallet {
+public class UserInfosTabFragment extends Fragment implements AdapterView.OnItemSelectedListener,
+        View.OnClickListener,
+        CreateNewWalletAsyncTask.ICreateNewWallet {
 
     View view;
     String email, token, countryCode, nationalityCode, residencePlaceCode, currentCountry, currentNationality, currentResidencePlace;
@@ -43,6 +40,7 @@ public class UserInfosTabFragment extends Fragment implements GetAllWalletInfosA
     ArrayList<String> countries;
     Locale[] locales;
     Button saveButton;
+    User user;
 
     public static UserInfosTabFragment newInstance() {
         UserInfosTabFragment userInfosTabFragment = new UserInfosTabFragment();
@@ -69,7 +67,13 @@ public class UserInfosTabFragment extends Fragment implements GetAllWalletInfosA
 
         Collections.sort(countries);
 
-        startGetAllWalletInfosAsyncTask();
+        user = (User) getArguments().getSerializable("user");
+
+        if (user != null) {
+            countryCode = user.getCountryCode();
+            nationalityCode = user.getNationalityCode();
+            residencePlaceCode = user.getResidencePlaceCode();
+        }
     }
 
     @Override
@@ -88,6 +92,8 @@ public class UserInfosTabFragment extends Fragment implements GetAllWalletInfosA
         saveButton = (Button) view.findViewById(R.id.save_infos_button);
         saveButton.setOnClickListener(this);
 
+        displayUserInfos();
+
         return view;
     }
 
@@ -103,46 +109,19 @@ public class UserInfosTabFragment extends Fragment implements GetAllWalletInfosA
         spinner.setOnItemSelectedListener(this);
     }
 
-    public void startGetAllWalletInfosAsyncTask() {
-        GetAllWalletInfosAsyncTask getAllWalletInfosAsyncTask = new GetAllWalletInfosAsyncTask(this);
-        getAllWalletInfosAsyncTask.execute(email, token);
+    public void displayUserInfos() {
 
-    }
+        firstNameEditText.setText(user.getFirstName());
+        lastNameEditText.setText(user.getLastName());
+        addressEditText.setText(user.getAddress());
+        streetNumberEditText.setText(user.getStreetNumber());
+        postalCodeEditText.setText(user.getPostalCode());
+        cityEditText.setText(user.getCity());
+        regionEditText.setText(user.getRegion());
 
-    @Override
-    public void getAllWalletInfos(String string) {
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONObject accountJson = jsonObject.getJSONObject("account");
-
-            String firstName = accountJson.getString("first_name");
-            String lastName = accountJson.getString("last_name");
-            String address = accountJson.getString("address_line1");
-            String streetNumber = accountJson.getString("address_line2");
-            String postalCode = accountJson.getString("postal_code");
-            String city = accountJson.getString("city");
-            String region = accountJson.getString("region");
-            countryCode = accountJson.getString("country");
-            nationalityCode = accountJson.getString("nationality");
-            residencePlaceCode = accountJson.getString("country_of_residence");
-
-            firstNameEditText.setText(firstName);
-            lastNameEditText.setText(lastName);
-            addressEditText.setText(address);
-            streetNumberEditText.setText(streetNumber);
-            postalCodeEditText.setText(postalCode);
-            cityEditText.setText(city);
-            regionEditText.setText(region);
-
-            setSpinner(countries, countrySpinner, countryCode);
-            setSpinner(countries, residenceSpinner, residencePlaceCode);
-            setSpinner(countries, nationalitySpinner, nationalityCode);
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        setSpinner(countries, countrySpinner, countryCode);
+        setSpinner(countries, residenceSpinner, residencePlaceCode);
+        setSpinner(countries, nationalitySpinner, nationalityCode);
 
     }
 

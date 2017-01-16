@@ -1,10 +1,12 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import java.io.Serializable;
+
 /**
  * Created by wivi on 9/12/16.
  */
 
-public class Transaction {
+public class Transaction implements Serializable{
 
     private String transactionId;
     private String date;

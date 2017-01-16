@@ -1,9 +1,14 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,12 +38,17 @@ import java.util.Date;
  */
 
 public class PaymentHistoryTabFragment extends Fragment implements GetAllWalletInfosAsyncTask.IGetAllWalletInfos,
-        FindUsersByMangoIdAsyncTask.IFindUsersByMangoId{
+        FindUsersByMangoIdAsyncTask.IFindUsersByMangoId, View.OnClickListener {
 
     View view;
     String email, token;
     ArrayList<Transaction> transactions;
-    ListView transactionsListView;
+    RecyclerView transactionsRecyclerView;
+    RecyclerView.Adapter transactionAdapter;
+    RecyclerView.LayoutManager transactionLayoutManager;
+    FloatingActionButton floatingActionButton;
+    ProgressDialog progressDialog;
+    int page = 1, scrollPosition;
 
     public static PaymentHistoryTabFragment newInstance() {
         PaymentHistoryTabFragment paymentHistoryTabFragment = new PaymentHistoryTabFragment();
@@ -54,14 +64,27 @@ public class PaymentHistoryTabFragment extends Fragment implements GetAllWalletI
         token = preferences.getString("token", "");
 
         transactions = new ArrayList<>();
-
-        startGetAllWalletInfosAsyncTask();
+        progressDialog = new ProgressDialog(getContext());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         view  = inflater.inflate(R.layout.fragment_payment_history_tab, container, false);
-        transactionsListView = (ListView) view.findViewById(R.id.transactions_list_view);
+        transactionsRecyclerView = (RecyclerView) view.findViewById(R.id.transactions_recycler_view);
+        floatingActionButton = (FloatingActionButton) view.findViewById(R.id.floating_action_button);
+        floatingActionButton.setOnClickListener(this);
+
+        transactions = (ArrayList<Transaction>) getArguments().getSerializable("transactions");
+        for (int i = 0; i < transactions.size(); i++) {
+
+            if (i == 0) {
+                startProgressDialog();
+            }
+
+            startFindUsersByMangoIdAsyncTask(transactions.get(i).getAuthorId(), transactions.get(i).getCreditedUserId(),
+                    transactions.get(i).getTransactionId());
+        }
+
         return view;
     }
 
@@ -109,7 +132,8 @@ public class PaymentHistoryTabFragment extends Fragment implements GetAllWalletI
 
     public void startGetAllWalletInfosAsyncTask() {
         GetAllWalletInfosAsyncTask getAllWalletInfosAsyncTask = new GetAllWalletInfosAsyncTask(this);
-        getAllWalletInfosAsyncTask.execute(email, token);
+        getAllWalletInfosAsyncTask.execute(email, token, page);
+        startProgressDialog();
 
     }
 
@@ -143,6 +167,7 @@ public class PaymentHistoryTabFragment extends Fragment implements GetAllWalletI
                 }
 
                 if (id.equals(transactions.get(transactions.size() - 1).getTransactionId())) {
+                    progressDialog.dismiss();
                     setTransactionsListView();
                 }
             }
@@ -154,9 +179,29 @@ public class PaymentHistoryTabFragment extends Fragment implements GetAllWalletI
 
     }
 
-    public void setTransactionsListView() {
-        TransactionAdapter transactionAdapter = new TransactionAdapter(getActivity(), transactions);
-        transactionsListView.setAdapter(transactionAdapter);
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
+    }
 
+    public void setTransactionsListView() {
+        transactionAdapter = new TransactionAdapter(transactions);
+        transactionsRecyclerView.setHasFixedSize(true);
+        transactionLayoutManager = new LinearLayoutManager(getContext());
+        transactionsRecyclerView.setLayoutManager(transactionLayoutManager);
+        transactionsRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        transactionsRecyclerView.setAdapter(transactionAdapter);
+        transactionsRecyclerView.scrollToPosition(scrollPosition);
+
+    }
+
+    @Override
+    public void onClick(View view) {
+        page += 1;
+        scrollPosition = transactions.size() - 1;
+        startGetAllWalletInfosAsyncTask();
     }
 }

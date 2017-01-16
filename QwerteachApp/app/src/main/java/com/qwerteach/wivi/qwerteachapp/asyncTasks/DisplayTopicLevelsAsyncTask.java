@@ -40,7 +40,7 @@ public class DisplayTopicLevelsAsyncTask extends AsyncTask<Object, String, Strin
             json.put("topic_id", topicId);
             topicJson.put("topic", json);
 
-            URL url = new URL("http://192.168.0.108:3000/api/find_topics/find_levels");
+            URL url = new URL("http://192.168.0.101:3000/api/find_topics/find_levels");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.setDoOutput(true);

@@ -1,6 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,43 +16,47 @@ import java.util.ArrayList;
  * Created by wivi on 9/12/16.
  */
 
-public class UserCreditCardAdapter extends ArrayAdapter<UserCreditCard> {
+public class UserCreditCardAdapter extends RecyclerView.Adapter<UserCreditCardAdapter.ViewHolder> {
 
-    public UserCreditCardAdapter(Context context, ArrayList<UserCreditCard> userCreditCards) {
-        super(context, 0, userCreditCards);
+    private ArrayList<UserCreditCard> userCreditCards;
+
+    public UserCreditCardAdapter(ArrayList<UserCreditCard> userCreditCards) {
+        this.userCreditCards = userCreditCards;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-
-        UserCreditCard userCreditCard = getItem(position);
-        UserCreditCardAdapter.ViewHolder viewHolder;
-
-        if(convertView == null) {
-            viewHolder = new UserCreditCardAdapter.ViewHolder();
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.user_credit_card_list_view, parent, false);
-            viewHolder.cardProvider = (TextView) convertView.findViewById(R.id.card_provider_text_view);
-            viewHolder.cardAlias = (TextView) convertView.findViewById(R.id.card_alias_text_view);
-            viewHolder.expirationDate = (TextView) convertView.findViewById(R.id.expiration_date_text_view);
-            viewHolder.cardValidity = (TextView) convertView.findViewById(R.id.card_validity_text_view);
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (UserCreditCardAdapter.ViewHolder) convertView.getTag();
-        }
-
-        viewHolder.cardProvider.setText(userCreditCard.getCardProvider() + " (" + userCreditCard.getCurrency() + ")");
-        viewHolder.cardAlias.setText(userCreditCard.getAlias());
-        viewHolder.expirationDate.setText("Expiration : " + userCreditCard.getExpirationDate());
-        viewHolder.cardValidity.setText(userCreditCard.getValidity());
-
-        return convertView;
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_credit_card_list_view, parent, false);
+        itemView.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT));
+        return new ViewHolder(itemView);
     }
 
-    public static class ViewHolder {
-        TextView cardProvider;
-        TextView cardAlias;
-        TextView expirationDate;
-        TextView cardValidity;
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        UserCreditCard userCreditCard = userCreditCards.get(position);
+
+        holder.cardProvider.setText(userCreditCard.getCardProvider() + " (" + userCreditCard.getCurrency() + ")");
+        holder.cardAlias.setText(userCreditCard.getAlias());
+        holder.expirationDate.setText("Expiration : " + userCreditCard.getExpirationDate());
+        holder.cardValidity.setText(userCreditCard.getValidity());
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return userCreditCards.size();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView cardProvider, cardAlias, expirationDate, cardValidity;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+
+            cardProvider = (TextView) itemView.findViewById(R.id.card_provider_text_view);
+            cardAlias = (TextView) itemView.findViewById(R.id.card_alias_text_view);
+            expirationDate = (TextView) itemView.findViewById(R.id.expiration_date_text_view);
+            cardValidity = (TextView) itemView.findViewById(R.id.card_validity_text_view);
+        }
     }
 }
