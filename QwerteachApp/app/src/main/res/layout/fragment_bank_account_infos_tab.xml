@@ -52,14 +52,25 @@
             android:textColor="@color/white"
             android:backgroundTint="@color/colorPrimary"/>
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/floating_action_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|right"
-            android:layout_margin="16dp"
-            android:src="@drawable/plus"
-            app:layout_anchorGravity="bottom|right|end" />
+        <android.support.design.widget.CoordinatorLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/user_bank_accounts_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/floating_action_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right"
+                android:layout_margin="16dp"
+                android:src="@drawable/plus"
+                app:layout_anchorGravity="bottom|right|end" />
+
+        </android.support.design.widget.CoordinatorLayout>
 
 
     </LinearLayout>

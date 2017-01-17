@@ -28,6 +28,7 @@ import com.qwerteach.wivi.qwerteachapp.fragments.UserInfosTabFragment;
 import com.qwerteach.wivi.qwerteachapp.models.CardRegistrationData;
 import com.qwerteach.wivi.qwerteachapp.models.Transaction;
 import com.qwerteach.wivi.qwerteachapp.models.User;
+import com.qwerteach.wivi.qwerteachapp.models.UserBankAccount;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 
 import org.json.JSONArray;
@@ -51,6 +52,7 @@ public class VirtualWalletActivity extends AppCompatActivity implements CheckUse
     ActionBar actionBar;
     ArrayList<UserCreditCard> userCreditCards;
     ArrayList<Transaction> transactions;
+    ArrayList<UserBankAccount> userBankAccounts;
     CardRegistrationData cardRegistrationData;
     Intent intent;
     String email, token, userId;
@@ -68,6 +70,7 @@ public class VirtualWalletActivity extends AppCompatActivity implements CheckUse
 
         userCreditCards = new ArrayList<>();
         transactions = new ArrayList<>();
+        userBankAccounts = new ArrayList<>();
         user = new User();
         progressDialog = new ProgressDialog(this);
 
@@ -149,8 +152,8 @@ public class VirtualWalletActivity extends AppCompatActivity implements CheckUse
                 getAllWalletInfosAsyncTask.execute(email, token, 0);
                 startProgressDialog();
 
-                //GetPreRegistrationCardDataAsyncTask getPreRegistrationCardDataAsyncTask = new GetPreRegistrationCardDataAsyncTask(this);
-                //getPreRegistrationCardDataAsyncTask.execute(email, token);
+                GetPreRegistrationCardDataAsyncTask getPreRegistrationCardDataAsyncTask = new GetPreRegistrationCardDataAsyncTask(this);
+                getPreRegistrationCardDataAsyncTask.execute(email, token);
             }
 
 
@@ -193,6 +196,54 @@ public class VirtualWalletActivity extends AppCompatActivity implements CheckUse
             user.setCountryCode(countryCode);
             user.setNationalityCode(nationalityCode);
             user.setResidencePlaceCode(residencePlaceCode);
+
+            for (int i = 0; i < bankAccountsJsonArray.length(); i++) {
+                JSONObject jsonData = bankAccountsJsonArray.getJSONObject(i);
+                String userId = jsonData.getString("user_id");
+                String ownerName = jsonData.getString("owner_name");
+                String type = jsonData.getString("type");
+                String bankAccountId = jsonData.getString("id");
+
+                UserBankAccount userBankAccount = new UserBankAccount(userId, ownerName, bankAccountId, type);
+                String accountNumber = "", bic = "";
+
+                if (type.equals("IBAN")) {
+                    String iban = jsonData.getString("iban");
+                    bic = jsonData.getString("bic");
+                    userBankAccount.setIban(iban);
+                    userBankAccount.setBic(bic);
+                } else if (type.equals("GB")) {
+                    accountNumber = jsonData.getString("account_number");
+                    String sortCode = jsonData.getString("sort_code");
+                    userBankAccount.setAccountNumber(accountNumber);
+                    userBankAccount.setSortCode(sortCode);
+                } else if (type.equals("US")) {
+                    accountNumber = jsonData.getString("account_number");
+                    String aba = jsonData.getString("aba");
+                    String depositAccountType = jsonData.getString("deposit_account_type");
+                    userBankAccount.setAccountNumber(accountNumber);
+                    userBankAccount.setAba(aba);
+                    userBankAccount.setDepositAccountType(depositAccountType);
+                } else if (type.equals("CA")) {
+                    accountNumber = jsonData.getString("account_number");
+                    String bankName = jsonData.getString("bank_name");
+                    String institutionNumber = jsonData.getString("institution_number");
+                    String branchCode = jsonData.getString("branch_code");
+                    userBankAccount.setAccountNumber(accountNumber);
+                    userBankAccount.setBankName(bankName);
+                    userBankAccount.setInstitutionNumber(institutionNumber);
+                    userBankAccount.setBranchCode(branchCode);
+                } else {
+                    accountNumber = jsonData.getString("account_number");
+                    String country = jsonData.getString("country");
+                    bic = jsonData.getString("bic");
+                    userBankAccount.setAccountNumber(accountNumber);
+                    userBankAccount.setBic(bic);
+                    userBankAccount.setCountry(country);
+                }
+
+                userBankAccounts.add(userBankAccount);
+            }
 
             for (int i = 0; i < cardsJsonArray.length(); i++) {
                 JSONObject jsonData = cardsJsonArray.getJSONObject(i);
@@ -342,6 +393,7 @@ public class VirtualWalletActivity extends AppCompatActivity implements CheckUse
                 case 0:
                     Bundle cardsBundle = new Bundle();
                     cardsBundle.putSerializable("userCreditCards", userCreditCards);
+                    cardsBundle.putSerializable("userBankAccounts", userBankAccounts);
                     BankAccountInfosTabFragment bankAccountInfosTabFragment = new BankAccountInfosTabFragment();
                     bankAccountInfosTabFragment.setArguments(cardsBundle);
                     return bankAccountInfosTabFragment;

@@ -210,4 +210,14 @@
     <string name="usa_checkbox">Etats-Unis</string>
     <string name="canada_checkbox">Canada</string>
     <string name="other_checkbox">Autre</string>
+    <string name="iban_text_view">IBAN</string>
+    <string name="bic_text_view">BIC</string>
+    <string name="bank_account_number_text_view">Numéro de compte</string>
+    <string name="bank_account_code_text_view">Code</string>
+    <string name="aba_text_view">ABA</string>
+    <string name="account_type_text_view">Type de compte</string>
+    <string name="bank_name_text_view">Nom de la banque</string>
+    <string name="bank_number">Numéro de la banque</string>
+    <string name="branch_code">Code de la branche</string>
+    <string name="country_text_view">Pays</string>
 </resources>
