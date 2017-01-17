@@ -197,52 +197,55 @@ public class VirtualWalletActivity extends AppCompatActivity implements CheckUse
             user.setNationalityCode(nationalityCode);
             user.setResidencePlaceCode(residencePlaceCode);
 
-            for (int i = 0; i < bankAccountsJsonArray.length(); i++) {
-                JSONObject jsonData = bankAccountsJsonArray.getJSONObject(i);
-                String userId = jsonData.getString("user_id");
-                String ownerName = jsonData.getString("owner_name");
-                String type = jsonData.getString("type");
-                String bankAccountId = jsonData.getString("id");
+            if (bankAccountsJsonArray.length() > 0) {
+                for (int i = 0; i < bankAccountsJsonArray.length(); i++) {
+                    JSONObject jsonData = bankAccountsJsonArray.getJSONObject(i);
+                    String userId = jsonData.getString("user_id");
+                    String ownerName = jsonData.getString("owner_name");
+                    String type = jsonData.getString("type");
+                    String bankAccountId = jsonData.getString("id");
 
-                UserBankAccount userBankAccount = new UserBankAccount(userId, ownerName, bankAccountId, type);
-                String accountNumber = "", bic = "";
+                    UserBankAccount userBankAccount = new UserBankAccount(userId, ownerName, bankAccountId, type);
+                    String accountNumber = "", bic = "";
 
-                if (type.equals("IBAN")) {
-                    String iban = jsonData.getString("iban");
-                    bic = jsonData.getString("bic");
-                    userBankAccount.setIban(iban);
-                    userBankAccount.setBic(bic);
-                } else if (type.equals("GB")) {
-                    accountNumber = jsonData.getString("account_number");
-                    String sortCode = jsonData.getString("sort_code");
-                    userBankAccount.setAccountNumber(accountNumber);
-                    userBankAccount.setSortCode(sortCode);
-                } else if (type.equals("US")) {
-                    accountNumber = jsonData.getString("account_number");
-                    String aba = jsonData.getString("aba");
-                    String depositAccountType = jsonData.getString("deposit_account_type");
-                    userBankAccount.setAccountNumber(accountNumber);
-                    userBankAccount.setAba(aba);
-                    userBankAccount.setDepositAccountType(depositAccountType);
-                } else if (type.equals("CA")) {
-                    accountNumber = jsonData.getString("account_number");
-                    String bankName = jsonData.getString("bank_name");
-                    String institutionNumber = jsonData.getString("institution_number");
-                    String branchCode = jsonData.getString("branch_code");
-                    userBankAccount.setAccountNumber(accountNumber);
-                    userBankAccount.setBankName(bankName);
-                    userBankAccount.setInstitutionNumber(institutionNumber);
-                    userBankAccount.setBranchCode(branchCode);
-                } else {
-                    accountNumber = jsonData.getString("account_number");
-                    String country = jsonData.getString("country");
-                    bic = jsonData.getString("bic");
-                    userBankAccount.setAccountNumber(accountNumber);
-                    userBankAccount.setBic(bic);
-                    userBankAccount.setCountry(country);
+                    if (type.equals("IBAN")) {
+                        String iban = jsonData.getString("iban");
+                        bic = jsonData.getString("bic");
+                        userBankAccount.setIban(iban);
+                        userBankAccount.setBic(bic);
+                    } else if (type.equals("GB")) {
+                        accountNumber = jsonData.getString("account_number");
+                        String sortCode = jsonData.getString("sort_code");
+                        userBankAccount.setAccountNumber(accountNumber);
+                        userBankAccount.setSortCode(sortCode);
+                    } else if (type.equals("US")) {
+                        accountNumber = jsonData.getString("account_number");
+                        String aba = jsonData.getString("aba");
+                        String depositAccountType = jsonData.getString("deposit_account_type");
+                        userBankAccount.setAccountNumber(accountNumber);
+                        userBankAccount.setAba(aba);
+                        userBankAccount.setDepositAccountType(depositAccountType);
+                    } else if (type.equals("CA")) {
+                        accountNumber = jsonData.getString("account_number");
+                        String bankName = jsonData.getString("bank_name");
+                        String institutionNumber = jsonData.getString("institution_number");
+                        String branchCode = jsonData.getString("branch_code");
+                        userBankAccount.setAccountNumber(accountNumber);
+                        userBankAccount.setBankName(bankName);
+                        userBankAccount.setInstitutionNumber(institutionNumber);
+                        userBankAccount.setBranchCode(branchCode);
+                    } else {
+                        accountNumber = jsonData.getString("account_number");
+                        String country = jsonData.getString("country");
+                        bic = jsonData.getString("bic");
+                        userBankAccount.setAccountNumber(accountNumber);
+                        userBankAccount.setBic(bic);
+                        userBankAccount.setCountry(country);
+                    }
+
+                    userBankAccounts.add(userBankAccount);
                 }
 
-                userBankAccounts.add(userBankAccount);
             }
 
             for (int i = 0; i < cardsJsonArray.length(); i++) {

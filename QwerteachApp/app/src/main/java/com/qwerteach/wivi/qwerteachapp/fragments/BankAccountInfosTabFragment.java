@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.VirtualWalletActivity;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.DesactivateBankAccountAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.UpdateBankAccountAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.UserBankAccount;
 import com.qwerteach.wivi.qwerteachapp.models.UserBankAccountAdapter;
@@ -42,7 +44,8 @@ import java.util.ArrayList;
 
 public class BankAccountInfosTabFragment extends Fragment  implements View.OnClickListener,
         CompoundButton.OnCheckedChangeListener,
-        UpdateBankAccountAsyncTask.IUpdateBankAccount {
+        UpdateBankAccountAsyncTask.IUpdateBankAccount,
+        DesactivateBankAccountAsyncTask.IDesactivateBankAccount {
 
     View view;
     String email, token, type;
@@ -58,6 +61,9 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
             usaABA, usaBankAccountType, canadaBankName, canadaBankNumber, canadaBranchCode,
             canadaBankAccountNumber, otherCountry, otherBIC, otherBankAccountNumber;
     ProgressDialog progressDialog;
+    boolean isTeacher;
+    TextView bankAccountTextView;
+    CoordinatorLayout bankAccountCoordinatorLayout;
 
     public static BankAccountInfosTabFragment newInstance() {
         BankAccountInfosTabFragment bankAccountInfosTabFragment = new BankAccountInfosTabFragment();
@@ -71,6 +77,7 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         email = preferences.getString("email", "");
         token = preferences.getString("token", "");
+        isTeacher = preferences.getBoolean("isTeacher", false);
 
         userCreditCards = new ArrayList<>();
         userBankAccounts = new ArrayList<>();
@@ -83,11 +90,18 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
         userCardsRecyclerView = (RecyclerView) view.findViewById(R.id.user_cards_recycler_view);
         userBankAccountRecyclerView = (RecyclerView) view.findViewById(R.id.user_bank_accounts_recycler_view);
         floatingActionButton = (FloatingActionButton) view.findViewById(R.id.floating_action_button);
+        bankAccountTextView = (TextView) view.findViewById(R.id.bank_account_text_view);
+        bankAccountCoordinatorLayout = (CoordinatorLayout) view.findViewById(R.id.ban_account_coordinator_layout);
         floatingActionButton.setOnClickListener(this);
         userCreditCards = (ArrayList<UserCreditCard>) getArguments().getSerializable("userCreditCards");
         userBankAccounts = (ArrayList<UserBankAccount>) getArguments().getSerializable("userBankAccounts");
         setUserCreditCardsrecyclerView();
-        setUserBankAccountsRecyclerView();
+
+        if (isTeacher) {
+            bankAccountTextView.setVisibility(View.VISIBLE);
+            bankAccountCoordinatorLayout.setVisibility(View.VISIBLE);
+            setUserBankAccountsRecyclerView();
+        }
         return view;
     }
 
@@ -101,7 +115,7 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
     }
 
     public void setUserBankAccountsRecyclerView() {
-        userBankAccountAdapter = new UserBankAccountAdapter(userBankAccounts);
+        userBankAccountAdapter = new UserBankAccountAdapter(userBankAccounts, this);
         userBankAccountRecyclerView.setHasFixedSize(true);
         userBankAccountLayoutManager = new LinearLayoutManager(getContext());
         userBankAccountRecyclerView.setLayoutManager(userBankAccountLayoutManager);
@@ -303,7 +317,7 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
             String success = jsonObject.getString("success");
             String message = jsonObject.getString("message");
 
-            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
 
             if (success.equals("true")) {
                 Intent intent = new Intent(getContext(), VirtualWalletActivity.class);
@@ -321,5 +335,34 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setCancelable(true);
         progressDialog.show();
+    }
+
+    public void didTouchDeleteBankAccountButton(String bankAccountId) {
+        DesactivateBankAccountAsyncTask desactivateBankAccountAsyncTask = new DesactivateBankAccountAsyncTask(this);
+        desactivateBankAccountAsyncTask.execute(email, token, bankAccountId);
+        startProgressDialog();
+
+    }
+
+    @Override
+    public void desactivateBankAccountConfirmationMessage(String string) {
+        Log.i("DESACTIVATE_ACCOUNT", string);
+        progressDialog.dismiss();
+
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            String success = jsonObject.getString("success");
+            String message = jsonObject.getString("message");
+
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+
+            if (success.equals("true")) {
+                Intent intent = new Intent(getContext(), VirtualWalletActivity.class);
+                startActivity(intent);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

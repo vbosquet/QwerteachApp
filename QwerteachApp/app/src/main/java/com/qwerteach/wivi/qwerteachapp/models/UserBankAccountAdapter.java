@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.qwerteach.wivi.qwerteachapp.R;
+import com.qwerteach.wivi.qwerteachapp.fragments.BankAccountInfosTabFragment;
 
 import java.util.ArrayList;
 
@@ -17,9 +18,11 @@ import java.util.ArrayList;
 public class UserBankAccountAdapter extends RecyclerView.Adapter<UserBankAccountAdapter.ViewHolder> {
 
     private ArrayList<UserBankAccount> userBankAccounts;
+    private BankAccountInfosTabFragment fragment;
 
-    public UserBankAccountAdapter(ArrayList<UserBankAccount> userBankAccounts) {
+    public UserBankAccountAdapter(ArrayList<UserBankAccount> userBankAccounts, BankAccountInfosTabFragment fragment) {
         this.userBankAccounts = userBankAccounts;
+        this.fragment = fragment;
     }
 
     @Override
@@ -31,7 +34,7 @@ public class UserBankAccountAdapter extends RecyclerView.Adapter<UserBankAccount
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        UserBankAccount userBankAccount = userBankAccounts.get(position);
+        final UserBankAccount userBankAccount = userBankAccounts.get(position);
 
         holder.ownerName.setText(userBankAccount.getOwnerName());
 
@@ -43,6 +46,13 @@ public class UserBankAccountAdapter extends RecyclerView.Adapter<UserBankAccount
             holder.bankAccountNumber.setVisibility(View.VISIBLE);
         }
 
+        holder.deleteBankAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fragment.didTouchDeleteBankAccountButton(userBankAccount.getId());
+            }
+        });
+
     }
 
     @Override
@@ -51,7 +61,7 @@ public class UserBankAccountAdapter extends RecyclerView.Adapter<UserBankAccount
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView ownerName, iban, bankAccountNumber;
+        TextView ownerName, iban, bankAccountNumber, deleteBankAccount;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -59,6 +69,7 @@ public class UserBankAccountAdapter extends RecyclerView.Adapter<UserBankAccount
             ownerName = (TextView) itemView.findViewById(R.id.owner_name);
             iban = (TextView) itemView.findViewById(R.id.iban);
             bankAccountNumber = (TextView) itemView.findViewById(R.id.account_number);
+            deleteBankAccount = (TextView) itemView.findViewById(R.id.delete_bank_account);
         }
     }
 }

@@ -26,4 +26,13 @@
         android:layout_height="wrap_content"
         android:visibility="gone"/>
 
+    <TextView
+        android:id="@+id/delete_bank_account"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:text="@string/delete_bank_account_button"
+        android:textColor="@color/colorPrimary"
+        android:layout_marginTop="16dp"/>
+
 </LinearLayout>

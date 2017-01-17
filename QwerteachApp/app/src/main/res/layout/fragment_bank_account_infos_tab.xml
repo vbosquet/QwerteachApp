@@ -26,7 +26,7 @@
             android:paddingBottom="10dp"
             android:gravity="center"
             android:textColor="@color/white"
-            android:backgroundTint="@color/colorPrimary"/>
+            android:backgroundTint="@color/colorPrimary" />
 
         <android.support.design.widget.CoordinatorLayout
             android:layout_width="match_parent"
@@ -40,6 +40,7 @@
         </android.support.design.widget.CoordinatorLayout>
 
         <TextView
+            android:id="@+id/bank_account_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/bank_accounts_text_view"
@@ -50,11 +51,14 @@
             android:paddingBottom="10dp"
             android:gravity="center"
             android:textColor="@color/white"
-            android:backgroundTint="@color/colorPrimary"/>
+            android:backgroundTint="@color/colorPrimary"
+            android:visibility="gone"/>
 
         <android.support.design.widget.CoordinatorLayout
+            android:id="@+id/ban_account_coordinator_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:visibility="gone">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/user_bank_accounts_recycler_view"

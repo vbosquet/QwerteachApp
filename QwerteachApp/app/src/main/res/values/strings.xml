@@ -220,4 +220,5 @@
     <string name="bank_number">Numéro de la banque</string>
     <string name="branch_code">Code de la branche</string>
     <string name="country_text_view">Pays</string>
+    <string name="delete_bank_account_button">Supprimer</string>
 </resources>
