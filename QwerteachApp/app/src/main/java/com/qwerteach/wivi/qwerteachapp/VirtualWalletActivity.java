@@ -59,6 +59,7 @@ public class VirtualWalletActivity extends AppCompatActivity implements CheckUse
     boolean isTeacher;
     ProgressDialog progressDialog;
     User user;
+    double totalWallet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +113,10 @@ public class VirtualWalletActivity extends AppCompatActivity implements CheckUse
                 startActivity(intent);
                 return true;
             case R.id.unload_wallet_button:
+                intent = new Intent(this, UnloadWalletActivity.class);
+                intent.putExtra("userBankAccounts", userBankAccounts);
+                intent.putExtra("totalWallet", totalWallet);
+                startActivity(intent);
                 return true;
         }
 
@@ -324,8 +329,8 @@ public class VirtualWalletActivity extends AppCompatActivity implements CheckUse
 
         try {
             JSONObject jsonObject = new JSONObject(string);
-            int totalWallet = jsonObject.getInt("total_wallet");
-            actionBar.setSubtitle("Solde : " + totalWallet/100 + "€");
+            totalWallet = jsonObject.getDouble("total_wallet");
+            actionBar.setSubtitle("Solde : " + totalWallet/100 + " €");
 
 
         } catch (JSONException e) {

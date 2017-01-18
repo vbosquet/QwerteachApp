@@ -1,5 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.asyncTasks;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 
 import org.json.JSONException;
@@ -14,40 +16,48 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Created by wivi on 9/12/16.
+ * Created by wivi on 17/01/17.
  */
 
-public class FindUsersByMangoIdAsyncTask extends AsyncTask<Object, String, String> {
+public class MakePayoutAsyncTask extends AsyncTask<Object, String, String> {
 
-    private IFindUsersByMangoId callback;
+    private IMakePayout callback;
+    private ProgressDialog progressDialog;
 
-    public FindUsersByMangoIdAsyncTask(IFindUsersByMangoId callback) {
+    public MakePayoutAsyncTask(IMakePayout callback) {
         this.callback = callback;
+        progressDialog = new ProgressDialog((Context) callback);
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 
     @Override
     protected String doInBackground(Object... objects) {
         String email = (String) objects[0];
         String token = (String) objects[1];
-        String authorId = (String) objects[2];
-        String creditedUserId = (String) objects[3];
-        String transactionId = (String) objects[4];
-
-        JSONObject jsonObject = new JSONObject();
+        String bankAccountId = (String) objects[2];
 
         try {
-            jsonObject.put("author_id", authorId);
-            jsonObject.put("credited_user_id", creditedUserId);
-            jsonObject.put("transaction_id", transactionId);
 
-            URL url = new URL("http://192.168.0.125:3000/api/wallets/find_users_by_mango_id");
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("account", bankAccountId);
+
+            URL url = new URL("http://192.168.0.125:3000/api/user/mangopay/make_payout");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);
             httpURLConnection.addRequestProperty("X-User-Token", token);
             httpURLConnection.setDoOutput(true);
             httpURLConnection.setDoInput(true);
-            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setRequestMethod("PUT");
 
             OutputStream os = httpURLConnection.getOutputStream();
             os.write(jsonObject.toString().getBytes("UTF-8"));
@@ -68,8 +78,7 @@ public class FindUsersByMangoIdAsyncTask extends AsyncTask<Object, String, Strin
 
             return stringBuilder.toString();
 
-
-        } catch (JSONException | IOException e) {
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
 
@@ -80,10 +89,11 @@ public class FindUsersByMangoIdAsyncTask extends AsyncTask<Object, String, Strin
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
-        callback.displayUsersInfos(string);
+        progressDialog.dismiss();
+        callback.makePayoutConfirmationMessage(string);
     }
 
-    public interface IFindUsersByMangoId {
-        void displayUsersInfos(String string);
+    public interface IMakePayout {
+        void makePayoutConfirmationMessage(String string);
     }
 }

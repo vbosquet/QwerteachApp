@@ -55,7 +55,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
     String currentAmount, cardType = "", currentCardNumber = "", cardId, currentMonth, currentYear;
     String email, token;
     ArrayList<UserCreditCard> userCreditCards;
-    ArrayList<String> months, years;
+    ArrayList<String> months, years, easyPayments;
     CardRegistrationData cardRegistrationData;
     TextView noCreditCardForEasyPaymentTextView;
 
@@ -70,6 +70,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
         userCreditCards = new ArrayList<>();
         months = new ArrayList<>();
         years = new ArrayList<>();
+        easyPayments = new ArrayList<>();
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -112,8 +113,14 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
         easyPaymentCheckBox.setOnClickListener(this);
 
         if (userCreditCards.size() > 0) {
-            easyPaymentCheckBox.setText(userCreditCards.get(0).getCardProvider() + " - " + userCreditCards.get(0).getAlias() +
-                    " - " + userCreditCards.get(0).getExpirationDate());
+            for (int i = 0; i < userCreditCards.size(); i++) {
+                if (userCreditCards.get(i).getValidity().equals("VALID")) {
+                    easyPayments.add(userCreditCards.get(i).getCardProvider() + " - " + userCreditCards.get(0).getAlias() +
+                            " - " + userCreditCards.get(i).getExpirationDate());
+                }
+            }
+
+            easyPaymentCheckBox.setText(easyPayments.get(0));
         } else {
             easyPaymentCheckBox.setVisibility(View.GONE);
             noCreditCardForEasyPaymentTextView.setVisibility(View.VISIBLE);
@@ -249,7 +256,15 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
                     bankWireCheckbox.setChecked(false);
 
                     if (userCreditCards.size() > 0) {
-                        cardId = userCreditCards.get(0).getCardId();
+                        ArrayList<String> cardIdList = new ArrayList<>();
+
+                        for (int i = 0; i < userCreditCards.size(); i++) {
+                            if (userCreditCards.get(i).getValidity().equals("VALID")) {
+                                cardIdList.add(userCreditCards.get(i).getCardId());
+                            }
+                        }
+
+                        cardId = cardIdList.get(0);
                     }
 
                     cardType = "CB_VISA_MASTERCARD";

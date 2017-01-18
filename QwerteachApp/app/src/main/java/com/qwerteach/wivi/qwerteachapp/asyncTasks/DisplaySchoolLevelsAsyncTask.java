@@ -27,7 +27,7 @@ public class DisplaySchoolLevelsAsyncTask extends AsyncTask<String, String, Stri
 
         try {
 
-            URL url = new URL("http://192.168.0.101:3000/api/profiles/find_level");
+            URL url = new URL("http://192.168.0.125:3000/api/profiles/find_level");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.connect();

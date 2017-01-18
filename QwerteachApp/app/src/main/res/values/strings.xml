@@ -221,4 +221,8 @@
     <string name="branch_code">Code de la branche</string>
     <string name="country_text_view">Pays</string>
     <string name="delete_bank_account_button">Supprimer</string>
+    <string name="unload_wallet_activity_title">Récupérer solde</string>
+    <string name="bank_account_to_be_credited_text_view">Compte en banque à créditer</string>
+    <string name="unload_wallet_confirmation_button">Confirmer</string>
+    <string name="credit_transferred_success_toast_message">Le transfert s\'est correctement déroulé.</string>
 </resources>

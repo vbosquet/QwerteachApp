@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_unload_wallet"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.qwerteach.wivi.qwerteachapp.UnloadWalletActivity"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/amount_to_be_transferred"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/bank_account_to_be_credited_text_view"/>
+
+    <Spinner
+        android:id="@+id/bank_accounts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/edit_text_border"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/unload_wallet_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/unload_wallet_confirmation_button"
+        android:onClick="didTouchUnloadWalletButton"/>
+
+</LinearLayout>

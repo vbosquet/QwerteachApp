@@ -44,7 +44,7 @@ public class CreateReviewAsyncTask extends AsyncTask<Object, String, String> {
             jsonObject.put("note", note);
             reviewJson.put("review", jsonObject);
 
-            URL url = new URL("http://192.168.0.101:3000/api/users/" + teacherId + "/reviews");
+            URL url = new URL("http://192.168.0.125:3000/api/users/" + teacherId + "/reviews");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);

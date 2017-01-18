@@ -27,7 +27,7 @@ public class GetAllGroupTopicsAsyncTask extends AsyncTask<String, String, String
 
         try {
 
-            URL url = new URL("http://192.168.0.101:3000/api/find_group_topics");
+            URL url = new URL("http://192.168.0.125:3000/api/find_group_topics");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.connect();

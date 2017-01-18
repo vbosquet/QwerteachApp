@@ -95,8 +95,11 @@
         <activity
             android:name=".ChatActivity"
             android:parentActivityName=".MyMessagesActivity" />
-        <activity android:name=".ReadCommentsActivity"
-            android:label="@string/read_comments_activity_title"/>
+        <activity
+            android:name=".ReadCommentsActivity"
+            android:label="@string/read_comments_activity_title" />
+        <activity android:name=".UnloadWalletActivity"
+            android:label="@string/unload_wallet_activity_title"/>
     </application>
 
 </manifest>
