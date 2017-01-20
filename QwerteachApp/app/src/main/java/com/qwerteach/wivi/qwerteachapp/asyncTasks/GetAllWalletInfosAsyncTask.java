@@ -35,7 +35,7 @@ public class GetAllWalletInfosAsyncTask extends AsyncTask<Object, String, String
 
         try {
 
-            URL url = new URL("http://192.168.0.125:3000/api/user/mangopay/index_wallet?page=" + pageNumber);
+            URL url = new URL("http://192.168.0.101:3000/api/user/mangopay/index_wallet?page=" + pageNumber);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.addRequestProperty("X-User-Email", email);
             connection.addRequestProperty("X-User-Token", token);

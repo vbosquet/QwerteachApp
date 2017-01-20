@@ -1,13 +1,10 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,13 +18,9 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.qwerteach.wivi.qwerteachapp.DashboardActivity;
-import com.qwerteach.wivi.qwerteachapp.EditProfileActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosProfileAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplaySchoolLevelsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.SaveInfosFormationAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.SaveInfosProfileAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Level;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
@@ -76,6 +69,7 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
         if (extras != null) {
             teacher = (Teacher) getActivity().getIntent().getSerializableExtra("teacher");
             user = (User) getActivity().getIntent().getSerializableExtra("student");
+
         }
 
         levels = new ArrayList<>();

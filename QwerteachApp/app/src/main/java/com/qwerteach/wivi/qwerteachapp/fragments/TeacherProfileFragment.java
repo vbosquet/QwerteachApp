@@ -9,11 +9,13 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TableRow;
@@ -32,6 +34,7 @@ import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,6 +64,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
     ArrayList<Level> levels;
     ArrayList<String> topicGroupTitleList;
     ProgressDialog progressDialog;
+    ImageView teacherAvatar;
 
     public static TeacherProfileFragment newInstance() {
         TeacherProfileFragment teacherProfileFragment = new TeacherProfileFragment();
@@ -116,6 +120,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         detailedPricesTextView = (TextView) view.findViewById(R.id.detailed_prices_text_view);
         contactTeacherButton = (Button) view.findViewById(R.id.contact_button);
         lessonReservationButton = (Button) view.findViewById(R.id.reservation_button);
+        teacherAvatar = (ImageView) view.findViewById(R.id.teacher_avatar);
 
         contactTeacherButton.setOnClickListener(this);
         detailedPricesTextView.setOnClickListener(this);
@@ -141,6 +146,11 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         if (teacher.getNumberOfReviews() > 0) {
             displayLastComment();
         }
+
+        Picasso.with(getContext())
+                .load(teacher.getUser().getAvatarUrl())
+                .resize(teacherAvatar.getWidth(), 1000)
+                .into(teacherAvatar);
     }
 
     public void displayLastComment() {

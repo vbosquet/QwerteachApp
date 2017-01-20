@@ -45,7 +45,7 @@ public class PayLessonWithTransfertOrBancontactAsyncTask extends AsyncTask<Objec
 
         try {
 
-            URL url = new URL("http://192.168.0.125:3000/api/users/" + teacherId + "/lesson_requests/payment?mode=" + paymentMode);
+            URL url = new URL("http://192.168.0.101:3000/api/users/" + teacherId + "/lesson_requests/payment?mode=" + paymentMode);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);

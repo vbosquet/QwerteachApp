@@ -14,25 +14,19 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.RatingBar;
-import android.widget.TextView;
 
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.ShowProfileInfosAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.fragments.StudentProfileFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.TeacherProfileFragment;
-import com.qwerteach.wivi.qwerteachapp.models.Review;
-import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
-import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ProfileActivity extends AppCompatActivity implements ShowProfileInfosAsyncTask.IShowProfileInfos {
 
@@ -59,10 +53,30 @@ public class ProfileActivity extends AppCompatActivity implements ShowProfileInf
         user = new User();
         teacher = new Teacher();
 
+        QwerteachService service = ApiClient.getClient().create(QwerteachService.class);
+        Call<JsonResponse> call = service.getStudentId(userId, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                user = response.body().getUser();
+                String avatarUrl = response.body().getAvatar();
+                user.setAvatarUrl(avatarUrl);
 
-        ShowProfileInfosAsyncTask showProfileInfosAsyncTask = new ShowProfileInfosAsyncTask(this);
-        showProfileInfosAsyncTask.execute(userId, email, token);
-        startProgressDialog();
+                if (!user.isPostulanceAccepted()) {
+                    displayStudentProfileFragment();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
+
+
+        //ShowProfileInfosAsyncTask showProfileInfosAsyncTask = new ShowProfileInfosAsyncTask(this);
+        //showProfileInfosAsyncTask.execute(userId, email, token);
+        //startProgressDialog();
     }
 
     @Override
@@ -109,7 +123,9 @@ public class ProfileActivity extends AppCompatActivity implements ShowProfileInf
     @Override
     public void showProfileInfos(String string) {
 
-        try {
+        Log.i("PROFILE_INFO", string);
+
+        /*try {
             JSONObject jsonObject = new JSONObject(string);
             JSONObject userJson = jsonObject.getJSONObject("user");
             int newUserId = userJson.getInt("id");
@@ -121,6 +137,11 @@ public class ProfileActivity extends AppCompatActivity implements ShowProfileInf
             String phoneNumber = userJson.getString("phonenumber");
             boolean postulanceAccepted = userJson.getBoolean("postulance_accepted");
             int useLevelId = userJson.getInt("level_id");
+
+            if (!jsonObject.isNull("avatar")) {
+                String avatarUrl = jsonObject.getString("avatar");
+                user.setAvatarUrl("http://192.168.0.125:3000" + avatarUrl);
+            }
 
             user.setUserId(newUserId);
             user.setFirstName(firstName);
@@ -218,7 +239,7 @@ public class ProfileActivity extends AppCompatActivity implements ShowProfileInf
 
         } catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     public void displayTeacherProfileFragment() {

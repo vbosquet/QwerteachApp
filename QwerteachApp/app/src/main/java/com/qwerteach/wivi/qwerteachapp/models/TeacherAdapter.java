@@ -1,18 +1,22 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
 import android.content.Context;
-import android.support.v7.app.ActionBar;
+import android.graphics.drawable.Drawable;
+import android.hardware.Camera;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.qwerteach.wivi.qwerteachapp.R;
+import com.squareup.picasso.Picasso;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -23,15 +27,17 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.ViewHold
 
     private ArrayList<Teacher> teachers;
     private MyClickListener listener;
+    private Context context;
 
-    public TeacherAdapter(ArrayList<Teacher> teachers, MyClickListener listener) {
+    public TeacherAdapter(ArrayList<Teacher> teachers, MyClickListener listener, Context context) {
         this.teachers = teachers;
         this.listener = listener;
+        this.context = context;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.teacher_list_view, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.teacher_recycler_view, parent, false);
         itemView.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT));
         return new ViewHolder(itemView);
     }
@@ -57,6 +63,11 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.ViewHold
             }
         });
 
+        Picasso.with(context)
+                .load(teacher.getUser().getAvatarUrl())
+                .resize(holder.teacherAvatar.getWidth(), 1000)
+                .into(holder.teacherAvatar);
+
     }
 
     @Override
@@ -64,9 +75,14 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.ViewHold
         return teachers.size();
     }
 
+    public interface MyClickListener {
+        void onClicked(int position);
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder{
         TextView teacherName, description, materialCourseNames, minPrice, numberOfReviews, readMore;
         RatingBar ratingBar;
+        ImageView teacherAvatar;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -77,10 +93,7 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.ViewHold
             ratingBar = (RatingBar) itemView.findViewById(R.id.rating_bar);
             numberOfReviews = (TextView) itemView.findViewById(R.id.number_of_reviews);
             readMore = (TextView) itemView.findViewById(R.id.read_more_text_view);
+            teacherAvatar = (ImageView) itemView.findViewById(R.id.teacher_avatar);
         }
-    }
-
-    public interface MyClickListener {
-        void onClicked(int position);
     }
 }

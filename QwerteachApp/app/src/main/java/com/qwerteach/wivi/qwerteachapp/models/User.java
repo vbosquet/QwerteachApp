@@ -1,13 +1,13 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
-import android.graphics.Color;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+
 
 /**
  * Created by wivi on 10/01/17.
@@ -15,15 +15,28 @@ import java.util.Date;
 
 public class User implements Serializable {
 
+    public static final String BASE_URL = "http://192.168.0.101:3000";
+
+    @SerializedName("id")
     private int userId;
+    @SerializedName("firstname")
     private String firstName;
+    @SerializedName("lastname")
     private String lastName;
+    @SerializedName("birthdate")
     private String birthdate;
+    @SerializedName("description")
     private String description;
+    @SerializedName("phonenumber")
     private String phoneNumber;
+    @SerializedName("occupation")
     private String occupation;
+    @SerializedName("postulance_accepted")
     private boolean postulanceAccepted;
+    @SerializedName("level_id")
     private int levelId;
+
+    private String avatarUrl;
 
     private String address;
     private String streetNumber;
@@ -218,5 +231,13 @@ public class User implements Serializable {
 
     public void setResidencePlaceCode(String residencePlaceCode) {
         this.residencePlaceCode = residencePlaceCode;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = BASE_URL + avatarUrl;
     }
 }

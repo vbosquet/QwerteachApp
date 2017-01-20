@@ -37,7 +37,7 @@ public class DisplayInfosTopicsAsyncTask extends AsyncTask<Object, String, Strin
             json.put("title", courseCategoryName);
             topicJson.put("topic", json);
 
-            URL url = new URL("http://192.168.0.125:3000/api/find_topics");
+            URL url = new URL("http://192.168.0.101:3000/api/find_topics");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.setDoOutput(true);

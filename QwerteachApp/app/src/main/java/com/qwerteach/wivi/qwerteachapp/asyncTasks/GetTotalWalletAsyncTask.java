@@ -40,7 +40,7 @@ public class GetTotalWalletAsyncTask extends AsyncTask<String, String, String> {
             json.put("id", userId);
             userJson.put("user", json);
 
-            URL url = new URL("http://192.168.0.125:3000/api/wallets/get_total_wallet");
+            URL url = new URL("http://192.168.0.101:3000/api/wallets/get_total_wallet");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);

@@ -12,19 +12,24 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:orientation="vertical"
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        android:orientation="vertical"
-        android:background="#ffffff">
+        android:paddingTop="@dimen/activity_vertical_margin">
+
+        <ImageView
+            android:id="@+id/teacher_avatar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
         <TextView
             android:id="@+id/firstname_and_lastanme_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="30dp"
-            android:textColor="@color/dark"/>
+            android:textColor="@color/dark"
+            android:textSize="30dp"/>
 
         <TextView
             android:id="@+id/age_text_view"
@@ -37,10 +42,10 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
             android:text="@string/occupation_text_view_title"
-            android:textSize="20dp"
             android:textColor="@color/dark"
-            android:paddingBottom="10dp"/>
+            android:textSize="20dp"/>
 
         <TextView
             android:id="@+id/occupation_text_view"
@@ -53,10 +58,10 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
             android:text="@string/course_names_teacher_profile_text_view"
-            android:textSize="20dp"
             android:textColor="@color/dark"
-            android:paddingBottom="10dp"/>
+            android:textSize="20dp"/>
 
         <TextView
             android:id="@+id/course_names_text_view"
@@ -69,10 +74,10 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
             android:text="@string/prices_teacher_profile_text_view"
-            android:textSize="20dp"
             android:textColor="@color/dark"
-            android:paddingBottom="10dp"/>
+            android:textSize="20dp"/>
 
         <TextView
             android:id="@+id/teacher_min_price"
@@ -83,21 +88,21 @@
             android:id="@+id/detailed_prices_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/detailed_prices_text_view"
-            android:paddingBottom="10dp"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:background="@drawable/text_view_bottom_border"
             android:contextClickable="true"
             android:onClick="didTouchSeeDetailedPrices"
+            android:paddingBottom="10dp"
+            android:text="@string/detailed_prices_text_view"
             android:textColor="@color/colorPrimary"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
             android:text="@string/description_text_view_title"
-            android:textSize="20dp"
             android:textColor="@color/dark"
-            android:paddingBottom="10dp"/>
+            android:textSize="20dp"/>
 
         <TextView
             android:id="@+id/description_text_view"
@@ -105,19 +110,19 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:background="@drawable/text_view_bottom_border"
-            android:paddingBottom="10dp"
-            android:gravity="top|left" />
+            android:gravity="top|left"
+            android:paddingBottom="10dp" />
 
         <LinearLayout
             android:id="@+id/last_comment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:background="@drawable/text_view_bottom_border"
+            android:gravity="top|left"
+            android:orientation="vertical"
             android:paddingBottom="10dp"
-            android:gravity="top|left">
+            android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -129,10 +134,10 @@
                     android:id="@+id/sender_first_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="20dp"
-                    android:textColor="@color/dark"
                     android:layout_weight="0.5"
-                    android:gravity="left"/>
+                    android:gravity="left"
+                    android:textColor="@color/dark"
+                    android:textSize="20dp"/>
 
                 <TextView
                     android:id="@+id/sending_date"
@@ -146,14 +151,14 @@
 
             <RatingBar
                 android:id="@+id/rating_bar"
+                style="?android:attr/ratingBarStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="?android:attr/ratingBarStyleSmall"
-                android:numStars="5"
-                android:stepSize="0.1"
+                android:layout_marginBottom="15dp"
                 android:isIndicator="true"
+                android:numStars="5"
                 android:rating="0"
-                android:layout_marginBottom="15dp"/>
+                android:stepSize="0.1"/>
 
             <TextView
                 android:id="@+id/review_text"
@@ -166,9 +171,9 @@
                 android:id="@+id/read_more_comments"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/colorPrimary"
-                android:onClick="didTouchReadComments"
                 android:layout_marginTop="20dp"
+                android:onClick="didTouchReadComments"
+                android:textColor="@color/colorPrimary"
                 android:visibility="gone"/>
 
 
@@ -178,16 +183,16 @@
             android:id="@+id/contact_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="didTouchContactButton"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:onClick="didTouchContactButton"/>
 
         <Button
             android:id="@+id/reservation_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/lesson_reservation_button"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:onClick="didTouchLessonReservationButton"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+            android:text="@string/lesson_reservation_button"/>
 
 
     </LinearLayout>

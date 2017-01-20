@@ -225,4 +225,5 @@
     <string name="bank_account_to_be_credited_text_view">Compte en banque à créditer</string>
     <string name="unload_wallet_confirmation_button">Confirmer</string>
     <string name="credit_transferred_success_toast_message">Le transfert s\'est correctement déroulé.</string>
+    <string name="update_user_avatar_button">Changer image de profil</string>
 </resources>

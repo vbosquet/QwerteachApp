@@ -161,7 +161,7 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
                     teachersToReview.add(teacher);
                 }
 
-                getTeachersInfos();
+                //getTeachersInfos();
             }
 
             if (reviewAskedJsonArray.length() > 0  || toDoListJsonArray.length() > 0) {
@@ -251,6 +251,7 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
         }
     }
 
+    //TODO
     public void getTeachersInfos() {
         for (int i = 0; i < teachersToReview.size(); i++) {
             int teacherId = teachersToReview.get(i).getUser().getUserId();

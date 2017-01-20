@@ -35,7 +35,7 @@ public class SearchTeacherAsyncTask extends AsyncTask<Object, String, String> {
             String queryEncodedString = URLEncoder.encode(query, "UTF-8");
             String optionEncondedString = URLEncoder.encode(searchSortingOption, "UTF-8");
 
-            URL url = new URL("http://192.168.0.125:3000/api/profiles?topic=" + queryEncodedString
+            URL url = new URL("http://192.168.0.101:3000/api/profiles?topic=" + queryEncodedString
                     + "&search_sorting=" + optionEncondedString + "&page=" + pageNumber);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestMethod("GET");

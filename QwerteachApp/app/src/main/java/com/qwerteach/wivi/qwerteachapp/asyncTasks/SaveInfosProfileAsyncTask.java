@@ -1,7 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp.asyncTasks;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,7 +17,7 @@ import java.net.URL;
  * Created by wivi on 27/10/16.
  */
 
-public class SaveInfosProfileAsyncTask extends AsyncTask<String, String, String> {
+public class SaveInfosProfileAsyncTask extends AsyncTask<Object, String, String> {
 
     private ISaveInfosProfile callback;
 
@@ -28,14 +27,14 @@ public class SaveInfosProfileAsyncTask extends AsyncTask<String, String, String>
 
 
     @Override
-    protected String doInBackground(String... strings) {
-        String firstName = strings[0];
-        String lastName = strings[1];
-        String birthDate = strings[2];
-        String userId = strings[3];
-        String phoneNumber = strings[4];
-        String email = strings[5];
-        String token = strings[6];
+    protected String doInBackground(Object... objects) {
+        String firstName = (String) objects[0];
+        String lastName = (String) objects[1];
+        String birthDate = (String) objects[2];
+        String userId = (String) objects[3];
+        String phoneNumber = (String) objects[4];
+        String email = (String) objects[5];
+        String token = (String) objects[6];
 
         if(birthDate.equals("")) {
             birthDate = null;
@@ -52,7 +51,7 @@ public class SaveInfosProfileAsyncTask extends AsyncTask<String, String, String>
             json.put("phonenumber", phoneNumber);
             userJson.put("user", json);
 
-            URL url = new URL("http://192.168.0.125:3000/api/profiles/" + userId);
+            URL url = new URL("http://192.168.0.101:3000/api/users/" + userId);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);

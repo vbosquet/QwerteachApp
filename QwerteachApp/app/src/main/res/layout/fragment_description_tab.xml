@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#dfdfdf">
+    android:background="#dfdfdf"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,132 +17,158 @@
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:background="#ffffff"
+            android:orientation="vertical"
             android:paddingBottom="@dimen/activity_vertical_margin"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:background="#ffffff"
-            android:orientation="vertical">
+            android:paddingTop="@dimen/activity_vertical_margin">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="20dp"
-                android:text="@string/description_tab_bloc_1_title"/>
+                android:text="@string/description_tab_bloc_1_title"
+                android:textSize="20dp"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
                 android:text="@string/description_tab_bloc_1_subtitle"
-                android:textColor="#dfdfdf"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+                android:textColor="#dfdfdf"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="1.0">
+
+                <ImageView
+                    android:id="@+id/user_avatar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:layout_weight="0.5" />
+
+
+                <Button
+                    android:id="@+id/update_user_avatar_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:text="@string/update_user_avatar_button"
+                    android:textColor="@color/white" />
+
+
+            </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/firstname_textview_description_tab"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:text="@string/firstname_textview_description_tab"/>
 
             <EditText
                 android:id="@+id/firstname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
                 android:background="@drawable/edit_text_border"
-                android:paddingTop="10dp"
+                android:hint="@string/firstname_edittext_description_tab"
                 android:paddingBottom="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:hint="@string/firstname_edittext_description_tab"
+                android:paddingTop="10dp"
                 android:textColorHint="#dfdfdf"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/lastname_textview_description_tab"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:text="@string/lastname_textview_description_tab"/>
 
             <EditText
                 android:id="@+id/lastname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
                 android:background="@drawable/edit_text_border"
-                android:paddingTop="10dp"
+                android:hint="@string/lastname_edittext_description_tab"
                 android:paddingBottom="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:hint="@string/lastname_edittext_description_tab"
+                android:paddingTop="10dp"
                 android:textColorHint="#dfdfdf"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/birthdate_textview_description_tab"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:text="@string/birthdate_textview_description_tab"/>
 
             <EditText
                 android:id="@+id/birthdate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
                 android:background="@drawable/edit_text_border"
-                android:paddingTop="10dp"
+                android:focusable="false"
+                android:hint="@string/birthdate_edittext_description_tab"
                 android:paddingBottom="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:hint="@string/birthdate_edittext_description_tab"
-                android:textColorHint="#dfdfdf"
-                android:focusable="false"/>
+                android:paddingTop="10dp"
+                android:textColorHint="#dfdfdf"/>
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:background="#ffffff"
+            android:orientation="vertical"
             android:paddingBottom="@dimen/activity_vertical_margin"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:background="#ffffff">
+            android:paddingTop="@dimen/activity_vertical_margin">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="20dp"
-                android:text="@string/description_tab_bloc_2_title"/>
+                android:text="@string/description_tab_bloc_2_title"
+                android:textSize="20dp"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
                 android:text="@string/description_tab_bloc_2_subtitle"
-                android:textColor="#dfdfdf"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+                android:textColor="#dfdfdf"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/phone_number_text_view_description_tab"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:text="@string/phone_number_text_view_description_tab"/>
 
             <EditText
                 android:id="@+id/phoneNumber"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
                 android:background="@drawable/edit_text_border"
-                android:paddingTop="10dp"
+                android:hint="@string/phone_number_edit_text_description_tab"
+                android:inputType="phone"
                 android:paddingBottom="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:hint="@string/phone_number_edit_text_description_tab"
-                android:textColorHint="#dfdfdf"
-                android:inputType="phone"/>
+                android:paddingTop="10dp"
+                android:textColorHint="#dfdfdf"/>
 
             <Button
                 android:id="@+id/save_infos_button"

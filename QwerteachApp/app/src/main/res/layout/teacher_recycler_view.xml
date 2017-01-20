@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:clickable="true">
+    android:clickable="true"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/teacher_min_price"
@@ -24,6 +24,11 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin">
 
+        <ImageView
+            android:id="@+id/teacher_avatar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <TextView
             android:id="@+id/teacher_name_text_view"
             android:layout_width="match_parent"
@@ -34,19 +39,19 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="10dp">
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
 
             <RatingBar
                 android:id="@+id/rating_bar"
+                style="?android:attr/ratingBarStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="?android:attr/ratingBarStyleSmall"
-                android:numStars="5"
-                android:stepSize="0.1"
                 android:isIndicator="true"
+                android:numStars="5"
+                android:paddingRight="15dp"
                 android:rating="0"
-                android:paddingRight="15dp"/>
+                android:stepSize="0.1"/>
 
             <TextView
                 android:id="@+id/number_of_reviews"
@@ -66,16 +71,16 @@
             android:id="@+id/teach_description_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLines="5"
-            android:layout_marginBottom="10dp" />
+            android:layout_marginBottom="10dp"
+            android:maxLines="5" />
 
         <TextView
             android:id="@+id/read_more_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="right"
             android:text="@string/read_more_text_view"
-            android:textColor="@color/colorPrimary"
-            android:gravity="right"/>
+            android:textColor="@color/colorPrimary"/>
 
 
     </LinearLayout>

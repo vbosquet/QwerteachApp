@@ -105,7 +105,7 @@ public class SaveSmallAdAsyncTask extends AsyncTask<Object, String, String> {
             json.put("id", userId);
             smallAdJson.put("advert", json);
 
-            URL url = new URL("http://192.168.0.125:3000/api/adverts/create");
+            URL url = new URL("http://192.168.0.101:3000/api/adverts/create");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);

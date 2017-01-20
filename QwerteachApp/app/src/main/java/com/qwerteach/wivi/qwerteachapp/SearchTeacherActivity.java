@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
@@ -21,10 +22,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllTopicsAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.RedirectURLAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.SearchTeacherAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.ShowProfileInfosAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.Review;
@@ -38,6 +41,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class SearchTeacherActivity extends AppCompatActivity implements
@@ -192,7 +197,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
     }
 
     public void displayTeacherListView() {
-        teacherAdapter = new TeacherAdapter(teacherList, this);
+        teacherAdapter = new TeacherAdapter(teacherList, this, this);
         teacherRecyclerView.setHasFixedSize(true);
         teacherLayoutManager = new LinearLayoutManager(this);
         teacherRecyclerView.setLayoutManager(teacherLayoutManager);
@@ -305,6 +310,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
             JSONObject userJson = jsonObject.getJSONObject("user");
             int userId = userJson.getInt("id");
             JSONArray advertPricesJson = jsonObject.getJSONArray("advert_prices");
+            String avatarUrl = jsonObject.getString("avatar");
 
             ArrayList<SmallAd> smallAds = new ArrayList<>();
             ArrayList<Review> reviews = new ArrayList<>();
@@ -367,6 +373,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
                     teacherList.get(i).setRating(avg);
                     teacherList.get(i).setNumberOfReviews(notesJson.length());
                     teacherList.get(i).setMinPrice(minPrice);
+                    teacherList.get(i).getUser().setAvatarUrl(avatarUrl);
                 }
 
                 if (userId == teacherList.get(teacherList.size() - 1).getUser().getUserId()) {
