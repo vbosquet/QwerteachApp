@@ -40,7 +40,7 @@ public class FindUsersByMangoIdAsyncTask extends AsyncTask<Object, String, Strin
             jsonObject.put("credited_user_id", creditedUserId);
             jsonObject.put("transaction_id", transactionId);
 
-            URL url = new URL("http://192.168.0.101:3000/api/wallets/find_users_by_mango_id");
+            URL url = new URL("http://192.168.0.125:3000/api/wallets/find_users_by_mango_id");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);

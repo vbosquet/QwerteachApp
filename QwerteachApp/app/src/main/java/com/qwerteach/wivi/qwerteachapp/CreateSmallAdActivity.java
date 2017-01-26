@@ -2,12 +2,12 @@ package com.qwerteach.wivi.qwerteachapp;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.method.KeyListener;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,37 +22,37 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllGroupTopicsAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosTopicsAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.SaveSmallAdAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Level;
+import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
+import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Topic;
 import com.qwerteach.wivi.qwerteachapp.models.TopicAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.TopicGroup;
 import com.qwerteach.wivi.qwerteachapp.models.TopicGroupAdapter;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;;import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-import java.util.ArrayList;;
-
-public class CreateSmallAdActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
-        SaveSmallAdAsyncTask.ISaveSmallAdInfos,
-        GetAllGroupTopicsAsyncTask.IDisplayInfosGroupTopics,
-        DisplayInfosTopicsAsyncTask.IDisplayTopicInfos {
+public class CreateSmallAdActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     TextView otherCourseMaterialTextView;
-    EditText otherCourseMaterialEditText, descriptionEditText, fixCoursePriceEditText;
-    LinearLayout checkboxesLinearLayout, coursePriceLinearLayout;
+    EditText otherCourseMaterialEditText, descriptionEditText;
+    LinearLayout coursePriceLinearLayout;
     Spinner categoryCourseSpinner, courseMaterialSpinner;
     String courseMaterialName, userId, email, token, courseCategoryName;
     ArrayList<EditText> coursePriceEditTextList;
     ArrayList<TopicGroup> topicGroups;
     ArrayList<Topic> topics;
     ArrayList<Level> levels;
-    CheckBox variableCoursePriceCheckbox;
-    TopicGroupAdapter adapter;
+    ArrayList<SmallAdPrice> prices;
+    QwerteachService service;
+    int topicId, topicGroupId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,107 +61,171 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
 
         otherCourseMaterialTextView = (TextView) findViewById(R.id.other_course_material_text_view);
         otherCourseMaterialEditText = (EditText) findViewById(R.id.other_course_material_edit_text);
-        fixCoursePriceEditText = (EditText) findViewById(R.id.fix_course_price);
         descriptionEditText = (EditText) findViewById(R.id.description);
-        checkboxesLinearLayout = (LinearLayout) findViewById(R.id.checkboxes_linear_layout);
         coursePriceLinearLayout = (LinearLayout) findViewById(R.id.course_price);
         categoryCourseSpinner = (Spinner) findViewById(R.id.course_category_spinner);
         courseMaterialSpinner = (Spinner) findViewById(R.id.course_material_spinner);
-        variableCoursePriceCheckbox = (CheckBox) findViewById(R.id.variable_course_price);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         userId = preferences.getString("userId", "");
         email = preferences.getString("email", "");
         token = preferences.getString("token", "");
 
-        topicGroups = new ArrayList<>();
-        topics = new ArrayList<>();
-        levels = new ArrayList<>();
         coursePriceEditTextList = new ArrayList<>();
+        prices = new ArrayList<>();
 
-        GetAllGroupTopicsAsyncTask getAllGroupTopicsAsyncTask = new GetAllGroupTopicsAsyncTask(this);
-        getAllGroupTopicsAsyncTask.execute();
+        service = ApiClient.getClient().create(QwerteachService.class);
+        getTopicGroups();
+
+
+    }
+
+    public void getTopicGroups() {
+        Call<JsonResponse> call = service.getTopicGroups();
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                topicGroups = response.body().getTopicGroups();
+                displayTopicGroupSpinner();
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    public void getTopics() {
+        Call<JsonResponse> call = service.getTopics(topicGroupId, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                topics = response.body().getTopics();
+                displayTopicSpinner();
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    public void getLevels() {
+        Call<JsonResponse> call = service.getLevels(topicId, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                levels = response.body().getLevels();
+                displayLevelCheckboxes();
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void displayTopicGroupSpinner() {
+        TopicGroupAdapter adapter = new TopicGroupAdapter(this, android.R.layout.simple_spinner_item, topicGroups);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categoryCourseSpinner.setAdapter(adapter);
+        categoryCourseSpinner.setOnItemSelectedListener(this);
+
+    }
+
+    public void displayTopicSpinner() {
+        TopicAdapter topicAdapter = new TopicAdapter(this, android.R.layout.simple_spinner_item, topics);
+        topicAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        courseMaterialSpinner.setAdapter(topicAdapter);
+        courseMaterialSpinner.setOnItemSelectedListener(this);
     }
 
     public void didTouchSaveSmallAd(View view) {
-        TopicGroup topicGroup = new TopicGroup();
-        Topic topic = new Topic();
 
-        for(int i = 0; i < topicGroups.size(); i++) {
-            if (topicGroups.get(i).getTopicGroupTitle().equals(courseCategoryName)) {
-                topicGroup = topicGroups.get(i);
-            }
-        }
 
-        for(int i = 0; i < topics.size(); i++) {
-            if (topics.get(i).getTopicTitle().equals(courseMaterialName)) {
-                topic = topics.get(i);
-            }
-        }
-
-        if (variableCoursePriceCheckbox.isChecked()) {
-
-            for (int i = 0; i < levels.size(); i++) {
-                if (levels.get(i).isChecked()) {
-                    if (!coursePriceEditTextList.get(i).getText().toString().equals("")) {
-                        Double coursePrice = Double.valueOf(coursePriceEditTextList.get(i).getText().toString());
-                        levels.get(i).setPrice(coursePrice);
-                    }
-                }
-            }
-
-        } else {
-            for (int i = 0; i < levels.size(); i++) {
-                if (levels.get(i).isChecked()) {
-                    if (!fixCoursePriceEditText.getText().toString().equals("")) {
-                        Double coursePrice = Double.valueOf(fixCoursePriceEditText.getText().toString());
-                        levels.get(i).setPrice(coursePrice);
-                    }
-                }
+        for (int i = 0; i < levels.size(); i++) {
+            if (levels.get(i).isChecked() && !coursePriceEditTextList.get(i).getText().toString().equals("")) {
+                SmallAdPrice smallAdPrice = new SmallAdPrice();
+                smallAdPrice.setPrice(Double.valueOf(coursePriceEditTextList.get(i).getText().toString()));
+                smallAdPrice.setLevelId(levels.get(i).getLevelId());
+                prices.add(smallAdPrice);
             }
         }
 
         String otherCourseMaterialName = otherCourseMaterialEditText.getText().toString();
         String description = descriptionEditText.getText().toString();
 
-        SaveSmallAdAsyncTask saveSmallAdAsyncTask = new SaveSmallAdAsyncTask(this);
-        saveSmallAdAsyncTask.execute(topicGroup, topic, otherCourseMaterialName, description, userId, levels, email, token);
+        SmallAd smallAd = new SmallAd();
+        smallAd.setSmallAdPrices(prices);
+        smallAd.setTopicId(topicId);
+        smallAd.setTopicGroupId(topicGroupId);
+        smallAd.setDescription(description);
+
+        if (!otherCourseMaterialName.equals("")) {
+            smallAd.setOtherName(otherCourseMaterialName);
+        }
+
+        final Map<String, SmallAd> requestBody = new HashMap<>();
+        requestBody.put("advert", smallAd);
+
+        Call<JsonResponse> call = service.createNewAdvert(requestBody, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                String success = response.body().getSuccess();
+
+                if (success.equals("true")) {
+                    setResult(Activity.RESULT_OK);
+                    finish();
+                    Toast.makeText(getApplication(), R.string.save_small_ad_success_true_message, Toast.LENGTH_SHORT).show();
+
+                } else {
+                    String message = response.body().getMessage();
+                    Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-        courseCategoryName = topicGroups.get(position).getTopicGroupTitle();
-        DisplayInfosTopicsAsyncTask displayInfosTopicsAsyncTask = new DisplayInfosTopicsAsyncTask(this);
-        displayInfosTopicsAsyncTask.execute(courseCategoryName);
+        switch (adapterView.getId()) {
+            case R.id.course_category_spinner:
+                courseCategoryName = topicGroups.get(position).getTopicGroupTitle();
+                topicGroupId = topicGroups.get(position).getTopicGroupId();
+                getTopics();
+                break;
+            case R.id.course_material_spinner:
+                courseMaterialName = topics.get(position).getTopicTitle();
+                topicId = topics.get(position).getTopicId();
+                getLevels();
+
+                if (courseMaterialName.equals("Other")) {
+                    otherCourseMaterialTextView.setVisibility(view.VISIBLE);
+                    otherCourseMaterialEditText.setVisibility(view.VISIBLE);
+                } else {
+                    otherCourseMaterialTextView.setVisibility(view.GONE);
+                    otherCourseMaterialEditText.setVisibility(view.GONE);
+                }
+
+                break;
+        }
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
-    }
-
-    public void onCheckboxClicked(View view) {
-        boolean checked = ((CheckBox) view).isChecked();
-        final KeyListener keyListener = fixCoursePriceEditText.getKeyListener();
-
-        switch(view.getId()) {
-            case R.id.variable_course_price:
-                if (checked) {
-                    coursePriceLinearLayout.setVisibility(view.VISIBLE);
-                    fixCoursePriceEditText.setKeyListener(null);
-                    fixCoursePriceEditText.setBackgroundResource(R.color.gray);
-                    fixCoursePriceEditText.setTextColor(Color.WHITE);
-
-                } else {
-                    coursePriceLinearLayout.setVisibility(view.GONE);
-                    fixCoursePriceEditText.setKeyListener(keyListener);
-                    fixCoursePriceEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
-                    fixCoursePriceEditText.setBackgroundResource(R.drawable.edit_text_border);
-                    fixCoursePriceEditText.setTextColor(Color.BLACK);
-                }
-
-                break;
-        }
     }
 
     @Override
@@ -181,173 +245,62 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void displayRegistrationConfirmationMessage(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String confirmationMessage = jsonObject.getString("success");
+    public void displayLevelCheckboxes() {
 
-            if (confirmationMessage.equals("exists")) {
-                Toast.makeText(this, R.string.save_small_ad_success_exists_message, Toast.LENGTH_SHORT).show();
-            } else if (confirmationMessage.equals("false")) {
-                Toast.makeText(this, R.string.save_small_ad_success_false_message, Toast.LENGTH_SHORT).show();
-            } else if (confirmationMessage.equals("true")) {
-                setResult(Activity.RESULT_OK);
-                finish();
-                Toast.makeText(this, R.string.save_small_ad_success_true_message, Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, R.string.save_small_ad_success_need_message, Toast.LENGTH_SHORT).show();
-            }
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Override
-    public void displayInfosGroupTopics(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONArray jsonArray = jsonObject.getJSONArray("topic_group");
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonData = jsonArray.getJSONObject(i);
-                int topicGroupId = jsonData.getInt("id");
-                String topicGroupTitle = jsonData.getString("title");
-                String levelCode = jsonData.getString("level_code");
-                TopicGroup topicGroup = new TopicGroup(topicGroupId, topicGroupTitle, levelCode);
-                topicGroups.add(topicGroup);
-            }
-
-            adapter = new TopicGroupAdapter(this, android.R.layout.simple_spinner_item, topicGroups);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            categoryCourseSpinner.setAdapter(adapter);
-            categoryCourseSpinner.setOnItemSelectedListener(this);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Override
-    public void displayInfosTopics(String string) {
-
-        checkboxesLinearLayout.removeAllViews();
         coursePriceLinearLayout.removeAllViews();
-        topics.clear();
-        levels.clear();
         coursePriceEditTextList.clear();
 
-        try {
+        for (int i = 0; i < levels.size(); i++) {
+            final Level level = levels.get(i);
 
-            JSONObject jsonObject = new JSONObject(string);
-            JSONArray topicJsonArray = jsonObject.getJSONArray("topics");
-            JSONArray levelJsonArray = jsonObject.getJSONArray("levels");
+            LinearLayout linearLayout = new LinearLayout(this);
+            CheckBox checkBox = new CheckBox(this);
+            final EditText editText = new EditText(this);
+            final KeyListener keyListener = editText.getKeyListener();
 
-            for (int i = 0; i < topicJsonArray.length(); i++) {
-                JSONObject jsonData = topicJsonArray.getJSONObject(i);
-                int topicId = jsonData.getInt("id");
-                String topicTitle = jsonData.getString("title");
-                int topicGroupId = jsonData.getInt("topic_group_id");
-                Topic topic = new Topic(topicId, topicTitle, topicGroupId);
-                topics.add(topic);
-            }
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+            linearLayout.setWeightSum(1);
 
-            for (int i = 0; i < levelJsonArray.length(); i++) {
-                JSONObject jsonData = levelJsonArray.getJSONObject(i);
-                int levelId = jsonData.getInt("id");
-                String levelName = jsonData.getString("fr");
-                Level level = new Level(levelId, levelName);
-                levels.add(level);
-            }
+            checkBox.setText(level.getLevelName());
+            TableRow.LayoutParams params1 = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.73f);
+            TableRow.LayoutParams params2 = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.27f);
+            checkBox.setLayoutParams(params1);
+            editText.setLayoutParams(params2);
+            editText.setKeyListener(null);
+            editText.setBackgroundResource(R.color.gray);
+            editText.setGravity(Gravity.CENTER);
+            editText.setId(i);
+            coursePriceEditTextList.add(editText);
 
-            TopicAdapter topicAdapter = new TopicAdapter(this, android.R.layout.simple_spinner_item, topics);
-            topicAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            courseMaterialSpinner.setAdapter(topicAdapter);
+            linearLayout.addView(checkBox);
+            linearLayout.addView(editText);
+            coursePriceLinearLayout.addView(linearLayout, params);
 
-            for (int i = 0; i < levels.size(); i++) {
-                CheckBox cb = new CheckBox(this);
-                cb.setId(i);
-                cb.setText(levels.get(i).getLevelName());
-                checkboxesLinearLayout.addView(cb);
-
-                LinearLayout linearLayout = new LinearLayout(this);
-                TextView textView = new TextView(this);
-                final EditText editText = new EditText(this);
-                final KeyListener keyListener = editText.getKeyListener();
-
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT);
-                linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-                linearLayout.setWeightSum(1);
-
-                textView.setText(levels.get(i).getLevelName());
-                TableRow.LayoutParams params1 = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.7f);
-                TableRow.LayoutParams params2 = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.3f);
-                textView.setLayoutParams(params1);
-                editText.setLayoutParams(params2);
-                editText.setPadding(10, 10, 10, 10);
-                editText.setKeyListener(null);
-                editText.setBackgroundResource(R.color.gray);
-                editText.setId(i);
-                coursePriceEditTextList.add(editText);
-
-                linearLayout.addView(textView);
-                linearLayout.addView(editText);
-                coursePriceLinearLayout.addView(linearLayout, params);
-
-                cb.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View view) {
-                        int index = view.getId();
-
-                        if(((CheckBox) view).isChecked()) {
-                            levels.get(index).setChecked(true);
-
-                            editText.setKeyListener(keyListener);
-                            editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-                            editText.setBackgroundResource(R.drawable.edit_text_border);
-
-
-                        } else {
-                            levels.get(index).setChecked(false);
-
-                            editText.setKeyListener(null);
-                            editText.setBackgroundResource(R.color.gray);
-                        }
-                    }
-                });
-            }
-
-            courseMaterialSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
-            {
+            checkBox.setOnClickListener(new View.OnClickListener() {
 
                 @Override
-                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                    courseMaterialName = topics.get(i).getTopicTitle();
+                public void onClick(View view) {
+                    boolean checked = ((CheckBox) view).isChecked();
 
-                    if (courseMaterialName.equals("Other")) {
-                        otherCourseMaterialTextView.setVisibility(view.VISIBLE);
-                        otherCourseMaterialEditText.setVisibility(view.VISIBLE);
+                    if(checked) {
+                        level.setChecked(true);
+                        editText.setKeyListener(keyListener);
+                        editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                        editText.setBackgroundResource(R.drawable.edit_text_border);
+                        editText.setHint(R.string.course_price_eddit_text);
+                        editText.setHintTextColor(getResources().getColor(R.color.gray));
+
+
                     } else {
-                        otherCourseMaterialTextView.setVisibility(view.GONE);
-                        otherCourseMaterialEditText.setVisibility(view.GONE);
+                        level.setChecked(false);
+                        editText.setKeyListener(null);
+                        editText.setBackgroundResource(R.color.gray);
+                        editText.setText("");
                     }
-
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> adapterView) {
-
                 }
             });
-
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
 
     }

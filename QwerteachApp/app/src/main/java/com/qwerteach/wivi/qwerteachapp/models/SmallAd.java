@@ -1,5 +1,8 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -9,24 +12,33 @@ import java.util.ArrayList;
 
 public class SmallAd implements Serializable {
 
-    private String title;
-    private int advertId;
-    private int topicId;
-    private int topicGroupId;
+    @SerializedName("id")
+    private Integer advertId;
+    @SerializedName("topic_id")
+    private Integer topicId;
+    @SerializedName("topic_group_id")
+    private Integer topicGroupId;
+    @SerializedName("description")
     private String description;
-    private int userId;
+    @SerializedName("user_id")
+    private Integer userId;
+    @SerializedName("other_name")
+    private String otherName;
+    @SerializedName("advert_prices_attributes")
     private ArrayList<SmallAdPrice> smallAdPrices;
+
+    private String title;
 
     public SmallAd() {
     }
 
-    public SmallAd(String title, int advertId, int topicId, int topicGroupId, String description) {
+    /*public SmallAd(String title, int advertId, int topicId, int topicGroupId, String description) {
         this.title = title;
         this.advertId = advertId;
         this.topicId = topicId;
         this.topicGroupId = topicGroupId;
         this.description = description;
-    }
+    }*/
 
     public String getTitle() {
         return title;
@@ -34,30 +46,6 @@ public class SmallAd implements Serializable {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public int getAdvertId() {
-        return advertId;
-    }
-
-    public void setAdvertId(int advertId) {
-        this.advertId = advertId;
-    }
-
-    public int getTopicId() {
-        return topicId;
-    }
-
-    public void setTopicId(int topicId) {
-        this.topicId = topicId;
-    }
-
-    public int getTopicGroupId() {
-        return topicGroupId;
-    }
-
-    public void setTopicGroupId(int topicGroupId) {
-        this.topicGroupId = topicGroupId;
     }
 
     public String getDescription() {
@@ -68,19 +56,51 @@ public class SmallAd implements Serializable {
         this.description = description;
     }
 
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
     public ArrayList<SmallAdPrice> getSmallAdPrices() {
         return smallAdPrices;
     }
 
     public void setSmallAdPrices(ArrayList<SmallAdPrice> smallAdPrices) {
         this.smallAdPrices = smallAdPrices;
+    }
+
+    public String getOtherName() {
+        return otherName;
+    }
+
+    public void setOtherName(String otherName) {
+        this.otherName = otherName;
+    }
+
+    public Integer getAdvertId() {
+        return advertId;
+    }
+
+    public void setAdvertId(Integer advertId) {
+        this.advertId = advertId;
+    }
+
+    public Integer getTopicId() {
+        return topicId;
+    }
+
+    public void setTopicId(Integer topicId) {
+        this.topicId = topicId;
+    }
+
+    public Integer getTopicGroupId() {
+        return topicGroupId;
+    }
+
+    public void setTopicGroupId(Integer topicGroupId) {
+        this.topicGroupId = topicGroupId;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 }

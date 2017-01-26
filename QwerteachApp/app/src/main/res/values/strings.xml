@@ -89,7 +89,7 @@
     <string name="categoty_text_view_update_small_ad">Catégorie</string>
     <string name="material_course_text_view_update_small_ad">Matière</string>
     <string name="level_text_view_update_small_ad">Niveaux</string>
-    <string name="prices_text_view_update_small_ad">Tarif</string>
+    <string name="prices_text_view_update_small_ad">Tarifs</string>
     <string name="update_small_ad_button">Modifier annonce</string>
     <string name="update_small_ad_success_true_message">Vos informations ont été mises à jour</string>
     <string name="update_small_ad_success_false_message">Impossible d\'enregistrer vos infos. Essayez à nouveau</string>

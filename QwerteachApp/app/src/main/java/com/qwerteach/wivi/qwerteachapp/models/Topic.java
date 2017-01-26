@@ -1,14 +1,19 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by wivi on 7/11/16.
  */
 
 public class Topic {
 
-    int topicId;
-    String topicTitle;
-    int topicGroupId;
+    @SerializedName("id")
+    private int topicId;
+    @SerializedName("title")
+    private String topicTitle;
+    @SerializedName("topic_group_id")
+    private int topicGroupId;
 
     public Topic() {
 

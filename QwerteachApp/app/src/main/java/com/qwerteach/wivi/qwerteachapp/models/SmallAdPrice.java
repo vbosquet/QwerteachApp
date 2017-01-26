@@ -1,15 +1,26 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 /**
  * Created by wivi on 9/11/16.
  */
 
-public class SmallAdPrice implements Serializable{
-    private int id;
-    private int levelId;
-    private double price;
+public class SmallAdPrice implements Serializable {
+
+    @SerializedName("id")
+    private Integer id;
+    @SerializedName("level_id")
+    private Integer levelId;
+    @SerializedName("price")
+    private Double price;
+
+    public SmallAdPrice() {
+
+    }
 
     public SmallAdPrice(int id, int levelId, double price) {
         this.id = id;
@@ -17,27 +28,27 @@ public class SmallAdPrice implements Serializable{
         this.price = price;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getLevelId() {
+    public Integer getLevelId() {
         return levelId;
     }
 
-    public void setLevelId(int levelId) {
+    public void setLevelId(Integer levelId) {
         this.levelId = levelId;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 }

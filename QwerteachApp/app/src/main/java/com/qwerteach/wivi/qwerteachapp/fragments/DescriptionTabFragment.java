@@ -37,7 +37,9 @@ import com.qwerteach.wivi.qwerteachapp.models.UserJson;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -64,6 +66,7 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
     Teacher teacher;
     User user;
     ImageView userAvatar;
+    QwerteachService service;
 
     public static DescriptionTabFragment newInstance() {
         DescriptionTabFragment descriptionTabFragment = new DescriptionTabFragment();
@@ -87,6 +90,7 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
         }
 
         progressDialog = new ProgressDialog(getContext());
+        service = ApiClient.getClient().create(QwerteachService.class);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -154,22 +158,25 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
         String birthDate = birthDateEditText.getText().toString();
         String phoneNumber = phoneNumberEditText.getText().toString();
 
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setBirthdate(birthDate);
-        user.setPhoneNumber(phoneNumber);
+        final User newUser = new User();
 
-        final UserJson userJson = new UserJson();
-        userJson.setUser(user);
+        newUser.setFirstName(firstName);
+        newUser.setLastName(lastName);
+        newUser.setBirthdate(birthDate);
+        newUser.setPhoneNumber(phoneNumber);
 
-        QwerteachService service = ApiClient.getClient().create(QwerteachService.class);
-        Call<JsonResponse> call = service.getStudentInfos(userId, userJson, email, token);
+        Map<String, User> requestBody = new HashMap<>();
+        requestBody.put("user", newUser);
+
+        Call<JsonResponse> call = service.getStudentInfos(userId, requestBody, email, token);
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                user = response.body().getUser();
+                User userResponse = response.body().getUser();
                 String success = response.body().getSuccess();
                 String message = response.body().getMessage();
+
+                progressDialog.dismiss();
 
                 if (success.equals("true")) {
 
@@ -177,8 +184,8 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
 
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
                     SharedPreferences.Editor editor = preferences.edit();
-                    editor.putString("lastName", user.getLastName());
-                    editor.putString("firstName", user.getFirstName());
+                    editor.putString("lastName", userResponse.getLastName());
+                    editor.putString("firstName", userResponse.getFirstName());
                     editor.apply();
 
                 } else {
@@ -206,6 +213,7 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
                         calendar.get(Calendar.DAY_OF_MONTH)).show();
                 break;
             case R.id.save_infos_button:
+                startProgressDialog();
                 startSaveInfosProfileTabAsyncTask();
                 break;
             case R.id.update_user_avatar_button:

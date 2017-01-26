@@ -4,42 +4,42 @@
     android:id="@+id/activity_create_small_ad"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.qwerteach.wivi.qwerteachapp.CreateSmallAdActivity"
-    android:orientation="vertical"
     android:background="#dfdfdf"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin">
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.qwerteach.wivi.qwerteachapp.CreateSmallAdActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:background="#ffffff"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical"
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        android:focusable="true"
-        android:focusableInTouchMode="true">
+        android:paddingTop="@dimen/activity_vertical_margin">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/course_category_text_view"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:text="@string/course_category_text_view"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:background="@drawable/edit_text_border"
-            android:paddingTop="10dp"
+            android:orientation="vertical"
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:layout_marginBottom="@dimen/activity_vertical_margin">
+            android:paddingTop="10dp">
 
             <Spinner
                 android:id="@+id/course_category_spinner"
@@ -52,20 +52,20 @@
             android:id="@+id/course_materiel_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/course_material_text_view"
-            android:layout_marginBottom="@dimen/activity_vertical_margin" />
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:text="@string/course_material_text_view" />
 
         <LinearLayout
             android:id="@+id/course_material_linear_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:background="@drawable/edit_text_border"
-            android:paddingTop="10dp"
+            android:orientation="vertical"
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:layout_marginBottom="@dimen/activity_vertical_margin">
+            android:paddingTop="10dp">
 
             <Spinner
                 android:id="@+id/course_material_spinner"
@@ -78,9 +78,9 @@
             android:id="@+id/other_course_material_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:text="@string/other_material_course_text_view"
-            android:visibility="gone"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+            android:visibility="gone"/>
 
         <EditText
             android:id="@+id/other_course_material_edit_text"
@@ -88,105 +88,64 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:background="@drawable/edit_text_border"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:visibility="gone"
             android:hint="@string/other_material_course_edit_text"
-            android:textColorHint="#dfdfdf"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/course_level_text_view"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
-
-        <LinearLayout
-            android:id="@+id/checkboxes_linear_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:background="@drawable/edit_text_border"
-            android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:layout_marginBottom="@dimen/activity_vertical_margin">
-
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/course_price_text_view"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
-
-        <EditText
-            android:id="@+id/fix_course_price"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/edit_text_border"
             android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:hint="@string/course_price_eddit_text"
             android:textColorHint="#dfdfdf"
-            android:inputType="number"/>
+            android:visibility="gone"/>
 
-        <CheckBox android:id="@+id/variable_course_price"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/variable_course_price"
-            android:onClick="onCheckboxClicked"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:text="@string/course_level_text_view"/>
+
         
         <LinearLayout
             android:id="@+id/course_price"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:visibility="gone"
             android:background="@drawable/edit_text_border"
-            android:paddingTop="10dp"
+            android:orientation="vertical"
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
-            android:paddingRight="10dp">
+            android:paddingRight="10dp"
+            android:paddingTop="10dp">
 
         </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/description_textview_description_tab"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:text="@string/description_textview_description_tab"/>
 
         <EditText
             android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:background="@drawable/edit_text_border"
-            android:paddingTop="10dp"
+            android:gravity="top|left"
+            android:hint="@string/description_edittext_desciption_tab"
+            android:inputType="textMultiLine"
+            android:lines="8"
+            android:maxLines="10"
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:inputType="textMultiLine"
-            android:gravity="top|left"
-            android:lines="8"
-            android:maxLines="10"
-            android:hint="@string/description_edittext_desciption_tab"
+            android:paddingTop="10dp"
             android:textColorHint="#dfdfdf"/>
 
         <Button
             android:id="@+id/save_infos_small_ad"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/save_infos_small_ad_button"
-            android:onClick="didTouchSaveSmallAd"/>
+            android:onClick="didTouchSaveSmallAd"
+            android:text="@string/save_infos_small_ad_button"/>
 
     </LinearLayout>
 

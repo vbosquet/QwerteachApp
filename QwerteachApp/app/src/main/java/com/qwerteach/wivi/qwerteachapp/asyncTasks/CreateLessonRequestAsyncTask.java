@@ -52,7 +52,7 @@ public class CreateLessonRequestAsyncTask extends AsyncTask<Object, String, Stri
             jsonObject.put("free_lesson", freeLesson);
             requestJson.put("request", jsonObject);
 
-            URL url = new URL("http://192.168.0.101:3000/api/users/" + teacherId + "/lesson_requests");
+            URL url = new URL("http://192.168.0.125:3000/api/users/" + teacherId + "/lesson_requests");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);

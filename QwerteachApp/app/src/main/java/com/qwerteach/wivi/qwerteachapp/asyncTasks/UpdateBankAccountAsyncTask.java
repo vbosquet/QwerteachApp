@@ -83,7 +83,7 @@ public class UpdateBankAccountAsyncTask extends AsyncTask<Object, String, String
             typeJson.put("type", type);
             accountJson.put("bank_account", typeJson);
 
-            URL url = new URL("http://192.168.0.101:3000/api/user/mangopay/update_bank_accounts");
+            URL url = new URL("http://192.168.0.125:3000/api/user/mangopay/update_bank_accounts");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);

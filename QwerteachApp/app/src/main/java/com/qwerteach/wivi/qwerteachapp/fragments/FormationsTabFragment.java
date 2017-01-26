@@ -19,25 +19,27 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.qwerteach.wivi.qwerteachapp.R;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplaySchoolLevelsAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.SaveInfosFormationAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Level;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.qwerteach.wivi.qwerteachapp.models.UserJson;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by wivi on 26/10/16.
  */
 
-public class FormationsTabFragment extends Fragment implements DisplaySchoolLevelsAsyncTask.IDisplaySchoolLevels,
-        AdapterView.OnItemSelectedListener,
-        SaveInfosFormationAsyncTask.ISaveInfosFormation,
+public class FormationsTabFragment extends Fragment implements AdapterView.OnItemSelectedListener,
         View.OnClickListener {
 
     EditText professionEditText, userDescriptionEditTet;
@@ -50,6 +52,7 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
     ProgressDialog progressDialog;
     Teacher teacher;
     User user;
+    QwerteachService service;
 
     public static FormationsTabFragment newInstance() {
         FormationsTabFragment formationsTabFragment = new FormationsTabFragment();
@@ -74,6 +77,7 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
 
         levels = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
+        service = ApiClient.getClient().create(QwerteachService.class);
 
 
         if (user != null) {
@@ -95,57 +99,52 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
         saveInfosButton = (Button) view.findViewById(R.id.save_infos_button);
         saveInfosButton.setOnClickListener(this);
 
-        DisplaySchoolLevelsAsyncTask displaySchoolLevelsAsyncTask = new DisplaySchoolLevelsAsyncTask(this);
-        displaySchoolLevelsAsyncTask.execute();
+        Call<JsonResponse> call = service.getLevels();
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                levels = response.body().getLevels();
+                displayLevels();
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
 
         return view;
     }
 
-    @Override
-    public void displaySchoolLevels(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONArray jsonArray = jsonObject.getJSONArray("level");
+    public void displayLevels() {
 
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonData = jsonArray.getJSONObject(i);
-                int levelId = jsonData.getInt("id");
-                String levelName = jsonData.getString("fr");
-                Level level = new Level(levelId, levelName);
-                levels.add(level);
+        ArrayList<String> levelNames = new ArrayList<>();
+
+        for (int i = 0; i < levels.size(); i++) {
+            levelNames.add(levels.get(i).getLevelName());
+        }
+
+        for (int i = 0; i < levels.size(); i++) {
+            if (levels.get(i).getLevelId() == levelId) {
+                defaultTextForLevelSpinner = levels.get(i).getLevelName();
             }
+        }
 
-            ArrayList<String> levelNames = new ArrayList<>();
+        ArrayAdapter levelAdapter = new ArrayAdapter(getContext(), android.R.layout.simple_spinner_item, levelNames);
+        levelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        levelSpinner.setAdapter(levelAdapter);
+        int position = getIndexByString(levelSpinner, defaultTextForLevelSpinner);
+        levelSpinner.setSelection(position);
+        levelSpinner.setOnItemSelectedListener(this);
 
-            for (int i = 0; i < levels.size(); i++) {
-                levelNames.add(levels.get(i).getLevelName());
-            }
+        if (user != null) {
+            professionEditText.setText(user.getOccupation());
+            userDescriptionEditTet.setText(user.getDescription());
+        }
 
-            for (int i = 0; i < levels.size(); i++) {
-                if (levels.get(i).getLevelId() == levelId) {
-                    defaultTextForLevelSpinner = levels.get(i).getLevelName();
-                }
-            }
-
-            ArrayAdapter levelAdapter = new ArrayAdapter(getContext(), android.R.layout.simple_spinner_item, levelNames);
-            levelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            levelSpinner.setAdapter(levelAdapter);
-            int position = getIndexByString(levelSpinner, defaultTextForLevelSpinner);
-            levelSpinner.setSelection(position);
-            levelSpinner.setOnItemSelectedListener(this);
-
-            if (user != null) {
-                professionEditText.setText(user.getOccupation());
-                userDescriptionEditTet.setText(user.getDescription());
-            }
-
-            if (teacher != null) {
-                professionEditText.setText(teacher.getUser().getOccupation());
-                userDescriptionEditTet.setText(teacher.getUser().getDescription());
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
+        if (teacher != null) {
+            professionEditText.setText(teacher.getUser().getOccupation());
+            userDescriptionEditTet.setText(teacher.getUser().getDescription());
         }
 
     }
@@ -162,7 +161,7 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
 
     public void startSaveInfosFormationTabAsyncTask() {
         int levelId = 0;
-        String profession = professionEditText.getText().toString();
+        final String profession = professionEditText.getText().toString();
         String userDescription = userDescriptionEditTet.getText().toString();
 
 
@@ -172,9 +171,28 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
             }
         }
 
-        SaveInfosFormationAsyncTask saveInfosFormationAsyncTask = new SaveInfosFormationAsyncTask(this);
-        saveInfosFormationAsyncTask.execute(userId, profession, userDescription, levelId, email, token);
-        startProgressDialog();
+        User newUser = new User();
+        newUser.setOccupation(profession);
+        newUser.setDescription(userDescription);
+        newUser.setLevelId(levelId);
+
+        Map<String, User> requestBody = new HashMap<>();
+        requestBody.put("user", newUser);
+
+        Call<JsonResponse> call = service.getStudentInfos(userId, requestBody, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                String message = response.body().getMessage();
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
 
     }
 
@@ -186,26 +204,6 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void confirmationRegistrationMessage(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String regsitrationConfirmation = jsonObject.getString("success");
-            progressDialog.dismiss();
-
-            if (regsitrationConfirmation.equals("true")) {
-                Toast.makeText(getContext(), R.string.infos_profile_registration_success_toast, Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), R.string.infos_profile_registration_error_toast, Toast.LENGTH_SHORT).show();
-            }
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
     }
 
     private int getIndexByString(Spinner spinner, String string) {
@@ -223,6 +221,7 @@ public class FormationsTabFragment extends Fragment implements DisplaySchoolLeve
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.save_infos_button) {
+            startProgressDialog();
             startSaveInfosFormationTabAsyncTask();
         }
     }

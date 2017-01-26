@@ -1,5 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 /**
@@ -8,10 +10,13 @@ import java.io.Serializable;
 
 public class Level implements Serializable {
 
+    @SerializedName("id")
     private int levelId;
+    @SerializedName("fr")
     private String levelName;
+
     private boolean isChecked;
-    private double price;
+    //private double price;
 
     public Level() {
 
@@ -47,11 +52,11 @@ public class Level implements Serializable {
         isChecked = checked;
     }
 
-    public double getPrice() {
+    /*public double getPrice() {
         return price;
-    }
+    }*/
 
-    public void setPrice(double price) {
+    /*public void setPrice(double price) {
         this.price = price;
-    }
+    }*/
 }

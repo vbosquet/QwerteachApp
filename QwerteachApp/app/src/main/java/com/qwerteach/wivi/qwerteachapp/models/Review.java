@@ -1,5 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -9,12 +11,19 @@ import java.util.Date;
  * Created by wivi on 6/01/17.
  */
 
-public class Review implements Serializable{
+public class Review implements Serializable {
+
+    @SerializedName("id")
     private int reviewId;
+    @SerializedName("sender_id")
     private int senderId;
+    @SerializedName("subject_id")
     private int subjectId;
+    @SerializedName("review_text")
     private String reviewText;
+    @SerializedName("note")
     private int note;
+    @SerializedName("created_at")
     private String creationDate;
     private String senderFirstName;
 

@@ -51,7 +51,7 @@ public class SaveInfosProfileAsyncTask extends AsyncTask<Object, String, String>
             json.put("phonenumber", phoneNumber);
             userJson.put("user", json);
 
-            URL url = new URL("http://192.168.0.101:3000/api/users/" + userId);
+            URL url = new URL("http://192.168.0.125:3000/api/users/" + userId);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);

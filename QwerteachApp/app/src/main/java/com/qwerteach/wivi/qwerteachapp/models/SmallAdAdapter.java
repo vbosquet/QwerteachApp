@@ -1,22 +1,15 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.qwerteach.wivi.qwerteachapp.R;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DeleteSmallAdAsyncTask;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.qwerteach.wivi.qwerteachapp.fragments.AdTabFragment;
 
 import java.util.ArrayList;
 
@@ -26,11 +19,11 @@ import java.util.ArrayList;
 
 public class SmallAdAdapter extends ArrayAdapter<SmallAd> {
 
-    private IButtonClickListener mClickListener;
+    private AdTabFragment fragment;
 
-    public SmallAdAdapter(Context context, ArrayList<SmallAd> smallAd, IButtonClickListener listener) {
+    public SmallAdAdapter(Context context, ArrayList<SmallAd> smallAd, AdTabFragment fragment) {
         super(context, 0, smallAd);
-        mClickListener = listener;
+        this.fragment = fragment;
     }
 
     @Override
@@ -51,24 +44,17 @@ public class SmallAdAdapter extends ArrayAdapter<SmallAd> {
         }
 
         viewHolder.title.setText("Cours de " + smallAd.getTitle());
-        viewHolder.delete.setTag(position);
-        viewHolder.edit.setTag(position);
         viewHolder.delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mClickListener != null) {
-                    mClickListener.onDeleteClick((Integer) view.getTag());
-                }
+                fragment.didTouchOnDeleteButton(position);
             }
         });
 
         viewHolder.edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mClickListener != null) {
-                    mClickListener.onEditClick((Integer) view.getTag());
-                }
-
+                fragment.didTouchOnEditButton(position);
             }
         });
 
@@ -79,10 +65,5 @@ public class SmallAdAdapter extends ArrayAdapter<SmallAd> {
         TextView title;
         Button delete;
         Button edit;
-    }
-
-    public interface IButtonClickListener {
-        void onDeleteClick(int position);
-        void onEditClick(int position);
     }
 }

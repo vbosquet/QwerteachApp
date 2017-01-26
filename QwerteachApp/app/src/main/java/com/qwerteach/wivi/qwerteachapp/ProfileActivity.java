@@ -21,14 +21,24 @@ import com.qwerteach.wivi.qwerteachapp.fragments.TeacherProfileFragment;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.Review;
+import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
+import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ProfileActivity extends AppCompatActivity implements ShowProfileInfosAsyncTask.IShowProfileInfos {
+public class ProfileActivity extends AppCompatActivity  {
 
     Intent intent;
     String userId, email, token;
@@ -53,6 +63,7 @@ public class ProfileActivity extends AppCompatActivity implements ShowProfileInf
         user = new User();
         teacher = new Teacher();
 
+        startProgressDialog();
         QwerteachService service = ApiClient.getClient().create(QwerteachService.class);
         Call<JsonResponse> call = service.getStudentId(userId, email, token);
         call.enqueue(new Callback<JsonResponse>() {
@@ -63,7 +74,11 @@ public class ProfileActivity extends AppCompatActivity implements ShowProfileInf
                 user.setAvatarUrl(avatarUrl);
 
                 if (!user.isPostulanceAccepted()) {
+                    progressDialog.dismiss();
                     displayStudentProfileFragment();
+
+                } else {
+                    preparaDataForTeacher(response);
                 }
             }
 
@@ -72,11 +87,46 @@ public class ProfileActivity extends AppCompatActivity implements ShowProfileInf
 
             }
         });
+    }
 
+    public void preparaDataForTeacher(Response<JsonResponse> response) {
+        ArrayList<SmallAd> smallAds = response.body().getSmallAds();
+        ArrayList<String> topics = response.body().getTopicTitles();
+        ArrayList<ArrayList<SmallAdPrice>> smallAdPrices = response.body().getSmallAdPrices();
+        ArrayList<Review> reviews = response.body().getReviews();
+        ArrayList<String> reviewSenderNames = response.body().getReviewSenderNames();
+        float rating = response.body().getRating();
+        double minPrice = response.body().getMinPrice();
+        ArrayList<Integer> notes = response.body().getNotes();
 
-        //ShowProfileInfosAsyncTask showProfileInfosAsyncTask = new ShowProfileInfosAsyncTask(this);
-        //showProfileInfosAsyncTask.execute(userId, email, token);
-        //startProgressDialog();
+        for (int i = 0; i < smallAds.size(); i++) {
+            smallAds.get(i).setTitle(topics.get(i));
+
+            ArrayList<SmallAdPrice> smallAdPriceArrayList = new ArrayList<>();
+
+            if (smallAdPrices.get(i).size() > 0) {
+                for (int j = 0; j < smallAdPrices.get(i).size(); j++) {
+                    smallAdPriceArrayList.add(smallAdPrices.get(i).get(j));
+                }
+            }
+
+            smallAds.get(i).setSmallAdPrices(smallAdPriceArrayList);
+        }
+
+        for (int i = 0; i < reviews.size(); i++) {
+            reviews.get(i).setSenderFirstName(reviewSenderNames.get(i));
+        }
+
+        teacher.setUser(user);
+        teacher.setMinPrice(minPrice);
+        teacher.setRating(rating);
+        teacher.setSmallAds(smallAds);
+        teacher.setReviews(reviews);
+        teacher.setNumberOfReviews(notes.size());
+
+        progressDialog.dismiss();
+        displayTeacherProfileFragment();
+
     }
 
     @Override
@@ -109,137 +159,12 @@ public class ProfileActivity extends AppCompatActivity implements ShowProfileInf
         return super.onOptionsItemSelected(item);
     }
 
-    public void didTouchContactButton(View view) {
-    }
-
     public void startProgressDialog() {
         progressDialog.setMessage("Loading...");
         progressDialog.setIndeterminate(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setCancelable(true);
         progressDialog.show();
-    }
-
-    @Override
-    public void showProfileInfos(String string) {
-
-        Log.i("PROFILE_INFO", string);
-
-        /*try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONObject userJson = jsonObject.getJSONObject("user");
-            int newUserId = userJson.getInt("id");
-            String firstName = userJson.getString("firstname");
-            String lastName = userJson.getString("lastname");
-            String birthdate = userJson.getString("birthdate");
-            String occupation = userJson.getString("occupation");
-            String description = userJson.getString("description");
-            String phoneNumber = userJson.getString("phonenumber");
-            boolean postulanceAccepted = userJson.getBoolean("postulance_accepted");
-            int useLevelId = userJson.getInt("level_id");
-
-            if (!jsonObject.isNull("avatar")) {
-                String avatarUrl = jsonObject.getString("avatar");
-                user.setAvatarUrl("http://192.168.0.125:3000" + avatarUrl);
-            }
-
-            user.setUserId(newUserId);
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setBirthdate(birthdate);
-            user.setOccupation(occupation);
-            user.setDescription(description);
-            user.setPhoneNumber(phoneNumber);
-            user.setPostulanceAccepted(postulanceAccepted);
-            user.setLevelId(useLevelId);
-
-            if (postulanceAccepted) {
-                float avg = 0;
-                if (!jsonObject.isNull("avg")) {
-                    avg = jsonObject.getLong("avg");
-                }
-
-                double minPrice = jsonObject.getDouble("min_price");
-                JSONArray notesJson = jsonObject.getJSONArray("notes");
-                JSONArray reviewsJson = jsonObject.getJSONArray("reviews");
-                JSONArray advertsJson = jsonObject.getJSONArray("adverts");
-                JSONArray topicsJson = jsonObject.getJSONArray("topics");
-                JSONArray reviewsSanderNamesJson = jsonObject.getJSONArray("review_sender_names");
-                JSONArray advertPricesJson = jsonObject.getJSONArray("advert_prices");
-
-                ArrayList<SmallAd> smallAds = new ArrayList<>();
-                ArrayList<Review> reviews = new ArrayList<>();
-
-                for (int i = 0; i < advertsJson.length(); i++) {
-
-                    JSONObject jsonData = advertsJson.getJSONObject(i);
-                    String topicTitle = topicsJson.getString(i);
-                    int smallAdId = jsonData.getInt("id");
-                    int topicId = jsonData.getInt("topic_id");
-                    int topicGroupId = jsonData.getInt("topic_group_id");
-                    int teacherId = jsonData.getInt("user_id");
-                    String smallAdDescription = jsonData.getString("description");
-
-                    JSONArray advertPrices = advertPricesJson.getJSONArray(i);
-                    ArrayList<SmallAdPrice> smallAdPrices = new ArrayList<>();
-
-                    for (int j = 0; j < advertPrices.length(); j++) {
-                        JSONObject advertPricesData = advertPrices.getJSONObject(j);
-                        int id = advertPricesData.getInt("id");
-                        int levelId = advertPricesData.getInt("level_id");
-                        double price = advertPricesData.getDouble("price");
-
-                        SmallAdPrice smallAdPrice = new SmallAdPrice(id, levelId, price);
-                        smallAdPrices.add(smallAdPrice);
-                    }
-
-                    SmallAd smallAd = new SmallAd();
-                    smallAd.setAdvertId(smallAdId);
-                    smallAd.setTopicId(topicId);
-                    smallAd.setTopicGroupId(topicGroupId);
-                    smallAd.setUserId(teacherId);
-                    smallAd.setDescription(smallAdDescription);
-                    smallAd.setTitle(topicTitle);
-                    smallAd.setSmallAdPrices(smallAdPrices);
-
-                    smallAds.add(smallAd);
-                }
-
-                for (int i = 0; i < reviewsJson.length(); i++) {
-                    JSONObject jsonData = reviewsJson.getJSONObject(i);
-
-                    int reviewId = jsonData.getInt("id");
-                    int senderId = jsonData.getInt("sender_id");
-                    int subjectId = jsonData.getInt("subject_id");
-                    String reviewText = jsonData.getString("review_text");
-                    int note = jsonData.getInt("note");
-                    String creationDate = jsonData.getString("created_at");
-                    String senderFirstName = reviewsSanderNamesJson.getString(i);
-
-                    Review review = new Review(reviewId, senderId, subjectId, reviewText, note, creationDate);
-                    review.setSenderFirstName(senderFirstName);
-                    reviews.add(review);
-                }
-
-                teacher.setUser(user);
-                teacher.setSmallAds(smallAds);
-                teacher.setReviews(reviews);
-                teacher.setRating(avg);
-                teacher.setNumberOfReviews(notesJson.length());
-                teacher.setMinPrice(minPrice);
-
-                progressDialog.dismiss();
-                displayTeacherProfileFragment();
-
-            } else {
-                progressDialog.dismiss();
-                displayStudentProfileFragment();
-            }
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }*/
     }
 
     public void displayTeacherProfileFragment() {
