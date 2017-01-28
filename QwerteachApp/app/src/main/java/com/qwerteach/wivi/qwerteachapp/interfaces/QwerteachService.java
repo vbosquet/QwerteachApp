@@ -1,9 +1,9 @@
 package com.qwerteach.wivi.qwerteachapp.interfaces;
 
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.User;
-import com.qwerteach.wivi.qwerteachapp.models.UserJson;
 
 import java.util.Map;
 
@@ -56,7 +56,7 @@ public interface QwerteachService {
                                      @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @GET("topic_groups")
-    Call<JsonResponse> getTopicGroups();
+    Call<JsonResponse> getAllTopicGroups();
 
     @GET("topic_choice")
     Call<JsonResponse> getTopics(@Query("group_id") int topicGroupId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
@@ -66,5 +66,27 @@ public interface QwerteachService {
 
     @POST("adverts")
     Call<JsonResponse> createNewAdvert(@Body Map<String, SmallAd> body, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("get_infos_for_detailed_prices_modal")
+    Call<JsonResponse> getInfosForDetailedPrices(@Query("id") int advertId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("users/{user_id}/lesson_requests/topic_groups")
+    Call<JsonResponse> getTeacherTopicGroups(@Path("user_id") String userId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("users/{user_id}/lesson_requests/topics/{topic_group_id}")
+    Call<JsonResponse> getTeacherTopics(@Path("user_id") String userId, @Path("topic_group_id") int topicGroupId,
+                                        @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("users/{user_id}/lesson_requests/levels/{topic_id}")
+    Call<JsonResponse> getTeacherLevels(@Path("user_id") String userId, @Path("topic_id") int topicId,
+                                        @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @POST("users/{user_id}/lesson_requests")
+    Call<JsonResponse> createNewLesson(@Path("user_id") int teacherId, @Body Map<String, Lesson> body,
+                                       @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("wallets/get_total_wallet/{user_id}")
+    Call<JsonResponse> getTotalWallet(@Path("user_id") String userId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
 
 }

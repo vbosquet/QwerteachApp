@@ -25,7 +25,6 @@ import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Level;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
-import com.qwerteach.wivi.qwerteachapp.models.UserJson;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,6 +1,5 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
@@ -45,151 +44,90 @@ public class JsonResponse {
     private ArrayList<TopicGroup> topicGroups;
     @SerializedName("topics")
     private ArrayList<Topic> topics;
-    @SerializedName("advert")
-    private SmallAd smallAd;
+    @SerializedName("user_cards")
+    private ArrayList<UserCreditCard> userCreditCards;
+    @SerializedName("card_registration")
+    private CardRegistrationData cardRegistrationData;
+    @SerializedName("total_wallet")
+    private Integer totalWallet;
 
     public String getAvatar() {
         return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
     }
 
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public User getUser() {
         return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public String getSuccess() {
         return success;
     }
 
-    public void setSuccess(String success) {
-        this.success = success;
-    }
-
     public ArrayList<SmallAd> getSmallAds() {
         return smallAds;
     }
 
-    public void setSmallAds(ArrayList<SmallAd> smallAds) {
-        this.smallAds = smallAds;
-    }
-
-
     public ArrayList<String> getTopicTitles() {
         return topicTitles;
-    }
-
-    public void setTopicTitles(ArrayList<String> topicTitles) {
-        this.topicTitles = topicTitles;
     }
 
     public ArrayList<ArrayList<SmallAdPrice>> getSmallAdPrices() {
         return smallAdPrices;
     }
 
-    public void setSmallAdPrices(ArrayList<ArrayList<SmallAdPrice>> smallAdPrices) {
-        this.smallAdPrices = smallAdPrices;
-    }
-
     public ArrayList<Review> getReviews() {
         return reviews;
-    }
-
-    public void setReviews(ArrayList<Review> reviews) {
-        this.reviews = reviews;
     }
 
     public ArrayList<String> getReviewSenderNames() {
         return reviewSenderNames;
     }
 
-    public void setReviewSenderNames(ArrayList<String> reviewSenderNames) {
-        this.reviewSenderNames = reviewSenderNames;
-    }
-
     public float getRating() {
         return rating;
-    }
-
-    public void setRating(float rating) {
-        this.rating = rating;
     }
 
     public double getMinPrice() {
         return minPrice;
     }
 
-    public void setMinPrice(double minPrice) {
-        this.minPrice = minPrice;
-    }
-
     public ArrayList<Integer> getNotes() {
         return notes;
-    }
-
-    public void setNotes(ArrayList<Integer> notes) {
-        this.notes = notes;
     }
 
     public ArrayList<Level> getLevels() {
         return levels;
     }
 
-    public void setLevels(ArrayList<Level> levels) {
-        this.levels = levels;
-    }
-
     public String getTopicTitle() {
         return topicTitle;
-    }
-
-    public void setTopicTitle(String topicTitle) {
-        this.topicTitle = topicTitle;
     }
 
     public String getTopicGroupTitle() {
         return topicGroupTitle;
     }
 
-    public void setTopicGroupTitle(String topicGroupTitle) {
-        this.topicGroupTitle = topicGroupTitle;
-    }
-
     public ArrayList<TopicGroup> getTopicGroups() {
         return topicGroups;
-    }
-
-    public void setTopicGroups(ArrayList<TopicGroup> topicGroups) {
-        this.topicGroups = topicGroups;
     }
 
     public ArrayList<Topic> getTopics() {
         return topics;
     }
 
-    public void setTopics(ArrayList<Topic> topics) {
-        this.topics = topics;
+    public ArrayList<UserCreditCard> getUserCreditCards() {
+        return userCreditCards;
     }
 
-    public SmallAd getSmallAd() {
-        return smallAd;
+    public CardRegistrationData getCardRegistrationData() {
+        return cardRegistrationData;
     }
 
-    public void setSmallAd(SmallAd smallAd) {
-        this.smallAd = smallAd;
+    public Integer getTotalWallet() {
+        return totalWallet;
     }
 }

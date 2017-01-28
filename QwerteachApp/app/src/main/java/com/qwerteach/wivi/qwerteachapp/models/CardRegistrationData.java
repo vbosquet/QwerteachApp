@@ -1,5 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 /**
@@ -8,9 +10,13 @@ import java.io.Serializable;
 
 public class CardRegistrationData implements Serializable {
 
+    @SerializedName("access_key")
     private String accessKey;
+    @SerializedName("preregistration_data")
     private String preRegistrationData;
+    @SerializedName("card_registration_url")
     private String cardRegistrationURL;
+    @SerializedName("id")
     private String cardPreregistrationId;
 
     public CardRegistrationData(String accessKey, String preRegistrationData, String cardRegistrationURL, String cardPreregistrationId) {

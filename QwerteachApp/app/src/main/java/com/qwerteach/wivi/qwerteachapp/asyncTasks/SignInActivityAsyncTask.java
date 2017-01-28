@@ -40,7 +40,7 @@ public class SignInActivityAsyncTask extends AsyncTask<String, String, String> {
             json.put("password", password);
             userJson.put("user", json);
 
-            URL url = new URL("http://192.168.0.125:3000/api/sessions");
+            URL url = new URL("http://192.168.0.102:3000/api/sessions");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.setDoOutput(true);

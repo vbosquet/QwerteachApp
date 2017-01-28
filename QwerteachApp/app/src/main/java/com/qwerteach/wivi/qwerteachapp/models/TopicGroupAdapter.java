@@ -21,8 +21,8 @@ import java.util.ArrayList;
 
 public class TopicGroupAdapter extends ArrayAdapter<TopicGroup> {
 
-    Context context;
-    ArrayList<TopicGroup> topicGroups;
+    private Context context;
+    private ArrayList<TopicGroup> topicGroups;
 
     public TopicGroupAdapter(Context context, int simple_spinner_item, ArrayList<TopicGroup> topicGroups) {
         super(context, simple_spinner_item, topicGroups);

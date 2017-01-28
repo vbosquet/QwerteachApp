@@ -10,18 +10,18 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 /**
- * Created by wivi on 7/11/16.
+ * Created by wivi on 27/01/17.
  */
 
-public class TopicAdapter extends ArrayAdapter<Topic> {
+public class LevelAdapter extends ArrayAdapter<Level> {
 
     private Context context;
-    private ArrayList<Topic> topics;
+    private ArrayList<Level> levels;
 
-    public TopicAdapter(Context context, int simple_spinner_item, ArrayList<Topic> topics) {
-        super(context, simple_spinner_item, topics);
+    public LevelAdapter(Context context, int simple_spinner_item, ArrayList<Level> levels) {
+        super(context, simple_spinner_item, levels);
         this.context = context;
-        this.topics = topics;
+        this.levels = levels;
 
     }
 
@@ -29,7 +29,7 @@ public class TopicAdapter extends ArrayAdapter<Topic> {
     public View getView(final int position, View convertView, ViewGroup parent) {
         TextView textView = new TextView(context);
         textView.setTextColor(Color.BLACK);
-        textView.setText(topics.get(position).getTopicTitle());
+        textView.setText(levels.get(position).getLevelName());
         return textView;
     }
 
@@ -38,7 +38,7 @@ public class TopicAdapter extends ArrayAdapter<Topic> {
         View v = super.getDropDownView(position, convertView, parent);
         TextView tv = ((TextView) v);
         tv.setTextColor(Color.BLACK);
-        tv.setText(topics.get(position).getTopicTitle());
+        tv.setText(levels.get(position).getLevelName());
         return v;
     }
 }

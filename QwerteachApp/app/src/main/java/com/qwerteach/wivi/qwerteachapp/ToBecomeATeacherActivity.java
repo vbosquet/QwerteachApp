@@ -1,28 +1,21 @@
 package com.qwerteach.wivi.qwerteachapp;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosProfileAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.SaveInfosProfileAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.ShowProfileInfosAsyncTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ToBecomeATeacherActivity extends AppCompatActivity implements SaveInfosProfileAsyncTask.ISaveInfosProfile,
-        ShowProfileInfosAsyncTask.IShowProfileInfos {
+public class ToBecomeATeacherActivity extends AppCompatActivity implements ShowProfileInfosAsyncTask.IShowProfileInfos {
 
     EditText firstNameEditText;
     EditText lastNameEditText;
@@ -72,29 +65,6 @@ public class ToBecomeATeacherActivity extends AppCompatActivity implements SaveI
     }
 
     public void didTouchSaveInfosProfile(View view) {
-    }
-
-    @Override
-    public void displayConfirmationRegistrationInfosProfile(String string) {
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String registrationConfirmation = jsonObject.getString("success");
-
-            if (registrationConfirmation.equals("true")) {
-            } else {
-                Toast.makeText(this, R.string.error_save_infos_profile_toast_message, Toast.LENGTH_SHORT).show();
-            }
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void startSaveInfosProfileTabAsyncTask() {
-
         String firstName = firstNameEditText.getText().toString();
         String lastName = lastNameEditText.getText().toString();
         String birthDate = birthDateEditText.getText().toString();
@@ -102,8 +72,7 @@ public class ToBecomeATeacherActivity extends AppCompatActivity implements SaveI
         String email = emailEditText.getText().toString();
         String phoneNumber = phoneNumberEditText.getText().toString();
 
-        SaveInfosProfileAsyncTask saveInfosProfileAsyncTask = new SaveInfosProfileAsyncTask(this);
-        saveInfosProfileAsyncTask.execute(firstName, lastName, birthDate, description, userId, email, phoneNumber);
+        //TODO
     }
 
     @Override

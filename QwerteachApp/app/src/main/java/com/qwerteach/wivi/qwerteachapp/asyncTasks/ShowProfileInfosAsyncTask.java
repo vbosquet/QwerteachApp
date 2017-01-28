@@ -29,7 +29,7 @@ public class ShowProfileInfosAsyncTask extends AsyncTask<String, String, String>
 
         try {
 
-            URL url = new URL("http://192.168.0.125:3000/api/users/" + userId);
+            URL url = new URL("http://192.168.0.102:3000/api/users/" + userId);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.addRequestProperty("X-User-Email", email);
             connection.addRequestProperty("X-User-Token", token);

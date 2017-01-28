@@ -28,7 +28,7 @@ public class GetAllConversationsAsyncTask extends AsyncTask<String, String, Stri
 
         try {
 
-            URL url = new URL("http://192.168.0.125:3000/api/mailbox/inbox");
+            URL url = new URL("http://192.168.0.102:3000/api/mailbox/inbox");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.addRequestProperty("X-User-Email", email);
             connection.addRequestProperty("X-User-Token", token);

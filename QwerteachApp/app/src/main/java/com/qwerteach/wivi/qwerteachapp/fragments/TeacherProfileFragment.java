@@ -9,7 +9,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,9 +25,11 @@ import com.qwerteach.wivi.qwerteachapp.LessonReservationActivity;
 import com.qwerteach.wivi.qwerteachapp.MyMessagesActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.ReadCommentsActivity;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayTopicLevelsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.NewLessonRequestAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.SendMessageToTeacherAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Level;
 import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
@@ -36,20 +37,21 @@ import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by wivi on 11/01/17.
  */
 
 public class TeacherProfileFragment extends Fragment implements View.OnClickListener,
-        SendMessageToTeacherAsyncTask.ISendMessageToTeacher,
-        DisplayTopicLevelsAsyncTask.IDisplayTopicLevels,
-        NewLessonRequestAsyncTask.INewLessonRequest {
+        SendMessageToTeacherAsyncTask.ISendMessageToTeacher {
 
     View view;
     String email, token, firstName, lastName;
@@ -61,10 +63,9 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
     Teacher teacher;
     ArrayList<Review> reviews;
     ArrayList<SmallAd> smallAds;
-    ArrayList<Level> levels;
-    ArrayList<String> topicGroupTitleList;
     ProgressDialog progressDialog;
     ImageView teacherAvatar;
+    QwerteachService service;
 
     public static TeacherProfileFragment newInstance() {
         TeacherProfileFragment teacherProfileFragment = new TeacherProfileFragment();
@@ -100,16 +101,9 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
             teacher = (Teacher) bundle.getSerializable("teacher");
         }
 
+        service = ApiClient.getClient().create(QwerteachService.class);
         reviews = teacher.getReviews();
         smallAds = teacher.getSmallAds();
-        levels = new ArrayList<>();
-        topicGroupTitleList = new ArrayList<>();
-
-        for (int i = 0; i < smallAds.size(); i++) {
-            int topicId = smallAds.get(i).getTopicId();
-            DisplayTopicLevelsAsyncTask displayTopicLevelsAsyncTask = new DisplayTopicLevelsAsyncTask(this);
-            displayTopicLevelsAsyncTask.execute(topicId);
-        }
 
         teacherName = (TextView) view.findViewById(R.id.firstname_and_lastanme_text_view);
         teacherDescription = (TextView) view.findViewById(R.id.description_text_view);
@@ -256,63 +250,49 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         }
     }
 
-    @Override
-    public void displayTopicLevels(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONArray jsonArray = jsonObject.getJSONArray("levels");
-            String topicGroupTitle = jsonObject.getString("topic_group_title");
-            topicGroupTitleList.add(topicGroupTitle);
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonData = jsonArray.getJSONObject(i);
-                int levelId = jsonData.getInt("id");
-                String levelName = jsonData.getString("fr");
-                Level level = new Level(levelId, levelName);
-                levels.add(level);
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void didTouchSeeDetailedPrices() {
         createAlertDialog();
     }
 
 
     public void createAlertDialog() {
+        startProgressDialog();
         final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.detailed_prices_alert_dialog, null);
         builder.setView(dialogView);
 
         TextView title = (TextView) dialogView.findViewById(R.id.title);
-        LinearLayout alertDialog = (LinearLayout) dialogView.findViewById(R.id.alert_dialog_linear_layout);
+        final LinearLayout alertDialog = (LinearLayout) dialogView.findViewById(R.id.alert_dialog_linear_layout);
 
         title.setText("Tarif(s) de " + teacher.getUser().getFirstName());
 
         for (int i = 0; i < smallAds.size(); i++) {
-            String topicTitle = smallAds.get(i).getTitle();
-            String topicGroupTitle = topicGroupTitleList.get(i);
-            addSmallAdTitlesToAlertDialog(topicTitle, topicGroupTitle, alertDialog);
 
-            ArrayList<SmallAdPrice> smallAdPrices = smallAds.get(i).getSmallAdPrices();
+            final String topic = smallAds.get(i).getTitle();
+            final ArrayList<SmallAdPrice> smallAdPrices = smallAds.get(i).getSmallAdPrices();
 
-            for (int j = 0; j < smallAdPrices.size(); j++) {
-                int levelId = smallAdPrices.get(j).getLevelId();
-                String price = String.valueOf(smallAdPrices.get(j).getPrice());
-                String levelName = "";
+            Call<JsonResponse> call = service.getInfosForDetailedPrices(smallAds.get(i).getAdvertId(), email, token);
+            call.enqueue(new Callback<JsonResponse>() {
+                @Override
+                public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                    ArrayList<Level> levels = response.body().getLevels();
+                    String topicGroup = response.body().getTopicGroupTitle();
+                    addSmallAdTitlesToAlertDialog(topic, topicGroup, alertDialog);
 
-                for (int k = 0; k < levels.size(); k++) {
-                    if (levels.get(k).getLevelId() == levelId) {
-                        levelName = levels.get(k).getLevelName();
+                    for (int j = 0; j < smallAdPrices.size(); j++) {
+                        addSmallAdLevelsAndPricesToAlertDialog(String.valueOf(smallAdPrices.get(j).getPrice()),
+                                levels.get(j).getLevelName(), alertDialog);
                     }
+
+                    progressDialog.dismiss();
                 }
 
-                addSmallAdLevelsAndPricesToAlertDialog(price, levelName, alertDialog);
-            }
+                @Override
+                public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+                }
+            });
         }
 
         AlertDialog dialog = builder.create();
@@ -356,35 +336,15 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
     }
 
     public void didTouchReadComments() {
-
         Intent intent = new Intent(getContext(), ReadCommentsActivity.class);
         intent.putExtra("reviews", reviews);
         startActivity(intent);
     }
 
     public void didTouchLessonReservationButton() {
-        String teacherId = String.valueOf(teacher.getUser().getUserId());
-        NewLessonRequestAsyncTask newLessonRequestAsyncTask = new NewLessonRequestAsyncTask(this);
-        newLessonRequestAsyncTask.execute(teacherId, email, token);
-    }
-
-    @Override
-    public void lessonRequest(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String success = jsonObject.getString("success");
-
-            if (success.equals("true")) {
-                Intent intent = new Intent(getContext(), LessonReservationActivity.class);
-                intent.putStringArrayListExtra("topicGroup", topicGroupTitleList);
-                intent.putExtra("level", levels);
-                intent.putExtra("teacher", teacher);
-                startActivity(intent);
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        Intent intent = new Intent(getContext(), LessonReservationActivity.class);
+        intent.putExtra("teacher", teacher);
+        startActivity(intent);
     }
 
     public void startProgressDialog() {

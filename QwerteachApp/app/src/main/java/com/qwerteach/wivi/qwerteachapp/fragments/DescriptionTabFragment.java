@@ -33,7 +33,6 @@ import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
-import com.qwerteach.wivi.qwerteachapp.models.UserJson;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;

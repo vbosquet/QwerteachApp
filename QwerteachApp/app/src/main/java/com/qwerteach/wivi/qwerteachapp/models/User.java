@@ -1,6 +1,5 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -16,7 +15,7 @@ import java.util.Date;
 
 public class User implements Serializable {
 
-    private static final String BASE_URL = "http://192.168.0.125:3000";
+    private static final String BASE_URL = "http://192.168.0.102:3000";
 
     @SerializedName("id")
     private Integer userId;

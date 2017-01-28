@@ -40,7 +40,7 @@ public class FindUserTypeAsyncTask extends AsyncTask<String, String, String> {
             json.put("id", userId);
             userJson.put("user", json);
 
-            URL url = new URL("http://192.168.0.125:3000/api/profiles/find_type");
+            URL url = new URL("http://192.168.0.102:3000/api/profiles/find_type");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);

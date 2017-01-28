@@ -1,5 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 /**
@@ -7,7 +9,10 @@ import java.io.Serializable;
  */
 
 public class UserCreditCard implements Serializable {
+
+    @SerializedName("alias")
     private String alias;
+    @SerializedName("id")
     private String cardId;
     private String expirationDate;
     private String cardProvider;

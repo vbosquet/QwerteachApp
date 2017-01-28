@@ -1,5 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,13 +13,17 @@ import java.util.Date;
 
 public class Lesson implements Serializable {
 
-    private int lessonId;
-    private int studentId;
-    private int teacherId;
-    private int topicId;
-    private int topicGroupId;
-    private int levelId;
+    private Integer lessonId;
+    @SerializedName("student_id")
+    private Integer studentId;
+    private Integer teacherId;
+    @SerializedName("topic_id")
+    private Integer topicId;
+    private Integer topicGroupId;
+    @SerializedName("level_id")
+    private Integer levelId;
 
+    @SerializedName("time_start")
     private String timeStart;
     private String status;
     private String price;
@@ -28,6 +34,10 @@ public class Lesson implements Serializable {
     private String level;
     private String duration;
     private String paymentStatus;
+    @SerializedName("hours")
+    private String hours;
+    @SerializedName("minutes")
+    private String minutes;
 
     private boolean reviewNeeded;
 
@@ -48,51 +58,51 @@ public class Lesson implements Serializable {
         this.timeStart = timeStart;
     }
 
-    public int getLessonId() {
+    public Integer getLessonId() {
         return lessonId;
     }
 
-    public void setLessonId(int lessonId) {
+    public void setLessonId(Integer lessonId) {
         this.lessonId = lessonId;
     }
 
-    public int getStudentId() {
+    public Integer getStudentId() {
         return studentId;
     }
 
-    public void setStudentId(int studentId) {
+    public void setStudentId(Integer studentId) {
         this.studentId = studentId;
     }
 
-    public int getTeacherId() {
+    public Integer getTeacherId() {
         return teacherId;
     }
 
-    public void setTeacherId(int teacherId) {
+    public void setTeacherId(Integer teacherId) {
         this.teacherId = teacherId;
     }
 
-    public int getTopicId() {
+    public Integer getTopicId() {
         return topicId;
     }
 
-    public void setTopicId(int topicId) {
+    public void setTopicId(Integer topicId) {
         this.topicId = topicId;
     }
 
-    public int getTopicGroupId() {
+    public Integer getTopicGroupId() {
         return topicGroupId;
     }
 
-    public void setTopicGroupId(int topicGroupId) {
+    public void setTopicGroupId(Integer topicGroupId) {
         this.topicGroupId = topicGroupId;
     }
 
-    public int getLevelId() {
+    public Integer getLevelId() {
         return levelId;
     }
 
-    public void setLevelId(int levelId) {
+    public void setLevelId(Integer levelId) {
         this.levelId = levelId;
     }
 
@@ -187,6 +197,22 @@ public class Lesson implements Serializable {
 
     public void setTimeStart(String timeStart) {
         this.timeStart = timeStart;
+    }
+
+    public String getHours() {
+        return hours;
+    }
+
+    public void setHours(String hours) {
+        this.hours = hours;
+    }
+
+    public String getMinutes() {
+        return minutes;
+    }
+
+    public void setMinutes(String minutes) {
+        this.minutes = minutes;
     }
 
     public String calculateLessonDuration(int hours, int minutes) {

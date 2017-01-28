@@ -28,7 +28,7 @@ public class DisplayDashboardInfosAsyncTask extends AsyncTask<String, String, St
 
         try {
 
-            URL url = new URL("http://192.168.0.125:3000/api/dashboard");
+            URL url = new URL("http://192.168.0.102:3000/api/dashboard");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.addRequestProperty("X-User-Email", email);
             connection.addRequestProperty("X-User-Token", token);

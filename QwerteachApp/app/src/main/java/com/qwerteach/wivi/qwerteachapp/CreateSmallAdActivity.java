@@ -81,7 +81,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
     }
 
     public void getTopicGroups() {
-        Call<JsonResponse> call = service.getTopicGroups();
+        Call<JsonResponse> call = service.getAllTopicGroups();
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
