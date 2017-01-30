@@ -51,9 +51,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 public class PaymentMethodActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
-        PayLessonWithTransfertOrBancontactAsyncTask.IPayWithTransfertOrBancontact,
-        CompoundButton.OnCheckedChangeListener,
-        PayLessonWithCreditCardAsyncTask.IPayWithCreditCard {
+        CompoundButton.OnCheckedChangeListener {
 
     Double totalPrice;
     String userId, email, token;
@@ -70,6 +68,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
     EditText cardNumberEditText, cvvEditText;
     CardRegistrationData cardRegistrationData;
     QwerteachService service;
+    Call<JsonResponse> call;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,7 +108,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
         otherPaymentMethods.add("Carte de crédit");
         otherPaymentMethods.add("Bancontact");
 
-        Call<JsonResponse> call = service.getTotalWallet(userId, email, token);
+        call = service.getTotalWallet(userId, email, token);
         call.enqueue(new retrofit2.Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -369,8 +368,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         layoutParams.setMargins(0, 0, 0, dpAsPixels);
         messageTextView.setLayoutParams(layoutParams);
-        messageTextView.setText("Nous allons vous rediriger vers le terminal de votre\n" +
-                "banque pour finaliser le paiement.");
+        messageTextView.setText("Nous allons vous rediriger vers le terminal de votre banque pour finaliser le paiement.");
         messageTextView.setGravity(Gravity.CENTER);
         otherPaymentMethodDetailsLayout.addView(messageTextView);
     }
@@ -441,10 +439,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                 Toast.makeText(this, R.string.total_wallet_insufficient_toast_message, Toast.LENGTH_SHORT).show();
 
             } else {
-                PayLessonWithTransfertOrBancontactAsyncTask payLessonWithTransfertOrBancontactAsyncTask =
-                        new PayLessonWithTransfertOrBancontactAsyncTask(this);
-                payLessonWithTransfertOrBancontactAsyncTask.execute(email, token, teacherId, paymentMode);
-
+                payLesson();
             }
 
         } else if (paymentMode.equals("cd")) {
@@ -455,7 +450,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                     }
                 }
 
-                startPayLessonWithCreditCardAsyncTask();
+                payLesson();
 
             } else  {
                 String year = currentYear.substring(2);
@@ -477,7 +472,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                             @Override public void success(CardRegistration cardRegistration) {
                                 Log.d(MainActivity.class.getSimpleName(), cardRegistration.toString());
                                 cardId = cardRegistration.getCardId();
-                                startPayLessonWithCreditCardAsyncTask();
+                                payLesson();
                             }
 
                             @Override
@@ -490,36 +485,8 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
             }
 
         } else if (paymentMode.equals("bancontact")) {
-            PayLessonWithTransfertOrBancontactAsyncTask payLessonWithTransfertOrBancontactAsyncTask = new
-                    PayLessonWithTransfertOrBancontactAsyncTask(this);
-            payLessonWithTransfertOrBancontactAsyncTask.execute(email, token, teacherId, paymentMode);
+            payLesson();
         }
-    }
-
-    @Override
-    public void confirmationMessageFromPaymentWithTransfertOrBancontact(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String message = jsonObject.getString("message");
-
-            if (message.equals("finish")) {
-                Toast.makeText(this, R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(this, MyLessonsActivity.class);
-                startActivity(intent);
-
-            } else if (message.equals("result")) {
-                String returnURL = jsonObject.getString("url");
-                Intent intent = new Intent(this, MangoPayWebViewActivity.class);
-                intent.putExtra("url", returnURL);
-                startActivity(intent);
-
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-
     }
 
     @Override
@@ -532,33 +499,37 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
 
     }
 
-    @Override
-    public void confirmationMessagePaymentWithCreditCard(String string) {
+    public void payLesson() {
+        if (paymentMode.equals("cd")) {
+            call = service.payLessonWithCreditCard(teacherId, paymentMode, cardId, email, token);
 
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String message = jsonObject.getString("message");
-
-            if (message.equals("result")) {
-                String secureModeReturnUrl = jsonObject.getString("url");
-                Intent intent = new Intent(this, RegisterNewCardActivity.class);
-                intent.putExtra("url", secureModeReturnUrl);
-                startActivity(intent);
-
-            } else if (message.equals("finish")) {
-                Toast.makeText(this, R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(this, MyLessonsActivity.class);
-                startActivity(intent);
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
+        } else {
+            call = service.payLesson(teacherId, paymentMode, email, token);
         }
 
-    }
+        call.enqueue(new retrofit2.Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                String message = response.body().getMessage();
 
-    public void startPayLessonWithCreditCardAsyncTask() {
-        PayLessonWithCreditCardAsyncTask payLessonWithCreditCardAsyncTask = new PayLessonWithCreditCardAsyncTask(this);
-        payLessonWithCreditCardAsyncTask.execute(email, token, teacherId, paymentMode, cardId);
+                if (message.equals("result")) {
+                    String url = response.body().getUrl();
+                    Intent intent = new Intent(getApplication(), MangoPaySecureModeActivity.class);
+                    intent.putExtra("url", url);
+                    intent.putExtra("mode", paymentMode);
+                    startActivity(intent);
+
+                } else if (message.equals("finish")) {
+                    Toast.makeText(getApplication(), R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(getApplication(), MyLessonsActivity.class);
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
     }
 }

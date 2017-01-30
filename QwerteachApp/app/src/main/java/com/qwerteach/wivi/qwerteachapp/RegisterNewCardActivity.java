@@ -73,7 +73,6 @@ public class RegisterNewCardActivity extends AppCompatActivity implements Credit
             } else {
                 Toast.makeText(getApplicationContext(), R.string.payment_error_toast_message, Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(getApplicationContext(), PaymentMethodActivity.class);
-                //intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             }
 
@@ -81,6 +80,29 @@ public class RegisterNewCardActivity extends AppCompatActivity implements Credit
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.lesson_reservation_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void startCreditCardAsyncTask(String url) {
+        CreditCardProcessAsyncTask creditCardProcessAsyncTask = new CreditCardProcessAsyncTask(this);
+        creditCardProcessAsyncTask.execute(email, token, url);
     }
 
     private class MyWebViewClient extends WebViewClient {
@@ -113,29 +135,6 @@ public class RegisterNewCardActivity extends AppCompatActivity implements Credit
                 progressDialog.dismiss();
             }
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.lesson_reservation_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void startCreditCardAsyncTask(String url) {
-        CreditCardProcessAsyncTask creditCardProcessAsyncTask = new CreditCardProcessAsyncTask(this);
-        creditCardProcessAsyncTask.execute(email, token, url);
     }
 
 }

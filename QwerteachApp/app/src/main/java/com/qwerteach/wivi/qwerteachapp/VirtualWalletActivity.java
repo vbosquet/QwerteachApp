@@ -25,7 +25,10 @@ import com.qwerteach.wivi.qwerteachapp.fragments.BankAccountInfosTabFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.CreateVirtualWalletFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.PaymentHistoryTabFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.UserInfosTabFragment;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.CardRegistrationData;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Transaction;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserBankAccount;
@@ -39,6 +42,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class VirtualWalletActivity extends AppCompatActivity implements CheckUserWalletAsyncTask.ICheckUserWallet,
         GetAllWalletInfosAsyncTask.IGetAllWalletInfos,
@@ -60,6 +67,7 @@ public class VirtualWalletActivity extends AppCompatActivity implements CheckUse
     ProgressDialog progressDialog;
     User user;
     double totalWallet;
+    QwerteachService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +88,8 @@ public class VirtualWalletActivity extends AppCompatActivity implements CheckUse
         token = preferences.getString("token", "");
         userId = preferences.getString("userId", "");
         isTeacher = preferences.getBoolean("isTeacher", false);
+
+        service = ApiClient.getClient().create(QwerteachService.class);
 
         CheckUserWalletAsyncTask checkUserWalletAsyncTask = new CheckUserWalletAsyncTask(this);
         checkUserWalletAsyncTask.execute(email, token);
@@ -150,8 +160,9 @@ public class VirtualWalletActivity extends AppCompatActivity implements CheckUse
 
             } else {
 
-                GetTotalWalletAsyncTask getTotalWalletAsyncTask = new GetTotalWalletAsyncTask(this);
-                getTotalWalletAsyncTask.execute(email, token, userId);
+                //GetTotalWalletAsyncTask getTotalWalletAsyncTask = new GetTotalWalletAsyncTask(this);
+                //getTotalWalletAsyncTask.execute(email, token, userId);
+                getTotalWallet();
 
                 GetAllWalletInfosAsyncTask getAllWalletInfosAsyncTask = new GetAllWalletInfosAsyncTask(this);
                 getAllWalletInfosAsyncTask.execute(email, token, 0);
@@ -166,6 +177,22 @@ public class VirtualWalletActivity extends AppCompatActivity implements CheckUse
             e.printStackTrace();
         }
 
+    }
+
+    public void getTotalWallet() {
+        Call<JsonResponse> call = service.getTotalWallet(userId, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                totalWallet = response.body().getTotalWallet();
+                actionBar.setSubtitle("Solde de mon Portefeuille : " + totalWallet/100 + "€");
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override
@@ -327,7 +354,7 @@ public class VirtualWalletActivity extends AppCompatActivity implements CheckUse
     @Override
     public void displayTotalWallet(String string) {
 
-        try {
+        /*try {
             JSONObject jsonObject = new JSONObject(string);
             totalWallet = jsonObject.getDouble("total_wallet");
             actionBar.setSubtitle("Solde : " + totalWallet/100 + " €");
@@ -335,7 +362,7 @@ public class VirtualWalletActivity extends AppCompatActivity implements CheckUse
 
         } catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
 
     }
 

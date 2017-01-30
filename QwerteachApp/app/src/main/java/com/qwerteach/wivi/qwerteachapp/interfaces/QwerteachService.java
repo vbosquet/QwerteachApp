@@ -21,6 +21,7 @@ import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.Url;
 
 /**
  * Created by wivi on 19/01/17.
@@ -99,5 +100,15 @@ public interface QwerteachService {
     @POST("messages")
     Call<JsonResponse> sendMessageToTeacher(@Body Map<String, Message> body, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
+    @PUT("users/{user_id}/lesson_requests/payment")
+    Call<JsonResponse> payLesson(@Path("user_id") int teacherId, @Query("mode") String paymentmode,
+                                 @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @PUT("users/{user_id}/lesson_requests/payment")
+    Call<JsonResponse> payLessonWithCreditCard(@Path("user_id") int teacherId, @Query("mode") String paymentmode, @Query("card_id") String cardId,
+                                               @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET
+    Call<JsonResponse> finalizePaymentWithCard(@Url String url, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
 }

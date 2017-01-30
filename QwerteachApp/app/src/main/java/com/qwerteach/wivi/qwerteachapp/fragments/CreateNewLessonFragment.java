@@ -364,28 +364,26 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
     }
 
     public void didTouchCreateNewLessonButton() {
-        int teacherId = teacher.getUser().getUserId();
-        int levelId = currentLevelId;
-        int topicId = currentTopicId;
         String date = dateTextView.getText().toString();
         String time = timeTextView.getText().toString();
         String timeStart = date + " " + time;
-        String hours = hour;
-        String minutes = minute;
+
+        Lesson request = new Lesson();
+        request.setLevelId(currentLevelId);
+        request.setTopicId(currentTopicId);
+        request.setTimeStart(timeStart);
+        request.setHours(hour);
+        request.setMinutes(minute);
 
         Lesson lesson = new Lesson();
-        lesson.setTeacherId(teacherId);
-        lesson.setLevelId(levelId);
-        lesson.setTopicId(topicId);
-        lesson.setTimeStart(timeStart);
-        lesson.setHours(hours);
-        lesson.setMinutes(minutes);
+        lesson.setTeacherId(teacher.getUser().getUserId());
 
         Map<String, Lesson> requestBody = new HashMap<>();
-        requestBody.put("request", lesson);
+        requestBody.put("request", request);
+        requestBody.put("lesson", lesson);
 
         startProgressDialog();
-        Call<JsonResponse> call = service.createNewLesson(teacherId, requestBody, email, token);
+        Call<JsonResponse> call = service.createNewLesson(teacher.getUser().getUserId(), requestBody, email, token);
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

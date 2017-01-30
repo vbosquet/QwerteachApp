@@ -79,7 +79,7 @@
             android:name=".PaymentMethodActivity"
             android:label="@string/payment_method_activity_title" />
         <activity
-            android:name=".MangoPayWebViewActivity"
+            android:name=".MangoPaySecureModeActivity"
             android:label="@string/mango_pay_web_view_activity_title"
             android:parentActivityName=".PaymentMethodActivity" />
         <activity android:name=".RegisterNewCardActivity" />

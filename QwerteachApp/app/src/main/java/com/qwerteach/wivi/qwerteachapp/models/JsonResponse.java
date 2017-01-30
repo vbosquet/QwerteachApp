@@ -55,6 +55,8 @@ public class JsonResponse {
     private ArrayList<User> users;
     @SerializedName("options")
     private ArrayList<ArrayList<String>> options;
+    @SerializedName("url")
+    private String url;
 
     public String getAvatar() {
         return avatar;
@@ -142,5 +144,9 @@ public class JsonResponse {
 
     public ArrayList<ArrayList<String>> getOptions() {
         return options;
+    }
+
+    public String getUrl() {
+        return url;
     }
 }

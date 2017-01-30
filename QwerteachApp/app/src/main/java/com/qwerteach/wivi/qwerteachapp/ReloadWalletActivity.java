@@ -13,7 +13,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
@@ -27,12 +26,8 @@ import com.mangopay.android.sdk.Callback;
 import com.mangopay.android.sdk.MangoPayBuilder;
 import com.mangopay.android.sdk.model.CardRegistration;
 import com.mangopay.android.sdk.model.exception.MangoException;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllWalletInfosAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetPreRegistrationCardDataAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.LoadWalletAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.models.CardRegistrationData;
-import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
-import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 
 import org.json.JSONException;
@@ -386,7 +381,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
 
             } else if (message.equals("redirect url")) {
                 String returnURL = jsonObject.getString("url");
-                Intent intent = new Intent(this, MangoPayWebViewActivity.class);
+                Intent intent = new Intent(this, MangoPaySecureModeActivity.class);
                 intent.putExtra("url", returnURL);
                 startActivity(intent);
 

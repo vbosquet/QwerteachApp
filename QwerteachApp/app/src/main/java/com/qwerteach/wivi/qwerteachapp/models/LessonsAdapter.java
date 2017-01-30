@@ -39,6 +39,66 @@ public class LessonsAdapter extends RecyclerView.Adapter<LessonsAdapter.ViewHold
         this.fragment = fragment;
     }
 
+    public static void displayAcceptLessonButton(ViewHolder viewHolder) {
+        viewHolder.lessonCancel.setVisibility(View.GONE);
+        viewHolder.lessonAccept.setVisibility(View.VISIBLE);
+        viewHolder.lessonRefuse.setVisibility(View.VISIBLE);
+        viewHolder.lessonUpdate.setVisibility(View.VISIBLE);
+        viewHolder.positiveReviewButton.setVisibility(View.GONE);
+        viewHolder.negativeReviewButton.setVisibility(View.GONE);
+        viewHolder.reviewButton.setVisibility(View.GONE);
+    }
+
+    public static void removeAllButtons(ViewHolder viewHolder) {
+        viewHolder.lessonCancel.setVisibility(View.GONE);
+        viewHolder.lessonAccept.setVisibility(View.GONE);
+        viewHolder.lessonRefuse.setVisibility(View.GONE);
+        viewHolder.lessonUpdate.setVisibility(View.GONE);
+        viewHolder.positiveReviewButton.setVisibility(View.GONE);
+        viewHolder.negativeReviewButton.setVisibility(View.GONE);
+        viewHolder.reviewButton.setVisibility(View.GONE);
+    }
+
+    public static void removeAcceptLessonButton(ViewHolder viewHolder) {
+        viewHolder.lessonCancel.setVisibility(View.VISIBLE);
+        viewHolder.lessonUpdate.setVisibility(View.VISIBLE);
+        viewHolder.lessonAccept.setVisibility(View.GONE);
+        viewHolder.lessonRefuse.setVisibility(View.GONE);
+        viewHolder.positiveReviewButton.setVisibility(View.GONE);
+        viewHolder.negativeReviewButton.setVisibility(View.GONE);
+        viewHolder.reviewButton.setVisibility(View.GONE);
+    }
+
+    public static void displayCancelButtonOnly(ViewHolder viewHolder) {
+        viewHolder.lessonCancel.setVisibility(View.VISIBLE);
+        viewHolder.lessonUpdate.setVisibility(View.GONE);
+        viewHolder.lessonAccept.setVisibility(View.GONE);
+        viewHolder.lessonRefuse.setVisibility(View.GONE);
+        viewHolder.positiveReviewButton.setVisibility(View.GONE);
+        viewHolder.negativeReviewButton.setVisibility(View.GONE);
+        viewHolder.reviewButton.setVisibility(View.GONE);
+    }
+
+    public static void displayPayTeacherButtons(ViewHolder viewHolder) {
+        viewHolder.lessonCancel.setVisibility(View.GONE);
+        viewHolder.lessonAccept.setVisibility(View.GONE);
+        viewHolder.lessonRefuse.setVisibility(View.GONE);
+        viewHolder.lessonUpdate.setVisibility(View.GONE);
+        viewHolder.positiveReviewButton.setVisibility(View.VISIBLE);
+        viewHolder.negativeReviewButton.setVisibility(View.VISIBLE);
+        viewHolder.reviewButton.setVisibility(View.GONE);
+    }
+
+    public static void displayReviewButton(ViewHolder viewHolder) {
+        viewHolder.lessonCancel.setVisibility(View.GONE);
+        viewHolder.lessonAccept.setVisibility(View.GONE);
+        viewHolder.lessonRefuse.setVisibility(View.GONE);
+        viewHolder.lessonUpdate.setVisibility(View.GONE);
+        viewHolder.positiveReviewButton.setVisibility(View.GONE);
+        viewHolder.negativeReviewButton.setVisibility(View.GONE);
+        viewHolder.reviewButton.setVisibility(View.VISIBLE);
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.lesson_list_view, parent, false);
@@ -162,7 +222,7 @@ public class LessonsAdapter extends RecyclerView.Adapter<LessonsAdapter.ViewHold
             holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
             displayAcceptLessonButton(holder);
 
-        } else if (lesson.getPaymentStatus().equals("paid") && lesson.isReviewNeeded()) {
+        } else if (lesson.getPaymentStatus().equals("paid") && lesson.getReviewNeeded()) {
             holder.lessonStatus.setVisibility(View.VISIBLE);
             holder.lessonStatus.setText("Laissez un commentaire à "
                     + lesson.getUserFirstName() + " "+ lesson.getUserLastName());
@@ -181,7 +241,7 @@ public class LessonsAdapter extends RecyclerView.Adapter<LessonsAdapter.ViewHold
             holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.orange));
             removeAllButtons(holder);
 
-        } else if (lesson.getPaymentStatus().equals("paid") && !lesson.isReviewNeeded() && lesson.getStatus().equals("past")) {
+        } else if (lesson.getPaymentStatus().equals("paid") && !lesson.getReviewNeeded() && lesson.getStatus().equals("past")) {
             holder.lessonStatus.setVisibility(View.GONE);
             removeAllButtons(holder);
 
@@ -220,65 +280,5 @@ public class LessonsAdapter extends RecyclerView.Adapter<LessonsAdapter.ViewHold
             negativeReviewButton = (Button) itemView.findViewById(R.id.no_button);
             reviewButton = (Button) itemView.findViewById(R.id.review_button);
         }
-    }
-
-    public static void displayAcceptLessonButton(ViewHolder viewHolder) {
-        viewHolder.lessonCancel.setVisibility(View.GONE);
-        viewHolder.lessonAccept.setVisibility(View.VISIBLE);
-        viewHolder.lessonRefuse.setVisibility(View.VISIBLE);
-        viewHolder.lessonUpdate.setVisibility(View.VISIBLE);
-        viewHolder.positiveReviewButton.setVisibility(View.GONE);
-        viewHolder.negativeReviewButton.setVisibility(View.GONE);
-        viewHolder.reviewButton.setVisibility(View.GONE);
-    }
-
-    public static void removeAllButtons(ViewHolder viewHolder) {
-        viewHolder.lessonCancel.setVisibility(View.GONE);
-        viewHolder.lessonAccept.setVisibility(View.GONE);
-        viewHolder.lessonRefuse.setVisibility(View.GONE);
-        viewHolder.lessonUpdate.setVisibility(View.GONE);
-        viewHolder.positiveReviewButton.setVisibility(View.GONE);
-        viewHolder.negativeReviewButton.setVisibility(View.GONE);
-        viewHolder.reviewButton.setVisibility(View.GONE);
-    }
-
-    public static void removeAcceptLessonButton(ViewHolder viewHolder) {
-        viewHolder.lessonCancel.setVisibility(View.VISIBLE);
-        viewHolder.lessonUpdate.setVisibility(View.VISIBLE);
-        viewHolder.lessonAccept.setVisibility(View.GONE);
-        viewHolder.lessonRefuse.setVisibility(View.GONE);
-        viewHolder.positiveReviewButton.setVisibility(View.GONE);
-        viewHolder.negativeReviewButton.setVisibility(View.GONE);
-        viewHolder.reviewButton.setVisibility(View.GONE);
-    }
-
-    public static void displayCancelButtonOnly(ViewHolder viewHolder) {
-        viewHolder.lessonCancel.setVisibility(View.VISIBLE);
-        viewHolder.lessonUpdate.setVisibility(View.GONE);
-        viewHolder.lessonAccept.setVisibility(View.GONE);
-        viewHolder.lessonRefuse.setVisibility(View.GONE);
-        viewHolder.positiveReviewButton.setVisibility(View.GONE);
-        viewHolder.negativeReviewButton.setVisibility(View.GONE);
-        viewHolder.reviewButton.setVisibility(View.GONE);
-    }
-
-    public static void displayPayTeacherButtons(ViewHolder viewHolder) {
-        viewHolder.lessonCancel.setVisibility(View.GONE);
-        viewHolder.lessonAccept.setVisibility(View.GONE);
-        viewHolder.lessonRefuse.setVisibility(View.GONE);
-        viewHolder.lessonUpdate.setVisibility(View.GONE);
-        viewHolder.positiveReviewButton.setVisibility(View.VISIBLE);
-        viewHolder.negativeReviewButton.setVisibility(View.VISIBLE);
-        viewHolder.reviewButton.setVisibility(View.GONE);
-    }
-
-    public static void displayReviewButton(ViewHolder viewHolder) {
-        viewHolder.lessonCancel.setVisibility(View.GONE);
-        viewHolder.lessonAccept.setVisibility(View.GONE);
-        viewHolder.lessonRefuse.setVisibility(View.GONE);
-        viewHolder.lessonUpdate.setVisibility(View.GONE);
-        viewHolder.positiveReviewButton.setVisibility(View.GONE);
-        viewHolder.negativeReviewButton.setVisibility(View.GONE);
-        viewHolder.reviewButton.setVisibility(View.VISIBLE);
     }
 }

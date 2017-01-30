@@ -16,6 +16,7 @@ public class Lesson implements Serializable {
     private Integer lessonId;
     @SerializedName("student_id")
     private Integer studentId;
+    @SerializedName("teacher_id")
     private Integer teacherId;
     @SerializedName("topic_id")
     private Integer topicId;
@@ -39,7 +40,7 @@ public class Lesson implements Serializable {
     @SerializedName("minutes")
     private String minutes;
 
-    private boolean reviewNeeded;
+    private Boolean reviewNeeded;
 
     public Lesson(){
 
@@ -178,11 +179,11 @@ public class Lesson implements Serializable {
         this.paymentStatus = paymentStatus;
     }
 
-    public boolean isReviewNeeded() {
+    public Boolean getReviewNeeded() {
         return reviewNeeded;
     }
 
-    public void setReviewNeeded(boolean reviewNeeded) {
+    public void setReviewNeeded(Boolean reviewNeeded) {
         this.reviewNeeded = reviewNeeded;
     }
 
