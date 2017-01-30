@@ -28,7 +28,7 @@ import retrofit2.http.Query;
 public interface QwerteachService {
 
     @GET("users/{id}")
-    Call<JsonResponse> getStudentId(@Path("id") String userId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+    Call<JsonResponse> getUserInfos(@Path("id") String userId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @PUT("users/{id}")
     Call<JsonResponse> getStudentInfos(@Path("id") String userId, @Body Map<String, User> body, @Header("X-User-Email") String email,
@@ -57,6 +57,9 @@ public interface QwerteachService {
 
     @GET("topic_groups")
     Call<JsonResponse> getAllTopicGroups();
+
+    @GET("topics")
+    Call<JsonResponse> getAllTopics();
 
     @GET("topic_choice")
     Call<JsonResponse> getTopics(@Query("group_id") int topicGroupId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
@@ -87,6 +90,10 @@ public interface QwerteachService {
 
     @GET("wallets/get_total_wallet/{user_id}")
     Call<JsonResponse> getTotalWallet(@Path("user_id") String userId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("profs")
+    Call<JsonResponse> getSearchResults(@Query("topic") String topic, @Query("search_sorting") String searchSortingOption, @Query("page") int pageNumber,
+                                        @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
 
 }

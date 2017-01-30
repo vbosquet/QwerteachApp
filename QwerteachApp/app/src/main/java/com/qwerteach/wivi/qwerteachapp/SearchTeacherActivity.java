@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
@@ -22,46 +21,46 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllTopicsAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.RedirectURLAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.SearchTeacherAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.ShowProfileInfosAsyncTask;
+
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.OptionAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.TeacherAdapter;
+import com.qwerteach.wivi.qwerteachapp.models.Topic;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SearchTeacherActivity extends AppCompatActivity implements
-        SearchTeacherAsyncTask.ISearchTeacher,
         AdapterView.OnItemSelectedListener,
-        GetAllTopicsAsyncTask.IGetAllTopics,
-        ShowProfileInfosAsyncTask.IShowProfileInfos,
         TeacherAdapter.MyClickListener, View.OnClickListener {
 
     ArrayList<Teacher> teacherList;
-    ArrayList<String> menuItems, searchSortingOptionNameToDisplay, searchSortingOptionNameToSendToAsyncTask;
+    ArrayList<String> menuItems, optionList;
     RecyclerView teacherRecyclerView;
     RecyclerView.Adapter teacherAdapter;
     RecyclerView.LayoutManager teacherLayoutManager;
     Spinner searchSortingOptionsSpinner;
-    int currentSearchSortingOption = 0, page = 1, scrollPosition = 0;
-    String query, email, token, searchSortingOption;
+    int currentOptionId = 0, page = 1, scrollPosition = 0;
+    String query, email, token, currentOption = "";
     ProgressDialog progressDialog;
     FloatingActionButton floatingActionButton;
+    QwerteachService service;
+    ArrayList<ArrayList<String>> searchOptions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +69,6 @@ public class SearchTeacherActivity extends AppCompatActivity implements
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-
-        query = getIntent().getStringExtra("query");
 
         searchSortingOptionsSpinner = (Spinner) findViewById(R.id.search_sorting_options_spinner);
         teacherRecyclerView = (RecyclerView) findViewById(R.id.teacher_recycler_view);
@@ -82,27 +79,51 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         email = preferences.getString("email", "");
         token = preferences.getString("token", "");
 
+        query = getIntent().getStringExtra("query");
         teacherList = new ArrayList<>();
         menuItems = new ArrayList<>();
-        searchSortingOptionNameToDisplay = new ArrayList<>();
-        searchSortingOptionNameToSendToAsyncTask = new ArrayList<>();
+        optionList = new ArrayList<>();
         progressDialog = new ProgressDialog(this);
+        service = ApiClient.getClient().create(QwerteachService.class);
 
         menuItems.add(query);
+        startSearchTeacherAsyncTask();
+        getAllTopics();
 
-        startSearchTeacherAsyncTask(query, "", 1);
+    }
 
-        GetAllTopicsAsyncTask getAllTopicsAsyncTask = new GetAllTopicsAsyncTask(this);
-        getAllTopicsAsyncTask.execute();
+    public void getAllTopics() {
+        Call<JsonResponse> call = service.getAllTopics();
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                ArrayList<Topic> topics = response.body().getTopics();
+                for (int i = 0; i < topics.size(); i++) {
+                    if (!topics.get(i).getTopicTitle().equals("Other")) {
+                        menuItems.add(topics.get(i).getTopicTitle());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
 
     }
 
     @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.search_teacher_menu, menu);
+        displayMenuSpinner(menu);
+        return true;
+    }
+
+    public void displayMenuSpinner(Menu menu) {
         MenuItem item = menu.findItem(R.id.teacher_search_filter);
-        final Spinner spinner = (Spinner) MenuItemCompat.getActionView(item);
+        Spinner spinner = (Spinner) MenuItemCompat.getActionView(item);
         ArrayAdapter topicAdapter = new ArrayAdapter(this, R.layout.drop_down_menu_item, menuItems) {
 
             @Override
@@ -130,7 +151,6 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         spinner.setAdapter(topicAdapter);
         spinner.setOnItemSelectedListener(this);
 
-        return true;
     }
 
     @Override
@@ -142,58 +162,6 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void displaySearchResults(String string) {
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONArray pagin = jsonObject.getJSONArray("pagin");
-            JSONArray optionsJsonArray = jsonObject.getJSONArray("options");
-
-            if (pagin.length() > 0) {
-                for (int i = 0; i < pagin.length(); i++) {
-                    JSONObject jsonData = pagin.getJSONObject(i);
-                    int userId = jsonData.getInt("id");
-                    String firstName = jsonData.getString("firstname");
-                    String lastName = jsonData.getString("lastname");
-                    String birthdate = jsonData.getString("birthdate");
-                    String description = jsonData.getString("description");
-                    String occupation = jsonData.getString("occupation");
-
-                    User user = new User(userId, firstName, lastName, birthdate, occupation, description);
-                    Teacher teacher = new Teacher();
-                    teacher.setUser(user);
-                    teacherList.add(teacher);
-
-                    ShowProfileInfosAsyncTask showProfileInfosAsyncTask = new ShowProfileInfosAsyncTask(this);
-                    showProfileInfosAsyncTask.execute(String.valueOf(userId), email, token);
-                }
-
-            } else if (pagin.length() == 0 && page == 1){
-                progressDialog.dismiss();
-                Toast.makeText(this, R.string.no_result_found_toast_message, Toast.LENGTH_SHORT).show();
-
-            } else {
-                progressDialog.dismiss();
-            }
-
-            for (int i = 0; i < optionsJsonArray.length(); i++) {
-                JSONArray jsonData = optionsJsonArray.getJSONArray(i);
-
-                String searchOptionNameToDisplay = jsonData.getString(0);
-                String searchOptionNameToSend = jsonData.getString(1);
-
-                searchSortingOptionNameToDisplay.add(searchOptionNameToDisplay);
-                searchSortingOptionNameToSendToAsyncTask.add(searchOptionNameToSend);
-            }
-
-            displaySearchSortingOptionsSpinner();
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     public void displayTeacherListView() {
@@ -208,13 +176,26 @@ public class SearchTeacherActivity extends AppCompatActivity implements
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        String newQuery = menuItems.get(i);
+        switch (adapterView.getId()) {
+            case R.id.search_sorting_options_spinner:
+                currentOption = searchOptions.get(i).get(1);
+                if (currentOptionId == i) {
+                    return;
+                } else {
+                    startSearchTeacherAsyncTask();
+                }
 
-        if (!newQuery.equals(query)) {
-            Intent intent = new Intent(this, SearchTeacherActivity.class);
-            intent.putExtra("query", newQuery);
-            startActivity(intent);
-            finish();
+                currentOptionId = i;
+                break;
+            case R.id.teacher_search_filter:
+                String newQuery = menuItems.get(i);
+                if (!newQuery.equals(query)) {
+                    Intent intent = new Intent(this, SearchTeacherActivity.class);
+                    intent.putExtra("query", newQuery);
+                    startActivity(intent);
+                    finish();
+                }
+                break;
         }
 
     }
@@ -224,62 +205,61 @@ public class SearchTeacherActivity extends AppCompatActivity implements
 
     }
 
-    @Override
-    public void displayTopics(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONArray jsonArray = jsonObject.getJSONArray("topics");
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonData = jsonArray.getJSONObject(i);
-                String topicTitle = jsonData.getString("title");
-
-                if (!topicTitle.equals("Other")) {
-                    menuItems.add(topicTitle);
-                }
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    public void displaySearchSortingOptionsSpinner() {
+        OptionAdapter searchOptionsAdapter = new OptionAdapter(this, android.R.layout.simple_spinner_item, optionList);
+        searchOptionsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        searchSortingOptionsSpinner.setAdapter(searchOptionsAdapter);
+        searchSortingOptionsSpinner.setSelection(currentOptionId);
+        searchSortingOptionsSpinner.setOnItemSelectedListener(this);
     }
 
-    public void displaySearchSortingOptionsSpinner() {
-        ArrayAdapter searchOptionsAdapter = new ArrayAdapter(this, R.layout.drop_down_menu_item, searchSortingOptionNameToDisplay);
-        searchOptionsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        searchSortingOptionsSpinner.getBackground().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
-        searchSortingOptionsSpinner.setAdapter(searchOptionsAdapter);
-        searchSortingOptionsSpinner.setSelection(currentSearchSortingOption);
-        searchSortingOptionsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+    public void startSearchTeacherAsyncTask() {
+        scrollPosition = 0;
+        teacherList.clear();
+        startProgressDialog();
+        getSearchResults(query, currentOption, 1);
+
+    }
+
+    public void getSearchResults(String query, final String searchSortingOption, int pageNumber) {
+        optionList.clear();
+
+        Call<JsonResponse> call = service.getSearchResults(query, searchSortingOption, pageNumber, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                searchSortingOption = searchSortingOptionNameToSendToAsyncTask.get(i);
-                if (currentSearchSortingOption == i) {
-                    return;
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                ArrayList<User> users = response.body().getUsers();
+                searchOptions = response.body().getOptions();
+
+                if (users.size() > 0) {
+                    for (int i = 0; i < users.size(); i++) {
+                        Teacher teacher = new Teacher();
+                        teacher.setUser(users.get(i));
+                        teacherList.add(teacher);
+                        getTeacherInfos(users.get(i).getUserId());
+                    }
+                } else if (users.size() == 0 && page == 1){
+                    progressDialog.dismiss();
+                    Toast.makeText(getApplication(), R.string.no_result_found_toast_message, Toast.LENGTH_SHORT).show();
+
                 } else {
-                    startSearchTeacherAsyncTask(query, searchSortingOption, 1);
+                    progressDialog.dismiss();
                 }
 
-                currentSearchSortingOption = i;
+                for (int i = 0; i < searchOptions.size(); i++) {
+                    optionList.add(searchOptions.get(i).get(0));
+                }
+
+                displaySearchSortingOptionsSpinner();
+
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
 
             }
         });
-    }
 
-    public void startSearchTeacherAsyncTask(String query, String searchSortingOption, int pageNumber) {
-        teacherList.clear();
-        searchSortingOptionNameToDisplay.clear();
-        searchSortingOptionNameToSendToAsyncTask.clear();
-        scrollPosition = 0;
-
-        SearchTeacherAsyncTask searchTeacherAsyncTask = new SearchTeacherAsyncTask(this);
-        searchTeacherAsyncTask.execute(query, searchSortingOption, pageNumber);
-
-        startProgressDialog();
     }
 
     public void startProgressDialog() {
@@ -289,102 +269,66 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         progressDialog.setCancelable(true);
         progressDialog.show();
     }
+    public void getTeacherInfos(int userId) {
+        Call<JsonResponse> call = service.getUserInfos(String.valueOf(userId), email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                prepareDataForTeacher(response);
 
-    @Override
-    public void showProfileInfos(String string) {
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-
-            float avg = 0;
-            if (!jsonObject.isNull("avg")) {
-                avg = jsonObject.getLong("avg");
             }
 
-            double minPrice = jsonObject.getDouble("min_price");
-            JSONArray notesJson = jsonObject.getJSONArray("notes");
-            JSONArray reviewsJson = jsonObject.getJSONArray("reviews");
-            JSONArray advertsJson = jsonObject.getJSONArray("adverts");
-            JSONArray topicsJson = jsonObject.getJSONArray("topics");
-            JSONArray reviewsSanderNamesJson = jsonObject.getJSONArray("review_sender_names");
-            JSONObject userJson = jsonObject.getJSONObject("user");
-            int userId = userJson.getInt("id");
-            JSONArray advertPricesJson = jsonObject.getJSONArray("advert_prices");
-            String avatarUrl = jsonObject.getString("avatar");
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
 
-            ArrayList<SmallAd> smallAds = new ArrayList<>();
-            ArrayList<Review> reviews = new ArrayList<>();
-
-            for (int i = 0; i < advertsJson.length(); i++) {
-
-                JSONObject jsonData = advertsJson.getJSONObject(i);
-                String topicTitle = topicsJson.getString(i);
-                int smallAdId = jsonData.getInt("id");
-                int topicId = jsonData.getInt("topic_id");
-                int topicGroupId = jsonData.getInt("topic_group_id");
-                int teacherId = jsonData.getInt("user_id");
-                String smallAdDescription = jsonData.getString("description");
-
-                JSONArray advertPrices = advertPricesJson.getJSONArray(i);
-                ArrayList<SmallAdPrice> smallAdPrices = new ArrayList<>();
-
-                for (int j = 0; j < advertPrices.length(); j++) {
-                    JSONObject advertPricesData = advertPrices.getJSONObject(j);
-                    int id = advertPricesData.getInt("id");
-                    int levelId = advertPricesData.getInt("level_id");
-                    double price = advertPricesData.getDouble("price");
-
-                    SmallAdPrice smallAdPrice = new SmallAdPrice(id, levelId, price);
-                    smallAdPrices.add(smallAdPrice);
-                }
-
-                SmallAd smallAd = new SmallAd();
-                smallAd.setAdvertId(smallAdId);
-                smallAd.setTopicId(topicId);
-                smallAd.setTopicGroupId(topicGroupId);
-                smallAd.setUserId(teacherId);
-                smallAd.setDescription(smallAdDescription);
-                smallAd.setTitle(topicTitle);
-                smallAd.setSmallAdPrices(smallAdPrices);
-
-                smallAds.add(smallAd);
             }
+        });
+    }
 
-            for (int i = 0; i < reviewsJson.length(); i++) {
-                JSONObject jsonData = reviewsJson.getJSONObject(i);
+    public void prepareDataForTeacher(Response<JsonResponse> response) {
+        User user = response.body().getUser();
+        String avatarUrl = response.body().getAvatar();
+        ArrayList<SmallAd> smallAds = response.body().getSmallAds();
+        ArrayList<String> topics = response.body().getTopicTitles();
+        ArrayList<ArrayList<SmallAdPrice>> smallAdPrices = response.body().getSmallAdPrices();
+        ArrayList<Review> reviews = response.body().getReviews();
+        ArrayList<String> reviewSenderNames = response.body().getReviewSenderNames();
+        float rating = response.body().getRating();
+        double minPrice = response.body().getMinPrice();
+        ArrayList<Integer> notes = response.body().getNotes();
 
-                int reviewId = jsonData.getInt("id");
-                int senderId = jsonData.getInt("sender_id");
-                int subjectId = jsonData.getInt("subject_id");
-                String reviewText = jsonData.getString("review_text");
-                int note = jsonData.getInt("note");
-                String creationDate = jsonData.getString("created_at");
-                String senderFirstName = reviewsSanderNamesJson.getString(i);
+        for (int i = 0; i < smallAds.size(); i++) {
+            smallAds.get(i).setTitle(topics.get(i));
 
-                Review review = new Review(reviewId, senderId, subjectId, reviewText, note, creationDate);
-                review.setSenderFirstName(senderFirstName);
-                reviews.add(review);
-            }
+            ArrayList<SmallAdPrice> smallAdPriceArrayList = new ArrayList<>();
 
-            for (int i = 0; i < teacherList.size(); i++) {
-                if (teacherList.get(i).getUser().getUserId() == userId) {
-                    teacherList.get(i).setSmallAds(smallAds);
-                    teacherList.get(i).setReviews(reviews);
-                    teacherList.get(i).setRating(avg);
-                    teacherList.get(i).setNumberOfReviews(notesJson.length());
-                    teacherList.get(i).setMinPrice(minPrice);
-                    teacherList.get(i).getUser().setAvatarUrl(avatarUrl);
-                }
-
-                if (userId == teacherList.get(teacherList.size() - 1).getUser().getUserId()) {
-                    progressDialog.dismiss();
-                    displayTeacherListView();
+            if (smallAdPrices.get(i).size() > 0) {
+                for (int j = 0; j < smallAdPrices.get(i).size(); j++) {
+                    smallAdPriceArrayList.add(smallAdPrices.get(i).get(j));
                 }
             }
 
+            smallAds.get(i).setSmallAdPrices(smallAdPriceArrayList);
+        }
 
-        } catch (JSONException e) {
-            e.printStackTrace();
+        for (int i = 0; i < reviews.size(); i++) {
+            reviews.get(i).setSenderFirstName(reviewSenderNames.get(i));
+        }
+
+        for (int i = 0; i < teacherList.size(); i++) {
+            if (teacherList.get(i).getUser().getUserId() == user.getUserId()) {
+                teacherList.get(i).setSmallAds(smallAds);
+                teacherList.get(i).setReviews(reviews);
+                teacherList.get(i).setRating(rating);
+                teacherList.get(i).setNumberOfReviews(notes.size());
+                teacherList.get(i).setMinPrice(minPrice);
+                teacherList.get(i).getUser().setAvatarUrl(avatarUrl);
+            }
+
+            if (user.getUserId() == teacherList.get(teacherList.size() - 1).getUser().getUserId()) {
+                progressDialog.dismiss();
+                displayTeacherListView();
+            }
         }
 
     }
@@ -399,12 +343,9 @@ public class SearchTeacherActivity extends AppCompatActivity implements
 
     @Override
     public void onClick(View view) {
-        searchSortingOptionNameToDisplay.clear();
-        searchSortingOptionNameToSendToAsyncTask.clear();
         page += 1;
         scrollPosition = teacherList.size() - 1;
-        SearchTeacherAsyncTask searchTeacherAsyncTask = new SearchTeacherAsyncTask(this);
-        searchTeacherAsyncTask.execute(query, searchSortingOption, page);
+        getSearchResults(query,currentOption, page);
         startProgressDialog();
 
     }

@@ -1,6 +1,5 @@
 package com.qwerteach.wivi.qwerteachapp;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -32,10 +31,12 @@ import com.mangopay.android.sdk.Callback;
 import com.mangopay.android.sdk.MangoPayBuilder;
 import com.mangopay.android.sdk.model.CardRegistration;
 import com.mangopay.android.sdk.model.exception.MangoException;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetTotalWalletAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.PayLessonWithCreditCardAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.PayLessonWithTransfertOrBancontactAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.CardRegistrationData;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 
@@ -46,8 +47,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 
-public class PaymentMethodActivity extends AppCompatActivity implements GetTotalWalletAsyncTask.IGetTotalWallet,
-        AdapterView.OnItemSelectedListener,
+import retrofit2.Call;
+import retrofit2.Response;
+
+public class PaymentMethodActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
         PayLessonWithTransfertOrBancontactAsyncTask.IPayWithTransfertOrBancontact,
         CompoundButton.OnCheckedChangeListener,
         PayLessonWithCreditCardAsyncTask.IPayWithCreditCard {
@@ -61,11 +64,12 @@ public class PaymentMethodActivity extends AppCompatActivity implements GetTotal
     ArrayList<String> otherPaymentMethods, months, years;
     String paymentMode = "";
     Teacher teacher;
-    int teacherId, totalWallet;
+    Integer teacherId, totalWallet;
     String cardId, currentAlias, currentMonth, currentYear;
     ArrayList<UserCreditCard> userCreditCards;
     EditText cardNumberEditText, cvvEditText;
     CardRegistrationData cardRegistrationData;
+    QwerteachService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +79,16 @@ public class PaymentMethodActivity extends AppCompatActivity implements GetTotal
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        userCreditCards = new ArrayList<>();
+        totalWalletTextView = (TextView) findViewById(R.id.total_wallet_text_view);
+        otherPaymentMethodSpinner = (Spinner) findViewById(R.id.other_paiment_method_spinner);
+        paymentWithVirtualWallet = (CheckBox) findViewById(R.id.payment_with_virtual_wallet);
+        otherPaymentMethodDetailsLayout = (LinearLayout) findViewById(R.id.other_payment_method_details_layout);
+        paymentWithVirtualWallet.setOnCheckedChangeListener(this);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        userId = preferences.getString("userId", "");
+        email = preferences.getString("email", "");
+        token = preferences.getString("token", "");
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -87,34 +100,29 @@ public class PaymentMethodActivity extends AppCompatActivity implements GetTotal
 
 
         teacherId = teacher.getUser().getUserId();
-
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        userId = preferences.getString("userId", "");
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
-
-        GetTotalWalletAsyncTask getTotalWalletAsyncTask = new GetTotalWalletAsyncTask(this);
-        getTotalWalletAsyncTask.execute(email, token, userId);
-
         months = new ArrayList<>();
         years = new ArrayList<>();
+        service = ApiClient.getClient().create(QwerteachService.class);
 
         otherPaymentMethods = new ArrayList<>();
         otherPaymentMethods.add("Type de paiement");
         otherPaymentMethods.add("Carte de crédit");
         otherPaymentMethods.add("Bancontact");
 
-        totalWalletTextView = (TextView) findViewById(R.id.total_wallet_text_view);
-        otherPaymentMethodSpinner = (Spinner) findViewById(R.id.other_paiment_method_spinner);
-        paymentWithVirtualWallet = (CheckBox) findViewById(R.id.payment_with_virtual_wallet);
-        otherPaymentMethodDetailsLayout = (LinearLayout) findViewById(R.id.other_payment_method_details_layout);
+        Call<JsonResponse> call = service.getTotalWallet(userId, email, token);
+        call.enqueue(new retrofit2.Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                totalWallet = response.body().getTotalWallet();
+                totalWalletTextView.setText("Solde de mon Portefeuille : " + totalWallet/100 + "€");
+                displayOtherPaymentMethodSpinner();
+            }
 
-        paymentWithVirtualWallet.setOnCheckedChangeListener(this);
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
 
-        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, otherPaymentMethods);
-        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        otherPaymentMethodSpinner.setAdapter(arrayAdapter);
-        otherPaymentMethodSpinner.setOnItemSelectedListener(this);
+            }
+        });
     }
 
     @Override
@@ -135,17 +143,11 @@ public class PaymentMethodActivity extends AppCompatActivity implements GetTotal
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void displayTotalWallet(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            totalWallet = jsonObject.getInt("total_wallet");
-            totalWalletTextView.setText("Solde de mon Portefeuille : " + totalWallet/100 + "€");
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+    public void displayOtherPaymentMethodSpinner() {
+        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, otherPaymentMethods);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        otherPaymentMethodSpinner.setAdapter(arrayAdapter);
+        otherPaymentMethodSpinner.setOnItemSelectedListener(this);
 
     }
 

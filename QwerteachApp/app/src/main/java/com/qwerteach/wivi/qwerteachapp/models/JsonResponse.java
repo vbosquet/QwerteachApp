@@ -3,6 +3,7 @@ package com.qwerteach.wivi.qwerteachapp.models;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by wivi on 19/01/17.
@@ -50,6 +51,10 @@ public class JsonResponse {
     private CardRegistrationData cardRegistrationData;
     @SerializedName("total_wallet")
     private Integer totalWallet;
+    @SerializedName("pagin")
+    private ArrayList<User> users;
+    @SerializedName("options")
+    private ArrayList<ArrayList<String>> options;
 
     public String getAvatar() {
         return avatar;
@@ -129,5 +134,13 @@ public class JsonResponse {
 
     public Integer getTotalWallet() {
         return totalWallet;
+    }
+
+    public ArrayList<User> getUsers() {
+        return users;
+    }
+
+    public ArrayList<ArrayList<String>> getOptions() {
+        return options;
     }
 }

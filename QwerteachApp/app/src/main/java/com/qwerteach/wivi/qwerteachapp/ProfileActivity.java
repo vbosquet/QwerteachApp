@@ -66,7 +66,7 @@ public class ProfileActivity extends AppCompatActivity  {
 
         startProgressDialog();
         QwerteachService service = ApiClient.getClient().create(QwerteachService.class);
-        Call<JsonResponse> call = service.getStudentId(userId, email, token);
+        Call<JsonResponse> call = service.getUserInfos(userId, email, token);
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

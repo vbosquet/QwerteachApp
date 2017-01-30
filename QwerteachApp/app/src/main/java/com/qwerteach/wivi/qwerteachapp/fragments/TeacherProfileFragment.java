@@ -25,7 +25,6 @@ import com.qwerteach.wivi.qwerteachapp.LessonReservationActivity;
 import com.qwerteach.wivi.qwerteachapp.MyMessagesActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.ReadCommentsActivity;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.NewLessonRequestAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.SendMessageToTeacherAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
