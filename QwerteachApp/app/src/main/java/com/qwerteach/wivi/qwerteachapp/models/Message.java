@@ -1,5 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 /**
@@ -7,13 +9,24 @@ import java.io.Serializable;
  */
 
 public class Message implements Serializable{
-    private int messageId;
+    private Integer messageId;
+    @SerializedName("body")
     private String body;
+    @SerializedName("subject")
     private String subject;
-    private int senderId;
-    private int conversationId;
+    private Integer senderId;
+    private Integer conversationId;
     private String creationDate;
-    private boolean isMine;
+    private Boolean isMine;
+    @SerializedName("recipient")
+    private Integer recipient;
+
+    public Message(String subject, String body, Integer recipient) {
+        this.subject = subject;
+        this.body = body;
+        this.recipient = recipient;
+
+    }
 
     public Message(int messageId, String body, String subject, int senderId, int conversationId, String creationDate, boolean isMine) {
         this.messageId = messageId;
@@ -25,11 +38,11 @@ public class Message implements Serializable{
         this.isMine = isMine;
     }
 
-    public int getMessageId() {
+    public Integer getMessageId() {
         return messageId;
     }
 
-    public void setMessageId(int messageId) {
+    public void setMessageId(Integer messageId) {
         this.messageId = messageId;
     }
 
@@ -49,19 +62,19 @@ public class Message implements Serializable{
         this.subject = subject;
     }
 
-    public int getSenderId() {
+    public Integer getSenderId() {
         return senderId;
     }
 
-    public void setSenderId(int senderId) {
+    public void setSenderId(Integer senderId) {
         this.senderId = senderId;
     }
 
-    public int getConversationId() {
+    public Integer getConversationId() {
         return conversationId;
     }
 
-    public void setConversationId(int conversationId) {
+    public void setConversationId(Integer conversationId) {
         this.conversationId = conversationId;
     }
 
@@ -73,11 +86,19 @@ public class Message implements Serializable{
         this.creationDate = creationDate;
     }
 
-    public boolean isMine() {
+    public Boolean getMine() {
         return isMine;
     }
 
-    public void setMine(boolean mine) {
+    public void setMine(Boolean mine) {
         isMine = mine;
+    }
+
+    public Integer getRecipient() {
+        return recipient;
+    }
+
+    public void setRecipient(Integer recipient) {
+        this.recipient = recipient;
     }
 }

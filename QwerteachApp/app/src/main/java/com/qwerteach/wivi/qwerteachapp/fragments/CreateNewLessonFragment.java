@@ -122,7 +122,7 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         smallAdPrices = new ArrayList<>();
 
         startProgressDialog();
-        call = service.getTeacherTopicGroups(userId, email, token);
+        call = service.getTeacherTopicGroups(teacher.getUser().getUserId(), email, token);
         call.enqueue(new Callback<JsonResponse>() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
@@ -271,7 +271,7 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
             case R.id.topic_group_spinner:
                 currentTopicGroup = adapterView.getItemAtPosition(i).toString();
                 currentTopicGroupId = topicGroups.get(i).getTopicGroupId();
-                Call<JsonResponse> callForTopics  = service.getTeacherTopics(userId, currentTopicGroupId, email, token);
+                Call<JsonResponse> callForTopics  = service.getTeacherTopics(teacher.getUser().getUserId(), currentTopicGroupId, email, token);
                 callForTopics.enqueue(new Callback<JsonResponse>() {
                     @Override
                     public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -295,7 +295,7 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
                     }
                 }
 
-                Call<JsonResponse> callForLevels = service.getTeacherLevels(userId, currentTopicId, email, token);
+                Call<JsonResponse> callForLevels = service.getTeacherLevels(teacher.getUser().getUserId(), currentTopicId, email, token);
                 callForLevels.enqueue(new Callback<JsonResponse>() {
                     @Override
                     public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

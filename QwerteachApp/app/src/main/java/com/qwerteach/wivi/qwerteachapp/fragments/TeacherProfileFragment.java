@@ -25,21 +25,20 @@ import com.qwerteach.wivi.qwerteachapp.LessonReservationActivity;
 import com.qwerteach.wivi.qwerteachapp.MyMessagesActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.ReadCommentsActivity;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.SendMessageToTeacherAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Level;
+import com.qwerteach.wivi.qwerteachapp.models.Message;
 import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -49,8 +48,7 @@ import retrofit2.Response;
  * Created by wivi on 11/01/17.
  */
 
-public class TeacherProfileFragment extends Fragment implements View.OnClickListener,
-        SendMessageToTeacherAsyncTask.ISendMessageToTeacher {
+public class TeacherProfileFragment extends Fragment implements View.OnClickListener {
 
     View view;
     String email, token, firstName, lastName;
@@ -65,6 +63,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
     ProgressDialog progressDialog;
     ImageView teacherAvatar;
     QwerteachService service;
+    AlertDialog.Builder contactDialog;
 
     public static TeacherProfileFragment newInstance() {
         TeacherProfileFragment teacherProfileFragment = new TeacherProfileFragment();
@@ -82,6 +81,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         lastName = preferences.getString("lastName", "");
 
         progressDialog = new ProgressDialog(getContext());
+        contactDialog = new AlertDialog.Builder(getContext());
     }
 
     @Override
@@ -177,10 +177,9 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
     }
 
     public void createContactTeacherAlertDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View content = inflater.inflate(R.layout.alert_dialog_contact_teacher, null);
-        builder.setView(content);
+        contactDialog.setView(content);
 
         TextView titleTextView = (TextView) content.findViewById(R.id.alert_dialog_title);
         final EditText userMessageEditText = (EditText) content.findViewById(R.id.alert_dialog_user_message);
@@ -188,32 +187,55 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         String message = ("Posez une question à " + teacher.getUser().getFirstName());
         titleTextView.setText(message);
 
-        builder.setPositiveButton("ENVOYER", new DialogInterface.OnClickListener() {
+        contactDialog.setPositiveButton("ENVOYER", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 String body = userMessageEditText.getText().toString();
                 int recipient = teacher.getUser().getUserId();
                 String subject = firstName + " " + lastName + " vous pose une question !";
 
-                startSendMessageToTeacherAsyncTask(body, subject, recipient);
+                startSendMessageToTeacher(body, subject, recipient);
 
             }
         });
-        builder.setNegativeButton("ANNULER", new DialogInterface.OnClickListener() {
+        contactDialog.setNegativeButton("ANNULER", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 
             }
         });
 
-        builder.create().show();
+        contactDialog.create().show();
 
     }
 
-    public void startSendMessageToTeacherAsyncTask(String body, String subject, int recipient) {
-        SendMessageToTeacherAsyncTask sendMessageToTeacherAsyncTask = new SendMessageToTeacherAsyncTask(this);
-        sendMessageToTeacherAsyncTask.execute(email, token, subject, body, recipient);
+    public void startSendMessageToTeacher(String body, final String subject, int recipient) {
+        Message message = new Message(subject, body, recipient);
+        Map<String, Message> requestBody = new HashMap<>();
+        requestBody.put("message", message);
+
         startProgressDialog();
+        Call<JsonResponse> call = service.sendMessageToTeacher(requestBody, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                String success = response.body().getSuccess();
+                String message = response.body().getMessage();
+
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+
+                if (success.equals("true")) {
+                    Intent intent = new Intent(getContext(), MyMessagesActivity.class);
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override
@@ -231,21 +253,6 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
             case R.id.reservation_button:
                 didTouchLessonReservationButton();
                 break;
-        }
-    }
-
-    @Override
-    public void confirmationMessage(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String message = jsonObject.getString("message");
-            progressDialog.dismiss();
-            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(getContext(), MyMessagesActivity.class);
-            startActivity(intent);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
     }
 

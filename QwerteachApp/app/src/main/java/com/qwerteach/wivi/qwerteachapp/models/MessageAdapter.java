@@ -48,7 +48,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         viewHolder.messageContent.setText(message.getBody());
 
-        if (message.isMine()) {
+        if (message.getMine()) {
             viewHolder.messageContent.setBackgroundResource(R.drawable.message_out_border);
             RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) viewHolder.messageLinearLayout.getLayoutParams();
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
