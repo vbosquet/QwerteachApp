@@ -1,12 +1,12 @@
 package com.qwerteach.wivi.qwerteachapp;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -17,29 +17,37 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.MakePayoutAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.RedirectURLAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.models.CardRegistrationData;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.UserBankAccount;
-import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-public class UnloadWalletActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
-        MakePayoutAsyncTask.IMakePayout, RedirectURLAsyncTask.IRedirectURL {
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class UnloadWalletActivity extends AppCompatActivity implements
+        AdapterView.OnItemSelectedListener,
+        RedirectURLAsyncTask.IRedirectURL {
 
     ActionBar actionBar;
-    String email, token;
     ArrayList<UserBankAccount> userBankAccounts;
     double totalWallet;
     TextView amountToBeTransferred;
     Spinner bankAccountSpinner;
     ArrayList<String> accountNumbers;
     ArrayAdapter<String> bankAccountAdapter;
-    String currentBankAccount;
+    String currentBankAccount, email, token;
+    QwerteachService service;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +87,9 @@ public class UnloadWalletActivity extends AppCompatActivity implements AdapterVi
         bankAccountSpinner.setAdapter(bankAccountAdapter);
         bankAccountSpinner.setOnItemSelectedListener(this);
 
+        service = ApiClient.getClient().create(QwerteachService.class);
+        progressDialog = new ProgressDialog(this);
+
     }
 
     @Override
@@ -102,8 +113,35 @@ public class UnloadWalletActivity extends AppCompatActivity implements AdapterVi
     }
 
     public void didTouchUnloadWalletButton(View view) {
-        MakePayoutAsyncTask makePayoutAsyncTask = new MakePayoutAsyncTask(this);
-        makePayoutAsyncTask.execute(email, token, currentBankAccount);
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("account", currentBankAccount);
+
+        startProgressDialog();
+        Call<JsonResponse> call = service.makePayout(requestBody, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                progressDialog.dismiss();
+                String success = response.body().getSuccess();
+
+                if (success.equals("true")) {
+                    String message = response.body().getMessage();
+                    Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(getApplication(), VirtualWalletActivity.class);
+                    startActivity(intent);
+
+                } else {
+                    startRedirectUrlAsyncTask("http://192.168.0.103:3000/api/" + response.body().getUrl());
+
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override
@@ -116,32 +154,9 @@ public class UnloadWalletActivity extends AppCompatActivity implements AdapterVi
 
     }
 
-    @Override
-    public void makePayoutConfirmationMessage(String string) {
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String success = jsonObject.getString("success");
-
-            if (success.equals("true")) {
-                String message = jsonObject.getString("message");
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-
-                Intent intent = new Intent(this, VirtualWalletActivity.class);
-                startActivity(intent);
-            } else {
-                String redirectURL = jsonObject.getString("redirect_url");
-                String newURL = "http://192.168.0.125:3000/api/" + redirectURL;
-
-                RedirectURLAsyncTask redirectURLAsyncTask = new RedirectURLAsyncTask(this);
-                redirectURLAsyncTask.execute(email, token, newURL);
-
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+    public void startRedirectUrlAsyncTask(String newURL) {
+        RedirectURLAsyncTask redirectURLAsyncTask = new RedirectURLAsyncTask(this);
+        redirectURLAsyncTask.execute(email, token, newURL);
     }
 
     @Override
@@ -153,12 +168,19 @@ public class UnloadWalletActivity extends AppCompatActivity implements AdapterVi
 
             if (success.equals("true")) {
                 Toast.makeText(this, R.string.credit_transferred_success_toast_message,Toast.LENGTH_LONG).show();
-
                 Intent intent = new Intent(this, VirtualWalletActivity.class);
                 startActivity(intent);
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 }
