@@ -40,6 +40,7 @@ import com.qwerteach.wivi.qwerteachapp.models.User;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -316,7 +317,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         }
 
         for (int i = 0; i < teacherList.size(); i++) {
-            if (teacherList.get(i).getUser().getUserId() == user.getUserId()) {
+            if (Objects.equals(teacherList.get(i).getUser().getUserId(), user.getUserId())) {
                 teacherList.get(i).setSmallAds(smallAds);
                 teacherList.get(i).setReviews(reviews);
                 teacherList.get(i).setRating(rating);
@@ -325,7 +326,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
                 teacherList.get(i).getUser().setAvatarUrl(avatarUrl);
             }
 
-            if (user.getUserId() == teacherList.get(teacherList.size() - 1).getUser().getUserId()) {
+            if (Objects.equals(user.getUserId(), teacherList.get(teacherList.size() - 1).getUser().getUserId())) {
                 progressDialog.dismiss();
                 displayTeacherListView();
             }

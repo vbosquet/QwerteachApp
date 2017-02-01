@@ -15,7 +15,7 @@ import java.util.Date;
 
 public class User implements Serializable {
 
-    private static final String BASE_URL = "http://192.168.0.102:3000";
+    private static final String BASE_URL = "http://192.168.0.103:3000";
 
     @SerializedName("id")
     private Integer userId;
@@ -35,17 +35,9 @@ public class User implements Serializable {
     private Boolean postulanceAccepted;
     @SerializedName("level_id")
     private Integer levelId;
-
+    @SerializedName("mango_id")
+    private Integer mangoId;
     private String avatarUrl;
-
-    private String address;
-    private String streetNumber;
-    private String postalCode;
-    private String city;
-    private String region;
-    private String countryCode;
-    private String nationalityCode;
-    private String residencePlaceCode;
 
     public User() {
 
@@ -60,14 +52,6 @@ public class User implements Serializable {
         this.occupation = occupation;
         this.description = description;
 
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
     }
 
     public String getFirstName() {
@@ -118,22 +102,6 @@ public class User implements Serializable {
         this.occupation = occupation;
     }
 
-    public boolean isPostulanceAccepted() {
-        return postulanceAccepted;
-    }
-
-    public void setPostulanceAccepted(boolean postulanceAccepted) {
-        this.postulanceAccepted = postulanceAccepted;
-    }
-
-    public int getLevelId() {
-        return levelId;
-    }
-
-    public void setLevelId(int levelId) {
-        this.levelId = levelId;
-    }
-
     public String getAge() {
 
         String date = this.birthdate;
@@ -169,75 +137,43 @@ public class User implements Serializable {
         return ageS;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getStreetNumber() {
-        return streetNumber;
-    }
-
-    public void setStreetNumber(String streetNumber) {
-        this.streetNumber = streetNumber;
-    }
-
-    public String getPostalCode() {
-        return postalCode;
-    }
-
-    public void setPostalCode(String postalCode) {
-        this.postalCode = postalCode;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getRegion() {
-        return region;
-    }
-
-    public void setRegion(String region) {
-        this.region = region;
-    }
-
-    public String getCountryCode() {
-        return countryCode;
-    }
-
-    public void setCountryCode(String countryCode) {
-        this.countryCode = countryCode;
-    }
-
-    public String getNationalityCode() {
-        return nationalityCode;
-    }
-
-    public void setNationalityCode(String nationalityCode) {
-        this.nationalityCode = nationalityCode;
-    }
-
-    public String getResidencePlaceCode() {
-        return residencePlaceCode;
-    }
-
-    public void setResidencePlaceCode(String residencePlaceCode) {
-        this.residencePlaceCode = residencePlaceCode;
-    }
-
     public String getAvatarUrl() {
         return avatarUrl;
     }
 
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = BASE_URL + avatarUrl;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public Boolean getPostulanceAccepted() {
+        return postulanceAccepted;
+    }
+
+    public void setPostulanceAccepted(Boolean postulanceAccepted) {
+        this.postulanceAccepted = postulanceAccepted;
+    }
+
+    public Integer getLevelId() {
+        return levelId;
+    }
+
+    public void setLevelId(Integer levelId) {
+        this.levelId = levelId;
+    }
+
+    public Integer getMangoId() {
+        return mangoId;
+    }
+
+    public void setMangoId(Integer mangoId) {
+        this.mangoId = mangoId;
     }
 }

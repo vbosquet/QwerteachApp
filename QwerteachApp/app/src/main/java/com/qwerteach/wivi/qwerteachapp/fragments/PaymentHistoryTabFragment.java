@@ -9,36 +9,30 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 
 import com.qwerteach.wivi.qwerteachapp.R;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.FindUsersByMangoIdAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllWalletInfosAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Transaction;
 import com.qwerteach.wivi.qwerteachapp.models.TransactionAdapter;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.security.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by wivi on 8/12/16.
  */
 
-public class PaymentHistoryTabFragment extends Fragment implements GetAllWalletInfosAsyncTask.IGetAllWalletInfos,
-        FindUsersByMangoIdAsyncTask.IFindUsersByMangoId, View.OnClickListener {
+public class PaymentHistoryTabFragment extends Fragment implements View.OnClickListener {
 
     View view;
     String email, token;
@@ -49,6 +43,7 @@ public class PaymentHistoryTabFragment extends Fragment implements GetAllWalletI
     FloatingActionButton floatingActionButton;
     ProgressDialog progressDialog;
     int page = 1, scrollPosition;
+    QwerteachService service;
 
     public static PaymentHistoryTabFragment newInstance() {
         PaymentHistoryTabFragment paymentHistoryTabFragment = new PaymentHistoryTabFragment();
@@ -65,6 +60,7 @@ public class PaymentHistoryTabFragment extends Fragment implements GetAllWalletI
 
         transactions = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
+        service = ApiClient.getClient().create(QwerteachService.class);
     }
 
     @Override
@@ -75,108 +71,75 @@ public class PaymentHistoryTabFragment extends Fragment implements GetAllWalletI
         floatingActionButton.setOnClickListener(this);
 
         transactions = (ArrayList<Transaction>) getArguments().getSerializable("transactions");
-        for (int i = 0; i < transactions.size(); i++) {
 
-            if (i == 0) {
-                startProgressDialog();
+        if (transactions != null && transactions.size() > 0) {
+            startProgressDialog();
+            for (int i = 0; i < transactions.size(); i++) {
+                startFindUsersByMangoId(transactions.get(i).getAuthorId(), transactions.get(i).getCreditedUserId(),
+                        transactions.get(i).getTransactionId());
             }
 
-            startFindUsersByMangoIdAsyncTask(transactions.get(i).getAuthorId(), transactions.get(i).getCreditedUserId(),
-                    transactions.get(i).getTransactionId());
         }
 
         return view;
     }
 
-    @Override
-    public void getAllWalletInfos(String string) {
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONArray jsonArray = jsonObject.getJSONArray("transactions");
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonData = jsonArray.getJSONObject(i);
-                JSONObject debitedFunds = jsonData.getJSONObject("debited_funds");
-                int debitedAmount = debitedFunds.getInt("amount") / 100;
-                String debitedCurrency = debitedFunds.getString("currency");
-                JSONObject creditedFunds = jsonData.getJSONObject("credited_funds");
-                int creditedAmount = creditedFunds.getInt("amount") / 100;
-                String creditedCurrency = creditedFunds.getString("currency");
-                JSONObject fees = jsonData.getJSONObject("fees");
-                int feesAmount = fees.getInt("amount") / 100;
-                String feesCurrency = fees.getString("currency");
-                String transactionId = jsonData.getString("id");
-                String authorId = jsonData.getString("author_id");
-                String creditedUserId = jsonData.getString("credited_user_id");
-                String type = jsonData.getString("type");
-                String date = jsonData.getString("creation_date");
-                String transactionDate = getDate(date);
-
-                Transaction transaction = new Transaction(transactionId, transactionDate, type, authorId,
-                        creditedUserId, creditedAmount + " " + creditedCurrency,
-                        debitedAmount + " " + debitedCurrency, feesAmount + " " + feesCurrency);
-                transactions.add(transaction);
-            }
-
-            for (int i = 0; i < transactions.size(); i++) {
-                startFindUsersByMangoIdAsyncTask(transactions.get(i).getAuthorId(), transactions.get(i).getCreditedUserId(),
-                        transactions.get(i).getTransactionId());
-            }
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void startGetAllWalletInfosAsyncTask() {
-        GetAllWalletInfosAsyncTask getAllWalletInfosAsyncTask = new GetAllWalletInfosAsyncTask(this);
-        getAllWalletInfosAsyncTask.execute(email, token, page);
+    public void startGetAllWalletInfos() {
         startProgressDialog();
-
-    }
-
-    public void startFindUsersByMangoIdAsyncTask(String authorId, String creditedUserId, String transactionId) {
-        FindUsersByMangoIdAsyncTask findUsersByMangoIdAsyncTask = new FindUsersByMangoIdAsyncTask(this);
-        findUsersByMangoIdAsyncTask.execute(email, token, authorId, creditedUserId, transactionId);
-    }
-
-    private String getDate(String timeStamp) {
-        long newTimeStamp = Long.parseLong(timeStamp) * 1000L;
-        DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        Date netDate = (new Date(newTimeStamp));
-        return sdf.format(netDate);
-    }
-
-    @Override
-    public void displayUsersInfos(String string) {
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String authorName = jsonObject.getString("author");
-            String creditedUserName = jsonObject.getString("credited_user");
-            String transactionId = jsonObject.getString("transaction");
-
-            for (int i = 0; i < transactions.size(); i++) {
-                String id = transactions.get(i).getTransactionId();
-
-                if (id.equals(transactionId)) {
-                    transactions.get(i).setAuthorName(authorName);
-                    transactions.get(i).setCreditedUserName(creditedUserName);
-                }
-
-                if (id.equals(transactions.get(transactions.size() - 1).getTransactionId())) {
-                    progressDialog.dismiss();
-                    setTransactionsListView();
+        Call<JsonResponse> call = service.getAllWallletInfos(page, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                progressDialog.dismiss();
+                ArrayList<Transaction> transactionList = response.body().getTransactions();
+                for (int i = 0; i < transactionList.size(); i++) {
+                    transactions.add(transactionList.get(i));
+                    startFindUsersByMangoId(transactions.get(i).getAuthorId(), transactions.get(i).getCreditedUserId(),
+                            transactions.get(i).getTransactionId());
                 }
             }
 
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            }
+        });
 
+    }
+
+    public void startFindUsersByMangoId(String authorId, String creditedUserId, final String transactionId) {
+        Map<String, String> data = new HashMap<>();
+        data.put("author_id", authorId);
+        data.put("credited_user_id", creditedUserId);
+
+        Call<JsonResponse> call = service.getTransactionInfos(data, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                String authorName = response.body().getTransactionAuthorName();
+                String creditedUserName = response.body().getTransactionCreditedUserName();
+
+                for (int i = 0; i < transactions.size(); i++) {
+                    String id = transactions.get(i).getTransactionId();
+
+                    if (id.equals(transactionId)) {
+                        transactions.get(i).setAuthorName(authorName);
+                        transactions.get(i).setCreditedUserName(creditedUserName);
+                    }
+
+                    if (id.equals(transactions.get(transactions.size() - 1).getTransactionId())) {
+                        progressDialog.dismiss();
+                        setTransactionsListView();
+                    }
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     public void startProgressDialog() {
@@ -202,6 +165,6 @@ public class PaymentHistoryTabFragment extends Fragment implements GetAllWalletI
     public void onClick(View view) {
         page += 1;
         scrollPosition = transactions.size() - 1;
-        startGetAllWalletInfosAsyncTask();
+        startGetAllWalletInfos();
     }
 }

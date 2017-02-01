@@ -1,36 +1,46 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 /**
  * Created by wivi on 17/01/17.
  */
 
-public class UserBankAccount implements Serializable{
+public class UserBankAccount implements Serializable {
+
+    @SerializedName("iban")
     private String iban;
+    @SerializedName("bic")
     private String bic;
+    @SerializedName("user_id")
     private String userId;
+    @SerializedName("owner_name")
     private String ownerName;
+    @SerializedName("id")
     private String id;
+    @SerializedName("type")
     private String type;
+    @SerializedName("account_number")
     private String accountNumber;
+    @SerializedName("sort_code")
     private String sortCode;
+    @SerializedName("aba")
     private String aba;
+    @SerializedName("deposit_account_type")
     private String depositAccountType;
+    @SerializedName("bank_name")
     private String bankName;
+    @SerializedName("institution_number")
     private String institutionNumber;
+    @SerializedName("branch_code")
     private String branchCode;
+    @SerializedName("country")
     private String country;
 
     public UserBankAccount() {
 
-    }
-
-    public UserBankAccount(String userId, String ownerName, String id, String type) {
-        this.userId = userId;
-        this.ownerName = ownerName;
-        this.id = id;
-        this.type = type;
     }
 
     public String getIban() {

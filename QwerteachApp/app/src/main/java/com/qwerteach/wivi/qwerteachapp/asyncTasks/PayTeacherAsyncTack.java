@@ -30,7 +30,7 @@ public class PayTeacherAsyncTack extends AsyncTask<Object, String, String> {
 
         try {
 
-            URL url = new URL("http://192.168.0.102:3000/api/lessons/" + lessonId + "/pay_teacher");
+            URL url = new URL("http://192.168.0.103:3000/api/lessons/" + lessonId + "/pay_teacher");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.addRequestProperty("X-User-Email", email);
             connection.addRequestProperty("X-User-Token", token);

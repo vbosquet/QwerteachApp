@@ -57,6 +57,16 @@ public class JsonResponse {
     private ArrayList<ArrayList<String>> options;
     @SerializedName("url")
     private String url;
+    @SerializedName("account")
+    private UserWalletInfos userWalletInfos;
+    @SerializedName("bank_accounts")
+    private ArrayList<UserBankAccount> bankAccounts;
+    @SerializedName("transactions")
+    private ArrayList<Transaction> transactions;
+    @SerializedName("author")
+    private String transactionAuthorName;
+    @SerializedName("credited_user")
+    private String transactionCreditedUserName;
 
     public String getAvatar() {
         return avatar;
@@ -148,5 +158,25 @@ public class JsonResponse {
 
     public String getUrl() {
         return url;
+    }
+
+    public UserWalletInfos getUserWalletInfos() {
+        return userWalletInfos;
+    }
+
+    public ArrayList<UserBankAccount> getBankAccounts() {
+        return bankAccounts;
+    }
+
+    public ArrayList<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public String getTransactionAuthorName() {
+        return transactionAuthorName;
+    }
+
+    public String getTransactionCreditedUserName() {
+        return transactionCreditedUserName;
     }
 }

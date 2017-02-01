@@ -5,13 +5,20 @@ import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 import com.qwerteach.wivi.qwerteachapp.models.Message;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.User;
+import com.qwerteach.wivi.qwerteachapp.models.UserBankAccount;
+import com.qwerteach.wivi.qwerteachapp.models.UserWalletInfos;
 
+import org.json.JSONObject;
+
+import java.util.HashMap;
 import java.util.Map;
 
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Multipart;
@@ -110,5 +117,23 @@ public interface QwerteachService {
 
     @GET
     Call<JsonResponse> finalizePaymentWithCard(@Url String url, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("user/mangopay/index_wallet")
+    Call<JsonResponse> getAllWallletInfos(@Query("page") int pageNumber, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("user/mangopay/card_info")
+    Call<JsonResponse> getPreRegistrationCardData(@Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @PUT("user/mangopay/update_bank_accounts")
+    Call<JsonResponse> addNewBankAccount(@Body Map<String, UserBankAccount> data, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @PUT("user/mangopay/desactivate_bank_account/{id}")
+    Call<JsonResponse> desactivateBankAccount(@Path("id") String bankAccountId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @POST("wallets/find_users_by_mango_id")
+    Call<JsonResponse> getTransactionInfos(@Body Map<String, String> data, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @PUT("user/mangopay/edit_wallet")
+    Call<JsonResponse> updateUserWallet(@Body Map<String, UserWalletInfos> body, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
 }

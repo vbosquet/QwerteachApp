@@ -14,9 +14,13 @@ public class UserCreditCard implements Serializable {
     private String alias;
     @SerializedName("id")
     private String cardId;
+    @SerializedName("expiration_date")
     private String expirationDate;
+    @SerializedName("card_provider")
     private String cardProvider;
+    @SerializedName("currency")
     private String currency;
+    @SerializedName("validity")
     private String validity;
 
     public UserCreditCard(String alias, String cardId) {

@@ -9,31 +9,22 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.ShowProfileInfosAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.fragments.StudentProfileFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.TeacherProfileFragment;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
-import com.qwerteach.wivi.qwerteachapp.models.Level;
 import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -74,7 +65,7 @@ public class ProfileActivity extends AppCompatActivity  {
                 String avatarUrl = response.body().getAvatar();
                 user.setAvatarUrl(avatarUrl);
 
-                if (!user.isPostulanceAccepted()) {
+                if (!user.getPostulanceAccepted()) {
                     progressDialog.dismiss();
                     displayStudentProfileFragment();
 
@@ -147,7 +138,7 @@ public class ProfileActivity extends AppCompatActivity  {
             case R.id.edit_profile_button:
                 intent = new Intent(this, EditProfileActivity.class);
 
-                if (user.isPostulanceAccepted()) {
+                if (user.getPostulanceAccepted()) {
                     intent.putExtra("teacher", teacher);
                 } else {
                     intent.putExtra("student", user);

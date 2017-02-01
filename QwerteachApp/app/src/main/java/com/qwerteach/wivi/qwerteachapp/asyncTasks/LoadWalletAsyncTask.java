@@ -59,7 +59,7 @@ public class LoadWalletAsyncTask extends AsyncTask<String, String, String> {
 
             jsonObject.put("card_type", cardType);
 
-            URL url = new URL("http://192.168.0.102:3000/api/user/mangopay/direct_debit");
+            URL url = new URL("http://192.168.0.103:3000/api/user/mangopay/direct_debit");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);

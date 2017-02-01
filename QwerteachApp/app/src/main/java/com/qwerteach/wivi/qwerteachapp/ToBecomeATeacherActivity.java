@@ -10,20 +10,21 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.ShowProfileInfosAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-public class ToBecomeATeacherActivity extends AppCompatActivity implements ShowProfileInfosAsyncTask.IShowProfileInfos {
+public class ToBecomeATeacherActivity extends AppCompatActivity {
 
-    EditText firstNameEditText;
-    EditText lastNameEditText;
-    EditText userDescriptionEditTet;
-    EditText birthDateEditText;
-    EditText emailEditText;
-    EditText phoneNumberEditText;
+    EditText firstNameEditText, lastNameEditText, userDescriptionEditTet, birthDateEditText, emailEditText, phoneNumberEditText;
     String userId, email, token;
+    QwerteachService service;
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +43,31 @@ public class ToBecomeATeacherActivity extends AppCompatActivity implements ShowP
         emailEditText = (EditText) findViewById(R.id.email);
         phoneNumberEditText = (EditText) findViewById(R.id.phoneNumber);
 
-        ShowProfileInfosAsyncTask showProfileInfosAsyncTask = new ShowProfileInfosAsyncTask(this);
-        showProfileInfosAsyncTask.execute(userId, email, token);
+        service = ApiClient.getClient().create(QwerteachService.class);
+        getUserInfos();
+    }
+
+    public void getUserInfos() {
+        Call<JsonResponse> call = service.getUserInfos(userId, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                user = response.body().getUser();
+
+                firstNameEditText.setText(user.getFirstName());
+                lastNameEditText.setText(user.getLastName());
+                birthDateEditText.setText(user.getBirthdate());
+                userDescriptionEditTet.setText(user.getDescription());
+                emailEditText.setText(email);
+                phoneNumberEditText.setText(user.getPhoneNumber());
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
+
     }
 
     @Override
@@ -73,31 +97,5 @@ public class ToBecomeATeacherActivity extends AppCompatActivity implements ShowP
         String phoneNumber = phoneNumberEditText.getText().toString();
 
         //TODO
-    }
-
-    @Override
-    public void showProfileInfos(String string) {
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONObject userJson = jsonObject.getJSONObject("user");
-
-            String firstName = userJson.getString("firstname");
-            String lastName = userJson.getString("lastname");
-            String birthDate = userJson.getString("birthdate");
-            String description = userJson.getString("description");
-            String email = userJson.getString("email");
-            String phonenumber = userJson.getString("phonenumber");
-
-            firstNameEditText.setText(firstName);
-            lastNameEditText.setText(lastName);
-            birthDateEditText.setText(birthDate);
-            userDescriptionEditTet.setText(description);
-            emailEditText.setText(email);
-            phoneNumberEditText.setText(phonenumber);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 }

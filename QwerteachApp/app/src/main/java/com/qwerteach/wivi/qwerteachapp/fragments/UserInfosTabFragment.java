@@ -15,23 +15,28 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.qwerteach.wivi.qwerteachapp.R;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.CreateNewWalletAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.models.User;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.UserWalletInfos;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by wivi on 8/12/16.
  */
 
-public class UserInfosTabFragment extends Fragment implements AdapterView.OnItemSelectedListener,
-        View.OnClickListener,
-        CreateNewWalletAsyncTask.ICreateNewWallet {
+public class UserInfosTabFragment extends Fragment implements
+        AdapterView.OnItemSelectedListener,
+        View.OnClickListener {
 
     View view;
     String email, token, countryCode, nationalityCode, residencePlaceCode, currentCountry, currentNationality, currentResidencePlace;
@@ -40,7 +45,8 @@ public class UserInfosTabFragment extends Fragment implements AdapterView.OnItem
     ArrayList<String> countries;
     Locale[] locales;
     Button saveButton;
-    User user;
+    UserWalletInfos user;
+    QwerteachService service;
 
     public static UserInfosTabFragment newInstance() {
         UserInfosTabFragment userInfosTabFragment = new UserInfosTabFragment();
@@ -57,6 +63,7 @@ public class UserInfosTabFragment extends Fragment implements AdapterView.OnItem
 
         locales = Locale.getAvailableLocales();
         countries = new ArrayList<>();
+        service = ApiClient.getClient().create(QwerteachService.class);
 
         for (Locale locale : locales) {
             String country = locale.getDisplayCountry();
@@ -67,7 +74,7 @@ public class UserInfosTabFragment extends Fragment implements AdapterView.OnItem
 
         Collections.sort(countries);
 
-        user = (User) getArguments().getSerializable("user");
+        user = (UserWalletInfos) getArguments().getSerializable("user");
 
         if (user != null) {
             countryCode = user.getCountryCode();
@@ -186,36 +193,40 @@ public class UserInfosTabFragment extends Fragment implements AdapterView.OnItem
 
     @Override
     public void onClick(View view) {
-        String firstName = firstNameEditText.getText().toString();
-        String lastName = lastNameEditText.getText().toString();
-        String address = addressEditText.getText().toString();
-        String streetNumber = streetNumberEditText.getText().toString();
-        String postalCode = postalCodeEditText.getText().toString();
-        String city = cityEditText.getText().toString();
-        String region = regionEditText.getText().toString();
+        UserWalletInfos userWalletInfos = new UserWalletInfos();
+        userWalletInfos.setFirstName(firstNameEditText.getText().toString());
+        userWalletInfos.setLastName(lastNameEditText.getText().toString());
+        userWalletInfos.setAddress(addressEditText.getText().toString());
+        userWalletInfos.setStreetNumber(streetNumberEditText.getText().toString());
+        userWalletInfos.setPostalCode(postalCodeEditText.getText().toString());
+        userWalletInfos.setCity(cityEditText.getText().toString());
+        userWalletInfos.setRegion(regionEditText.getText().toString());
+        userWalletInfos.setCountryCode(countryCode);
+        userWalletInfos.setResidencePlaceCode(residencePlaceCode);
+        userWalletInfos.setNationalityCode(nationalityCode);
 
-        CreateNewWalletAsyncTask createNewWalletAsyncTask = new CreateNewWalletAsyncTask(this);
-        createNewWalletAsyncTask.execute(email, token, firstName, lastName, address,
-                streetNumber, postalCode, city, region, countryCode, residencePlaceCode, nationalityCode);
+        Map<String, UserWalletInfos> requestBody = new HashMap<>();
+        requestBody.put("account", userWalletInfos);
 
-    }
+        Call<JsonResponse> call = service.updateUserWallet(requestBody, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                String message = response.body().getMessage();
+                if (message.equals("true")) {
 
-    @Override
-    public void confirmationCreationNewWallet(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String message = jsonObject.getString("message");
+                    Toast.makeText(getContext(), R.string.updating_wallet_success_toast_message, Toast.LENGTH_SHORT).show();
 
-            if (message.equals("true")) {
-                Toast.makeText(getContext(), R.string.updating_wallet_success_toast_message, Toast.LENGTH_SHORT).show();
-
-            } else if (message.equals("errors")) {
-                Toast.makeText(getContext(), R.string.updating_wallet_error_toast_message, Toast.LENGTH_SHORT).show();
+                } else if (message.equals("errors")) {
+                    Toast.makeText(getContext(), R.string.updating_wallet_error_toast_message, Toast.LENGTH_SHORT).show();
+                }
             }
 
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            }
+        });
+
     }
 }

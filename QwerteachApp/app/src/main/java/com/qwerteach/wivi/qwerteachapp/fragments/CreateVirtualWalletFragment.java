@@ -5,12 +5,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -21,37 +17,41 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.qwerteach.wivi.qwerteachapp.R;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.CreateNewWalletAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosProfileAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.ShowProfileInfosAsyncTask;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.User;
+import com.qwerteach.wivi.qwerteachapp.models.UserWalletInfos;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by wivi on 29/11/16.
  */
 
-public class CreateVirtualWalletFragment extends Fragment implements AdapterView.OnItemSelectedListener,
-        View.OnClickListener,
-        CreateNewWalletAsyncTask.ICreateNewWallet,
-        ShowProfileInfosAsyncTask.IShowProfileInfos {
+public class CreateVirtualWalletFragment extends Fragment implements
+        AdapterView.OnItemSelectedListener,
+        View.OnClickListener {
 
     View view;
     Spinner countrySpinner, residenceSpinner, nationalitySpinner;
     EditText firstNameEditText, lastNameEditText, addressEditText, streetNumberEditText,
             postalCodeEditText, cityEditText, regionEditText;
     ArrayList<String> countries;
-    String currentCountry, currentRegion, currentNationality;
-    String countryCode, regionCode, nationalityCode;
+    String currentCountry, currentRegion, currentNationality, countryCode, regionCode, nationalityCode;
     String userId, email, token;
     Button saveButton;
     Locale[] locales;
     ProgressDialog progressDialog;
+    QwerteachService service;
 
     public static CreateVirtualWalletFragment newInstance() {
         CreateVirtualWalletFragment createVirtualWalletFragment = new CreateVirtualWalletFragment();
@@ -70,6 +70,7 @@ public class CreateVirtualWalletFragment extends Fragment implements AdapterView
         locales = Locale.getAvailableLocales();
         countries = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
+        service = ApiClient.getClient().create(QwerteachService.class);
 
         for (Locale locale : locales) {
             String country = locale.getDisplayCountry();
@@ -79,7 +80,6 @@ public class CreateVirtualWalletFragment extends Fragment implements AdapterView
         }
 
         Collections.sort(countries);
-
         setHasOptionsMenu(true);
     }
 
@@ -96,19 +96,17 @@ public class CreateVirtualWalletFragment extends Fragment implements AdapterView
         postalCodeEditText = (EditText) view.findViewById(R.id.postal_code_edit_text);
         cityEditText = (EditText) view.findViewById(R.id.city_edit_text);
         regionEditText = (EditText) view.findViewById(R.id.region_edit_text);
-
         countrySpinner = (Spinner) view.findViewById(R.id.country_name_spinner);
-        setSpinner(countries, countrySpinner);
         residenceSpinner = (Spinner) view.findViewById(R.id.residence_place_spinner);
-        setSpinner(countries, residenceSpinner);
         nationalitySpinner = (Spinner) view.findViewById(R.id.nationality_spinner);
-        setSpinner(countries, nationalitySpinner);
-
         saveButton = (Button) view.findViewById(R.id.save_infos_button);
         saveButton.setOnClickListener(this);
 
-        ShowProfileInfosAsyncTask showProfileInfosAsyncTask = new ShowProfileInfosAsyncTask(this);
-        showProfileInfosAsyncTask.execute(userId, email, token);
+        setSpinner(countries, countrySpinner);
+        setSpinner(countries, residenceSpinner);
+        setSpinner(countries, nationalitySpinner);
+
+        getUserInfos();
 
         return  view;
     }
@@ -118,6 +116,23 @@ public class CreateVirtualWalletFragment extends Fragment implements AdapterView
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(arrayAdapter);
         spinner.setOnItemSelectedListener(this);
+    }
+
+    public void getUserInfos() {
+        Call<JsonResponse> call = service.getUserInfos(userId, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                User user = response.body().getUser();
+                firstNameEditText.setText(user.getFirstName());
+                lastNameEditText.setText(user.getLastName());
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override
@@ -145,40 +160,43 @@ public class CreateVirtualWalletFragment extends Fragment implements AdapterView
 
     @Override
     public void onClick(View view) {
-        String firstName = firstNameEditText.getText().toString();
-        String lastName = lastNameEditText.getText().toString();
-        String address = addressEditText.getText().toString();
-        String streetNumber = streetNumberEditText.getText().toString();
-        String postalCode = postalCodeEditText.getText().toString();
-        String city = cityEditText.getText().toString();
-        String region = regionEditText.getText().toString();
+        UserWalletInfos userWalletInfos = new UserWalletInfos();
+        userWalletInfos.setFirstName(firstNameEditText.getText().toString());
+        userWalletInfos.setLastName(lastNameEditText.getText().toString());
+        userWalletInfos.setAddress(addressEditText.getText().toString());
+        userWalletInfos.setStreetNumber(streetNumberEditText.getText().toString());
+        userWalletInfos.setPostalCode(postalCodeEditText.getText().toString());
+        userWalletInfos.setCity(cityEditText.getText().toString());
+        userWalletInfos.setRegion(regionEditText.getText().toString());
+        userWalletInfos.setCountryCode(countryCode);
+        userWalletInfos.setResidencePlaceCode(regionCode);
+        userWalletInfos.setNationalityCode(nationalityCode);
 
-        CreateNewWalletAsyncTask createNewWalletAsyncTask = new CreateNewWalletAsyncTask(this);
-        createNewWalletAsyncTask.execute(email, token, firstName, lastName, address,
-                streetNumber, postalCode, city, region, countryCode, regionCode, nationalityCode);
+        Map<String, UserWalletInfos> requestBody = new HashMap<>();
+        requestBody.put("account", userWalletInfos);
+
         startProgressDialog();
-    }
-
-    @Override
-    public void confirmationCreationNewWallet(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String message = jsonObject.getString("message");
-
-            if (message.equals("true")) {
+        Call<JsonResponse> call = service.updateUserWallet(requestBody, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                String message = response.body().getMessage();
                 progressDialog.dismiss();
-                Toast.makeText(getContext(), R.string.registration_new_wallet_success_toast_message, Toast.LENGTH_SHORT).show();
-                getActivity().getSupportFragmentManager().popBackStack();
 
-            } else if (message.equals("errors")) {
-                Toast.makeText(getContext(), R.string.registration_new_wallet_erros_toast_messsage, Toast.LENGTH_SHORT).show();
+                if (message.equals("true")) {
+                    Toast.makeText(getContext(), R.string.registration_new_wallet_success_toast_message, Toast.LENGTH_SHORT).show();
+                    getActivity().getSupportFragmentManager().popBackStack();
+
+                } else if (message.equals("errors")) {
+                    Toast.makeText(getContext(), R.string.registration_new_wallet_erros_toast_messsage, Toast.LENGTH_SHORT).show();
+                }
             }
 
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+            }
+        });
     }
 
     public String getCountryCode(String countryName) {
@@ -208,22 +226,5 @@ public class CreateVirtualWalletFragment extends Fragment implements AdapterView
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setCancelable(true);
         progressDialog.show();
-    }
-
-    @Override
-    public void showProfileInfos(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONObject userJson = jsonObject.getJSONObject("user");
-
-            String firstName = userJson.getString("firstname");
-            String lastName = userJson.getString("lastname");
-
-            firstNameEditText.setText(firstName);
-            lastNameEditText.setText(lastName);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 }

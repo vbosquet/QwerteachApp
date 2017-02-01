@@ -29,7 +29,7 @@ public class GetAllMessagesAsyncTask extends AsyncTask<Object, String, String> {
 
         try {
 
-            URL url = new URL("http://192.168.0.102:3000/api/conversations/" + conversationId);
+            URL url = new URL("http://192.168.0.103:3000/api/conversations/" + conversationId);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.addRequestProperty("X-User-Email", email);
             connection.addRequestProperty("X-User-Token", token);

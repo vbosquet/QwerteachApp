@@ -1,6 +1,11 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by wivi on 9/12/16.
@@ -8,42 +13,40 @@ import java.io.Serializable;
 
 public class Transaction implements Serializable{
 
+    @SerializedName("id")
     private String transactionId;
-    private String date;
+    @SerializedName("creation_date")
+    private String creationDate;
+    @SerializedName("type")
     private String type;
+    @SerializedName("author_id")
     private String authorId;
+    @SerializedName("credited_user_id")
     private String creditedUserId;
-    private String creditedAmount;
-    private String debitedAmount;
-    private String fees;
+    @SerializedName("debited_funds")
+    private DebitedFund debitedFund;
+    @SerializedName("credited_funds")
+    private CreditedFund creditedFund;
+    @SerializedName("fees")
+    private Fee fee;
+
     private String authorName;
     private String creditedUserName;
 
-    public Transaction(String transactionId, String date, String type, String authorId, String creditedUserId, String creditedAmount, String debitedAmount, String fees) {
-        this.transactionId = transactionId;
-        this.date = date;
-        this.type = type;
-        this.authorId = authorId;
-        this.creditedUserId = creditedUserId;
-        this.creditedAmount = creditedAmount;
-        this.debitedAmount = debitedAmount;
-        this.fees = fees;
+    public Transaction() {
+
     }
 
     public String getTransactionId() {
         return transactionId;
     }
 
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
+    public String getCreationDate() {
+        return creationDate;
     }
 
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
+    public void setCreationDate(String creationDate) {
+        this.creationDate = creationDate;
     }
 
     public String getType() {
@@ -58,40 +61,8 @@ public class Transaction implements Serializable{
         return authorId;
     }
 
-    public void setAuthorId(String authorId) {
-        this.authorId = authorId;
-    }
-
     public String getCreditedUserId() {
         return creditedUserId;
-    }
-
-    public void setCreditedUserId(String creditedUserId) {
-        this.creditedUserId = creditedUserId;
-    }
-
-    public String getCreditedAmount() {
-        return creditedAmount;
-    }
-
-    public void setCreditedAmount(String creditedAmount) {
-        this.creditedAmount = creditedAmount;
-    }
-
-    public String getDebitedAmount() {
-        return debitedAmount;
-    }
-
-    public void setDebitedAmount(String debitedAmount) {
-        this.debitedAmount = debitedAmount;
-    }
-
-    public String getFees() {
-        return fees;
-    }
-
-    public void setFees(String fees) {
-        this.fees = fees;
     }
 
     public String getAuthorName() {
@@ -108,5 +79,83 @@ public class Transaction implements Serializable{
 
     public void setCreditedUserName(String creditedUserName) {
         this.creditedUserName = creditedUserName;
+    }
+
+    public DebitedFund getDebitedFund() {
+        return debitedFund;
+    }
+
+    public CreditedFund getCreditedFund() {
+        return creditedFund;
+    }
+
+    public Fee getFee() {
+        return fee;
+    }
+
+    public String getDate() {
+        long newTimeStamp = Long.parseLong(this.creationDate) * 1000L;
+        DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        Date netDate = (new Date(newTimeStamp));
+        return sdf.format(netDate);
+    }
+
+    public static class DebitedFund implements Serializable {
+
+        @SerializedName("currency")
+        private String currency;
+        @SerializedName("amount")
+        private Integer amount;
+
+        DebitedFund() {
+
+        }
+
+        public String getCurrency() {
+            return currency;
+        }
+        public Integer getAmount() {
+            return amount;
+        }
+    }
+
+    public static class CreditedFund implements Serializable {
+
+        @SerializedName("currency")
+        private String currency;
+        @SerializedName("amount")
+        private Integer amount;
+
+        CreditedFund() {
+
+        }
+
+        public String getCurrency() {
+            return currency;
+        }
+        public Integer getAmount() {
+            return amount;
+        }
+
+    }
+
+    public static class Fee implements Serializable {
+
+        @SerializedName("currency")
+        private String currency;
+        @SerializedName("amount")
+        private Integer amount;
+
+        Fee() {
+
+        }
+
+        public String getCurrency() {
+            return currency;
+        }
+        public Integer getAmount() {
+            return amount;
+        }
+
     }
 }

@@ -39,9 +39,9 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         holder.transactionType.setText("Type de paiement : " + transaction.getType());
         holder.transactionAuthor.setText("Donneur d'ordre : " + transaction.getAuthorName());
         holder.creditedUserName.setText("Bénéficiaire : " + transaction.getCreditedUserName());
-        holder.creditedAmount.setText("Montant crédité : " + transaction.getCreditedAmount());
-        holder.debitedAmount.setText("Montant débité : " + transaction.getDebitedAmount());
-        holder.fees.setText("Frais : " + transaction.getFees());
+        holder.creditedAmount.setText("Montant crédité : " + transaction.getCreditedFund().getAmount()/100 + " " + transaction.getCreditedFund().getCurrency());
+        holder.debitedAmount.setText("Montant débité : " + transaction.getDebitedFund().getAmount()/100 + " " + transaction.getDebitedFund().getCurrency());
+        holder.fees.setText("Frais : " + transaction.getFee().getAmount() + " " + transaction.getFee().getCurrency());
 
     }
 

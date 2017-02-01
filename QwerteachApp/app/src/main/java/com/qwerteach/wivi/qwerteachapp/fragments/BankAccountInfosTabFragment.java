@@ -13,7 +13,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,26 +25,28 @@ import android.widget.Toast;
 
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.VirtualWalletActivity;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DesactivateBankAccountAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.UpdateBankAccountAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.UserBankAccount;
 import com.qwerteach.wivi.qwerteachapp.models.UserBankAccountAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCardAdapter;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by wivi on 8/12/16.
  */
 
 public class BankAccountInfosTabFragment extends Fragment  implements View.OnClickListener,
-        CompoundButton.OnCheckedChangeListener,
-        UpdateBankAccountAsyncTask.IUpdateBankAccount,
-        DesactivateBankAccountAsyncTask.IDesactivateBankAccount {
+        CompoundButton.OnCheckedChangeListener {
 
     View view;
     String email, token, type;
@@ -64,6 +65,7 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
     boolean isTeacher;
     TextView bankAccountTextView;
     CoordinatorLayout bankAccountCoordinatorLayout;
+    QwerteachService service;
 
     public static BankAccountInfosTabFragment newInstance() {
         BankAccountInfosTabFragment bankAccountInfosTabFragment = new BankAccountInfosTabFragment();
@@ -82,6 +84,7 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
         userCreditCards = new ArrayList<>();
         userBankAccounts = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
+        service = ApiClient.getClient().create(QwerteachService.class);
     }
 
     @Override
@@ -176,7 +179,7 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
         builder.setPositiveButton("Terminer", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                startUpdateBanAccountAsyncTask();
+                addNewBankAccount();
                 startProgressDialog();
             }
         });
@@ -271,62 +274,83 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
         }
     }
 
-    public void startUpdateBanAccountAsyncTask() {
-        String iban = "", bic = "", accountNumber = "", sortCode = "", aba = "",
-                depositAccountType = "", bankName = "", institutionNumber = "", branchCode = "", country = "";
+    public void addNewBankAccount() {
+        String iban, bic, accountNumber, sortCode, aba, depositAccountType, bankName, institutionNumber, branchCode, country;
+        UserBankAccount ibanAccount = new UserBankAccount();
+        UserBankAccount gbAccount = new UserBankAccount();
+        UserBankAccount usAccount = new UserBankAccount();
+        UserBankAccount caAccount = new UserBankAccount();
+        UserBankAccount otherAccount = new UserBankAccount();
+
 
         switch (type) {
             case "iban":
                 iban = ibanEditText.getText().toString();
                 bic = bicEditText.getText().toString();
+                ibanAccount.setIban(iban);
+                ibanAccount.setBic(bic);
                 break;
             case "gb":
                 accountNumber = ukBankAccountNumber.getText().toString();
                 sortCode = ukBankAccountCode.getText().toString();
+                gbAccount.setAccountNumber(accountNumber);
+                gbAccount.setSortCode(sortCode);
                 break;
             case "us":
                 accountNumber = usaBankAccountNumber.getText().toString();
                 aba = usaABA.getText().toString();
                 depositAccountType = usaBankAccountType.getText().toString();
+                usAccount.setAccountNumber(accountNumber);
+                usAccount.setAba(aba);
+                usAccount.setDepositAccountType(depositAccountType);
                 break;
             case "ca":
                 bankName = canadaBankName.getText().toString();
                 institutionNumber = canadaBankNumber.getText().toString();
                 branchCode = canadaBranchCode.getText().toString();
                 accountNumber = canadaBankAccountNumber.getText().toString();
+                caAccount.setBankName(bankName);
+                caAccount.setInstitutionNumber(institutionNumber);
+                caAccount.setBranchCode(branchCode);
+                caAccount.setAccountNumber(accountNumber);
                 break;
             case "other":
                 country = otherCountry.getText().toString();
                 bic = otherBIC.getText().toString();
                 accountNumber = otherBankAccountNumber.getText().toString();
+                otherAccount.setCountry(country);
+                otherAccount.setAccountNumber(accountNumber);
+                otherAccount.setBic(bic);
                 break;
         }
 
-        UpdateBankAccountAsyncTask updateBankAccountAsyncTask = new UpdateBankAccountAsyncTask(this);
-        updateBankAccountAsyncTask.execute(email,token, type, iban, bic, accountNumber,
-                sortCode, aba, depositAccountType, bankName, institutionNumber, branchCode, country);
-    }
+        UserBankAccount typeAccount = new UserBankAccount();
+        typeAccount.setType(type);
 
-    @Override
-    public void updateBankAccountConfirmationMessage(String string) {
-        Log.i("BANK_ACCOUNT", string);
-        progressDialog.dismiss();
+        Map<String, UserBankAccount> data = new HashMap<>();
+        data.put("bank_account", typeAccount);
+        data.put("iban_account", ibanAccount);
+        data.put("gb_account", gbAccount);
+        data.put("us_account", usAccount);
+        data.put("ca_account", caAccount);
+        data.put("other_account", otherAccount);
 
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String success = jsonObject.getString("success");
-            String message = jsonObject.getString("message");
 
-            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-
-            if (success.equals("true")) {
-                Intent intent = new Intent(getContext(), VirtualWalletActivity.class);
-                startActivity(intent);
+        Call<JsonResponse> call = service.addNewBankAccount(data, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                progressDialog.dismiss();
+                String success = response.body().getSuccess();
+                String message = response.body().getMessage();
+                displayConfirmationMessage(message, success);
             }
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     public void startProgressDialog() {
@@ -338,31 +362,31 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
     }
 
     public void didTouchDeleteBankAccountButton(String bankAccountId) {
-        DesactivateBankAccountAsyncTask desactivateBankAccountAsyncTask = new DesactivateBankAccountAsyncTask(this);
-        desactivateBankAccountAsyncTask.execute(email, token, bankAccountId);
         startProgressDialog();
+        Call<JsonResponse> call = service.desactivateBankAccount(bankAccountId, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                progressDialog.dismiss();
+                String success = response.body().getSuccess();
+                String message = response.body().getMessage();
+                displayConfirmationMessage(message, success);
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
 
     }
 
-    @Override
-    public void desactivateBankAccountConfirmationMessage(String string) {
-        Log.i("DESACTIVATE_ACCOUNT", string);
-        progressDialog.dismiss();
+    public void displayConfirmationMessage(String message, String success) {
+        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
 
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String success = jsonObject.getString("success");
-            String message = jsonObject.getString("message");
-
-            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-
-            if (success.equals("true")) {
-                Intent intent = new Intent(getContext(), VirtualWalletActivity.class);
-                startActivity(intent);
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
+        if (success.equals("true")) {
+            Intent intent = new Intent(getContext(), VirtualWalletActivity.class);
+            startActivity(intent);
         }
     }
 }
