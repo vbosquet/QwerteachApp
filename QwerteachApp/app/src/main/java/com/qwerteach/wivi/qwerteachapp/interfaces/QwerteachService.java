@@ -136,4 +136,7 @@ public interface QwerteachService {
     @PUT("user/mangopay/edit_wallet")
     Call<JsonResponse> updateUserWallet(@Body Map<String, UserWalletInfos> body, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
+    @PUT("user/mangopay/direct_debit")
+    Call<JsonResponse> loadUserWallet(@Body Map<String, String> body, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
 }

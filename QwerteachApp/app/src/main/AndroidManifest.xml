@@ -82,7 +82,6 @@
             android:name=".MangoPaySecureModeActivity"
             android:label="@string/mango_pay_web_view_activity_title"
             android:parentActivityName=".PaymentMethodActivity" />
-        <activity android:name=".RegisterNewCardActivity" />
         <activity
             android:name=".MyLessonsActivity"
             android:label="@string/my_lessons_activity_title"

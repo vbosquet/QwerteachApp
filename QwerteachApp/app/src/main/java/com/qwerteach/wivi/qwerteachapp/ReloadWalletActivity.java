@@ -26,33 +26,38 @@ import com.mangopay.android.sdk.Callback;
 import com.mangopay.android.sdk.MangoPayBuilder;
 import com.mangopay.android.sdk.model.CardRegistration;
 import com.mangopay.android.sdk.model.exception.MangoException;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.LoadWalletAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.CardRegistrationData;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-public class ReloadWalletActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
-        View.OnClickListener,
-        LoadWalletAsyncTask.ILoadWallet {
+import retrofit2.Call;
+import retrofit2.Response;
+
+public class ReloadWalletActivity extends AppCompatActivity implements
+        AdapterView.OnItemSelectedListener,
+        View.OnClickListener {
 
     ActionBar actionBar;
-    ArrayList<String> amounts;
+    ArrayList<String> amounts, months, years, easyPayments;
     Spinner amountToReloadSpinner, creditCardListSpinner, yearSpinner, monthSpinner;
     CheckBox visaCheckbox, mastercardCheckbox, cbCheckbox, bcmcCheckbox, bankWireCheckbox, easyPaymentCheckBox;
     LinearLayout cardNumberLinearLayout, newCreditCardLinearLayout;
     EditText otherAmountEditText, cardNumberEditText, securityCodeEditText;
-    String currentAmount, cardType = "", currentCardNumber = "", cardId, currentMonth, currentYear;
+    String currentAmount, cardType = "", currentCardNumber = "", cardId, currentMonth, currentYear, paymentMode;
     String email, token;
     ArrayList<UserCreditCard> userCreditCards;
-    ArrayList<String> months, years, easyPayments;
     CardRegistrationData cardRegistrationData;
     TextView noCreditCardForEasyPaymentTextView;
+    QwerteachService service;
+    Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +71,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
         months = new ArrayList<>();
         years = new ArrayList<>();
         easyPayments = new ArrayList<>();
+        service = ApiClient.getClient().create(QwerteachService.class);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -221,7 +227,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
                             cardId = cardRegistration.getCardId();
                             cardType = "CB_VISA_MASTERCARD";
 
-                            startLoadWalletAsyncTask();
+                            startLoadWallet();
                         }
 
                         @Override
@@ -231,7 +237,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
 
                     }).start();
         } else {
-            startLoadWalletAsyncTask();
+            startLoadWallet();
         }
     }
 
@@ -265,6 +271,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
                     cardType = "CB_VISA_MASTERCARD";
                     cardNumberLinearLayout.setVisibility(View.GONE);
                     newCreditCardLinearLayout.setVisibility(View.GONE);
+                    paymentMode = "cd";
 
                 }
                 break;
@@ -279,6 +286,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
                     bankWireCheckbox.setChecked(false);
 
                     setCreditCardSpinner();
+                    paymentMode = "cd";
                 }
                 break;
             case R.id.mastercard:
@@ -292,6 +300,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
                     bankWireCheckbox.setChecked(false);
 
                     setCreditCardSpinner();
+                    paymentMode = "cd";
                 }
                 break;
             case R.id.cb:
@@ -305,6 +314,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
                     bankWireCheckbox.setChecked(false);
 
                     setCreditCardSpinner();
+                    paymentMode = "cd";
                 }
                 break;
             case R.id.bcmc:
@@ -319,6 +329,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
 
                     cardNumberLinearLayout.setVisibility(View.GONE);
                     newCreditCardLinearLayout.setVisibility(View.GONE);
+                    paymentMode = "bancontact";
                 }
                 break;
             case R.id.banck_wire:
@@ -358,41 +369,6 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
 
     }
 
-    @Override
-    public void loadWallet(String string) {
-
-        try {
-            JSONObject jsonObject =new JSONObject(string);
-            String message = jsonObject.getString("message");
-
-            if (message.equals("true")) {
-                Intent intent = new Intent(this, VirtualWalletActivity.class);
-                startActivity(intent);
-                Toast.makeText(this, R.string.load_wallet_by_credit_card_sucess_toast_message, Toast.LENGTH_SHORT).show();
-
-            } else if(message.equals("error")) {
-
-
-            } else if (message.equals("secure mode")) {
-                String url = jsonObject.getString("url");
-                Intent intent = new Intent(this, RegisterNewCardActivity.class);
-                intent.putExtra("url", url);
-                startActivity(intent);
-
-            } else if (message.equals("redirect url")) {
-                String returnURL = jsonObject.getString("url");
-                Intent intent = new Intent(this, MangoPaySecureModeActivity.class);
-                intent.putExtra("url", returnURL);
-                startActivity(intent);
-
-            }
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void setNewCreditCardLayout() {
 
         for (int j = 1; j <= 12; j++) {
@@ -426,8 +402,44 @@ public class ReloadWalletActivity extends AppCompatActivity implements AdapterVi
         securityCodeEditText .setFilters(filters);
     }
 
-    public void startLoadWalletAsyncTask() {
-        LoadWalletAsyncTask loadWalletAsyncTask = new LoadWalletAsyncTask(this);
-        loadWalletAsyncTask.execute(email, token, currentAmount, cardType, cardId);
+    public void startLoadWallet() {
+        Map<String, String> resquestBody = new HashMap<>();
+        resquestBody.put("amount", currentAmount);
+        resquestBody.put("card_type", cardType);
+
+        if (cardId != null) {
+            resquestBody.put("card", cardId);
+        }
+
+        Call<JsonResponse> call = service.loadUserWallet(resquestBody, email, token);
+        call.enqueue(new retrofit2.Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                String message = response.body().getMessage();
+                String url = response.body().getUrl();
+                displayConfirmationMessage(message, url);
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void displayConfirmationMessage(String message, String url) {
+        switch (message) {
+            case "true":
+                intent = new Intent(this, VirtualWalletActivity.class);
+                startActivity(intent);
+                Toast.makeText(this, R.string.load_wallet_by_credit_card_sucess_toast_message, Toast.LENGTH_SHORT).show();
+                break;
+            case "redirect url":
+                intent = new Intent(this, MangoPaySecureModeActivity.class);
+                intent.putExtra("url", url);
+                intent.putExtra("mode", paymentMode);
+                startActivity(intent);
+                break;
+        }
     }
 }
