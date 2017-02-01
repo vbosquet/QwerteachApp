@@ -56,11 +56,9 @@ public class ToDoListAdapter extends ArrayAdapter<Lesson> {
         }
 
         String lessonTopic = "<font color='#3F51B5'>" + lesson.getTopicTitle() + "</font>";
-        String firstName = "<font color='#3F51B5'>" + lesson.getUserFirstName() + "</font>";
-        String lastName = "<font color='#3F51B5'>" + lesson.getUserLastName() + "</font>";
+        String userName = "<font color='#3F51B5'>" + lesson.getUserName() + "</font>";
 
-        viewHolder.lessonDetails.setText(Html.fromHtml(lesson.getDuration() + " de " + lessonTopic
-                + " avec " + firstName + " " + lastName));
+        viewHolder.lessonDetails.setText(Html.fromHtml(lesson.getDuration() + " de " + lessonTopic + " avec " + userName));
         viewHolder.lessonsDate.setText("Le " + lesson.getDate(timeStart)
                 + " à " + lesson.getTime(timeStart));
 
@@ -115,13 +113,25 @@ public class ToDoListAdapter extends ArrayAdapter<Lesson> {
 
         } else if (lesson.getStatus().equals("pending_student")
                 || lesson.getStatus().equals("pending_teacher")) {
-            viewHolder.toDoTitle.setText(lesson.getUserFirstName() + " vous a fait une demande de cours");
+            viewHolder.toDoTitle.setText(lesson.getUserName() + " vous a fait une demande de cours");
             viewHolder.lessonManagementButtons.setVisibility(View.VISIBLE);
             viewHolder.feedBackButtons.setVisibility(View.GONE);
         }
 
 
         return convertView;
+    }
+
+    public void setCallback(ILessonManagementButtons callback) {
+        this.callback = callback;
+    }
+
+    public interface ILessonManagementButtons {
+        void didTouchRefuseLessonButton(int lessonId);
+        void didTouchAcceptLessonButton(int lessonId);
+        void didTouchUpdateLessonButton(Lesson lesson);
+        void didTouchPositiveFeedBackButton(int lessonId);
+        void didTouchNegativeFeedBackButton(int lessonId);
     }
 
     public static class ViewHolder {
@@ -135,17 +145,5 @@ public class ToDoListAdapter extends ArrayAdapter<Lesson> {
         Button negativeFeedBackButton;
         LinearLayout lessonManagementButtons;
         LinearLayout feedBackButtons;
-    }
-
-    public void setCallback(ILessonManagementButtons callback) {
-        this.callback = callback;
-    }
-
-    public interface ILessonManagementButtons {
-        void didTouchRefuseLessonButton(int lessonId);
-        void didTouchAcceptLessonButton(int lessonId);
-        void didTouchUpdateLessonButton(Lesson lesson);
-        void didTouchPositiveFeedBackButton(int lessonId);
-        void didTouchNegativeFeedBackButton(int lessonId);
     }
 }

@@ -13,6 +13,7 @@ import java.util.Date;
 
 public class Lesson implements Serializable {
 
+    @SerializedName("id")
     private Integer lessonId;
     @SerializedName("student_id")
     private Integer studentId;
@@ -20,43 +21,33 @@ public class Lesson implements Serializable {
     private Integer teacherId;
     @SerializedName("topic_id")
     private Integer topicId;
+    @SerializedName("topic_group_id")
     private Integer topicGroupId;
     @SerializedName("level_id")
     private Integer levelId;
 
     @SerializedName("time_start")
     private String timeStart;
+    @SerializedName("status")
     private String status;
+    @SerializedName("price")
     private String price;
-    private String userFirstName;
-    private String userLastName;
-    private String topicTitle;
-    private String topicGroupTitle;
-    private String level;
-    private String duration;
-    private String paymentStatus;
     @SerializedName("hours")
     private String hours;
     @SerializedName("minutes")
     private String minutes;
 
-    private Boolean reviewNeeded;
+    private boolean reviewNeeded;
+
+    private String userName;
+    private String topicTitle;
+    private String topicGroupTitle;
+    private String level;
+    private String duration;
+    private String paymentStatus;
 
     public Lesson(){
 
-    }
-
-    public Lesson(int lessonId, int studentId, int teacherId, int topicId, int topicGroupId,
-                  int levelId, String status, String price, String timeStart) {
-        this.lessonId = lessonId;
-        this.studentId = studentId;
-        this.teacherId = teacherId;
-        this.topicId = topicId;
-        this.topicGroupId = topicGroupId;
-        this.levelId = levelId;
-        this.status = status;
-        this.price = price;
-        this.timeStart = timeStart;
     }
 
     public Integer getLessonId() {
@@ -123,20 +114,12 @@ public class Lesson implements Serializable {
         this.status = status;
     }
 
-    public String getUserFirstName() {
-        return userFirstName;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUserFirstName(String userFirstName) {
-        this.userFirstName = userFirstName;
-    }
-
-    public String getUserLastName() {
-        return userLastName;
-    }
-
-    public void setUserLastName(String userLastName) {
-        this.userLastName = userLastName;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getTopicTitle() {
@@ -179,11 +162,11 @@ public class Lesson implements Serializable {
         this.paymentStatus = paymentStatus;
     }
 
-    public Boolean getReviewNeeded() {
+    public boolean isReviewNeeded() {
         return reviewNeeded;
     }
 
-    public void setReviewNeeded(Boolean reviewNeeded) {
+    public void setReviewNeeded(boolean reviewNeeded) {
         this.reviewNeeded = reviewNeeded;
     }
 

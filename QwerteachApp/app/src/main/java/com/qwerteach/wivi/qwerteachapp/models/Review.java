@@ -14,15 +14,15 @@ import java.util.Date;
 public class Review implements Serializable {
 
     @SerializedName("id")
-    private int reviewId;
+    private Integer reviewId;
     @SerializedName("sender_id")
-    private int senderId;
+    private Integer senderId;
     @SerializedName("subject_id")
-    private int subjectId;
+    private Integer subjectId;
     @SerializedName("review_text")
     private String reviewText;
     @SerializedName("note")
-    private int note;
+    private Integer note;
     @SerializedName("created_at")
     private String creationDate;
     private String senderFirstName;
@@ -31,36 +31,27 @@ public class Review implements Serializable {
 
     }
 
-    public Review(int reviewId, int senderId, int subjectId, String reviewText, int note, String creationDate) {
-        this.reviewId = reviewId;
-        this.senderId = senderId;
-        this.subjectId = subjectId;
-        this.reviewText = reviewText;
-        this.note = note;
-        this.creationDate = creationDate;
-    }
-
-    public int getReviewId() {
+    public Integer getReviewId() {
         return reviewId;
     }
 
-    public void setReviewId(int reviewId) {
+    public void setReviewId(Integer reviewId) {
         this.reviewId = reviewId;
     }
 
-    public int getSenderId() {
+    public Integer getSenderId() {
         return senderId;
     }
 
-    public void setSenderId(int senderId) {
+    public void setSenderId(Integer senderId) {
         this.senderId = senderId;
     }
 
-    public int getSubjectId() {
+    public Integer getSubjectId() {
         return subjectId;
     }
 
-    public void setSubjectId(int subjectId) {
+    public void setSubjectId(Integer subjectId) {
         this.subjectId = subjectId;
     }
 
@@ -72,11 +63,11 @@ public class Review implements Serializable {
         this.reviewText = reviewText;
     }
 
-    public int getNote() {
+    public Integer getNote() {
         return note;
     }
 
-    public void setNote(int note) {
+    public void setNote(Integer note) {
         this.note = note;
     }
 

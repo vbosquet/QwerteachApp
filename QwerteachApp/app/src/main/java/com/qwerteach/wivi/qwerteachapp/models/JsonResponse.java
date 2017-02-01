@@ -41,6 +41,8 @@ public class JsonResponse {
     private String topicTitle;
     @SerializedName("topic_group")
     private String topicGroupTitle;
+    @SerializedName("level")
+    private String levelTitle;
     @SerializedName("topic_groups")
     private ArrayList<TopicGroup> topicGroups;
     @SerializedName("topics")
@@ -67,6 +69,22 @@ public class JsonResponse {
     private String transactionAuthorName;
     @SerializedName("credited_user")
     private String transactionCreditedUserName;
+    @SerializedName("lessons")
+    private ArrayList<Lesson> lessons;
+    @SerializedName("payment_status")
+    private String paymentStatus;
+    @SerializedName("expired")
+    private boolean expired;
+    @SerializedName("past")
+    private boolean past;
+    @SerializedName("review_needed")
+    private boolean reviewNeed;
+    @SerializedName("duration")
+    private Duration duration;
+    @SerializedName("name")
+    private String userName;
+    @SerializedName("lesson")
+    private Lesson lesson;
 
     public String getAvatar() {
         return avatar;
@@ -178,5 +196,60 @@ public class JsonResponse {
 
     public String getTransactionCreditedUserName() {
         return transactionCreditedUserName;
+    }
+
+    public ArrayList<Lesson> getLessons() {
+        return lessons;
+    }
+
+    public String getLevelTitle() {
+        return levelTitle;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public boolean isExpired() {
+        return expired;
+    }
+
+    public boolean isPast() {
+        return past;
+    }
+
+    public boolean isReviewNeed() {
+        return reviewNeed;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public Lesson getLesson() {
+        return lesson;
+    }
+
+    public static class Duration {
+        @SerializedName("hours")
+        int hours;
+        @SerializedName("minutes")
+        int minutes;
+
+        public Duration() {
+
+        }
+
+        public int getHours() {
+            return hours;
+        }
+
+        public int getMinutes() {
+            return minutes;
+        }
     }
 }

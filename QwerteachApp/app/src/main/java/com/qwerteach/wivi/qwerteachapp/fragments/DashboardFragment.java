@@ -213,41 +213,17 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
 
     public void getToDoListInfos() {
         for (int i = 0; i < toDoList.size(); i++) {
-            int userToFind;
-
-            if (String.valueOf(toDoList.get(i).getTeacherId()).equals(userId)) {
-                userToFind = toDoList.get(i).getStudentId();
-            } else {
-                userToFind = toDoList.get(i).getTeacherId();
-            }
-
-            int topicId = toDoList.get(i).getTopicId();
-            int topicGroupId = toDoList.get(i).getTopicGroupId();
-            int levelId = toDoList.get(i).getLevelId();
             int lessonId = toDoList.get(i).getLessonId();
-
             GetLessonsInfosAsyncTask getLessonsInfosAsyncTask = new GetLessonsInfosAsyncTask(this);
-            getLessonsInfosAsyncTask.execute(email, token, topicId, topicGroupId, levelId, lessonId, userToFind, false);
+            getLessonsInfosAsyncTask.execute(email, token, lessonId);
         }
     }
 
     public void getUpcomingLessonInfos() {
         for (int i = 0; i < upcomingLessons.size(); i++) {
-            int userToFind;
-
-            if (String.valueOf(upcomingLessons.get(i).getTeacherId()).equals(userId)) {
-                userToFind = upcomingLessons.get(i).getStudentId();
-            } else {
-                userToFind = upcomingLessons.get(i).getTeacherId();
-            }
-
-            int topicId = upcomingLessons.get(i).getTopicId();
-            int topicGroupId = upcomingLessons.get(i).getTopicGroupId();
-            int levelId = upcomingLessons.get(i).getLevelId();
             int lessonId = upcomingLessons.get(i).getLessonId();
-
             GetLessonsInfosAsyncTask getLessonsInfosAsyncTask = new GetLessonsInfosAsyncTask(this);
-            getLessonsInfosAsyncTask.execute(email, token, topicId, topicGroupId, levelId, lessonId, userToFind, false);
+            getLessonsInfosAsyncTask.execute(email, token, lessonId);
         }
     }
 
@@ -265,11 +241,9 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
 
         try {
             JSONObject jsonObject = new JSONObject(string);
-            JSONObject userJson = jsonObject.getJSONObject("user");
             JSONObject durationJson = jsonObject.getJSONObject("duration");
 
-            String firstName = userJson.getString("firstname");
-            String lastName = userJson.getString("lastname");
+            String userName = jsonObject.getString("name");
             String topicTitle = jsonObject.getString("topic");
             String topicGroupTitle = jsonObject.getString("topic_group");
             String levelTitle = jsonObject.getString("level");
@@ -282,8 +256,7 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
                 int id = toDoList.get(i).getLessonId();
 
                 if (id == lessonId) {
-                    toDoList.get(i).setUserFirstName(firstName);
-                    toDoList.get(i).setUserLastName(lastName);
+                    toDoList.get(i).setUserName(userName);
                     toDoList.get(i).setTopicTitle(topicTitle);
                     toDoList.get(i).setTopicGroupTitle(topicGroupTitle);
                     toDoList.get(i).setLevel(levelTitle);
@@ -303,8 +276,7 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
                 int id = upcomingLessons.get(i).getLessonId();
 
                 if (id == lessonId) {
-                    upcomingLessons.get(i).setUserFirstName(firstName);
-                    upcomingLessons.get(i).setUserLastName(lastName);
+                    upcomingLessons.get(i).setUserName(userName);
                     upcomingLessons.get(i).setTopicTitle(topicTitle);
                     upcomingLessons.get(i).setDuration(hours, minutes);
                 }

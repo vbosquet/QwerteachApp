@@ -30,35 +30,15 @@ public class GetLessonsInfosAsyncTask extends AsyncTask<Object, String, String> 
     protected String doInBackground(Object... objects) {
         String email = (String) objects[0];
         String token = (String) objects[1];
-        int topicId = (int) objects[2];
-        int topicGroupId = (int) objects[3];
-        int levelId = (int) objects[4];
-        int lessonId = (int) objects[5];
-        int userId = (int) objects[6];
-        boolean checkIfNeedReview = (boolean) objects[7];
+        int lessonId = (int) objects[2];
 
-        JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("topic_id", topicId);
-            jsonObject.put("topic_group_id", topicGroupId);
-            jsonObject.put("level_id", levelId);
-            jsonObject.put("lesson_id", lessonId);
-            jsonObject.put("user_id", userId);
-            jsonObject.put("need_review", checkIfNeedReview);
 
-            URL url = new URL("http://192.168.0.103:3000/api/lessons/find_lesson_infos");
+            URL url = new URL("http://192.168.0.103:3000/api/lessons/find_lesson_infos/" + lessonId);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-            httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.addRequestProperty("X-User-Email", email);
             httpURLConnection.addRequestProperty("X-User-Token", token);
-            httpURLConnection.setDoOutput(true);
-            httpURLConnection.setDoInput(true);
-            httpURLConnection.setRequestMethod("POST");
-
-            OutputStream os = httpURLConnection.getOutputStream();
-            os.write(jsonObject.toString().getBytes("UTF-8"));
-            os.flush();
-            os.close();
+            httpURLConnection.setRequestMethod("GET");
 
             InputStream inputStream = httpURLConnection.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
@@ -75,7 +55,7 @@ public class GetLessonsInfosAsyncTask extends AsyncTask<Object, String, String> 
             return stringBuilder.toString();
 
 
-        } catch (JSONException | IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

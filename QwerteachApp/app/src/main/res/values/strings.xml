@@ -196,8 +196,6 @@
         <item>4</item>
         <item>5</item>
     </string-array>
-    <string name="create_review_positive_success_message">Votre avis a bien été enregistré</string>
-    <string name="create_review_negative_success_message">Il y a eu une erreur. Impossible d\'enregistrer votre avis. Essayer à nouveau.</string>
     <string name="lesson_waiting_for_payment_status">En attente</string>
     <string name="read_comments_activity_title">Commentaires</string>
     <string name="unload_wallet_button">Décharger</string>

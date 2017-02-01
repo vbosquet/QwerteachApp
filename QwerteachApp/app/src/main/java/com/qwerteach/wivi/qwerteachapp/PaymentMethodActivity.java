@@ -31,17 +31,12 @@ import com.mangopay.android.sdk.Callback;
 import com.mangopay.android.sdk.MangoPayBuilder;
 import com.mangopay.android.sdk.model.CardRegistration;
 import com.mangopay.android.sdk.model.exception.MangoException;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.PayLessonWithCreditCardAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.PayLessonWithTransfertOrBancontactAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.CardRegistrationData;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;

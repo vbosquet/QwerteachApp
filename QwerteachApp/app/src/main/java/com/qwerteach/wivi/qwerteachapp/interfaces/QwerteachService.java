@@ -3,6 +3,7 @@ package com.qwerteach.wivi.qwerteachapp.interfaces;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 import com.qwerteach.wivi.qwerteachapp.models.Message;
+import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserBankAccount;
@@ -141,5 +142,30 @@ public interface QwerteachService {
 
     @PUT("user/mangopay/make_payout")
     Call<JsonResponse> makePayout(@Body Map<String, String> body, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("cours")
+    Call<JsonResponse> getLessons(@Query("page") int pageNumber, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("lessons/find_lesson_infos/{lesson_id}")
+    Call<JsonResponse> getLessonInfos(@Path("lesson_id") int lessonId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("lessons/{lesson_id}/cancel")
+    Call<JsonResponse> cancelLesson(@Path("lesson_id") int lessonId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("lessons/{lesson_id}/accept")
+    Call<JsonResponse> acceptLesson(@Path("lesson_id") int lessonId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("lessons/{lesson_id}/refuse")
+    Call<JsonResponse> refuseLesson(@Path("lesson_id") int lessonId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("lessons/{lesson_id}/pay_teacher")
+    Call<JsonResponse> payTeacher(@Path("lesson_id") int lessonId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("lessons/{lesson_id}/dispute")
+    Call<JsonResponse> disputeLesson(@Path("lesson_id") int lessonId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @POST("users/{teacher_id}/reviews")
+    Call<JsonResponse> letReviewToTeacher(@Path("teacher_id") int teacherId, @Body Map<String, Review> body,
+                                          @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
 }

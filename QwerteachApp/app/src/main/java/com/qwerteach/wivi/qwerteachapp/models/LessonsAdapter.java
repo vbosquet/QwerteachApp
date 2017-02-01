@@ -107,15 +107,14 @@ public class LessonsAdapter extends RecyclerView.Adapter<LessonsAdapter.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         final Lesson lesson = lessons.get(position);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String userId = preferences.getString("userId", "");
         String timeStart = lesson.getTimeStart();
 
-        holder.lessonTitle.setText("Cours de " + lesson.getTopicTitle() +  " avec " +
-                lesson.getUserFirstName() + " " + lesson.getUserLastName());
+        holder.lessonTitle.setText("Cours de " + lesson.getTopicTitle() +  " avec " + lesson.getUserName());
         holder.lessonStartTime.setText("Prévu le " + lesson.getDate(timeStart) + " à " + lesson.getTime(timeStart));
         holder.lessonDuration.setText("Durée : " + lesson.getDuration());
         holder.lessonPrice.setText("Prix : " + lesson.getPrice() + " €");
@@ -123,14 +122,14 @@ public class LessonsAdapter extends RecyclerView.Adapter<LessonsAdapter.ViewHold
         holder.lessonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fragment.didTouchCancelLessonButton(lesson.getLessonId());
+                fragment.didTouchCancelLessonButton(position);
             }
         });
 
         holder.lessonRefuse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fragment.didTouchRefuseLessonButton(lesson.getLessonId());
+                fragment.didTouchRefuseLessonButton(position);
             }
         });
 
@@ -144,28 +143,28 @@ public class LessonsAdapter extends RecyclerView.Adapter<LessonsAdapter.ViewHold
         holder.lessonAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fragment.didTouchAcceptLessonButton(lesson.getLessonId());
+                fragment.didTouchAcceptLessonButton(position);
             }
         });
 
         holder.positiveReviewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fragment.didTouchPositiveReviewButton(lesson.getLessonId());
+                fragment.didTouchPositiveReviewButton(position);
             }
         });
 
         holder.negativeReviewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fragment.didTouchNegativeReviewButton(lesson.getLessonId());
+                fragment.didTouchNegativeReviewButton(position);
             }
         });
 
         holder.reviewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fragment.didTouchReviewButton(lesson.getTeacherId());
+                fragment.didTouchReviewButton(position);
             }
         });
 
@@ -222,10 +221,9 @@ public class LessonsAdapter extends RecyclerView.Adapter<LessonsAdapter.ViewHold
             holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
             displayAcceptLessonButton(holder);
 
-        } else if (lesson.getPaymentStatus().equals("paid") && lesson.getReviewNeeded()) {
+        } else if (lesson.getPaymentStatus().equals("paid") && lesson.isReviewNeeded()) {
             holder.lessonStatus.setVisibility(View.VISIBLE);
-            holder.lessonStatus.setText("Laissez un commentaire à "
-                    + lesson.getUserFirstName() + " "+ lesson.getUserLastName());
+            holder.lessonStatus.setText("Laissez un commentaire à " + lesson.getUserName());
             holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
             displayReviewButton(holder);
 
@@ -241,7 +239,7 @@ public class LessonsAdapter extends RecyclerView.Adapter<LessonsAdapter.ViewHold
             holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.orange));
             removeAllButtons(holder);
 
-        } else if (lesson.getPaymentStatus().equals("paid") && !lesson.getReviewNeeded() && lesson.getStatus().equals("past")) {
+        } else if (lesson.getPaymentStatus().equals("paid") && !lesson.isReviewNeeded() && lesson.getStatus().equals("past")) {
             holder.lessonStatus.setVisibility(View.GONE);
             removeAllButtons(holder);
 

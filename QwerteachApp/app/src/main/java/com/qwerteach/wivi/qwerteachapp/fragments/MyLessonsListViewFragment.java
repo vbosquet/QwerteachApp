@@ -35,8 +35,12 @@ import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllMyLessonsAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetLessonsInfosAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.PayTeacherAsyncTack;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.RefuseLessonAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 import com.qwerteach.wivi.qwerteachapp.models.LessonsAdapter;
+import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.TeacherAdapter;
 
 import org.json.JSONArray;
@@ -44,18 +48,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by wivi on 15/12/16.
  */
 
-public class MyLessonsListViewFragment extends Fragment implements GetAllMyLessonsAsyncTask.IGetAllLessons,
-        CancelLessonAsyncTask.ICancelLesson,
-        RefuseLessonAsyncTask.IRefuseLesson,
-        AcceptLessonAsyncTask.IAcceptLesson,
-        GetLessonsInfosAsyncTask.IGetLessonInfos,
-        PayTeacherAsyncTack.IPayTeacher,
-        DisputeAsyncTack.IDispute,
+public class MyLessonsListViewFragment extends Fragment implements
         CreateReviewAsyncTask.ICreateReview,
         View.OnClickListener {
 
@@ -68,6 +72,7 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
     ProgressDialog progressDialog;
     FloatingActionButton floatingActionButton;
     int page = 1, scrollPosition = 0;
+    QwerteachService service;
 
     public static MyLessonsListViewFragment newInstance() {
         MyLessonsListViewFragment myLessonsListViewFragment = new MyLessonsListViewFragment();
@@ -90,71 +95,73 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
 
         lessons = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
+        service = ApiClient.getClient().create(QwerteachService.class);
+
         lessonRecyclerView = (RecyclerView) view.findViewById(R.id.lesson_recycler_view);
         floatingActionButton = (FloatingActionButton) view.findViewById(R.id.floating_action_button);
         floatingActionButton.setOnClickListener(this);
 
-        GetAllMyLessonsAsyncTask getAllMyLessonsAsyncTask = new GetAllMyLessonsAsyncTask(this);
-        getAllMyLessonsAsyncTask.execute(email, token, page);
-        startProgressDialog();
+        getLessons();
 
         return  view;
     }
 
-    @Override
-    public void getAllMyLessons(String string) {
+    public void getLessons() {
+        startProgressDialog();
+        Call<JsonResponse> call = service.getLessons(page, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                ArrayList<Lesson> lessonList = response.body().getLessons();
 
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONArray jsonArray = jsonObject.getJSONArray("lessons");
+                for (int i = 0; i < lessonList.size(); i++) {
+                    lessons.add(lessonList.get(i));
+                }
 
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonData = jsonArray.getJSONObject(i);
-                int lessonId = jsonData.getInt("id");
-                int studentId = jsonData.getInt("student_id");
-                int teacherId = jsonData.getInt("teacher_id");
-                int topicId = jsonData.getInt("topic_id");
-                int topicGroupId = jsonData.getInt("topic_group_id");
-                int levelId = jsonData.getInt("level_id");
-                String status = jsonData.getString("status");
-                String price = jsonData.getString("price");
-                String timeStart = jsonData.getString("time_start");
-
-                Lesson lesson = new Lesson(lessonId, studentId,
-                        teacherId, topicId, topicGroupId, levelId, status, price, timeStart);
-                lessons.add(lesson);
+                for (int i = 0; i < lessons.size(); i++) {
+                    startGetLessonInfos(lessons.get(i).getLessonId(), i);
+                }
             }
 
-            startGetLessonInfosAsyncTask();
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
 
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            }
+        });
     }
 
-    public void startGetLessonInfosAsyncTask() {
+    public void startGetLessonInfos(final int lessonId, final int index) {
+        Call<JsonResponse> call = service.getLessonInfos(lessonId, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                lessons.get(index).setUserName(response.body().getUserName());
+                lessons.get(index).setTopicTitle(response.body().getTopicTitle());
+                lessons.get(index).setTopicGroupTitle(response.body().getTopicGroupTitle());
+                lessons.get(index).setLevel(response.body().getLevelTitle());
+                lessons.get(index).setDuration(response.body().getDuration().getHours(), response.body().getDuration().getMinutes());
+                lessons.get(index).setPaymentStatus(response.body().getPaymentStatus());
+                lessons.get(index).setReviewNeeded(response.body().isReviewNeed());
 
-        for (int i = 0; i < lessons.size(); i++) {
-            int userToFind;
-            boolean checkIfNeedReview;
+                if (response.body().isExpired()) {
+                    lessons.get(index).setStatus("expired");
+                } else if (response.body().isPast()
+                        && lessons.get(index).getStatus().equals("created")) {
+                    lessons.get(index).setStatus("past");
+                }
 
-            if (String.valueOf(lessons.get(i).getTeacherId()).equals(userId)) {
-                userToFind = lessons.get(i).getStudentId();
-                checkIfNeedReview = false;
-            } else {
-                userToFind = lessons.get(i).getTeacherId();
-                checkIfNeedReview = true;
+                if (lessonId == lessons.get(lessons.size() - 1).getLessonId()) {
+                    progressDialog.dismiss();
+                    displayLessonListView();
+                }
+
             }
 
-            int topicId = lessons.get(i).getTopicId();
-            int topicGroupId = lessons.get(i).getTopicGroupId();
-            int levelId = lessons.get(i).getLevelId();
-            int lessonId = lessons.get(i).getLessonId();
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
 
-            GetLessonsInfosAsyncTask getLessonsInfosAsyncTask = new GetLessonsInfosAsyncTask(this);
-            getLessonsInfosAsyncTask.execute(email, token, topicId, topicGroupId, levelId, lessonId, userToFind, checkIfNeedReview);
-        }
+            }
+        });
     }
 
     public void displayLessonListView() {
@@ -168,10 +175,84 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
 
     }
 
-    public void didTouchCancelLessonButton(int lessonId) {
-        CancelLessonAsyncTask cancelLessonAsyncTask = new CancelLessonAsyncTask(this);
-        cancelLessonAsyncTask.execute(lessonId, email, token);
+    public void didTouchCancelLessonButton(final int index) {
         startProgressDialog();
+        Call<JsonResponse> call = service.cancelLesson(lessons.get(index).getLessonId(), email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                displayConfirmationMessage(response, index);
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void didTouchAcceptLessonButton(final int index) {
+        startProgressDialog();
+        Call<JsonResponse> call = service.acceptLesson(lessons.get(index).getLessonId(), email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                displayConfirmationMessage(response, index);
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void didTouchRefuseLessonButton(final int index) {
+        startProgressDialog();
+        Call<JsonResponse> call = service.refuseLesson(lessons.get(index).getLessonId(), email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                displayConfirmationMessage(response, index);
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void didTouchPositiveReviewButton(final int index) {
+        startProgressDialog();
+        Call<JsonResponse> call = service.payTeacher(lessons.get(index).getLessonId(), email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                displayConfirmationMessage(response, index);
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void didTouchNegativeReviewButton(final int index) {
+        startProgressDialog();
+        Call<JsonResponse> call = service.disputeLesson(lessons.get(index).getLessonId(), email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                displayConfirmationMessage(response, index);
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     public void didTouchUpdateLessonButton(Lesson lesson) {
@@ -180,30 +261,6 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
         transaction.replace(R.id.fragment_container, newFragment);
         transaction.addToBackStack(null);
         transaction.commit();
-    }
-
-    public void didTouchAcceptLessonButton(int lessonId) {
-        AcceptLessonAsyncTask acceptLessonAsyncTask = new AcceptLessonAsyncTask(this);
-        acceptLessonAsyncTask.execute(lessonId, email, token);
-        startProgressDialog();
-    }
-
-    public void didTouchRefuseLessonButton(int lessonId) {
-        RefuseLessonAsyncTask refuseLessonAsyncTask = new RefuseLessonAsyncTask(this);
-        refuseLessonAsyncTask.execute(lessonId, email, token);
-        startProgressDialog();
-    }
-
-    public void didTouchPositiveReviewButton(int lessonId) {
-        PayTeacherAsyncTack payTeacherAsyncTack = new PayTeacherAsyncTack(this);
-        payTeacherAsyncTack.execute(lessonId, email, token);
-        startProgressDialog();
-    }
-
-    public void didTouchNegativeReviewButton(int lessonId) {
-        DisputeAsyncTack disputeAsyncTack = new DisputeAsyncTack(this);
-        disputeAsyncTack.execute(lessonId, email, token);
-        startProgressDialog();
     }
 
     public void didTouchReviewButton(final int teacherId) {
@@ -249,147 +306,21 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
 
     }
 
-    @Override
-    public void cancelConfirmationMessage(String string) {
-        displayConfirmationMessage(string);
-    }
+    public void displayConfirmationMessage(Response<JsonResponse> response, int index) {
+        String success = response.body().getSuccess();
+        String message = response.body().getMessage();
 
-    @Override
-    public void refuseConfirmationMessage(String string) {
-        displayConfirmationMessage(string);
+        progressDialog.dismiss();
+        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
 
-    }
-
-    @Override
-    public void acceptConfirmationMessage(String string) {
-        displayConfirmationMessage(string);
-    }
-
-    public void displayConfirmationMessage(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String success = jsonObject.getString("success");
-            String message = jsonObject.getString("message");
-
-            if (success.equals("true")) {
-                JSONObject lessonJson = jsonObject.getJSONObject("lesson");
-                int lessonId = lessonJson.getInt("id");
-                String status = lessonJson.getString("status");
-
-                for (int i = 0; i < lessons.size(); i++) {
-                    if (lessonId == lessons.get(i).getLessonId()) {
-                        lessons.get(i).setStatus(status);
-                    }
-                }
-
-                progressDialog.dismiss();
-                Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-                displayLessonListView();
+        if (success.equals("true")) {
+            Lesson lesson = response.body().getLesson();
+            if (lesson != null) {
+                lessons.get(index).setStatus(lesson.getStatus());
             }
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Override
-    public void displayLessonInfos(String string) {
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONObject durationJson = jsonObject.getJSONObject("duration");
-            JSONObject userJson = jsonObject.getJSONObject("user");
-
-            boolean expired = jsonObject.getBoolean("expired");
-            boolean past = jsonObject.getBoolean("past");
-            boolean reviewNeed = jsonObject.getBoolean("review_needed");
-
-            int lessonId = jsonObject.getInt("lesson_id");
-            int hours = durationJson.getInt("hours");
-            int minutes = durationJson.getInt("minutes");
-
-            String topicTitle = jsonObject.getString("topic");
-            String topicGroupTitle = jsonObject.getString("topic_group");
-            String level = jsonObject.getString("level");
-            String userFirstName = userJson.getString("firstname");
-            String userLastName = userJson.getString("lastname");
-            String paymentStatus = jsonObject.getString("payment_status");
-
-            for (int i = 0; i < lessons.size(); i++) {
-                int id = lessons.get(i).getLessonId();
-
-                if (id == lessonId) {
-                    lessons.get(i).setUserFirstName(userFirstName);
-                    lessons.get(i).setUserLastName(userLastName);
-                    lessons.get(i).setTopicTitle(topicTitle);
-                    lessons.get(i).setTopicGroupTitle(topicGroupTitle);
-                    lessons.get(i).setLevel(level);
-                    lessons.get(i).setDuration(hours, minutes);
-                    lessons.get(i).setPaymentStatus(paymentStatus);
-
-                    if (expired) {
-                        lessons.get(i).setStatus("expired");
-                    } else if (past && lessons.get(i).getStatus().equals("created")) {
-                        lessons.get(i).setStatus("past");
-                    }
-
-                    if (reviewNeed) {
-                        lessons.get(i).setReviewNeeded(true);
-                    } else {
-                        lessons.get(i).setReviewNeeded(false);
-                    }
-                }
-
-
-                if (lessonId == lessons.get(lessons.size() - 1).getLessonId()) {
-                    progressDialog.dismiss();
-                    displayLessonListView();
-                }
-            }
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void payTeacherConfirmationMessage(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String success = jsonObject.getString("success");
-            String message = jsonObject.getString("message");
-
-            progressDialog.dismiss();
-            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-
-            if (success.equals("true")) {
-                refreshFragment();
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Override
-    public void disputeConfirmationMessage(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String success = jsonObject.getString("success");
-            String message = jsonObject.getString("message");
-
-            progressDialog.dismiss();
-            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-
-            if (success.equals("true")) {
-                refreshFragment();
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
+            page = 1;
+            refreshFragment();
         }
 
     }
@@ -402,10 +333,30 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
         progressDialog.show();
     }
 
-    public void startCreateReviewAsyncTask(int teacherId) {
-        CreateReviewAsyncTask createReviewAsyncTask = new CreateReviewAsyncTask(this);
-        createReviewAsyncTask.execute(teacherId, email, token, comment, note);
+    public void startCreateReviewAsyncTask(final int index) {
+        //CreateReviewAsyncTask createReviewAsyncTask = new CreateReviewAsyncTask(this);
+        //createReviewAsyncTask.execute(teacherId, email, token, comment, note);
+
+        Review review = new Review();
+        review.setReviewText(comment);
+        review.setNote(Integer.valueOf(note));
+
+        Map<String, Review> requestBody = new HashMap<>();
+        requestBody.put("review", review);
+
         startProgressDialog();
+        Call<JsonResponse> call = service.letReviewToTeacher(lessons.get(index).getTeacherId(), requestBody, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                displayConfirmationMessage(response, index);
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     public void refreshFragment() {
@@ -415,7 +366,7 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
 
     @Override
     public void createReviewConfirmationMessage(String string) {
-        try {
+        /*try {
             JSONObject jsonObject = new JSONObject(string);
             String success = jsonObject.getString("success");
 
@@ -430,16 +381,14 @@ public class MyLessonsListViewFragment extends Fragment implements GetAllMyLesso
 
         } catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     @Override
     public void onClick(View view) {
         page += 1;
         scrollPosition = lessons.size() - 1;
-        GetAllMyLessonsAsyncTask getAllMyLessonsAsyncTask = new GetAllMyLessonsAsyncTask(this);
-        getAllMyLessonsAsyncTask.execute(email, token, page);
-        startProgressDialog();
+        getLessons();
 
     }
 }

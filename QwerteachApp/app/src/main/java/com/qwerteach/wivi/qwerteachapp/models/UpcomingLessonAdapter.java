@@ -43,10 +43,10 @@ public class UpcomingLessonAdapter extends ArrayAdapter<Lesson> {
         }
 
         String lessonTopic = "<font color='#E166E1'>" + lesson.getTopicTitle() + "</font>";
-        String userFirstName = "<font color='#E166E1'>" + lesson.getUserFirstName() + "</font>";
+        String userName = "<font color='#E166E1'>" + lesson.getUserName() + "</font>";
 
         viewHolder.lessonTopic.setText(Html.fromHtml(lesson.getTime(lesson.getTimeStart()) + " " + lessonTopic));
-        viewHolder.lessonTeacher.setText(Html.fromHtml("avec " + userFirstName));
+        viewHolder.lessonTeacher.setText(Html.fromHtml("avec " + userName));
         viewHolder.lessonDuration.setText(lesson.getDuration());
         viewHolder.lessonDay.setText(lesson.getDay(lesson.getTimeStart()));
         viewHolder.lessonMonth.setText(lesson.getMonth(lesson.getTimeStart()));
