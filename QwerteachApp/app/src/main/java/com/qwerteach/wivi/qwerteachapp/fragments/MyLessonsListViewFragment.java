@@ -2,7 +2,6 @@ package com.qwerteach.wivi.qwerteachapp.fragments;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -11,41 +10,24 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.qwerteach.wivi.qwerteachapp.DashboardActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.AcceptLessonAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.CancelLessonAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.CreateReviewAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisputeAsyncTack;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllMyLessonsAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetLessonsInfosAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.PayTeacherAsyncTack;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.RefuseLessonAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 import com.qwerteach.wivi.qwerteachapp.models.LessonsAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.Review;
-import com.qwerteach.wivi.qwerteachapp.models.TeacherAdapter;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,9 +41,7 @@ import retrofit2.Response;
  * Created by wivi on 15/12/16.
  */
 
-public class MyLessonsListViewFragment extends Fragment implements
-        CreateReviewAsyncTask.ICreateReview,
-        View.OnClickListener {
+public class MyLessonsListViewFragment extends Fragment implements View.OnClickListener {
 
     View view;
     String email, token, userId, note, comment;
@@ -140,15 +120,7 @@ public class MyLessonsListViewFragment extends Fragment implements
                 lessons.get(index).setTopicGroupTitle(response.body().getTopicGroupTitle());
                 lessons.get(index).setLevel(response.body().getLevelTitle());
                 lessons.get(index).setDuration(response.body().getDuration().getHours(), response.body().getDuration().getMinutes());
-                lessons.get(index).setPaymentStatus(response.body().getPaymentStatus());
-                lessons.get(index).setReviewNeeded(response.body().isReviewNeed());
-
-                if (response.body().isExpired()) {
-                    lessons.get(index).setStatus("expired");
-                } else if (response.body().isPast()
-                        && lessons.get(index).getStatus().equals("created")) {
-                    lessons.get(index).setStatus("past");
-                }
+                lessons.get(index).setStatus(response.body().getLessonStatus());
 
                 if (lessonId == lessons.get(lessons.size() - 1).getLessonId()) {
                     progressDialog.dismiss();
@@ -291,7 +263,7 @@ public class MyLessonsListViewFragment extends Fragment implements
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 comment = commentEditText.getText().toString();
-                startCreateReviewAsyncTask(teacherId);
+                startCreateReview(teacherId);
             }
         });
 
@@ -333,10 +305,7 @@ public class MyLessonsListViewFragment extends Fragment implements
         progressDialog.show();
     }
 
-    public void startCreateReviewAsyncTask(final int index) {
-        //CreateReviewAsyncTask createReviewAsyncTask = new CreateReviewAsyncTask(this);
-        //createReviewAsyncTask.execute(teacherId, email, token, comment, note);
-
+    public void startCreateReview(final int index) {
         Review review = new Review();
         review.setReviewText(comment);
         review.setNote(Integer.valueOf(note));
@@ -362,26 +331,6 @@ public class MyLessonsListViewFragment extends Fragment implements
     public void refreshFragment() {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.detach(this).attach(this).commit();
-    }
-
-    @Override
-    public void createReviewConfirmationMessage(String string) {
-        /*try {
-            JSONObject jsonObject = new JSONObject(string);
-            String success = jsonObject.getString("success");
-
-            if (success.equals("true")) {
-                progressDialog.dismiss();
-                Toast.makeText(getContext(), R.string.create_review_positive_success_message, Toast.LENGTH_LONG).show();
-                refreshFragment();
-
-            } else {
-                Toast.makeText(getContext(), R.string.create_review_negative_success_message, Toast.LENGTH_LONG).show();
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }*/
     }
 
     @Override

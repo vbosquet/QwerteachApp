@@ -12,6 +12,7 @@ import com.qwerteach.wivi.qwerteachapp.models.UserWalletInfos;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.MultipartBody;
@@ -167,5 +168,8 @@ public interface QwerteachService {
     @POST("users/{teacher_id}/reviews")
     Call<JsonResponse> letReviewToTeacher(@Path("teacher_id") int teacherId, @Body Map<String, Review> body,
                                           @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("dashboard")
+    Call<JsonResponse> getDashboardInfos(@Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
 }

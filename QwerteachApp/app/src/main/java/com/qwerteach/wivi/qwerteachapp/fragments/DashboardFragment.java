@@ -11,8 +11,10 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,51 +26,46 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.qwerteach.wivi.qwerteachapp.DashboardActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.SearchTeacherActivity;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.AcceptLessonAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.CreateReviewAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayDashboardInfosAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisplayInfosProfileAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.DisputeAsyncTack;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetLessonsInfosAsyncTask;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.PayTeacherAsyncTack;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.RefuseLessonAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
-import com.qwerteach.wivi.qwerteachapp.models.Teacher;
+import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.TeacherToReviewAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.ToDoListAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.UpcomingLessonAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import java.util.ArrayList;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by wivi on 3/01/17.
  */
 
-public class DashboardFragment extends Fragment implements DisplayDashboardInfosAsyncTask.IGetDashboardInfos,
-        GetLessonsInfosAsyncTask.IGetLessonInfos,
-        ToDoListAdapter.ILessonManagementButtons,
-        AcceptLessonAsyncTask.IAcceptLesson,
-        RefuseLessonAsyncTask.IRefuseLesson,
-        PayTeacherAsyncTack.IPayTeacher,
-        DisputeAsyncTack.IDispute,
-        DisplayInfosProfileAsyncTask.IDisplayInfosProfile,
-        CreateReviewAsyncTask.ICreateReview {
+public class DashboardFragment extends Fragment {
 
     LinearLayout upcomingLessonLinearLayout, toDoListLinearLayout;
     TextView upcomingLessonsTextView;
     String email, token, userId, note, comment;
-    ArrayList<Lesson> upcomingLessons, toDoList;
-    ArrayList<Teacher> teachersToReview;
+    List<Lesson> upcomingLessons, toDoList;
+    List<User> teachersToReview;
     View view;
     ProgressDialog progressDialog;
+    QwerteachService service;
+    RecyclerView toDoListRecyclerView;
+    RecyclerView.Adapter toDoListAdapter;
+    RecyclerView.LayoutManager toDoListLayoutManager;
+    RecyclerView teacherToReviewRecyclerView;
+    RecyclerView.Adapter teacherToReviewAdapter;
+    RecyclerView.LayoutManager teacherToReviewLayoutManager;
 
     public static DashboardFragment newInstance() {
         DashboardFragment dashboardFragment = new DashboardFragment();
@@ -85,6 +82,7 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
         userId = preferences.getString("userId", "");
 
         progressDialog = new ProgressDialog(getContext());
+        service = ApiClient.getClient().create(QwerteachService.class);
     }
 
     @Override
@@ -94,10 +92,6 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
         upcomingLessonsTextView = (TextView) view.findViewById(R.id.upcoming_lesson_text_view);
         upcomingLessonLinearLayout = (LinearLayout) view.findViewById(R.id.upcoming_lesson_linear_layout);
         toDoListLinearLayout = (LinearLayout) view.findViewById(R.id.to_do_list_linear_layout);
-
-        upcomingLessons = new ArrayList<>();
-        toDoList = new ArrayList<>();
-        teachersToReview = new ArrayList<>();
 
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) view.findViewById(R.id.search_view);
@@ -111,9 +105,7 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
             doMySearch(query);
         }
 
-        DisplayDashboardInfosAsyncTask displayDashboardInfosAsyncTask = new DisplayDashboardInfosAsyncTask(this);
-        displayDashboardInfosAsyncTask.execute(email, token);
-        startProgressDialog();
+        getDashboardInfos();
 
         return  view;
     }
@@ -124,218 +116,141 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
         startActivity(intent);
     }
 
-    @Override
-    public void displayDashboardInfos(String string) {
+    public void getDashboardInfos() {
+        Call<JsonResponse> call = service.getDashboardInfos(email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                toDoList = response.body().getToDoList();
+                upcomingLessons = response.body().getUpcomingLesson();
+                teachersToReview = response.body().getTeachersToReview();
 
-        Log.i("DASHBOARD", string);
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONArray upcomingLessonsJsonArray = jsonObject.getJSONArray("upcoming_lessons");
-            JSONArray reviewAskedJsonArray = jsonObject.getJSONArray("review_asked");
-            JSONArray toDoListJsonArray = jsonObject.getJSONArray("to_do_list");
-
-            if (upcomingLessonsJsonArray.length() > 0) {
-                for (int i = 0; i < upcomingLessonsJsonArray.length(); i++) {
-                    upcomingLessons.add(getNewLesson(upcomingLessonsJsonArray.getJSONObject(i)));
+                if (teachersToReview.size() > 0) {
+                    displayTeachersToReviewListView();
                 }
 
-                getUpcomingLessonInfos();
-            }
-
-            if (toDoListJsonArray.length() > 0) {
-                for (int i = 0; i < toDoListJsonArray.length(); i++) {
-                    toDoList.add(getNewLesson(toDoListJsonArray.getJSONObject(i)));
-                }
-
-                getToDoListInfos();
-            }
-
-            if (reviewAskedJsonArray.length() > 0) {
-                for (int i = 0; i < reviewAskedJsonArray.length(); i++) {
-                    int teacherId = (int) reviewAskedJsonArray.get(i);
-                    User user = new User();
-                    user.setUserId(teacherId);
-                    Teacher teacher = new Teacher();
-                    teacher.setUser(user);
-                    teachersToReview.add(teacher);
-                }
-
-                //getTeachersInfos();
-            }
-
-            if (reviewAskedJsonArray.length() > 0  || toDoListJsonArray.length() > 0) {
-                toDoListLinearLayout.setVisibility(View.VISIBLE);
-            }
-
-            if (upcomingLessonsJsonArray.length() == 0 && toDoListJsonArray.length() == 0
-                    && reviewAskedJsonArray.length() == 0) {
-                progressDialog.dismiss();
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public Lesson getNewLesson(JSONObject jsonData) {
-
-        Lesson lesson = new Lesson();
-
-        try {
-            int lessonId = jsonData.getInt("id");
-            int studentId = jsonData.getInt("student_id");
-            int teacherId = jsonData.getInt("teacher_id");
-            int topicId =jsonData.getInt("topic_id");
-            int topicGroupId = jsonData.getInt("topic_group_id");
-            int levelId = jsonData.getInt("level_id");
-            String status = jsonData.getString("status");
-            String price = jsonData.getString("price");
-            String timeStart = jsonData.getString("time_start");
-
-            lesson.setLessonId(lessonId);
-            lesson.setStudentId(studentId);
-            lesson.setTeacherId(teacherId);
-            lesson.setTopicId(topicId);
-            lesson.setTopicGroupId(topicGroupId);
-            lesson.setLevelId(levelId);
-            lesson.setStatus(status);
-            lesson.setPrice(price);
-            lesson.setTimeStart(timeStart);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return  lesson;
-
-    }
-
-    public void getToDoListInfos() {
-        for (int i = 0; i < toDoList.size(); i++) {
-            int lessonId = toDoList.get(i).getLessonId();
-            GetLessonsInfosAsyncTask getLessonsInfosAsyncTask = new GetLessonsInfosAsyncTask(this);
-            getLessonsInfosAsyncTask.execute(email, token, lessonId);
-        }
-    }
-
-    public void getUpcomingLessonInfos() {
-        for (int i = 0; i < upcomingLessons.size(); i++) {
-            int lessonId = upcomingLessons.get(i).getLessonId();
-            GetLessonsInfosAsyncTask getLessonsInfosAsyncTask = new GetLessonsInfosAsyncTask(this);
-            getLessonsInfosAsyncTask.execute(email, token, lessonId);
-        }
-    }
-
-    //TODO
-    public void getTeachersInfos() {
-        for (int i = 0; i < teachersToReview.size(); i++) {
-            int teacherId = teachersToReview.get(i).getUser().getUserId();
-            DisplayInfosProfileAsyncTask displayInfosProfileAsyncTask = new DisplayInfosProfileAsyncTask(this);
-            displayInfosProfileAsyncTask.execute(String.valueOf(teacherId), email, token);
-        }
-    }
-
-    @Override
-    public void displayLessonInfos(String string) {
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONObject durationJson = jsonObject.getJSONObject("duration");
-
-            String userName = jsonObject.getString("name");
-            String topicTitle = jsonObject.getString("topic");
-            String topicGroupTitle = jsonObject.getString("topic_group");
-            String levelTitle = jsonObject.getString("level");
-            int lessonId = jsonObject.getInt("lesson_id");
-            int hours = durationJson.getInt("hours");
-            int minutes = durationJson.getInt("minutes");
-            boolean past = jsonObject.getBoolean("past");
-
-            for (int i = 0; i < toDoList.size(); i++) {
-                int id = toDoList.get(i).getLessonId();
-
-                if (id == lessonId) {
-                    toDoList.get(i).setUserName(userName);
-                    toDoList.get(i).setTopicTitle(topicTitle);
-                    toDoList.get(i).setTopicGroupTitle(topicGroupTitle);
-                    toDoList.get(i).setLevel(levelTitle);
-                    toDoList.get(i).setDuration(hours, minutes);
-
-                    if (past && toDoList.get(i).getStatus().equals("created")) {
-                        toDoList.get(i).setStatus("past");
+                if (upcomingLessons.size() > 0) {
+                    for (int i = 0; i < upcomingLessons.size(); i++) {
+                        getLessonInfos(upcomingLessons.get(i).getLessonId(), i, upcomingLessons);
                     }
                 }
 
-                if (lessonId == toDoList.get(toDoList.size() - 1).getLessonId()) {
-                    displayToDoListView(i);
+                if (toDoList.size() > 0) {
+                    for (int i = 0; i < toDoList.size(); i++) {
+                        getLessonInfos(toDoList.get(i).getLessonId(), i, toDoList);
+                    }
+                }
+
+                if (teachersToReview.size() > 0  || toDoList.size() > 0) {
+                    toDoListLinearLayout.setVisibility(View.VISIBLE);
                 }
             }
 
-            for (int i = 0; i < upcomingLessons.size(); i++) {
-                int id = upcomingLessons.get(i).getLessonId();
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
 
-                if (id == lessonId) {
-                    upcomingLessons.get(i).setUserName(userName);
-                    upcomingLessons.get(i).setTopicTitle(topicTitle);
-                    upcomingLessons.get(i).setDuration(hours, minutes);
+            }
+        });
+    }
+
+    public void getLessonInfos(final int lessonId, final int index, final List<Lesson> lessons) {
+        Call<JsonResponse> call = service.getLessonInfos(lessonId, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                lessons.get(index).setUserName(response.body().getUserName());
+                lessons.get(index).setTopicTitle(response.body().getTopicTitle());
+                lessons.get(index).setTopicGroupTitle(response.body().getTopicGroupTitle());
+                lessons.get(index).setLevel(response.body().getLevelTitle());
+                lessons.get(index).setDuration(response.body().getDuration().getHours(), response.body().getDuration().getMinutes());
+                lessons.get(index).setStatus(response.body().getLessonStatus());
+
+                if (toDoList.size() > 0) {
+                    if (lessonId == toDoList.get(toDoList.size() - 1).getLessonId()) {
+                        displayToDoListView();
+                    }
                 }
 
-                if (lessonId == upcomingLessons.get(upcomingLessons.size() - 1).getLessonId()) {
-                    displayUpcomingLessonListView(i);
+
+                if (upcomingLessons.size() > 0) {
+                    if (lessonId == upcomingLessons.get(upcomingLessons.size() - 1).getLessonId()) {
+                        displayUpcomingLessonListView();
+                    }
                 }
             }
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
     }
 
-    public void displayToDoListView(int i) {
-        LinearLayout toDoListView = (LinearLayout) view.findViewById(R.id.to_do_list);
-        toDoListView.setVisibility(View.VISIBLE);
-        ToDoListAdapter toDoListAdapter = new ToDoListAdapter(getContext(), toDoList);
-        toDoListAdapter.setCallback(this);
-        View view = toDoListAdapter.getView(i, null, null);
-        toDoListView.addView(view);
-        progressDialog.dismiss();
+    public void displayToDoListView() {
+        toDoListRecyclerView = (RecyclerView) view.findViewById(R.id.to_do_list);
+        toDoListRecyclerView.setVisibility(View.VISIBLE);
+        toDoListAdapter = new ToDoListAdapter(toDoList, this);
+        toDoListLayoutManager = new LinearLayoutManager(getContext());
+        toDoListRecyclerView.setLayoutManager(toDoListLayoutManager);
+        toDoListRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        toDoListRecyclerView.setAdapter(toDoListAdapter);
 
     }
 
-    public void displayUpcomingLessonListView(int i) {
+    public void displayUpcomingLessonListView() {
         upcomingLessonsTextView.setText(upcomingLessons.size() + " cours à venir");
         upcomingLessonLinearLayout.setVisibility(View.VISIBLE);
         LinearLayout upcomingLessonView = (LinearLayout) view.findViewById(R.id.upcoming_lesson);
-        UpcomingLessonAdapter upcomingLessonAdapter = new UpcomingLessonAdapter(getContext(), upcomingLessons);
-        View view = upcomingLessonAdapter.getView(i, null, null);
-        upcomingLessonView.addView(view);
-        progressDialog.dismiss();
+
+        for (int i = 0; i < upcomingLessons.size(); i++) {
+            UpcomingLessonAdapter upcomingLessonAdapter = new UpcomingLessonAdapter(getContext(), upcomingLessons);
+            View view = upcomingLessonAdapter.getView(i, null, null);
+            upcomingLessonView.addView(view);
+        }
     }
 
-    public void displayTeachersToReviewListView(int i) {
-        LinearLayout teacherToReviewListView = (LinearLayout) view.findViewById(R.id.teacher_to_review);
-        teacherToReviewListView.setVisibility(View.VISIBLE);
-        TeacherToReviewAdapter teacherToReviewAdapter = new TeacherToReviewAdapter(getContext(), teachersToReview, DashboardFragment.this);
-        View view = teacherToReviewAdapter.getView(i, null, null);
-        teacherToReviewListView.addView(view);
-        progressDialog.dismiss();
+    public void displayTeachersToReviewListView() {
+        teacherToReviewRecyclerView = (RecyclerView) view.findViewById(R.id.teacher_to_review);
+        teacherToReviewRecyclerView.setVisibility(View.VISIBLE);
+        teacherToReviewAdapter = new TeacherToReviewAdapter(teachersToReview, this);
+        teacherToReviewLayoutManager = new LinearLayoutManager(getContext());
+        teacherToReviewRecyclerView.setLayoutManager(teacherToReviewLayoutManager);
+        teacherToReviewRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        teacherToReviewRecyclerView.setAdapter(teacherToReviewAdapter);
     }
 
-    @Override
-    public void didTouchRefuseLessonButton(int lessonId) {
-        RefuseLessonAsyncTask refuseLessonAsyncTask = new RefuseLessonAsyncTask(this);
-        refuseLessonAsyncTask.execute(lessonId, email, token);
+    public void didTouchRefuseLessonButton(final int index) {
+        startProgressDialog();
+        Call<JsonResponse> call = service.refuseLesson(toDoList.get(index).getLessonId(), email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                displayConfirmationMessage(response, index);
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void didTouchAcceptLessonButton(final int index) {
+        Call<JsonResponse> call = service.acceptLesson(toDoList.get(index).getLessonId(), email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                displayConfirmationMessage(response, index);
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
         startProgressDialog();
     }
 
-    @Override
-    public void didTouchAcceptLessonButton(int lessonId) {
-        AcceptLessonAsyncTask acceptLessonAsyncTask = new AcceptLessonAsyncTask(this);
-        acceptLessonAsyncTask.execute(lessonId, email, token);
-        startProgressDialog();
-    }
-
-    @Override
     public void didTouchUpdateLessonButton(Lesson lesson) {
         Fragment newFragment = UpdateLessonFragment.newInstance(lesson);
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
@@ -344,128 +259,56 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
         transaction.commit();
     }
 
-    @Override
-    public void didTouchPositiveFeedBackButton(int lessonId) {
-        PayTeacherAsyncTack payTeacherAsyncTack = new PayTeacherAsyncTack(this);
-        payTeacherAsyncTack.execute(lessonId, email, token);
+    public void didTouchPositiveFeedBackButton(final int index) {
         startProgressDialog();
+        Call<JsonResponse> call = service.payTeacher(toDoList.get(index).getLessonId(), email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                displayConfirmationMessage(response, index);
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
     }
 
-    @Override
-    public void didTouchNegativeFeedBackButton(int lessonId) {
-        DisputeAsyncTack disputeAsyncTack = new DisputeAsyncTack(this);
-        disputeAsyncTack.execute(lessonId, email, token);
+    public void didTouchNegativeFeedBackButton(final int index) {
         startProgressDialog();
-
-    }
-
-    @Override
-    public void acceptConfirmationMessage(String string) {
-        displayConfirmationMessage(string);
-    }
-
-    @Override
-    public void refuseConfirmationMessage(String string) {
-        displayConfirmationMessage(string);
-    }
-
-    public void displayConfirmationMessage(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String success = jsonObject.getString("success");
-            String message = jsonObject.getString("message");
-
-            if (success.equals("true")) {
-                JSONObject lessonJson = jsonObject.getJSONObject("lesson");
-                int lessonId = lessonJson.getInt("id");
-                String status = lessonJson.getString("status");
-
-                for (int i = 0; i < toDoList.size(); i++) {
-                    if (lessonId == toDoList.get(i).getLessonId()) {
-                        toDoList.get(i).setStatus(status);
-                    }
-                }
+        Call<JsonResponse> call = service.disputeLesson(toDoList.get(index).getLessonId(), email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                displayConfirmationMessage(response, index);
             }
 
-            progressDialog.dismiss();
-            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(getContext(), DashboardActivity.class);
-            startActivity(intent);
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Override
-    public void payTeacherConfirmationMessage(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String success = jsonObject.getString("success");
-            String message = jsonObject.getString("message");
-
-            progressDialog.dismiss();
-            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-
-            if (success.equals("true")) {
-                Intent intent = new Intent(getContext(), DashboardActivity.class);
-                startActivity(intent);
             }
+        });
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
-    @Override
-    public void disputeConfirmationMessage(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String success = jsonObject.getString("success");
-            String message = jsonObject.getString("message");
+    public void displayConfirmationMessage(Response<JsonResponse> response, int index) {
+        String success = response.body().getSuccess();
+        String message = response.body().getMessage();
 
-            progressDialog.dismiss();
-            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+        progressDialog.dismiss();
+        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
 
-            if (success.equals("true")) {
-                Intent intent = new Intent(getContext(), DashboardActivity.class);
-                startActivity(intent);
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void displayUserInfosProfile(String string) {
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONObject userJson = jsonObject.getJSONObject("user");
-
-            int teacherId = userJson.getInt("id");
-            String firstName = userJson.getString("firstname");
-            String lastName = userJson.getString("lastname");
-
-            for (int i = 0; i < teachersToReview.size(); i++) {
-                int id = teachersToReview.get(i).getUser().getUserId();
-
-                if (id == teacherId) {
-                    teachersToReview.get(i).getUser().setFirstName(firstName);
-                    teachersToReview.get(i).getUser().setLastName(lastName);
-                }
-
-                if (teacherId == teachersToReview.get(teachersToReview.size() - 1).getUser().getUserId()) {
-                    displayTeachersToReviewListView(i);
-                }
+        if (success.equals("true")) {
+            Lesson lesson = response.body().getLesson();
+            if (lesson != null) {
+                toDoList.get(index).setStatus(lesson.getStatus());
             }
 
 
-        } catch (JSONException e) {
-            e.printStackTrace();
+            refreshFragment();
         }
+
     }
 
     public void didTouchTeacherReviewButton(final int teacherId) {
@@ -496,7 +339,7 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 comment = commentEditText.getText().toString();
-                startCreateReviewAsyncTask(teacherId);
+                startCreateReview(teacherId);
             }
         });
 
@@ -510,31 +353,27 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
         builder.create().show();
     }
 
-    @Override
-    public void createReviewConfirmationMessage(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String success = jsonObject.getString("success");
+    public void startCreateReview(final int index) {
+        Review review = new Review();
+        review.setReviewText(comment);
+        review.setNote(Integer.valueOf(note));
 
-            if (success.equals("true")) {
-                progressDialog.dismiss();
-                Toast.makeText(getContext(), R.string.create_review_positive_success_message, Toast.LENGTH_LONG).show();
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.detach(this).attach(this).commit();
-            } else {
-                Toast.makeText(getContext(), R.string.create_review_negative_success_message, Toast.LENGTH_LONG).show();
+        Map<String, Review> requestBody = new HashMap<>();
+        requestBody.put("review", review);
+
+        startProgressDialog();
+        Call<JsonResponse> call = service.letReviewToTeacher(teachersToReview.get(index).getUserId(), requestBody, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                displayConfirmationMessage(response, index);
             }
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
 
-    }
-
-    public void startCreateReviewAsyncTask(int teacherId) {
-        CreateReviewAsyncTask createReviewAsyncTask = new CreateReviewAsyncTask(this);
-        createReviewAsyncTask.execute(teacherId, email, token, comment, note);
-        startProgressDialog();
+            }
+        });
     }
 
     public void startProgressDialog() {
@@ -543,5 +382,10 @@ public class DashboardFragment extends Fragment implements DisplayDashboardInfos
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setCancelable(true);
         progressDialog.show();
+    }
+
+    public void refreshFragment() {
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.detach(this).attach(this).commit();
     }
 }

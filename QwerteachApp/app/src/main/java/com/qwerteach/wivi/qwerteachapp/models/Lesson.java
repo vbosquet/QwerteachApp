@@ -25,7 +25,6 @@ public class Lesson implements Serializable {
     private Integer topicGroupId;
     @SerializedName("level_id")
     private Integer levelId;
-
     @SerializedName("time_start")
     private String timeStart;
     @SerializedName("status")
@@ -37,14 +36,11 @@ public class Lesson implements Serializable {
     @SerializedName("minutes")
     private String minutes;
 
-    private boolean reviewNeeded;
-
     private String userName;
     private String topicTitle;
     private String topicGroupTitle;
     private String level;
     private String duration;
-    private String paymentStatus;
 
     public Lesson(){
 
@@ -152,22 +148,6 @@ public class Lesson implements Serializable {
 
     public void setDuration(String duration) {
         this.duration = duration;
-    }
-
-    public String getPaymentStatus() {
-        return paymentStatus;
-    }
-
-    public void setPaymentStatus(String paymentStatus) {
-        this.paymentStatus = paymentStatus;
-    }
-
-    public boolean isReviewNeeded() {
-        return reviewNeeded;
-    }
-
-    public void setReviewNeeded(boolean reviewNeeded) {
-        this.reviewNeeded = reviewNeeded;
     }
 
     public void setDuration(int hours, int minutes) {

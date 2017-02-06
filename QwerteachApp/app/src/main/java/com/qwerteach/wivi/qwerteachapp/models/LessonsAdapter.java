@@ -186,60 +186,58 @@ public class LessonsAdapter extends RecyclerView.Adapter<LessonsAdapter.ViewHold
             holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.red));
             removeAllButtons(holder);
 
-        } else if (lesson.getStatus().equals("created")) {
+        } else if (lesson.getStatus().equals("accepted")) {
             holder.lessonStatus.setVisibility(View.VISIBLE);
             holder.lessonStatus.setText(R.string.lesson_accepted_status);
             holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
             displayCancelButtonOnly(holder);
 
-        } else if (lesson.getStatus().equals("past") && !lesson.getPaymentStatus().equals("paid")
-                && !lesson.getPaymentStatus().equals("disputed")
-                && userId.equals(String.valueOf(lesson.getStudentId()))) {
+        } else if (lesson.getStatus().equals("pay")) {
             holder.lessonStatus.setVisibility(View.VISIBLE);
             holder.lessonStatus.setText(R.string.lesson_past_status);
             holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
             displayPayTeacherButtons(holder);
 
-        } else if (lesson.getStatus().equals("past") && lesson.getPaymentStatus().equals("locked")
+        /*} else if (lesson.getStatus().equals("past") && lesson.getPaymentStatus().equals("locked")
                 && userId.equals(String.valueOf(lesson.getTeacherId()))) {
             holder.lessonStatus.setVisibility(View.VISIBLE);
             holder.lessonStatus.setText(R.string.lesson_waiting_for_payment_status);
             holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.orange));
-            removeAllButtons(holder);
+            removeAllButtons(holder);*/
 
         } else if (userId.equals(String.valueOf(lesson.getTeacherId()))
-                && lesson.getStatus().equals("pending_teacher")) {
+                && lesson.getStatus().equals("confirm")) {
             holder.lessonStatus.setVisibility(View.VISIBLE);
             holder.lessonStatus.setText(R.string.lesson_to_accept);
             holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
             displayAcceptLessonButton(holder);
 
         } else if (userId.equals(String.valueOf(lesson.getStudentId()))
-                && lesson.getStatus().equals("pending_student")) {
+                && lesson.getStatus().equals("confirm")) {
             holder.lessonStatus.setVisibility(View.VISIBLE);
             holder.lessonStatus.setText(R.string.lesson_to_accept);
             holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
             displayAcceptLessonButton(holder);
 
-        } else if (lesson.getPaymentStatus().equals("paid") && lesson.isReviewNeeded()) {
+        } else if (lesson.getStatus().equals("review")) {
             holder.lessonStatus.setVisibility(View.VISIBLE);
             holder.lessonStatus.setText("Laissez un commentaire à " + lesson.getUserName());
             holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
             displayReviewButton(holder);
 
-        } else if (lesson.getPaymentStatus().equals("disputed") && userId.equals(String.valueOf(lesson.getStudentId()))) {
+        } else if (lesson.getStatus().equals("disputed") && userId.equals(String.valueOf(lesson.getStudentId()))) {
             holder.lessonStatus.setVisibility(View.VISIBLE);
             holder.lessonStatus.setText(R.string.lesson_disputed_status);
             holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.orange));
             removeAllButtons(holder);
 
-        } else if (lesson.getPaymentStatus().equals("disputed") && userId.equals(String.valueOf(lesson.getTeacherId()))) {
+        } else if (lesson.getStatus().equals("disputed") && userId.equals(String.valueOf(lesson.getTeacherId()))) {
             holder.lessonStatus.setVisibility(View.VISIBLE);
             holder.lessonStatus.setText(R.string.lesson_waiting_for_payment_status);
             holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.orange));
             removeAllButtons(holder);
 
-        } else if (lesson.getPaymentStatus().equals("paid") && !lesson.isReviewNeeded() && lesson.getStatus().equals("past")) {
+        } else if (lesson.getStatus().equals("past")) {
             holder.lessonStatus.setVisibility(View.GONE);
             removeAllButtons(holder);
 

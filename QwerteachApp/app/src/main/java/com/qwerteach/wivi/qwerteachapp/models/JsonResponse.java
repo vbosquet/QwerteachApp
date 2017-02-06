@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by wivi on 19/01/17.
@@ -85,6 +86,15 @@ public class JsonResponse {
     private String userName;
     @SerializedName("lesson")
     private Lesson lesson;
+    @SerializedName("upcoming_lessons")
+    private List<Lesson> upcomingLesson;
+    @SerializedName("to_do_list")
+    private List<Lesson> toDoList;
+    @SerializedName("review_asked")
+    private List<User> teachersToReview;
+    @SerializedName("lesson_status")
+    private String lessonStatus;
+
 
     public String getAvatar() {
         return avatar;
@@ -234,11 +244,28 @@ public class JsonResponse {
         return lesson;
     }
 
-    public static class Duration {
+    public List<Lesson> getUpcomingLesson() {
+        return upcomingLesson;
+    }
+
+    public List<Lesson> getToDoList() {
+        return toDoList;
+    }
+
+    public String getLessonStatus() {
+        return lessonStatus;
+    }
+
+    public List<User> getTeachersToReview() {
+        return teachersToReview;
+    }
+
+    public static class Duration
+    {
         @SerializedName("hours")
-        int hours;
+        private int hours;
         @SerializedName("minutes")
-        int minutes;
+        private int minutes;
 
         public Duration() {
 

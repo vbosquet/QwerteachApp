@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.qwerteach.wivi.qwerteachapp.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by wivi on 29/12/16.
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 
 public class UpcomingLessonAdapter extends ArrayAdapter<Lesson> {
 
-    public UpcomingLessonAdapter(Context context, ArrayList<Lesson> lessons) {
+    public UpcomingLessonAdapter(Context context, List<Lesson> lessons) {
         super(context, 0, lessons);
     }
 
