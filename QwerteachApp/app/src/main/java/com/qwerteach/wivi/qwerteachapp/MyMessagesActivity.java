@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,7 +26,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class MyMessagesActivity extends AppCompatActivity implements GetAllConversationsAsyncTask.IGetAllConversations,
+public class MyMessagesActivity extends AppCompatActivity implements
+        GetAllConversationsAsyncTask.IGetAllConversations,
         AdapterView.OnItemClickListener {
 
     String email, token, userId;

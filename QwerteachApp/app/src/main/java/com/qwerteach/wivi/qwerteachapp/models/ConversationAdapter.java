@@ -91,6 +91,6 @@ public class ConversationAdapter extends ArrayAdapter<Conversation> {
             return hours + " heure(s)";
         }
 
-        return days + "jour(s)";
+        return days + " jour(s)";
     }
 }

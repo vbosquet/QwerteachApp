@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "564701183110",
+    "firebase_url": "https://qwerteach-4e886.firebaseio.com",
+    "project_id": "qwerteach-4e886",
+    "storage_bucket": "qwerteach-4e886.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:564701183110:android:574f5e36230ad4c6",
+        "android_client_info": {
+          "package_name": "com.qwerteach.wivi.qwerteachapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "564701183110-gq6489uja8jgbvl1ilioskuf3ilt03g2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJWrypCMa8LHC6OnE6oUQ9hGHAmwGFYCI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "564701183110-gq6489uja8jgbvl1ilioskuf3ilt03g2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

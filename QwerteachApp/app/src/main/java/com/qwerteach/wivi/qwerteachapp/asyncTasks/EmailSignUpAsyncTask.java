@@ -43,7 +43,7 @@ public class EmailSignUpAsyncTask extends AsyncTask<String, String, String> {
             json.put("password_confirmation", passwordConfirmation);
             userJson.put("user", json);
 
-            URL url = new URL("http://192.168.0.110:3000/api/registrations");
+            URL url = new URL("http://192.168.0.102:3000/api/registrations");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             httpURLConnection.setDoOutput(true);

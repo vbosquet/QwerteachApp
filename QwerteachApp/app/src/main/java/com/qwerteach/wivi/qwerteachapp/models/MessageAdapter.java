@@ -1,10 +1,9 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
-import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -17,55 +16,56 @@ import java.util.ArrayList;
  * Created by wivi on 23/12/16.
  */
 
-public class MessageAdapter extends ArrayAdapter<Message> {
+public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
 
-    Context context;
+    private ArrayList<Message> messages;
 
-    public MessageAdapter(Context context, ArrayList<Message> messages) {
-        super(context, 0, messages);
-        this.context = context;
+    public MessageAdapter(ArrayList<Message> messages) {
+        this.messages = messages;
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.message_list_view, parent, false);
+        itemView.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT));
+        return new MessageAdapter.ViewHolder(itemView);
+    }
 
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        Message message = messages.get(position);
 
-        final Message message = getItem(position);
-        MessageAdapter.ViewHolder viewHolder;
-
-        if(convertView == null) {
-
-            viewHolder = new MessageAdapter.ViewHolder();
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.message_list_view, parent, false);
-            viewHolder.messageContent = (TextView) convertView.findViewById(R.id.message_content);
-            viewHolder.messageLinearLayout = (LinearLayout) convertView.findViewById(R.id.message_linear_layout);
-            convertView.setTag(viewHolder);
-
-        } else {
-            viewHolder = (MessageAdapter.ViewHolder) convertView.getTag();
-        }
-
-        viewHolder.messageContent.setText(message.getBody());
+        holder.messageContent.setText(message.getBody());
 
         if (message.getMine()) {
-            viewHolder.messageContent.setBackgroundResource(R.drawable.message_out_border);
-            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) viewHolder.messageLinearLayout.getLayoutParams();
+            holder.messageContent.setBackgroundResource(R.drawable.message_out_border);
+            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) holder.messageLinearLayout.getLayoutParams();
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            viewHolder.messageLinearLayout.setLayoutParams(layoutParams);
+            holder.messageLinearLayout.setLayoutParams(layoutParams);
         } else {
-            viewHolder.messageContent.setBackgroundResource(R.drawable.message_in_border);
-            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) viewHolder.messageLinearLayout.getLayoutParams();
+            holder.messageContent.setBackgroundResource(R.drawable.message_in_border);
+            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) holder.messageLinearLayout.getLayoutParams();
             layoutParams.removeRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            viewHolder.messageLinearLayout.setLayoutParams(layoutParams);
+            holder.messageLinearLayout.setLayoutParams(layoutParams);
         }
 
-        return convertView;
+    }
+
+    @Override
+    public int getItemCount() {
+        return messages.size();
     }
 
 
-    public static class ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder{
         TextView messageContent;
         LinearLayout messageLinearLayout;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+
+            messageContent = (TextView) itemView.findViewById(R.id.message_content);
+            messageLinearLayout = (LinearLayout) itemView.findViewById(R.id.message_linear_layout);
+        }
     }
 }

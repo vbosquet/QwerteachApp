@@ -8,14 +8,19 @@ import java.io.Serializable;
  * Created by wivi on 23/12/16.
  */
 
-public class Message implements Serializable{
+public class Message implements Serializable {
+
+    @SerializedName("id")
     private Integer messageId;
     @SerializedName("body")
     private String body;
     @SerializedName("subject")
     private String subject;
+    @SerializedName("sender_id")
     private Integer senderId;
+    @SerializedName("conversation_id")
     private Integer conversationId;
+    @SerializedName("created_at")
     private String creationDate;
     private Boolean isMine;
     @SerializedName("recipient")

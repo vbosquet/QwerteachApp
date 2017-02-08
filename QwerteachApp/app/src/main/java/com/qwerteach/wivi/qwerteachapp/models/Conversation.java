@@ -1,5 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -8,7 +10,9 @@ import java.util.ArrayList;
  */
 
 public class Conversation implements Serializable{
-    private int conversationId;
+
+    @SerializedName("conversation_id")
+    private Integer conversationId;
     private String subject;
     private String conversationCreationDate;
     private String conversationUpdatingDate;
@@ -23,11 +27,11 @@ public class Conversation implements Serializable{
         messages = new ArrayList<>();
     }
 
-    public int getConversationId() {
+    public Integer getConversationId() {
         return conversationId;
     }
 
-    public void setConversationId(int conversationId) {
+    public void setConversationId(Integer conversationId) {
         this.conversationId = conversationId;
     }
 
