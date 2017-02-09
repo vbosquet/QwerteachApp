@@ -16,6 +16,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.google.firebase.messaging.RemoteMessage;
+import com.pusher.android.PusherAndroid;
+import com.pusher.android.notifications.ManifestValidator;
+import com.pusher.android.notifications.PushNotificationRegistration;
+import com.pusher.android.notifications.fcm.FCMPushNotificationReceivedListener;
+import com.pusher.android.notifications.interests.InterestSubscriptionChangeListener;
+import com.pusher.android.notifications.tokens.PushNotificationRegistrationListener;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.Conversation;
@@ -58,6 +65,11 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
         token = preferences.getString("token", "");
         userId = preferences.getString("userId", "");
 
+        getAllConversations();
+
+    }
+
+    public void getAllConversations() {
         Call<JsonResponse> call = service.getConversations(email, token);
         call.enqueue(new Callback<JsonResponse>() {
             @Override
@@ -94,6 +106,7 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
 
             }
         });
+
     }
 
     @Override

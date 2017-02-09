@@ -94,7 +94,17 @@
         <activity
             android:name=".MyMessagesActivity"
             android:label="@string/my_messages_activity_title"
-            android:parentActivityName=".DashboardActivity" />
+            android:parentActivityName=".DashboardActivity">
+
+            <intent-filter>
+                <action android:name="MY_MESSAGES" />
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+
+
+        </activity>
+
+
         <activity
             android:name=".ChatActivity"
             android:parentActivityName=".MyMessagesActivity" />
@@ -120,6 +130,20 @@
             </intent-filter>
         </service>
         <!-- [END firebase_iid_service] -->
+
+        <service
+            android:name="com.pusher.android.notifications.fcm.FCMMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="com.pusher.android.notifications.fcm.FCMInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
 
 
 

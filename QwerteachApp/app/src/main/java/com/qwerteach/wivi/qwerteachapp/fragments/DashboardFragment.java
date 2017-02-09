@@ -28,10 +28,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.RemoteMessage;
+import com.pusher.android.PusherAndroid;
+import com.pusher.android.notifications.ManifestValidator;
+import com.pusher.android.notifications.PushNotificationRegistration;
+import com.pusher.android.notifications.fcm.FCMPushNotificationReceivedListener;
+import com.pusher.android.notifications.interests.InterestSubscriptionChangeListener;
+import com.pusher.android.notifications.tokens.PushNotificationRegistrationListener;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.SearchTeacherActivity;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.Conversation;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 import com.qwerteach.wivi.qwerteachapp.models.Review;
@@ -85,6 +93,7 @@ public class DashboardFragment extends Fragment {
 
         progressDialog = new ProgressDialog(getContext());
         service = ApiClient.getClient().create(QwerteachService.class);
+        setUpPusherNotification();
     }
 
     @Override
@@ -389,5 +398,24 @@ public class DashboardFragment extends Fragment {
     public void refreshFragment() {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.detach(this).attach(this).commit();
+    }
+
+    public void setUpPusherNotification() {
+        try {
+            PusherAndroid pusher = new PusherAndroid("1e87927ec5fb91180bb0");
+            PushNotificationRegistration nativePusher = pusher.nativePusher();
+            nativePusher.subscribe("qwerteach");
+            nativePusher.registerFCM(getContext());
+
+            nativePusher.setFCMListener(new FCMPushNotificationReceivedListener() {
+                @Override
+                public void onMessageReceived(RemoteMessage remoteMessage) {
+                }
+            });
+
+
+        } catch (ManifestValidator.InvalidManifestException e) {
+            e.printStackTrace();
+        }
     }
 }
