@@ -29,6 +29,7 @@ import com.qwerteach.wivi.qwerteachapp.models.MessageAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import retrofit2.Call;
@@ -38,7 +39,7 @@ import retrofit2.Response;
 public class ChatActivity extends AppCompatActivity {
 
     Conversation conversation;
-    ArrayList<Message> messages;
+    List<Message> messages;
     EditText messageToSendEditText;
     String email, token, userId;
     RecyclerView messageRecyclerView;

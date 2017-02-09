@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.qwerteach.wivi.qwerteachapp.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by wivi on 23/12/16.
@@ -18,9 +19,9 @@ import java.util.ArrayList;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
 
-    private ArrayList<Message> messages;
+    private List<Message> messages;
 
-    public MessageAdapter(ArrayList<Message> messages) {
+    public MessageAdapter(List<Message> messages) {
         this.messages = messages;
     }
 

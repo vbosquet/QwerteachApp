@@ -6,7 +6,6 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -14,26 +13,29 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.GetAllConversationsAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.Conversation;
 import com.qwerteach.wivi.qwerteachapp.models.ConversationAdapter;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Message;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.List;
+import java.util.Objects;
 
-import java.util.ArrayList;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MyMessagesActivity extends AppCompatActivity implements
-        GetAllConversationsAsyncTask.IGetAllConversations,
         AdapterView.OnItemClickListener {
 
     String email, token, userId;
-    ArrayList<Conversation> conversationsList;
-    ArrayList<User> usersList;
+    List<Conversation> conversationsList;
+    List<User> usersList;
     ListView conversationListView;
+    QwerteachService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,17 +46,49 @@ public class MyMessagesActivity extends AppCompatActivity implements
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         conversationListView = (ListView) findViewById(R.id.conversation_list_view);
-
-        conversationsList = new ArrayList<>();
-        usersList = new ArrayList<>();
+        service = ApiClient.getClient().create(QwerteachService.class);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         email = preferences.getString("email", "");
         token = preferences.getString("token", "");
         userId = preferences.getString("userId", "");
 
-        GetAllConversationsAsyncTask getAllConversationsAsyncTask = new GetAllConversationsAsyncTask(this);
-        getAllConversationsAsyncTask.execute(email, token);
+        Call<JsonResponse> call = service.getConversations(email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                List<Message> messages = response.body().getMessages();
+                conversationsList = response.body().getConversations();
+                usersList = response.body().getRecipients();
+
+                for (int i = 0; i < conversationsList.size(); i++) {
+                    for (int j = 0; j < messages.size(); j++) {
+                        boolean isMine = false;
+                        if (userId.equals(String.valueOf(messages.get(j).getSenderId()))) {
+                            isMine = true;
+                        }
+                        messages.get(j).setMine(isMine);
+
+                        if (Objects.equals(messages.get(j).getConversationId(), conversationsList.get(i).getConversationId())) {
+                            conversationsList.get(i).addMessageToConverstaion(messages.get(j));
+                        }
+
+                        conversationsList.get(i).setUser(usersList.get(i));
+                        int conversationId = conversationsList.get(i).getConversationId();
+
+                        if (conversationId == conversationsList.get(conversationsList.size() - 1).getConversationId()) {
+                            displayConversationListView();
+                        }
+                    }
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override
@@ -76,80 +110,6 @@ public class MyMessagesActivity extends AppCompatActivity implements
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void getAllConversations(String string) {
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            JSONArray conversations = jsonObject.getJSONArray("conversations");
-            JSONArray recipients = jsonObject.getJSONArray("recipients");
-            JSONArray messages = jsonObject.getJSONArray("messages");
-
-            for (int i = 0; i < conversations.length(); i++) {
-                ArrayList<Message> messagesList = new ArrayList<>();
-
-                JSONObject conversationsData = conversations.getJSONObject(i);
-                int conversationId = conversationsData.getInt("id");
-                String conversationSubject = conversationsData.getString("subject");
-                String conversationCreationDate = conversationsData.getString("created_at");
-                String conversationUpdatingDate = conversationsData.getString("updated_at");
-
-                for (int j = 0; j < messages.length(); j++) {
-                    JSONObject messagesData = messages.getJSONObject(j);
-                    int messageId = messagesData.getInt("id");
-                    String body = messagesData.getString("body");
-                    String subject = messagesData.getString("subject");
-                    int senderId = messagesData.getInt("sender_id");
-                    int messageConversationId = messagesData.getInt("conversation_id");
-                    String creationDate = messagesData.getString("created_at");
-
-                    boolean isMine = false;
-                    if (userId.equals(String.valueOf(senderId))) {
-                        isMine = true;
-                    }
-
-                    Message message = new Message(messageId, body, subject, senderId, messageConversationId, creationDate, isMine);
-
-                    if (messageConversationId == conversationId) {
-                        messagesList.add(message);
-                    }
-                }
-
-                Conversation conversation = new Conversation(conversationId, conversationSubject,
-                        conversationCreationDate, conversationUpdatingDate);
-                conversation.setMessages(messagesList);
-
-                conversationsList.add(conversation);
-            }
-
-            for (int i = 0; i < recipients.length(); i++) {
-                JSONObject jsonData = recipients.getJSONObject(i);
-                int userId = jsonData.getInt("id");
-                String firstName = jsonData.getString("firstname");
-                String lastName = jsonData.getString("lastname");
-
-                User user = new User();
-                user.setUserId(userId);
-                user.setFirstName(firstName);
-                user.setLastName(lastName);
-
-                usersList.add(user);
-            }
-
-            for (int i = 0; i < conversationsList.size(); i++) {
-                conversationsList.get(i).setUser(usersList.get(i));
-                int conversationId = conversationsList.get(i).getConversationId();
-
-                if (conversationId == conversationsList.get(conversationsList.size() - 1).getConversationId()) {
-                    displayConversationListView();
-                }
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     public void displayConversationListView() {

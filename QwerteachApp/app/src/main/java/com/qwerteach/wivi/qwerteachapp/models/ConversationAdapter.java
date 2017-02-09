@@ -15,6 +15,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by wivi on 22/12/16.
@@ -22,7 +23,7 @@ import java.util.Date;
 
 public class ConversationAdapter extends ArrayAdapter<Conversation> {
 
-    public ConversationAdapter(Context context, ArrayList<Conversation> conversations) {
+    public ConversationAdapter(Context context, List<Conversation> conversations) {
         super(context, 0, conversations);
     }
 
@@ -44,7 +45,7 @@ public class ConversationAdapter extends ArrayAdapter<Conversation> {
             viewHolder = (ConversationAdapter.ViewHolder) convertView.getTag();
         }
 
-        ArrayList<Message> messages = conversation.getMessages();
+        List<Message> messages = conversation.getMessages();
         String lastMessage = messages.get(messages.size() - 1).getBody();
 
         String dateToFormat = messages.get(messages.size() - 1).getCreationDate();

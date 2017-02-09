@@ -172,11 +172,11 @@ public interface QwerteachService {
     @GET("dashboard")
     Call<JsonResponse> getDashboardInfos(@Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
-    @POST("typing")
-    Call<JsonResponse> typeMessage(@Body Map<String, Integer> body, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
-
     @POST("conversations/{id}/reply")
     Call<JsonResponse> reply(@Path("id") int conversationId, @Body Map<String, String> body,
                              @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("mailbox/inbox")
+    Call<JsonResponse> getConversations(@Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
 }

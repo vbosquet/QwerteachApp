@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by wivi on 22/12/16.
@@ -11,19 +12,18 @@ import java.util.ArrayList;
 
 public class Conversation implements Serializable{
 
-    @SerializedName("conversation_id")
+    @SerializedName("id")
     private Integer conversationId;
+    @SerializedName("subject")
     private String subject;
+    @SerializedName("created_at")
     private String conversationCreationDate;
+    @SerializedName("updated_at")
     private String conversationUpdatingDate;
     private User user;
-    private ArrayList<Message> messages;
+    private List<Message> messages;
 
-    public Conversation(int conversationId, String subject, String conversationCreationDate, String conversationUpdatingDate) {
-        this.conversationId = conversationId;
-        this.subject = subject;
-        this.conversationCreationDate = conversationCreationDate;
-        this.conversationUpdatingDate = conversationUpdatingDate;
+    public Conversation() {
         messages = new ArrayList<>();
     }
 
@@ -67,11 +67,15 @@ public class Conversation implements Serializable{
         this.user = user;
     }
 
-    public ArrayList<Message> getMessages() {
+    public List<Message> getMessages() {
         return messages;
     }
 
-    public void setMessages(ArrayList<Message> messages) {
+    public void setMessages(List<Message> messages) {
         this.messages = messages;
+    }
+
+    public void addMessageToConverstaion(Message message) {
+        messages.add(message);
     }
 }

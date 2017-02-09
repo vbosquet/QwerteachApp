@@ -94,6 +94,12 @@ public class JsonResponse {
     private List<User> teachersToReview;
     @SerializedName("lesson_status")
     private String lessonStatus;
+    @SerializedName("messages")
+    private List<Message> messages;
+    @SerializedName("conversations")
+    private List<Conversation> conversations;
+    @SerializedName("recipients")
+    private List<User> recipients;
 
 
     public String getAvatar() {
@@ -258,6 +264,18 @@ public class JsonResponse {
 
     public List<User> getTeachersToReview() {
         return teachersToReview;
+    }
+
+    public List<Message> getMessages() {
+        return messages;
+    }
+
+    public List<Conversation> getConversations() {
+        return conversations;
+    }
+
+    public List<User> getRecipients() {
+        return recipients;
     }
 
     public static class Duration
