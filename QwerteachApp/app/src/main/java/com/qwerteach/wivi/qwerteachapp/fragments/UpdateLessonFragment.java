@@ -14,18 +14,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.qwerteach.wivi.qwerteachapp.R;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.UpdateLessonAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.HashMap;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by wivi on 15/12/16.
  */
 
-public class UpdateLessonFragment extends Fragment implements
-        View.OnClickListener, UpdateLessonAsyncTask.IUpdateLesson {
+public class UpdateLessonFragment extends Fragment implements View.OnClickListener {
 
     View view;
     Lesson lesson;
@@ -33,6 +38,7 @@ public class UpdateLessonFragment extends Fragment implements
     Button datePickerButton, timePickerButton, saveLessonInfosButton;
     String email, token;
     ProgressDialog progressDialog;
+    QwerteachService service;
 
     public static UpdateLessonFragment newInstance(Lesson lesson) {
         UpdateLessonFragment updateLessonFragment = new UpdateLessonFragment();
@@ -55,6 +61,7 @@ public class UpdateLessonFragment extends Fragment implements
         }
 
         progressDialog = new ProgressDialog(getContext());
+        service = ApiClient.getClient().create(QwerteachService.class);
     }
 
     @Override
@@ -110,34 +117,33 @@ public class UpdateLessonFragment extends Fragment implements
         String newTime = timeTextView.getText().toString();
         String timeStart = newDate + " " + newTime;
 
-        UpdateLessonAsyncTask updateLessonAsyncTask = new UpdateLessonAsyncTask(this);
-        updateLessonAsyncTask.execute(lessonId, email, token, timeStart);
+        Lesson lesson = new Lesson();
+        lesson.setTimeStart(timeStart);
+        Map<String, Lesson> requestbody = new HashMap<>();
+        requestbody.put("lesson", lesson);
+
         startProgressDialog();
-    }
+        Call<JsonResponse> call = service.updateLesson(lessonId, requestbody, email, token);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                String success = response.body().getSuccess();
+                String message = response.body().getMessage();
 
-    @Override
-    public void updateConfirmationMessage(String string) {
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String success = jsonObject.getString("success");
-            String message = jsonObject.getString("message");
-
-            if (success.equals("true")) {
                 progressDialog.dismiss();
                 Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-                getActivity().getSupportFragmentManager().popBackStack();
 
-            } else if (success.equals("error")) {
-                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                if (success.equals("true")) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                }
 
             }
 
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
 
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+            }
+        });
     }
 
     public void startProgressDialog() {
