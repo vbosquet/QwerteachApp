@@ -8,20 +8,34 @@
         android:id="@+id/message_linear_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:layout_marginBottom="10dp">
+
+        <ImageView
+            android:id="@+id/sender_avatar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginRight="7dp" />
 
         <TextView
             android:id="@+id/message_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxWidth="150dp"
+            android:maxWidth="250dp"
             android:textSize="17dp"
             android:textColor="@color/white"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"/>
+
+        <ImageView
+            android:id="@+id/recipient_avatar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginLeft="7dp" />
 
     </LinearLayout>
 

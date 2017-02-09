@@ -100,7 +100,12 @@ public class JsonResponse {
     private List<Conversation> conversations;
     @SerializedName("recipients")
     private List<User> recipients;
-
+    @SerializedName("avatars")
+    private List<String> avatars;
+    @SerializedName("last_message")
+    private Message lastMessage;
+    @SerializedName("participant_avatars")
+    private List<String> participantAvatars;
 
     public String getAvatar() {
         return avatar;
@@ -276,6 +281,18 @@ public class JsonResponse {
 
     public List<User> getRecipients() {
         return recipients;
+    }
+
+    public List<String> getAvatars() {
+        return avatars;
+    }
+
+    public Message getLastMessage() {
+        return lastMessage;
+    }
+
+    public List<String> getParticipantAvatars() {
+        return participantAvatars;
     }
 
     public static class Duration

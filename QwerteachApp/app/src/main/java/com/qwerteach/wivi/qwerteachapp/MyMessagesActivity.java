@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -77,21 +78,26 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
                 List<Message> messages = response.body().getMessages();
                 conversationsList = response.body().getConversations();
                 usersList = response.body().getRecipients();
+                List<String> avatars = response.body().getAvatars();
+                List<String> participantAvatar = response.body().getParticipantAvatars();
+
 
                 for (int i = 0; i < conversationsList.size(); i++) {
+                    int conversationId = conversationsList.get(i).getConversationId();
+                    conversationsList.get(i).setUser(usersList.get(i));
+                    conversationsList.get(i).getUser().setAvatarUrl(participantAvatar.get(i));
+
                     for (int j = 0; j < messages.size(); j++) {
                         boolean isMine = false;
                         if (userId.equals(String.valueOf(messages.get(j).getSenderId()))) {
                             isMine = true;
                         }
                         messages.get(j).setMine(isMine);
+                        messages.get(j).setAvatar(avatars.get(j));
 
-                        if (Objects.equals(messages.get(j).getConversationId(), conversationsList.get(i).getConversationId())) {
+                        if (Objects.equals(messages.get(j).getConversationId(), conversationId)) {
                             conversationsList.get(i).addMessageToConverstaion(messages.get(j));
                         }
-
-                        conversationsList.get(i).setUser(usersList.get(i));
-                        int conversationId = conversationsList.get(i).getConversationId();
 
                         if (conversationId == conversationsList.get(conversationsList.size() - 1).getConversationId()) {
                             displayConversationListView();
@@ -131,7 +137,7 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
     }
 
     public void displayConversationListView() {
-        conversationAdapter = new ConversationAdapter(conversationsList, this);
+        conversationAdapter = new ConversationAdapter(this, conversationsList, this);
         conversationRecyclerView.setHasFixedSize(true);
         conversationLayoutManager = new LinearLayoutManager(this);
         conversationRecyclerView.setLayoutManager(conversationLayoutManager);

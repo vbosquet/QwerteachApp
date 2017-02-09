@@ -10,6 +10,8 @@ import java.io.Serializable;
 
 public class Message implements Serializable {
 
+    private static final String BASE_URL = "http://192.168.0.102:3000";
+
     @SerializedName("id")
     private Integer messageId;
     @SerializedName("body")
@@ -22,9 +24,11 @@ public class Message implements Serializable {
     private Integer conversationId;
     @SerializedName("created_at")
     private String creationDate;
-    private Boolean isMine;
     @SerializedName("recipient")
     private Integer recipient;
+
+    private Boolean isMine;
+    private String avatar;
 
     public Message(String subject, String body, Integer recipient) {
         this.subject = subject;
@@ -105,5 +109,13 @@ public class Message implements Serializable {
 
     public void setRecipient(Integer recipient) {
         this.recipient = recipient;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = BASE_URL + avatar;
     }
 }

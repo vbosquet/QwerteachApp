@@ -89,7 +89,9 @@ public class ChatActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         Gson gson = new Gson();
-                        Message message = gson.fromJson(data, Message.class);
+                        Message message = gson.fromJson(data, JsonResponse.class).getLastMessage();
+                        String avatar = gson.fromJson(data, JsonResponse.class).getAvatar();
+                        message.setAvatar(avatar);
                         addNewMessage(message);
                     }
                 });
@@ -133,7 +135,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     public void displayMessagesListView() {
-        messageAdapter = new MessageAdapter(messages);
+        messageAdapter = new MessageAdapter(messages, this);
         messageLayoutManager = new LinearLayoutManager(this);
         messageRecyclerView.setLayoutManager(messageLayoutManager);
         messageRecyclerView.setItemAnimator(new DefaultItemAnimator());

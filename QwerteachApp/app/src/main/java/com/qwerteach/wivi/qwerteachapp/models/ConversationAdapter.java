@@ -1,19 +1,23 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
 import android.content.Context;
+import android.provider.ContactsContract;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.qwerteach.wivi.qwerteachapp.R;
+import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by wivi on 22/12/16.
@@ -23,10 +27,12 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
     private List<Conversation> conversations;
     private Callback callback;
+    private Context context;
 
-    public ConversationAdapter(List<Conversation> conversations, Callback callback) {
+    public ConversationAdapter(Context context, List<Conversation> conversations, Callback callback) {
         this.conversations = conversations;
         this.callback = callback;
+        this.context = context;
     }
 
     @Override
@@ -58,6 +64,8 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             }
         });
 
+        Picasso.with(context).load(conversation.getUser().getAvatarUrl()).resize(150, 150).centerCrop().into(holder.avatar);
+
     }
 
     @Override
@@ -67,6 +75,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView recipient, body, creationDate;
+        ImageView avatar;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -74,6 +83,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             recipient = (TextView) itemView.findViewById(R.id.recipient);
             body = (TextView) itemView.findViewById(R.id.body);
             creationDate = (TextView) itemView.findViewById(R.id.creation_date);
+            avatar = (ImageView) itemView.findViewById(R.id.user_avatar);
         }
     }
 
