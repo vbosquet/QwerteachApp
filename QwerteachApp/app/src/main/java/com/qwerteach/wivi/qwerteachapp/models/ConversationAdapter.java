@@ -1,19 +1,17 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
 import android.content.Context;
-import android.util.Log;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.qwerteach.wivi.qwerteachapp.R;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -21,29 +19,26 @@ import java.util.List;
  * Created by wivi on 22/12/16.
  */
 
-public class ConversationAdapter extends ArrayAdapter<Conversation> {
+public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ViewHolder> {
 
-    public ConversationAdapter(Context context, List<Conversation> conversations) {
-        super(context, 0, conversations);
+    private List<Conversation> conversations;
+    private Callback callback;
+
+    public ConversationAdapter(List<Conversation> conversations, Callback callback) {
+        this.conversations = conversations;
+        this.callback = callback;
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.conversation_list_view, parent, false);
+        itemView.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT));
+        return new ConversationAdapter.ViewHolder(itemView);
+    }
 
-        final Conversation conversation = getItem(position);
-        ConversationAdapter.ViewHolder viewHolder;
-
-        if(convertView == null) {
-            viewHolder = new ConversationAdapter.ViewHolder();
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.conversation_list_view, parent, false);
-            viewHolder.recipient = (TextView) convertView.findViewById(R.id.recipient);
-            viewHolder.body = (TextView) convertView.findViewById(R.id.body);
-            viewHolder.creationDate = (TextView) convertView.findViewById(R.id.creation_date);
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ConversationAdapter.ViewHolder) convertView.getTag();
-        }
+    @Override
+    public void onBindViewHolder(ViewHolder holder, final int position) {
+        final Conversation conversation = conversations.get(position);
 
         List<Message> messages = conversation.getMessages();
         String lastMessage = messages.get(messages.size() - 1).getBody();
@@ -52,17 +47,34 @@ public class ConversationAdapter extends ArrayAdapter<Conversation> {
         Date newDate = getDate(dateToFormat);
         String time = getTime(newDate);
 
-        viewHolder.recipient.setText(conversation.getUser().getFirstName());
-        viewHolder.body.setText(lastMessage);
-        viewHolder.creationDate.setText("Il y a " + time);
+        holder.recipient.setText(conversation.getUser().getFirstName());
+        holder.body.setText(lastMessage);
+        holder.creationDate.setText("Il y a " + time);
 
-        return convertView;
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                callback.didTouchConversation(position);
+            }
+        });
+
     }
 
-    public static class ViewHolder {
-        TextView recipient;
-        TextView body;
-        TextView creationDate;
+    @Override
+    public int getItemCount() {
+        return conversations.size();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView recipient, body, creationDate;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+
+            recipient = (TextView) itemView.findViewById(R.id.recipient);
+            body = (TextView) itemView.findViewById(R.id.body);
+            creationDate = (TextView) itemView.findViewById(R.id.creation_date);
+        }
     }
 
     public static Date getDate(String dateToFormat) {
@@ -93,5 +105,9 @@ public class ConversationAdapter extends ArrayAdapter<Conversation> {
         }
 
         return days + " jour(s)";
+    }
+
+    public interface Callback {
+        void didTouchConversation(int index);
     }
 }

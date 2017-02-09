@@ -6,6 +6,9 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,6 +21,7 @@ import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.Conversation;
 import com.qwerteach.wivi.qwerteachapp.models.ConversationAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.LessonsAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.Message;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
@@ -28,14 +32,15 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MyMessagesActivity extends AppCompatActivity implements
-        AdapterView.OnItemClickListener {
+public class MyMessagesActivity extends AppCompatActivity implements ConversationAdapter.Callback {
 
     String email, token, userId;
     List<Conversation> conversationsList;
     List<User> usersList;
-    ListView conversationListView;
     QwerteachService service;
+    RecyclerView conversationRecyclerView;
+    RecyclerView.Adapter conversationAdapter;
+    RecyclerView.LayoutManager conversationLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +50,7 @@ public class MyMessagesActivity extends AppCompatActivity implements
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        conversationListView = (ListView) findViewById(R.id.conversation_list_view);
+        conversationRecyclerView = (RecyclerView) findViewById(R.id.conversation_list_view);
         service = ApiClient.getClient().create(QwerteachService.class);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -113,17 +118,18 @@ public class MyMessagesActivity extends AppCompatActivity implements
     }
 
     public void displayConversationListView() {
-        ConversationAdapter conversationAdapter = new ConversationAdapter(this, conversationsList);
-        conversationListView.setAdapter(conversationAdapter);
-        conversationListView.setOnItemClickListener(this);
+        conversationAdapter = new ConversationAdapter(conversationsList, this);
+        conversationRecyclerView.setHasFixedSize(true);
+        conversationLayoutManager = new LinearLayoutManager(this);
+        conversationRecyclerView.setLayoutManager(conversationLayoutManager);
+        conversationRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        conversationRecyclerView.setAdapter(conversationAdapter);
 
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        int position = conversationListView.getPositionForView(view);
+    public void didTouchConversation(int index) {
         Intent intent = new Intent(this, ChatActivity.class);
-        intent.putExtra("conversation", conversationsList.get(position));
+        intent.putExtra("conversation", conversationsList.get(index));
         startActivity(intent);
     }
 }
