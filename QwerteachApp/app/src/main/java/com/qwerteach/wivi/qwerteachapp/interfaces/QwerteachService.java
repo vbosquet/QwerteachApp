@@ -183,4 +183,7 @@ public interface QwerteachService {
     Call<JsonResponse> updateLesson(@Path("id") int lessonId, @Body Map<String, Lesson> body,
                                     @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
+    @POST("sessions")
+    Call<JsonResponse> signIn(@Body Map<String, HashMap<String, String>> body);
+
 }

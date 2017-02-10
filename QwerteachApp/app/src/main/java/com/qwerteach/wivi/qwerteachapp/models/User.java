@@ -37,6 +37,12 @@ public class User implements Serializable {
     private Integer levelId;
     @SerializedName("mango_id")
     private Integer mangoId;
+    @SerializedName("authentication_token")
+    private String authenticationToken;
+    @SerializedName("email")
+    private String email;
+
+
     private String avatarUrl;
 
     public User() {
@@ -175,5 +181,21 @@ public class User implements Serializable {
 
     public void setMangoId(Integer mangoId) {
         this.mangoId = mangoId;
+    }
+
+    public String getAuthenticationToken() {
+        return authenticationToken;
+    }
+
+    public void setAuthenticationToken(String authenticationToken) {
+        this.authenticationToken = authenticationToken;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

@@ -11,7 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,16 +20,23 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.SignInActivityAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.HashMap;
+import java.util.Map;
 
-public class SignInActivity extends AppCompatActivity implements SignInActivityAsyncTask.ISignIn{
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-    EditText email;
-    EditText password;
+public class SignInActivity extends AppCompatActivity {
+
+    EditText email, password;
     Menu myMenu;
+    QwerteachService service;
 
     TextWatcher textWatcher = new TextWatcher() {
         @Override
@@ -59,6 +65,8 @@ public class SignInActivity extends AppCompatActivity implements SignInActivityA
 
         email = (EditText) findViewById(R.id.email);
         password = (EditText) findViewById(R.id.password);
+
+        service = ApiClient.getClient().create(QwerteachService.class);
 
         email.addTextChangedListener(textWatcher);
         password.addTextChangedListener(textWatcher);
@@ -89,8 +97,7 @@ public class SignInActivity extends AppCompatActivity implements SignInActivityA
                 Boolean connected = isOnline();
 
                 if (connected) {
-                    SignInActivityAsyncTask signInActivityAsyncTask = new SignInActivityAsyncTask(this);
-                    signInActivityAsyncTask.execute(email.getText().toString(), password.getText().toString());
+                    signIn();
 
                 } else {
                     TextView connectionProblemMessage = (TextView) findViewById(R.id.problem_message_textview);
@@ -105,6 +112,54 @@ public class SignInActivity extends AppCompatActivity implements SignInActivityA
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void signIn() {
+        Map<String, String> data = new HashMap<>();
+        data.put("email", email.getText().toString());
+        data.put("password", password.getText().toString());
+
+        Map<String, HashMap<String, String>> session = new HashMap<>();
+        session.put("user", (HashMap<String, String>) data);
+
+        Call<JsonResponse> call = service.signIn(session);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                String success = response.body().getSuccess();
+
+                if (success.equals("false")) {
+                    TextView connectionProblemMessage = (TextView) findViewById(R.id.problem_message_textview);
+                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) connectionProblemMessage.getLayoutParams();
+                    params.setMargins(0, 15, 0, 15);
+                    connectionProblemMessage.setLayoutParams(params);
+                    connectionProblemMessage.setText(R.string.login_error_message);
+
+                } else {
+                    User user = response.body().getUser();
+
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString("userId", String.valueOf(user.getUserId()));
+                    editor.putString("email", user.getEmail());
+                    editor.putString("token", user.getAuthenticationToken());
+                    editor.putString("firstName", user.getFirstName());
+                    editor.putString("lastName", user.getLastName());
+                    editor.putBoolean("isTeacher", user.getPostulanceAccepted());
+                    editor.putBoolean("isLogin", true);
+                    editor.apply();
+
+                    Toast.makeText(getApplication(), R.string.connection_success_toast, Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     public void didTouchFacebookSignInButton(View view) {
@@ -126,54 +181,6 @@ public class SignInActivity extends AppCompatActivity implements SignInActivityA
         } else {
             myMenu.findItem(R.id.sign_in_button).setEnabled(false);
         }
-    }
-
-    @Override
-    public void displayConfirmationConnectionMessage(String string) {
-
-        try {
-            JSONObject jsonObject = new JSONObject(string);
-            String loginConfirmation = jsonObject.getString("success");
-
-            if (loginConfirmation.equals("false")) {
-                TextView connectionProblemMessage = (TextView) findViewById(R.id.problem_message_textview);
-                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) connectionProblemMessage.getLayoutParams();
-                params.setMargins(0, 15, 0, 15);
-                connectionProblemMessage.setLayoutParams(params);
-                connectionProblemMessage.setText(R.string.login_error_message);
-
-            } else {
-                JSONObject jsonData = jsonObject.getJSONObject("data");
-                JSONObject jsonUser = jsonData.getJSONObject("user");
-                String userId = jsonUser.getString("id");
-                String email = jsonUser.getString("email");
-                String token = jsonUser.getString("authentication_token");
-                String firstName = jsonUser.getString("firstname");
-                String lastName = jsonUser.getString("lastname");
-                boolean isTeacher = jsonUser.getBoolean("postulance_accepted");
-
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putString("userId", userId);
-                editor.putString("email", email);
-                editor.putString("token", token);
-                editor.putString("firstName", firstName);
-                editor.putString("lastName", lastName);
-                editor.putBoolean("isTeacher", isTeacher);
-                editor.putBoolean("isLogin", true);
-                editor.apply();
-
-                Toast.makeText(this, R.string.connection_success_toast, Toast.LENGTH_SHORT).show();
-
-                Intent intent = new Intent(this, DashboardActivity.class);
-                startActivity(intent);
-            }
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
     }
 
     public boolean isOnline() {

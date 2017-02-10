@@ -4,6 +4,8 @@ import android.content.Context;
 import android.provider.ContactsContract;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,12 +52,12 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         String lastMessage = messages.get(messages.size() - 1).getBody();
 
         String dateToFormat = messages.get(messages.size() - 1).getCreationDate();
-        Date newDate = getDate(dateToFormat);
-        String time = getTime(newDate);
+        Date oldDate = getDate(dateToFormat);
+        Date currentDate = new Date();
 
         holder.recipient.setText(conversation.getUser().getFirstName());
         holder.body.setText(lastMessage);
-        holder.creationDate.setText("Il y a " + time);
+        holder.creationDate.setText(String.valueOf(DateUtils.getRelativeTimeSpanString(oldDate.getTime(), currentDate.getTime(),DateUtils.MINUTE_IN_MILLIS)));
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,24 +99,6 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         }
         return  date;
 
-    }
-
-    public static String getTime(Date oldDate) {
-        Date currentDate = new Date();
-
-        long diff = currentDate.getTime() - oldDate.getTime();
-        long seconds = diff / 1000;
-        long minutes = seconds / 60;
-        long hours = minutes / 60;
-        long days = hours / 24;
-
-        if (minutes < 60) {
-            return minutes + " minute(s)";
-        } else if(hours < 24) {
-            return hours + " heure(s)";
-        }
-
-        return days + " jour(s)";
     }
 
     public interface Callback {
