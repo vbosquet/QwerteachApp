@@ -186,4 +186,7 @@ public interface QwerteachService {
     @POST("sessions")
     Call<JsonResponse> signIn(@Body Map<String, HashMap<String, String>> body);
 
+    @POST("registrations")
+    Call<JsonResponse> signUpWithEmail(@Body Map<String, HashMap<String, String>> body);
+
 }

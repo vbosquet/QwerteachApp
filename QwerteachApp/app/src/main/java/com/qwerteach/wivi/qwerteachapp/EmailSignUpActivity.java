@@ -11,7 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,23 +20,25 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.EmailSignUpAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class EmailSignUpActivity extends AppCompatActivity implements EmailSignUpAsyncTask.IEmailSignUp {
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-    EditText email;
-    EditText password;
-    EditText passwordConfirmation;
+public class EmailSignUpActivity extends AppCompatActivity  {
+
+    EditText email, password, passwordConfirmation;
     Menu myMenu;
+    QwerteachService service;
 
     TextWatcher textWatcher = new TextWatcher() {
         @Override
@@ -67,6 +68,8 @@ public class EmailSignUpActivity extends AppCompatActivity implements EmailSignU
         email = (EditText) findViewById(R.id.email);
         password = (EditText) findViewById(R.id.password);
         passwordConfirmation = (EditText) findViewById(R.id.passwordConfirmation);
+
+        service = ApiClient.getClient().create(QwerteachService.class);
 
         email.addTextChangedListener(textWatcher);
         password.addTextChangedListener(textWatcher);
@@ -104,32 +107,24 @@ public class EmailSignUpActivity extends AppCompatActivity implements EmailSignU
                     if (emailValidated) {
 
                         if (!password.getText().toString().equals(passwordConfirmation.getText().toString())) {
-                            TextView passwordConfirmationProblemMessage = (TextView) findViewById(R.id.problem_message_textview);
-                            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) passwordConfirmationProblemMessage.getLayoutParams();
-                            params.setMargins(0, 15, 0, 15);
-                            passwordConfirmationProblemMessage.setLayoutParams(params);
-                            passwordConfirmationProblemMessage.setText(R.string.password_confirmation_problem_message);
+                            displayToastMessage(R.string.password_confirmation_problem_message);
+
                         } else {
-                            EmailSignUpAsyncTask emailSignUpAsyncTask = new EmailSignUpAsyncTask(this);
-                            emailSignUpAsyncTask.execute(email.getText().toString(), password.getText().toString(),
-                                    passwordConfirmation.getText().toString());
+                            boolean passwordValidated = passwordValidator(password.getText().toString());
+                            if (passwordValidated) {
+                                signUpWithEmail();
+                            } else {
+                                displayToastMessage(R.string.password_validation_message);
+                            }
 
                         }
 
                     } else {
-                        TextView emailValidationProblemMessage = (TextView) findViewById(R.id.problem_message_textview);
-                        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) emailValidationProblemMessage.getLayoutParams();
-                        params.setMargins(0, 15, 0, 15);
-                        emailValidationProblemMessage.setLayoutParams(params);
-                        emailValidationProblemMessage.setText(R.string.message_alert_email_validation);
+                        displayToastMessage(R.string.message_alert_email_validation);
                     }
 
                 } else {
-                    TextView connectionProblemMessage = (TextView) findViewById(R.id.problem_message_textview);
-                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) connectionProblemMessage.getLayoutParams();
-                    params.setMargins(0, 15, 0, 15);
-                    connectionProblemMessage.setLayoutParams(params);
-                    connectionProblemMessage.setText(R.string.sign_up_connection_problem_message);
+                    displayToastMessage(R.string.sign_up_connection_problem_message);
                 }
 
                 return true;
@@ -137,55 +132,71 @@ public class EmailSignUpActivity extends AppCompatActivity implements EmailSignU
         return super.onOptionsItemSelected(item);
     }
 
+    public void displayToastMessage(int idString) {
+        TextView passwordConfirmationProblemMessage = (TextView) findViewById(R.id.problem_message_textview);
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) passwordConfirmationProblemMessage.getLayoutParams();
+        params.setMargins(0, 15, 0, 15);
+        passwordConfirmationProblemMessage.setLayoutParams(params);
+        passwordConfirmationProblemMessage.setText(idString);
+
+    }
+
+    public void signUpWithEmail() {
+        Map<String, String> data = new HashMap<>();
+        data.put("email", email.getText().toString());
+        data.put("password", password.getText().toString());
+        data.put("password_confirmation", passwordConfirmation.getText().toString());
+
+        Map<String, HashMap<String, String>> registration = new HashMap<>();
+        registration.put("user", (HashMap<String, String>) data);
+
+        Call<JsonResponse> call = service.signUpWithEmail(registration);
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                String success = response.body().getSuccess();
+
+                switch (success) {
+                    case "true":
+                        User user = response.body().getUser();
+
+                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                        SharedPreferences.Editor editor = preferences.edit();
+                        editor.putString("userId", String.valueOf(user.getUserId()));
+                        editor.putString("email", user.getEmail());
+                        editor.putString("token", user.getAuthenticationToken());
+                        editor.putString("firstName", user.getFirstName());
+                        editor.putString("lastName", user.getLastName());
+                        editor.putBoolean("isTeacher", user.getPostulanceAccepted());
+                        editor.putBoolean("isLogin", true);
+                        editor.apply();
+
+                        Toast.makeText(getApplicationContext(), R.string.registration_success_toast, Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+                        startActivity(intent);
+
+                        break;
+                    case "exist":
+                        displayToastMessage(R.string.email_already_in_use_message);
+
+                        break;
+                    default:
+                        displayToastMessage(R.string.registration_error_message);
+                        break;
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
     public void didTouchFacebookSignUpButton(View view) {
     }
 
     public void didTouchGoogleSignUpButton(View view) {
-    }
-
-    @Override
-    public void displayConfirmationRegistrationMessage(String string) {
-
-        try {
-
-            JSONObject jsonObject = new JSONObject(string);
-            String registrationConfirmation = jsonObject.getString("success");
-
-            if (registrationConfirmation.equals("true")) {
-                JSONObject jsonData = jsonObject.getJSONObject("data");
-                JSONObject jsonUser = jsonData.getJSONObject("user");
-                String userId = jsonUser.getString("id");
-                String email = jsonUser.getString("email");
-                String token = jsonUser.getString("authentication_token");
-
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putString("userId", userId);
-                editor.putString("email", email);
-                editor.putString("token", token);
-                editor.apply();
-
-                Toast.makeText(this, R.string.registration_success_toast, Toast.LENGTH_SHORT).show();
-
-            } else if (registrationConfirmation.equals("exist")) {
-                TextView connectionProblemMessage = (TextView) findViewById(R.id.problem_message_textview);
-                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) connectionProblemMessage.getLayoutParams();
-                params.setMargins(0, 15, 0, 15);
-                connectionProblemMessage.setLayoutParams(params);
-                connectionProblemMessage.setText(R.string.email_already_in_use_message);
-
-            } else {
-                TextView connectionProblemMessage = (TextView) findViewById(R.id.problem_message_textview);
-                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) connectionProblemMessage.getLayoutParams();
-                params.setMargins(0, 15, 0, 15);
-                connectionProblemMessage.setLayoutParams(params);
-                connectionProblemMessage.setText(R.string.registration_error_message);
-            }
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
 
     }
 
@@ -200,6 +211,13 @@ public class EmailSignUpActivity extends AppCompatActivity implements EmailSignU
         String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
         Pattern pattern = Pattern.compile(EMAIL_PATTERN);
         Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
+
+    public boolean passwordValidator(String password) {
+        String PASSWORD_PATTERN = "(.{8,128})";
+        Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
+        Matcher matcher = pattern.matcher(password);
         return matcher.matches();
     }
 
