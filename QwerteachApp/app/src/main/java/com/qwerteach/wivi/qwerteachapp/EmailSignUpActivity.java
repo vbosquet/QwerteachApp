@@ -20,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
@@ -162,12 +163,9 @@ public class EmailSignUpActivity extends AppCompatActivity  {
 
                         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                         SharedPreferences.Editor editor = preferences.edit();
-                        editor.putString("userId", String.valueOf(user.getUserId()));
-                        editor.putString("email", user.getEmail());
-                        editor.putString("token", user.getAuthenticationToken());
-                        editor.putString("firstName", user.getFirstName());
-                        editor.putString("lastName", user.getLastName());
-                        editor.putBoolean("isTeacher", user.getPostulanceAccepted());
+                        Gson gson = new Gson();
+                        String json = gson.toJson(user);
+                        editor.putString("user", json);
                         editor.putBoolean("isLogin", true);
                         editor.apply();
 

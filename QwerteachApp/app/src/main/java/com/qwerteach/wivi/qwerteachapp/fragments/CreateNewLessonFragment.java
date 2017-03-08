@@ -14,6 +14,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.PaymentMethodActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
@@ -39,6 +41,7 @@ import com.qwerteach.wivi.qwerteachapp.models.Topic;
 import com.qwerteach.wivi.qwerteachapp.models.TopicAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.TopicGroup;
 import com.qwerteach.wivi.qwerteachapp.models.TopicGroupAdapter;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 
 import java.util.ArrayList;
@@ -65,16 +68,16 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
     ArrayList<Level> levels;
     ArrayList<TopicGroup> topicGroups;
     ArrayList<SmallAdPrice> smallAdPrices;
-    String userId, email, token;
     String hour = "00", minute = "00";
-    String currentLevelName = "", currentTopicTitle = "", currentTopicGroup = "";
     Teacher teacher;
     Double totalPrice;
     Bundle savedState;
     ProgressDialog progressDialog;
     QwerteachService service;
     int currentTopicGroupId, currentTopicId, currentLevelId;
+    int currentTopicGroupPosition, currentTopicPosition, currentLevelPosition;
     Call<JsonResponse> call;
+    User user;
 
 
     public static CreateNewLessonFragment newInstance() {
@@ -87,9 +90,9 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         super.onCreate(savedInstanceState);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        userId = preferences.getString("userId", "");
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         Bundle extras = getActivity().getIntent().getExtras();
         if (extras != null) {
@@ -97,8 +100,8 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         }
 
         smallAds = teacher.getSmallAds();
-        progressDialog = new ProgressDialog(getContext());
         service = ApiClient.getClient().create(QwerteachService.class);
+        progressDialog = new ProgressDialog(getContext());
     }
 
     @Override
@@ -122,7 +125,7 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         smallAdPrices = new ArrayList<>();
 
         startProgressDialog();
-        call = service.getTeacherTopicGroups(teacher.getUser().getUserId(), email, token);
+        call = service.getTeacherTopicGroups(teacher.getUser().getUserId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
@@ -142,20 +145,6 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
             }
         });
 
-        if (savedState != null) {
-            getActivity().setTitle(savedState.getString("activityTitle"));
-            dateTextView.setText(savedState.getString("date"));
-            timeTextView.setText(savedState.getString("time"));
-
-            int hourPosition = getIndexByString(hourSpinner, savedState.getString("hour"));
-            int minutePosition = getIndexByString(minuteSpinner, savedState.getString("minute"));
-            int topicGroupPosition = getIndexByString(topicGroupSpinner, savedState.getString("topicGroup"));
-
-            hourSpinner.setSelection(hourPosition);
-            minuteSpinner.setSelection(minutePosition);
-            topicGroupSpinner.setSelection(topicGroupPosition);
-
-        }
 
         return  view;
     }
@@ -167,12 +156,18 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         DateFormat tf = new SimpleDateFormat("HH:mm");
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
         tf.setTimeZone(TimeZone.getTimeZone("GMT+1:00"));
-
         String currentTime = tf.format(currentLocalTime);
         String currentDate = df.format(currentLocalTime);
 
-        dateTextView.setText(currentDate);
-        timeTextView.setText(currentTime);
+        if (savedState!= null) {
+            dateTextView.setText(savedState.getString("date"));
+            timeTextView.setText(savedState.getString("time"));
+
+        } else {
+            dateTextView.setText(currentDate);
+            timeTextView.setText(currentTime);
+
+        }
 
         datePickerButton.setOnClickListener(this);
         timePickerButton.setOnClickListener(this);
@@ -185,6 +180,10 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         topicGroupSpinner.setAdapter(topicGroupAdapter);
         topicGroupSpinner.setOnItemSelectedListener(this);
 
+        if (savedState != null) {
+            topicGroupSpinner.setSelection(savedState.getInt("topicGroup"));
+        }
+
     }
 
     public void displayHourSpinner() {
@@ -193,6 +192,11 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         hourSpinner.setAdapter(hourSpinnerAdapter);
         hourSpinner.setOnItemSelectedListener(this);
 
+        if (savedState != null) {
+            int hourPosition = getIndexByString(hourSpinner, savedState.getString("hour"));
+            hourSpinner.setSelection(hourPosition);
+        }
+
     }
 
     public void displayMinutSpinner() {
@@ -200,6 +204,11 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         minutSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         minuteSpinner.setAdapter(minutSpinnerAdapter);
         minuteSpinner.setOnItemSelectedListener(this);
+
+        if(savedState != null) {
+            int minutePosition = getIndexByString(minuteSpinner, savedState.getString("minute"));
+            minuteSpinner.setSelection(minutePosition);
+        }
 
     }
 
@@ -210,8 +219,7 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         topicSpinner.setOnItemSelectedListener(this);
 
         if (savedState != null) {
-            int topicPosition = getIndexByString(topicSpinner, savedState.getString("topic"));
-            topicSpinner.setSelection(topicPosition);
+            topicSpinner.setSelection(savedState.getInt("topic"));
         }
 
     }
@@ -223,25 +231,9 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         levelSpinner.setOnItemSelectedListener(this);
 
         if (savedState != null) {
-            int levelPosition = getIndexByString(levelSpinner, savedState.getString("level"));
-            levelSpinner.setSelection(levelPosition);
+            levelSpinner.setSelection(savedState.getInt("level"));
 
         }
-    }
-
-    @Override
-    public void onDestroyView(){
-        super.onDestroyView();
-        savedState = new Bundle();
-        savedState.putString("date", dateTextView.getText().toString());
-        savedState.putString("time", timeTextView.getText().toString());
-        savedState.putString("hour", hour);
-        savedState.putString("minute", minute);
-        savedState.putString("topicGroup", currentTopicGroup);
-        savedState.putString("topic", currentTopicTitle);
-        savedState.putString("level",currentLevelName);
-        savedState.putDouble("totalPrice", totalPrice);
-        savedState.putString("activityTitle", getActivity().getTitle().toString());
     }
 
     private int getIndexByString(Spinner spinner, String string) {
@@ -269,9 +261,11 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
                 setTotalPrice(hour, minute);
                 break;
             case R.id.topic_group_spinner:
-                currentTopicGroup = adapterView.getItemAtPosition(i).toString();
+                currentTopicGroupPosition = i;
                 currentTopicGroupId = topicGroups.get(i).getTopicGroupId();
-                Call<JsonResponse> callForTopics  = service.getTeacherTopics(teacher.getUser().getUserId(), currentTopicGroupId, email, token);
+
+                Call<JsonResponse> callForTopics  = service.getTeacherTopics(teacher.getUser().getUserId(), currentTopicGroupId,
+                        user.getEmail(), user.getToken());
                 callForTopics.enqueue(new Callback<JsonResponse>() {
                     @Override
                     public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -286,7 +280,7 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
                 });
                 break;
             case R.id.topic_spinner:
-                currentTopicTitle = adapterView.getItemAtPosition(i).toString();
+                currentTopicPosition = i;
                 currentTopicId = topics.get(i).getTopicId();
 
                 for (int j = 0; j < smallAds.size(); j++) {
@@ -295,7 +289,7 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
                     }
                 }
 
-                Call<JsonResponse> callForLevels = service.getTeacherLevels(teacher.getUser().getUserId(), currentTopicId, email, token);
+                Call<JsonResponse> callForLevels = service.getTeacherLevels(teacher.getUser().getUserId(), currentTopicId, user.getEmail(), user.getToken());
                 callForLevels.enqueue(new Callback<JsonResponse>() {
                     @Override
                     public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -310,7 +304,7 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
                 });
                 break;
             case R.id.level_spinner:
-                currentLevelName = adapterView.getItemAtPosition(i).toString();
+                currentLevelPosition = i;
                 currentLevelId = levels.get(i).getLevelId();
                 setTotalPrice(hour, minute);
                 break;
@@ -383,7 +377,7 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         requestBody.put("lesson", lesson);
 
         startProgressDialog();
-        Call<JsonResponse> call = service.createNewLesson(teacher.getUser().getUserId(), requestBody, email, token);
+        Call<JsonResponse> call = service.createNewLesson(teacher.getUser().getUserId(), requestBody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -430,4 +424,34 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         transaction.addToBackStack(null);
         transaction.commit();
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        saveData(outState);
+
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            savedState = savedInstanceState;
+            getActivity().setTitle(savedInstanceState.getString("activityTitle"));
+        }
+    }
+
+    public void saveData(Bundle outState) {
+        outState.putString("date", dateTextView.getText().toString());
+        outState.putString("time", timeTextView.getText().toString());
+        outState.putString("hour", hour);
+        outState.putString("minute", minute);
+        outState.putInt("topicGroup", currentTopicGroupPosition);
+        outState.putInt("topic", currentTopicPosition);
+        outState.putInt("level", currentLevelPosition);
+        outState.putDouble("totalPrice", totalPrice);
+        outState.putString("activityTitle", getActivity().getTitle().toString());
+    }
+
 }

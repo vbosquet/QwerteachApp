@@ -12,10 +12,12 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.fragments.BankAccountInfosTabFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.CreateVirtualWalletFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.PaymentHistoryTabFragment;
@@ -25,6 +27,7 @@ import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.CardRegistrationData;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Transaction;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserBankAccount;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 import com.qwerteach.wivi.qwerteachapp.models.UserWalletInfos;
@@ -47,12 +50,12 @@ public class VirtualWalletActivity extends AppCompatActivity {
     ArrayList<UserBankAccount> userBankAccounts;
     CardRegistrationData cardRegistrationData;
     Intent intent;
-    String email, token, userId;
     boolean isTeacher;
     ProgressDialog progressDialog;
     UserWalletInfos userWalletInfos;
     double totalWallet;
     QwerteachService service;
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,9 +66,9 @@ public class VirtualWalletActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
-        userId = preferences.getString("userId", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
         isTeacher = preferences.getBoolean("isTeacher", false);
 
         service = ApiClient.getClient().create(QwerteachService.class);
@@ -113,7 +116,7 @@ public class VirtualWalletActivity extends AppCompatActivity {
     }
 
     public void getTotalWallet() {
-        Call<JsonResponse> call = service.getTotalWallet(userId, email, token);
+        Call<JsonResponse> call = service.getTotalWallet(user.getUserId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -157,7 +160,7 @@ public class VirtualWalletActivity extends AppCompatActivity {
 
     public void getAllWalletInfos() {
         startProgressDialog();
-        Call<JsonResponse> call = service.getAllWallletInfos(0, email, token);
+        Call<JsonResponse> call = service.getAllWallletInfos(0, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -177,7 +180,7 @@ public class VirtualWalletActivity extends AppCompatActivity {
     }
 
     public void getPreRegistrationCardData() {
-        Call<JsonResponse> call = service.getPreRegistrationCardData(email, token);
+        Call<JsonResponse> call = service.getPreRegistrationCardData(user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -203,7 +206,6 @@ public class VirtualWalletActivity extends AppCompatActivity {
     }
 
     public void setViewPager() {
-
         myAdapter = new MyAdapter(getSupportFragmentManager());
         viewPager = (ViewPager) findViewById(R.id.pager);
         viewPager.setAdapter(myAdapter);
@@ -231,8 +233,8 @@ public class VirtualWalletActivity extends AppCompatActivity {
             }
         };
 
-        for (int i = 0; i < actionBarTabs.length; i++) {
-            actionBar.addTab(actionBar.newTab().setText(actionBarTabs[i]).setTabListener(tabListener));
+        for (String actionBarTab : actionBarTabs) {
+            actionBar.addTab(actionBar.newTab().setText(actionBarTab).setTabListener(tabListener));
         }
 
     }

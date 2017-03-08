@@ -22,6 +22,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
@@ -32,6 +33,7 @@ import com.qwerteach.wivi.qwerteachapp.models.Topic;
 import com.qwerteach.wivi.qwerteachapp.models.TopicAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.TopicGroup;
 import com.qwerteach.wivi.qwerteachapp.models.TopicGroupAdapter;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +47,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
     EditText otherCourseMaterialEditText, descriptionEditText;
     LinearLayout coursePriceLinearLayout;
     Spinner categoryCourseSpinner, courseMaterialSpinner;
-    String courseMaterialName, userId, email, token, courseCategoryName;
+    String courseMaterialName, courseCategoryName;
     ArrayList<EditText> coursePriceEditTextList;
     ArrayList<TopicGroup> topicGroups;
     ArrayList<Topic> topics;
@@ -53,6 +55,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
     ArrayList<SmallAdPrice> prices;
     QwerteachService service;
     int topicId, topicGroupId;
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,9 +70,9 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
         courseMaterialSpinner = (Spinner) findViewById(R.id.course_material_spinner);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        userId = preferences.getString("userId", "");
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         coursePriceEditTextList = new ArrayList<>();
         prices = new ArrayList<>();
@@ -98,7 +101,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
     }
 
     public void getTopics() {
-        Call<JsonResponse> call = service.getTopics(topicGroupId, email, token);
+        Call<JsonResponse> call = service.getTopics(topicGroupId, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -115,7 +118,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
     }
 
     public void getLevels() {
-        Call<JsonResponse> call = service.getLevels(topicId, email, token);
+        Call<JsonResponse> call = service.getLevels(topicId, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -146,8 +149,6 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
     }
 
     public void didTouchSaveSmallAd(View view) {
-
-
         for (int i = 0; i < levels.size(); i++) {
             if (levels.get(i).isChecked() && !coursePriceEditTextList.get(i).getText().toString().equals("")) {
                 SmallAdPrice smallAdPrice = new SmallAdPrice();
@@ -171,9 +172,9 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
         }
 
         final Map<String, SmallAd> requestBody = new HashMap<>();
-        requestBody.put("advert", smallAd);
+        requestBody.put("offer", smallAd);
 
-        Call<JsonResponse> call = service.createNewAdvert(requestBody, email, token);
+        Call<JsonResponse> call = service.createNewAdvert(requestBody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -211,7 +212,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
                 topicId = topics.get(position).getTopicId();
                 getLevels();
 
-                if (courseMaterialName.equals("Other")) {
+                if (courseMaterialName.equals("Autre")) {
                     otherCourseMaterialTextView.setVisibility(view.VISIBLE);
                     otherCourseMaterialEditText.setVisibility(view.VISIBLE);
                 } else {

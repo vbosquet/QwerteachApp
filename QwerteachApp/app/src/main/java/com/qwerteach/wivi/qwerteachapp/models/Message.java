@@ -10,7 +10,7 @@ import java.io.Serializable;
 
 public class Message implements Serializable {
 
-    private static final String BASE_URL = "http://192.168.0.106:3000";
+    private static final String BASE_URL = "http://192.168.0.110:3000";
 
     @SerializedName("id")
     private Integer messageId;

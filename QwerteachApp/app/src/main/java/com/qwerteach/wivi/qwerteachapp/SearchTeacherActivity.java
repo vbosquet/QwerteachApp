@@ -25,6 +25,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
@@ -57,11 +58,12 @@ public class SearchTeacherActivity extends AppCompatActivity implements
     RecyclerView.LayoutManager teacherLayoutManager;
     Spinner searchSortingOptionsSpinner;
     int currentOptionId = 0, page = 1, scrollPosition = 0;
-    String query, email, token, currentOption = "";
+    String query, currentOption = "";
     ProgressDialog progressDialog;
     FloatingActionButton floatingActionButton;
     QwerteachService service;
     ArrayList<ArrayList<String>> searchOptions;
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,8 +79,9 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         floatingActionButton.setOnClickListener(this);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         query = getIntent().getStringExtra("query");
         teacherList = new ArrayList<>();
@@ -88,7 +91,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         service = ApiClient.getClient().create(QwerteachService.class);
 
         menuItems.add(query);
-        startSearchTeacherAsyncTask();
+        startSearchTeacher();
         getAllTopics();
 
     }
@@ -183,7 +186,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
                 if (currentOptionId == i) {
                     return;
                 } else {
-                    startSearchTeacherAsyncTask();
+                    startSearchTeacher();
                 }
 
                 currentOptionId = i;
@@ -214,7 +217,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         searchSortingOptionsSpinner.setOnItemSelectedListener(this);
     }
 
-    public void startSearchTeacherAsyncTask() {
+    public void startSearchTeacher() {
         scrollPosition = 0;
         teacherList.clear();
         startProgressDialog();
@@ -225,7 +228,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
     public void getSearchResults(String query, final String searchSortingOption, int pageNumber) {
         optionList.clear();
 
-        Call<JsonResponse> call = service.getSearchResults(query, searchSortingOption, pageNumber, email, token);
+        Call<JsonResponse> call = service.getSearchResults(query, searchSortingOption, pageNumber, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -271,7 +274,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         progressDialog.show();
     }
     public void getTeacherInfos(int userId) {
-        Call<JsonResponse> call = service.getUserInfos(String.valueOf(userId), email, token);
+        Call<JsonResponse> call = service.getUserInfos(userId, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

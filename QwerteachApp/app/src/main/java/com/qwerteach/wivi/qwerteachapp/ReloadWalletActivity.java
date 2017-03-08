@@ -22,6 +22,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.mangopay.android.sdk.Callback;
 import com.mangopay.android.sdk.MangoPayBuilder;
 import com.mangopay.android.sdk.model.CardRegistration;
@@ -30,6 +31,7 @@ import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.CardRegistrationData;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 
 import java.util.ArrayList;
@@ -52,12 +54,13 @@ public class ReloadWalletActivity extends AppCompatActivity implements
     LinearLayout cardNumberLinearLayout, newCreditCardLinearLayout;
     EditText otherAmountEditText, cardNumberEditText, securityCodeEditText;
     String currentAmount, cardType = "", currentCardNumber = "", cardId, currentMonth, currentYear, paymentMode;
-    String email, token;
     ArrayList<UserCreditCard> userCreditCards;
     CardRegistrationData cardRegistrationData;
     TextView noCreditCardForEasyPaymentTextView;
     QwerteachService service;
     Intent intent;
+    User user;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,8 +83,9 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         }
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         amounts = new ArrayList<>();
         amounts.add("20");
@@ -411,7 +415,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
             resquestBody.put("card", cardId);
         }
 
-        Call<JsonResponse> call = service.loadUserWallet(resquestBody, email, token);
+        Call<JsonResponse> call = service.loadUserWallet(resquestBody, user.getEmail(), user.getToken());
         call.enqueue(new retrofit2.Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

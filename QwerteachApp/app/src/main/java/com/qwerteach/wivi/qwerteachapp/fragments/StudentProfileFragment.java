@@ -2,6 +2,7 @@ package com.qwerteach.wivi.qwerteachapp.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,7 +58,7 @@ public class StudentProfileFragment extends Fragment {
         firstNameAndLastNameTextView.setText(user.getFirstName() + " " + user.getLastName());
         ageTextView.setText(user.getAge() + " ans");
         occupationTextView.setText(user.getOccupation());
-        descriptionTextView.setText(user.getDescription());
+        descriptionTextView.setText(Html.fromHtml(user.getDescription()), TextView.BufferType.SPANNABLE);
         Picasso.with(getContext())
                 .load(user.getAvatarUrl())
                 .resize(studentAvatar.getWidth(), 1000)

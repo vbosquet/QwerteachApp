@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.ToBecomeATeacherActivity;
 import com.qwerteach.wivi.qwerteachapp.UpdateSmallAdActivity;
 import com.qwerteach.wivi.qwerteachapp.CreateSmallAdActivity;
@@ -45,7 +46,6 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
     ArrayList<SmallAd> smallAds;
     ListView listView;
     SmallAdAdapter smallAdAdapter;
-    String userId, email, token;
     User user;
     Teacher teacher;
     ProgressDialog progressDialog;
@@ -61,14 +61,13 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
         super.onCreate(savedInstanceState);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        userId = preferences.getString("userId", "");
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         Bundle extras = getActivity().getIntent().getExtras();
         if (extras != null) {
             teacher = (Teacher) getActivity().getIntent().getSerializableExtra("teacher");
-            user = (User) getActivity().getIntent().getSerializableExtra("student");
         }
 
         progressDialog = new ProgressDialog(getContext());
@@ -109,8 +108,8 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
         startActivityForResult(intent, 10002);
     }
 
-    public void startDisplayInfosSmallAdAsyncTask() {
-        Call<JsonResponse> call = service.getAdverts(email, token);
+    public void startDisplayInfosSmallAd() {
+        Call<JsonResponse> call = service.getAdverts(user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -144,7 +143,7 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
     }
 
     public void startDeleteSmallAdAsyncTask(int advertId) {
-        Call<JsonResponse> call = service.deleteSmallAd(advertId, email, token);
+        Call<JsonResponse> call = service.deleteSmallAd(advertId, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -153,7 +152,7 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
 
                 if (success.equals("true")) {
                     smallAds.clear();
-                    startDisplayInfosSmallAdAsyncTask();
+                    startDisplayInfosSmallAd();
                     Toast.makeText(getContext(), R.string.delete_small_ad_success_true_message, Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getContext(), R.string.delete_small_ad_success_false_message, Toast.LENGTH_SHORT).show();
@@ -173,11 +172,11 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
         if ((requestCode == 10001) && (resultCode == Activity.RESULT_OK)) {
             smallAds.clear();
             startProgressDialog();
-            startDisplayInfosSmallAdAsyncTask();
+            startDisplayInfosSmallAd();
         } else if ((requestCode == 10002) && (resultCode == Activity.RESULT_OK)) {
             smallAds.clear();
             startProgressDialog();
-            startDisplayInfosSmallAdAsyncTask();
+            startDisplayInfosSmallAd();
         }
     }
 

@@ -24,21 +24,13 @@ public class SmallAd implements Serializable {
     private Integer userId;
     @SerializedName("other_name")
     private String otherName;
-    @SerializedName("advert_prices_attributes")
+    @SerializedName("offer_prices_attributes")
     private ArrayList<SmallAdPrice> smallAdPrices;
 
     private String title;
 
     public SmallAd() {
     }
-
-    /*public SmallAd(String title, int advertId, int topicId, int topicGroupId, String description) {
-        this.title = title;
-        this.advertId = advertId;
-        this.topicId = topicId;
-        this.topicGroupId = topicGroupId;
-        this.description = description;
-    }*/
 
     public String getTitle() {
         return title;

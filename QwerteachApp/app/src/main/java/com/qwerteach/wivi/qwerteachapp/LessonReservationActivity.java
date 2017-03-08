@@ -1,7 +1,5 @@
 package com.qwerteach.wivi.qwerteachapp;
 
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,6 +11,9 @@ import com.qwerteach.wivi.qwerteachapp.fragments.CreateNewLessonFragment;
 
 public class LessonReservationActivity extends AppCompatActivity {
 
+    private static final String TAG_CREATE_NEW_LESSON_FRAGMENT = "createNewLessonFragment";
+    private CreateNewLessonFragment createNewLessonFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,12 +22,16 @@ public class LessonReservationActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.add(R.id.fragment_container, CreateNewLessonFragment.newInstance());
-        transaction.commit();
+        if (findViewById(R.id.fragment_container) != null) {
+            if (savedInstanceState != null) {
+                return;
+            }
 
+            createNewLessonFragment = CreateNewLessonFragment.newInstance();
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, createNewLessonFragment, TAG_CREATE_NEW_LESSON_FRAGMENT).commit();
+        }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {

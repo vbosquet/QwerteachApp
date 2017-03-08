@@ -21,6 +21,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.LessonReservationActivity;
 import com.qwerteach.wivi.qwerteachapp.MyMessagesActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
@@ -34,6 +35,7 @@ import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -51,7 +53,6 @@ import retrofit2.Response;
 public class TeacherProfileFragment extends Fragment implements View.OnClickListener {
 
     View view;
-    String email, token, firstName, lastName;
     TextView teacherName, teacherDescription, teacherOccupation, teacherAge, courseMaterialNames,
             minPrice, senderFirstName, reviewText, sendingDate, readMoreComments, detailedPricesTextView;
     LinearLayout lastReview;
@@ -64,6 +65,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
     ImageView teacherAvatar;
     QwerteachService service;
     AlertDialog.Builder contactDialog;
+    User user;
 
     public static TeacherProfileFragment newInstance() {
         TeacherProfileFragment teacherProfileFragment = new TeacherProfileFragment();
@@ -75,10 +77,9 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         super.onCreate(savedInstanceState);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
-        firstName = preferences.getString("firstName", "");
-        lastName = preferences.getString("lastName", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         progressDialog = new ProgressDialog(getContext());
         contactDialog = new AlertDialog.Builder(getContext());
@@ -127,10 +128,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
     public void displayTeacherProfileInfos() {
         teacherName.setText(teacher.getUser().getFirstName() + " " + teacher.getUser().getLastName());
         teacherOccupation.setText(teacher.getUser().getOccupation());
-        String text = teacher.getUser().getDescription();
-        text = text.replace("\\n\\n", "");
-        text = text.replace("\\n", "");
-        teacherDescription.setText(Html.fromHtml(text), TextView.BufferType.SPANNABLE);
+        teacherDescription.setText(Html.fromHtml(teacher.getUser().getDescription()), TextView.BufferType.SPANNABLE);
         contactTeacherButton.setText("Contacter " + teacher.getUser().getFirstName());
         courseMaterialNames.setText(teacher.getTopics());
         minPrice.setText("A partir de " +teacher.getMinPrice() + " €/h");
@@ -192,7 +190,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
             public void onClick(DialogInterface dialogInterface, int i) {
                 String body = userMessageEditText.getText().toString();
                 int recipient = teacher.getUser().getUserId();
-                String subject = firstName + " " + lastName + " vous pose une question !";
+                String subject = user.getFirstName() + " " + user.getLastName() + " vous pose une question !";
 
                 startSendMessageToTeacher(body, subject, recipient);
 
@@ -215,7 +213,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         requestBody.put("message", message);
 
         startProgressDialog();
-        Call<JsonResponse> call = service.sendMessageToTeacher(requestBody, email, token);
+        Call<JsonResponse> call = service.sendMessageToTeacher(requestBody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -278,7 +276,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
             final String topic = smallAds.get(i).getTitle();
             final ArrayList<SmallAdPrice> smallAdPrices = smallAds.get(i).getSmallAdPrices();
 
-            Call<JsonResponse> call = service.getInfosForDetailedPrices(smallAds.get(i).getAdvertId(), email, token);
+            Call<JsonResponse> call = service.getInfosForDetailedPrices(smallAds.get(i).getAdvertId(), user.getEmail(), user.getToken());
             call.enqueue(new Callback<JsonResponse>() {
                 @Override
                 public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

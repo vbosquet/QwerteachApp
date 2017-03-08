@@ -18,10 +18,12 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.RedirectURLAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -33,9 +35,10 @@ import retrofit2.Response;
 
 public class MangoPaySecureModeActivity extends AppCompatActivity implements RedirectURLAsyncTask.IRedirectURL {
 
-    String url, email, token, mode;
+    String url, mode;
     ProgressDialog progressDialog;
     QwerteachService service;
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +55,9 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
         }
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         service = ApiClient.getClient().create(QwerteachService.class);
 
@@ -75,7 +79,7 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
 
     public void startRedirectURL(String newURL) {
         RedirectURLAsyncTask redirectURLAsyncTask = new RedirectURLAsyncTask(this);
-        redirectURLAsyncTask.execute(email, token, newURL);
+        redirectURLAsyncTask.execute(user.getEmail(), user.getToken(), newURL);
     }
 
     @Override
@@ -106,7 +110,7 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
     }
 
     public void finalizePaymentWithCard(String url) {
-        Call<JsonResponse> call = service.finalizePaymentWithCard(url, email, token);
+        Call<JsonResponse> call = service.finalizePaymentWithCard(url, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

@@ -5,10 +5,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -16,8 +18,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
@@ -46,10 +50,9 @@ public class FormationsTabFragment extends Fragment implements AdapterView.OnIte
     Spinner levelSpinner;
     ArrayList<Level> levels;
     View view;
-    String levelName, defaultTextForLevelSpinner, userId, email, token;
+    String levelName, defaultTextForLevelSpinner;
     int levelId;
     ProgressDialog progressDialog;
-    Teacher teacher;
     User user;
     QwerteachService service;
 
@@ -63,29 +66,14 @@ public class FormationsTabFragment extends Fragment implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        userId = preferences.getString("userId", "");
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
-
-        Bundle extras = getActivity().getIntent().getExtras();
-        if (extras != null) {
-            teacher = (Teacher) getActivity().getIntent().getSerializableExtra("teacher");
-            user = (User) getActivity().getIntent().getSerializableExtra("student");
-
-        }
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         levels = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
         service = ApiClient.getClient().create(QwerteachService.class);
-
-
-        if (user != null) {
-            levelId = user.getLevelId();
-        }
-
-        if (teacher != null) {
-            levelId = teacher.getUser().getLevelId();
-        }
+        levelId = user.getLevelId();
     }
 
     @Override
@@ -97,6 +85,21 @@ public class FormationsTabFragment extends Fragment implements AdapterView.OnIte
         levelSpinner = (Spinner) view.findViewById(R.id.spinner_level);
         saveInfosButton = (Button) view.findViewById(R.id.save_infos_button);
         saveInfosButton.setOnClickListener(this);
+
+        userDescriptionEditTet.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View view, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (view.getId() == R.id.description) {
+                    view.getParent().requestDisallowInterceptTouchEvent(true);
+                    switch (event.getAction()&MotionEvent.ACTION_MASK){
+                        case MotionEvent.ACTION_UP:
+                            view.getParent().requestDisallowInterceptTouchEvent(false);
+                            break;
+                    }
+                }
+                return false;
+            }
+        });
 
         Call<JsonResponse> call = service.getLevels();
         call.enqueue(new Callback<JsonResponse>() {
@@ -136,15 +139,8 @@ public class FormationsTabFragment extends Fragment implements AdapterView.OnIte
         levelSpinner.setSelection(position);
         levelSpinner.setOnItemSelectedListener(this);
 
-        if (user != null) {
-            professionEditText.setText(user.getOccupation());
-            userDescriptionEditTet.setText(user.getDescription());
-        }
-
-        if (teacher != null) {
-            professionEditText.setText(teacher.getUser().getOccupation());
-            userDescriptionEditTet.setText(teacher.getUser().getDescription());
-        }
+        professionEditText.setText(user.getOccupation());
+        userDescriptionEditTet.setText(Html.fromHtml(user.getDescription()), TextView.BufferType.SPANNABLE);
 
     }
 
@@ -178,7 +174,7 @@ public class FormationsTabFragment extends Fragment implements AdapterView.OnIte
         Map<String, User> requestBody = new HashMap<>();
         requestBody.put("user", newUser);
 
-        Call<JsonResponse> call = service.getStudentInfos(userId, requestBody, email, token);
+        Call<JsonResponse> call = service.getStudentInfos(user.getUserId(), requestBody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

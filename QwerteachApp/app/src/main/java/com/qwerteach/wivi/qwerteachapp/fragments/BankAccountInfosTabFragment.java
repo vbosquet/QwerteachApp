@@ -23,11 +23,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.VirtualWalletActivity;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserBankAccount;
 import com.qwerteach.wivi.qwerteachapp.models.UserBankAccountAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
@@ -49,7 +51,7 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
         CompoundButton.OnCheckedChangeListener {
 
     View view;
-    String email, token, type;
+    String type;
     ArrayList<UserCreditCard> userCreditCards;
     ArrayList<UserBankAccount> userBankAccounts;
     RecyclerView userCardsRecyclerView, userBankAccountRecyclerView;
@@ -66,6 +68,7 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
     TextView bankAccountTextView;
     CoordinatorLayout bankAccountCoordinatorLayout;
     QwerteachService service;
+    User user;
 
     public static BankAccountInfosTabFragment newInstance() {
         BankAccountInfosTabFragment bankAccountInfosTabFragment = new BankAccountInfosTabFragment();
@@ -77,8 +80,9 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
         super.onCreate(savedInstanceState);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
         isTeacher = preferences.getBoolean("isTeacher", false);
 
         userCreditCards = new ArrayList<>();
@@ -336,7 +340,7 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
         data.put("other_account", otherAccount);
 
 
-        Call<JsonResponse> call = service.addNewBankAccount(data, email, token);
+        Call<JsonResponse> call = service.addNewBankAccount(data, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -363,7 +367,7 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
 
     public void didTouchDeleteBankAccountButton(String bankAccountId) {
         startProgressDialog();
-        Call<JsonResponse> call = service.desactivateBankAccount(bankAccountId, email, token);
+        Call<JsonResponse> call = service.desactivateBankAccount(bankAccountId, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

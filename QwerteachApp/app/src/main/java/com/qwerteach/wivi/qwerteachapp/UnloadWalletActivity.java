@@ -17,10 +17,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.RedirectURLAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserBankAccount;
 
 import org.json.JSONException;
@@ -45,9 +47,10 @@ public class UnloadWalletActivity extends AppCompatActivity implements
     Spinner bankAccountSpinner;
     ArrayList<String> accountNumbers;
     ArrayAdapter<String> bankAccountAdapter;
-    String currentBankAccount, email, token;
+    String currentBankAccount;
     QwerteachService service;
     ProgressDialog progressDialog;
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,8 +61,9 @@ public class UnloadWalletActivity extends AppCompatActivity implements
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -117,7 +121,7 @@ public class UnloadWalletActivity extends AppCompatActivity implements
         requestBody.put("account", currentBankAccount);
 
         startProgressDialog();
-        Call<JsonResponse> call = service.makePayout(requestBody, email, token);
+        Call<JsonResponse> call = service.makePayout(requestBody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -131,7 +135,7 @@ public class UnloadWalletActivity extends AppCompatActivity implements
                     startActivity(intent);
 
                 } else {
-                    startRedirectUrlAsyncTask("http://192.168.0.103:3000/api/" + response.body().getUrl());
+                    startRedirectUrlAsyncTask("http://192.168.0.110:3000/api/" + response.body().getUrl());
 
                 }
 
@@ -156,7 +160,7 @@ public class UnloadWalletActivity extends AppCompatActivity implements
 
     public void startRedirectUrlAsyncTask(String newURL) {
         RedirectURLAsyncTask redirectURLAsyncTask = new RedirectURLAsyncTask(this);
-        redirectURLAsyncTask.execute(email, token, newURL);
+        redirectURLAsyncTask.execute(user.getEmail(), user.getToken(), newURL);
     }
 
     @Override

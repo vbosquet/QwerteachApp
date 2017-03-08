@@ -4,12 +4,15 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
@@ -22,7 +25,6 @@ import retrofit2.Response;
 public class ToBecomeATeacherActivity extends AppCompatActivity {
 
     EditText firstNameEditText, lastNameEditText, userDescriptionEditTet, birthDateEditText, emailEditText, phoneNumberEditText;
-    String userId, email, token;
     QwerteachService service;
     User user;
 
@@ -32,9 +34,9 @@ public class ToBecomeATeacherActivity extends AppCompatActivity {
         setContentView(R.layout.activity_to_become_a_teacher);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        userId = preferences.getString("userId", "");
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         firstNameEditText = (EditText) findViewById(R.id.firstname);
         lastNameEditText = (EditText) findViewById(R.id.lastname);
@@ -48,7 +50,7 @@ public class ToBecomeATeacherActivity extends AppCompatActivity {
     }
 
     public void getUserInfos() {
-        Call<JsonResponse> call = service.getUserInfos(userId, email, token);
+        Call<JsonResponse> call = service.getUserInfos(user.getUserId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -57,8 +59,8 @@ public class ToBecomeATeacherActivity extends AppCompatActivity {
                 firstNameEditText.setText(user.getFirstName());
                 lastNameEditText.setText(user.getLastName());
                 birthDateEditText.setText(user.getBirthdate());
-                userDescriptionEditTet.setText(user.getDescription());
-                emailEditText.setText(email);
+                userDescriptionEditTet.setText(Html.fromHtml(user.getDescription()), TextView.BufferType.SPANNABLE);
+                emailEditText.setText(user.getEmail());
                 phoneNumberEditText.setText(user.getPhoneNumber());
             }
 

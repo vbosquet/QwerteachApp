@@ -15,6 +15,7 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,8 +26,11 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.hbb20.CountryCodePicker;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
@@ -40,6 +44,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -59,13 +64,12 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
     Calendar calendar;
     View view;
     DatePickerDialog.OnDateSetListener dateSetListener;
-    String userId, email, token;
     ProgressDialog progressDialog;
     Button saveInfosButton, updateUserAvatarButton;
-    Teacher teacher;
     User user;
     ImageView userAvatar;
     QwerteachService service;
+    CountryCodePicker ccp;
 
     public static DescriptionTabFragment newInstance() {
         DescriptionTabFragment descriptionTabFragment = new DescriptionTabFragment();
@@ -77,16 +81,9 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
         super.onCreate(savedInstanceState);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        userId = preferences.getString("userId", "");
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
-
-        Bundle extras = getActivity().getIntent().getExtras();
-        if (extras != null) {
-            teacher = (Teacher) getActivity().getIntent().getSerializableExtra("teacher");
-            user = (User) getActivity().getIntent().getSerializableExtra("student");
-
-        }
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         progressDialog = new ProgressDialog(getContext());
         service = ApiClient.getClient().create(QwerteachService.class);
@@ -116,6 +113,7 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
         saveInfosButton = (Button) view.findViewById(R.id.save_infos_button);
         userAvatar = (ImageView) view.findViewById(R.id.user_avatar);
         updateUserAvatarButton = (Button) view.findViewById(R.id.update_user_avatar_button);
+        ccp = (CountryCodePicker) view.findViewById(R.id.ccp);
 
         birthDateEditText.setOnClickListener(this);
         saveInfosButton.setOnClickListener(this);
@@ -127,20 +125,13 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
     }
 
     public void displayUserInfos() {
-        if (user != null) {
-            firstNameEditText.setText(user.getFirstName());
-            lastNameEditText.setText(user.getLastName());
-            birthDateEditText.setText(user.getBirthdate());
-            phoneNumberEditText.setText(user.getPhoneNumber());
-            Picasso.with(getContext()).load(user.getAvatarUrl()).resize(150, 150).centerCrop().into(userAvatar);
-        }
-
-        if (teacher != null) {
-            firstNameEditText.setText(teacher.getUser().getFirstName());
-            lastNameEditText.setText(teacher.getUser().getLastName());
-            birthDateEditText.setText(teacher.getUser().getBirthdate());
-            phoneNumberEditText.setText(teacher.getUser().getPhoneNumber());
-            Picasso.with(getContext()).load(teacher.getUser().getAvatarUrl()).resize(150, 150).centerCrop().into(userAvatar);
+        firstNameEditText.setText(user.getFirstName());
+        lastNameEditText.setText(user.getLastName());
+        birthDateEditText.setText(user.getBirthdate());
+        phoneNumberEditText.setText(user.getPhoneNumber());
+        Picasso.with(getContext()).load(user.getAvatarUrl()).resize(150, 150).centerCrop().into(userAvatar);
+        if(user.getPhoneCountryCode() != null) {
+            ccp.setCountryForPhoneCode(Integer.parseInt(user.getPhoneCountryCode()));
         }
     }
 
@@ -151,23 +142,18 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
         birthDateEditText.setText(sdf.format(calendar.getTime()));
     }
 
-    public void startSaveInfosProfileTabAsyncTask() {
-        String firstName = firstNameEditText.getText().toString();
-        String lastName = lastNameEditText.getText().toString();
-        String birthDate = birthDateEditText.getText().toString();
-        String phoneNumber = phoneNumberEditText.getText().toString();
-
+    public void startSaveInfosProfile() {
         final User newUser = new User();
-
-        newUser.setFirstName(firstName);
-        newUser.setLastName(lastName);
-        newUser.setBirthdate(birthDate);
-        newUser.setPhoneNumber(phoneNumber);
+        newUser.setFirstName(firstNameEditText.getText().toString());
+        newUser.setLastName(lastNameEditText.getText().toString());
+        newUser.setBirthdate(birthDateEditText.getText().toString());
+        newUser.setPhoneNumber(phoneNumberEditText.getText().toString());
+        newUser.setPhoneCountryCode(ccp.getSelectedCountryCode());
 
         Map<String, User> requestBody = new HashMap<>();
         requestBody.put("user", newUser);
 
-        Call<JsonResponse> call = service.getStudentInfos(userId, requestBody, email, token);
+        Call<JsonResponse> call = service.getStudentInfos(user.getUserId(), requestBody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -178,13 +164,13 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
                 progressDialog.dismiss();
 
                 if (success.equals("true")) {
-
                     Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
 
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
                     SharedPreferences.Editor editor = preferences.edit();
-                    editor.putString("lastName", userResponse.getLastName());
-                    editor.putString("firstName", userResponse.getFirstName());
+                    Gson gson = new Gson();
+                    String json = gson.toJson(userResponse);
+                    editor.putString("user", json);
                     editor.apply();
 
                 } else {
@@ -213,7 +199,7 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
                 break;
             case R.id.save_infos_button:
                 startProgressDialog();
-                startSaveInfosProfileTabAsyncTask();
+                startSaveInfosProfile();
                 break;
             case R.id.update_user_avatar_button:
                 getImageFromGallery();
@@ -259,6 +245,7 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 1 && resultCode == RESULT_OK && null != data) {
+            Log.i("REQUEST_CODE", "1");
             Uri imageUri = data.getData();
             Picasso.with(getContext()).load(imageUri.toString()).resize(150, 150).centerCrop().into(userAvatar);
 
@@ -266,12 +253,11 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
             RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), file);
             MultipartBody.Part body = MultipartBody.Part.createFormData("user[avatar]", file.getName(), requestFile);
 
-            QwerteachService service = ApiClient.getClient().create(QwerteachService.class);
-            Call<JsonResponse> call = service.uploadAvatar(userId, body, email, token);
+            Call<JsonResponse> call = service.uploadAvatar(user.getUserId(), body, user.getEmail(), user.getToken());
             call.enqueue(new Callback<JsonResponse>() {
                 @Override
                 public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-
+                    Log.i("UPLOAD_AVATAR", "OK");
                 }
 
                 @Override

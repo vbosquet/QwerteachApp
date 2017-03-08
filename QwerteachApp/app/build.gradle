@@ -42,7 +42,7 @@ dependencies {
     compile 'com.google.firebase:firebase-messaging:10.0.1'
     compile 'com.pusher:pusher-java-client:1.4.0'
     compile 'com.pusher:pusher-websocket-android:0.5.0'
-
+    compile 'com.hbb20:ccp:1.7.1'
 
 }
 

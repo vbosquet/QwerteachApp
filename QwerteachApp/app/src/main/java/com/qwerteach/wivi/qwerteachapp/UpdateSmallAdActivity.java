@@ -21,12 +21,14 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Level;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,8 +47,9 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
     EditText descriptionEditText;
     TextView topicTextView, topicGroupTextView;
     LinearLayout coursePriceLinearLayout;
-    String email, token, topic, topicGroup;
+    String topic, topicGroup;
     QwerteachService service;
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,15 +67,16 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
         }
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         coursePriceEditTextList = new ArrayList<>();
         service = ApiClient.getClient().create(QwerteachService.class);
 
         prices = smallAd.getSmallAdPrices();
 
-        Call<JsonResponse> call = service.showAdvertInfos(smallAd.getAdvertId(), email, token);
+        Call<JsonResponse> call = service.showAdvertInfos(smallAd.getAdvertId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -133,10 +137,10 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
         newSmallAd.setSmallAdPrices(newPrices);
 
         Map<String, SmallAd> requestBody = new HashMap<>();
-        requestBody.put("advert", newSmallAd);
+        requestBody.put("offer", newSmallAd);
 
 
-        Call<JsonResponse> call = service.updateSmallAd(smallAd.getAdvertId(), smallAd.getTopicId(), requestBody, email, token);
+        Call<JsonResponse> call = service.updateSmallAd(smallAd.getAdvertId(), smallAd.getTopicId(), requestBody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

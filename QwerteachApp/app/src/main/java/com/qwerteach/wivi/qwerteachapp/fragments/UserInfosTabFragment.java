@@ -14,10 +14,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserWalletInfos;
 
 import java.util.ArrayList;
@@ -39,14 +41,15 @@ public class UserInfosTabFragment extends Fragment implements
         View.OnClickListener {
 
     View view;
-    String email, token, countryCode, nationalityCode, residencePlaceCode, currentCountry, currentNationality, currentResidencePlace;
+    String countryCode, nationalityCode, residencePlaceCode, currentCountry, currentNationality, currentResidencePlace;
     EditText firstNameEditText, lastNameEditText, addressEditText, streetNumberEditText, postalCodeEditText, cityEditText, regionEditText;
     Spinner countrySpinner, residenceSpinner, nationalitySpinner;
     ArrayList<String> countries;
     Locale[] locales;
     Button saveButton;
-    UserWalletInfos user;
+    UserWalletInfos userWalletInfos;
     QwerteachService service;
+    User user;
 
     public static UserInfosTabFragment newInstance() {
         UserInfosTabFragment userInfosTabFragment = new UserInfosTabFragment();
@@ -58,8 +61,9 @@ public class UserInfosTabFragment extends Fragment implements
         super.onCreate(savedInstanceState);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         locales = Locale.getAvailableLocales();
         countries = new ArrayList<>();
@@ -74,12 +78,12 @@ public class UserInfosTabFragment extends Fragment implements
 
         Collections.sort(countries);
 
-        user = (UserWalletInfos) getArguments().getSerializable("user");
+        userWalletInfos = (UserWalletInfos) getArguments().getSerializable("user");
 
-        if (user != null) {
-            countryCode = user.getCountryCode();
-            nationalityCode = user.getNationalityCode();
-            residencePlaceCode = user.getResidencePlaceCode();
+        if (userWalletInfos != null) {
+            countryCode = userWalletInfos.getCountryCode();
+            nationalityCode = userWalletInfos.getNationalityCode();
+            residencePlaceCode = userWalletInfos.getResidencePlaceCode();
         }
     }
 
@@ -118,13 +122,13 @@ public class UserInfosTabFragment extends Fragment implements
 
     public void displayUserInfos() {
 
-        firstNameEditText.setText(user.getFirstName());
-        lastNameEditText.setText(user.getLastName());
-        addressEditText.setText(user.getAddress());
-        streetNumberEditText.setText(user.getStreetNumber());
-        postalCodeEditText.setText(user.getPostalCode());
-        cityEditText.setText(user.getCity());
-        regionEditText.setText(user.getRegion());
+        firstNameEditText.setText(userWalletInfos.getFirstName());
+        lastNameEditText.setText(userWalletInfos.getLastName());
+        addressEditText.setText(userWalletInfos.getAddress());
+        streetNumberEditText.setText(userWalletInfos.getStreetNumber());
+        postalCodeEditText.setText(userWalletInfos.getPostalCode());
+        cityEditText.setText(userWalletInfos.getCity());
+        regionEditText.setText(userWalletInfos.getRegion());
 
         setSpinner(countries, countrySpinner, countryCode);
         setSpinner(countries, residenceSpinner, residencePlaceCode);
@@ -208,7 +212,7 @@ public class UserInfosTabFragment extends Fragment implements
         Map<String, UserWalletInfos> requestBody = new HashMap<>();
         requestBody.put("account", userWalletInfos);
 
-        Call<JsonResponse> call = service.updateUserWallet(requestBody, email, token);
+        Call<JsonResponse> call = service.updateUserWallet(requestBody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

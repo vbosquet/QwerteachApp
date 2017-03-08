@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
@@ -47,11 +48,11 @@ public class CreateVirtualWalletFragment extends Fragment implements
             postalCodeEditText, cityEditText, regionEditText;
     ArrayList<String> countries;
     String currentCountry, currentRegion, currentNationality, countryCode, regionCode, nationalityCode;
-    String userId, email, token;
     Button saveButton;
     Locale[] locales;
     ProgressDialog progressDialog;
     QwerteachService service;
+    User user;
 
     public static CreateVirtualWalletFragment newInstance() {
         CreateVirtualWalletFragment createVirtualWalletFragment = new CreateVirtualWalletFragment();
@@ -63,9 +64,9 @@ public class CreateVirtualWalletFragment extends Fragment implements
         super.onCreate(savedInstanceState);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        userId = preferences.getString("userId", "");
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         locales = Locale.getAvailableLocales();
         countries = new ArrayList<>();
@@ -119,7 +120,7 @@ public class CreateVirtualWalletFragment extends Fragment implements
     }
 
     public void getUserInfos() {
-        Call<JsonResponse> call = service.getUserInfos(userId, email, token);
+        Call<JsonResponse> call = service.getUserInfos(user.getUserId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -176,7 +177,7 @@ public class CreateVirtualWalletFragment extends Fragment implements
         requestBody.put("account", userWalletInfos);
 
         startProgressDialog();
-        Call<JsonResponse> call = service.updateUserWallet(requestBody, email, token);
+        Call<JsonResponse> call = service.updateUserWallet(requestBody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

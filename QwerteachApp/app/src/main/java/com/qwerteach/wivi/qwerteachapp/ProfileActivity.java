@@ -9,10 +9,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.fragments.StudentProfileFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.TeacherProfileFragment;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
@@ -33,7 +35,6 @@ import retrofit2.Response;
 public class ProfileActivity extends AppCompatActivity  {
 
     Intent intent;
-    String userId, email, token;
     ProgressDialog progressDialog;
     User user;
     Teacher teacher;
@@ -47,17 +48,16 @@ public class ProfileActivity extends AppCompatActivity  {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        userId = preferences.getString("userId", "");
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         progressDialog = new ProgressDialog(this);
-        user = new User();
         teacher = new Teacher();
 
         startProgressDialog();
         QwerteachService service = ApiClient.getClient().create(QwerteachService.class);
-        Call<JsonResponse> call = service.getUserInfos(userId, email, token);
+        Call<JsonResponse> call = service.getUserInfos(user.getUserId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -137,11 +137,8 @@ public class ProfileActivity extends AppCompatActivity  {
                 return true;
             case R.id.edit_profile_button:
                 intent = new Intent(this, EditProfileActivity.class);
-
                 if (user.getPostulanceAccepted()) {
                     intent.putExtra("teacher", teacher);
-                } else {
-                    intent.putExtra("student", user);
                 }
 
                 startActivity(intent);

@@ -12,6 +12,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
@@ -28,6 +30,7 @@ import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 import com.qwerteach.wivi.qwerteachapp.models.LessonsAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.Review;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,7 +47,7 @@ import retrofit2.Response;
 public class MyLessonsListViewFragment extends Fragment implements View.OnClickListener {
 
     View view;
-    String email, token, userId, note, comment;
+    String note, comment;
     ArrayList<Lesson> lessons;
     RecyclerView lessonRecyclerView;
     RecyclerView.Adapter lessonAdapter;
@@ -53,6 +56,7 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
     FloatingActionButton floatingActionButton;
     int page = 1, scrollPosition = 0;
     QwerteachService service;
+    User user;
 
     public static MyLessonsListViewFragment newInstance() {
         MyLessonsListViewFragment myLessonsListViewFragment = new MyLessonsListViewFragment();
@@ -69,9 +73,9 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
         view = inflater.inflate(R.layout.fragment_my_lessons_list_view, container, false);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
-        userId = preferences.getString("userId", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         lessons = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
@@ -88,7 +92,7 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
 
     public void getLessons() {
         startProgressDialog();
-        Call<JsonResponse> call = service.getLessons(page, email, token);
+        Call<JsonResponse> call = service.getLessons(page, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -111,7 +115,7 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
     }
 
     public void startGetLessonInfos(final int lessonId, final int index) {
-        Call<JsonResponse> call = service.getLessonInfos(lessonId, email, token);
+        Call<JsonResponse> call = service.getLessonInfos(lessonId, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -149,7 +153,7 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
 
     public void didTouchCancelLessonButton(final int index) {
         startProgressDialog();
-        Call<JsonResponse> call = service.cancelLesson(lessons.get(index).getLessonId(), email, token);
+        Call<JsonResponse> call = service.cancelLesson(lessons.get(index).getLessonId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -165,7 +169,7 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
 
     public void didTouchAcceptLessonButton(final int index) {
         startProgressDialog();
-        Call<JsonResponse> call = service.acceptLesson(lessons.get(index).getLessonId(), email, token);
+        Call<JsonResponse> call = service.acceptLesson(lessons.get(index).getLessonId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -181,7 +185,7 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
 
     public void didTouchRefuseLessonButton(final int index) {
         startProgressDialog();
-        Call<JsonResponse> call = service.refuseLesson(lessons.get(index).getLessonId(), email, token);
+        Call<JsonResponse> call = service.refuseLesson(lessons.get(index).getLessonId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -197,7 +201,7 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
 
     public void didTouchPositiveReviewButton(final int index) {
         startProgressDialog();
-        Call<JsonResponse> call = service.payTeacher(lessons.get(index).getLessonId(), email, token);
+        Call<JsonResponse> call = service.payTeacher(lessons.get(index).getLessonId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -213,7 +217,7 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
 
     public void didTouchNegativeReviewButton(final int index) {
         startProgressDialog();
-        Call<JsonResponse> call = service.disputeLesson(lessons.get(index).getLessonId(), email, token);
+        Call<JsonResponse> call = service.disputeLesson(lessons.get(index).getLessonId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -314,7 +318,7 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
         requestBody.put("review", review);
 
         startProgressDialog();
-        Call<JsonResponse> call = service.letReviewToTeacher(lessons.get(index).getTeacherId(), requestBody, email, token);
+        Call<JsonResponse> call = service.letReviewToTeacher(lessons.get(index).getTeacherId(), requestBody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

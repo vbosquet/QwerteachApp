@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
 import com.pusher.android.PusherAndroid;
 import com.pusher.android.notifications.ManifestValidator;
 import com.pusher.android.notifications.PushNotificationRegistration;
@@ -64,7 +65,7 @@ public class DashboardFragment extends Fragment {
 
     LinearLayout upcomingLessonLinearLayout, toDoListLinearLayout;
     TextView upcomingLessonsTextView;
-    String email, token, userId, note, comment;
+    String note, comment;
     List<Lesson> upcomingLessons, toDoList;
     List<User> teachersToReview;
     View view;
@@ -76,6 +77,7 @@ public class DashboardFragment extends Fragment {
     RecyclerView teacherToReviewRecyclerView;
     RecyclerView.Adapter teacherToReviewAdapter;
     RecyclerView.LayoutManager teacherToReviewLayoutManager;
+    User user;
 
     public static DashboardFragment newInstance() {
         DashboardFragment dashboardFragment = new DashboardFragment();
@@ -87,9 +89,9 @@ public class DashboardFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
-        userId = preferences.getString("userId", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         progressDialog = new ProgressDialog(getContext());
         service = ApiClient.getClient().create(QwerteachService.class);
@@ -128,7 +130,7 @@ public class DashboardFragment extends Fragment {
     }
 
     public void getDashboardInfos() {
-        Call<JsonResponse> call = service.getDashboardInfos(email, token);
+        Call<JsonResponse> call = service.getDashboardInfos(user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -165,7 +167,7 @@ public class DashboardFragment extends Fragment {
     }
 
     public void getLessonInfos(final int lessonId, final int index, final List<Lesson> lessons) {
-        Call<JsonResponse> call = service.getLessonInfos(lessonId, email, token);
+        Call<JsonResponse> call = service.getLessonInfos(lessonId, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -232,7 +234,7 @@ public class DashboardFragment extends Fragment {
 
     public void didTouchRefuseLessonButton(final int index) {
         startProgressDialog();
-        Call<JsonResponse> call = service.refuseLesson(toDoList.get(index).getLessonId(), email, token);
+        Call<JsonResponse> call = service.refuseLesson(toDoList.get(index).getLessonId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -247,7 +249,7 @@ public class DashboardFragment extends Fragment {
     }
 
     public void didTouchAcceptLessonButton(final int index) {
-        Call<JsonResponse> call = service.acceptLesson(toDoList.get(index).getLessonId(), email, token);
+        Call<JsonResponse> call = service.acceptLesson(toDoList.get(index).getLessonId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -272,7 +274,7 @@ public class DashboardFragment extends Fragment {
 
     public void didTouchPositiveFeedBackButton(final int index) {
         startProgressDialog();
-        Call<JsonResponse> call = service.payTeacher(toDoList.get(index).getLessonId(), email, token);
+        Call<JsonResponse> call = service.payTeacher(toDoList.get(index).getLessonId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -288,7 +290,7 @@ public class DashboardFragment extends Fragment {
 
     public void didTouchNegativeFeedBackButton(final int index) {
         startProgressDialog();
-        Call<JsonResponse> call = service.disputeLesson(toDoList.get(index).getLessonId(), email, token);
+        Call<JsonResponse> call = service.disputeLesson(toDoList.get(index).getLessonId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -373,7 +375,7 @@ public class DashboardFragment extends Fragment {
         requestBody.put("review", review);
 
         startProgressDialog();
-        Call<JsonResponse> call = service.letReviewToTeacher(teachersToReview.get(index).getUserId(), requestBody, email, token);
+        Call<JsonResponse> call = service.letReviewToTeacher(teachersToReview.get(index).getUserId(), requestBody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

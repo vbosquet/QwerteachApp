@@ -23,12 +23,6 @@ public class SmallAdPrice implements Serializable {
 
     }
 
-    public SmallAdPrice(int id, int levelId, double price) {
-        this.id = id;
-        this.levelId = levelId;
-        this.price = price;
-    }
-
     public Integer getId() {
         return id;
     }

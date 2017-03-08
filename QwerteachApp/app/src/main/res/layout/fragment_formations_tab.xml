@@ -97,8 +97,8 @@
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:inputType="textMultiLine"
             android:gravity="top|left"
-            android:lines="8"
-            android:maxLines="10"
+            android:lines="10"
+            android:scrollbars="vertical"
             android:hint="@string/description_edittext_desciption_tab"
             android:textColorHint="#dfdfdf"/>
 

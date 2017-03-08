@@ -27,6 +27,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.mangopay.android.sdk.Callback;
 import com.mangopay.android.sdk.MangoPayBuilder;
 import com.mangopay.android.sdk.model.CardRegistration;
@@ -35,6 +36,7 @@ import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.CardRegistrationData;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 
@@ -49,7 +51,6 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
         CompoundButton.OnCheckedChangeListener {
 
     Double totalPrice;
-    String userId, email, token;
     TextView totalWalletTextView;
     Spinner otherPaymentMethodSpinner;
     CheckBox paymentWithVirtualWallet;
@@ -64,6 +65,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
     CardRegistrationData cardRegistrationData;
     QwerteachService service;
     Call<JsonResponse> call;
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,9 +82,9 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
         paymentWithVirtualWallet.setOnCheckedChangeListener(this);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        userId = preferences.getString("userId", "");
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -103,7 +105,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
         otherPaymentMethods.add("Carte de crédit");
         otherPaymentMethods.add("Bancontact");
 
-        call = service.getTotalWallet(userId, email, token);
+        call = service.getTotalWallet(user.getUserId(), user.getEmail(), user.getToken());
         call.enqueue(new retrofit2.Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -496,10 +498,10 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
 
     public void payLesson() {
         if (paymentMode.equals("cd")) {
-            call = service.payLessonWithCreditCard(teacherId, paymentMode, cardId, email, token);
+            call = service.payLessonWithCreditCard(teacherId, paymentMode, cardId, user.getEmail(), user.getToken());
 
         } else {
-            call = service.payLesson(teacherId, paymentMode, email, token);
+            call = service.payLesson(teacherId, paymentMode, user.getEmail(), user.getToken());
         }
 
         call.enqueue(new retrofit2.Callback<JsonResponse>() {

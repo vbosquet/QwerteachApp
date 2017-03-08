@@ -26,11 +26,13 @@ import com.qwerteach.wivi.qwerteachapp.models.Conversation;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Message;
 import com.qwerteach.wivi.qwerteachapp.models.MessageAdapter;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -41,12 +43,12 @@ public class ChatActivity extends AppCompatActivity {
     Conversation conversation;
     List<Message> messages;
     EditText messageToSendEditText;
-    String email, token, userId;
     RecyclerView messageRecyclerView;
     RecyclerView.Adapter messageAdapter;
     RecyclerView.LayoutManager messageLayoutManager;
     int scrollPosition;
     QwerteachService service;
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,9 +61,9 @@ public class ChatActivity extends AppCompatActivity {
         }
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
-        userId = preferences.getString("userId", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -103,7 +105,7 @@ public class ChatActivity extends AppCompatActivity {
         messageToSendEditText.setText("");
 
         Boolean isMine = false;
-        if (userId.equals(String.valueOf(message.getSenderId()))) {
+        if (Objects.equals(user.getUserId(), message.getSenderId())) {
             isMine = true;
         }
 
@@ -150,7 +152,7 @@ public class ChatActivity extends AppCompatActivity {
         Map<String, String> requestBody = new HashMap<>();
         requestBody.put("body", message);
 
-        Call<JsonResponse> call = service.reply(conversationId, requestBody, email, token);
+        Call<JsonResponse> call = service.reply(conversationId, requestBody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

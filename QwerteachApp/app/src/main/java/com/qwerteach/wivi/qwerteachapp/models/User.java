@@ -8,6 +8,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import okhttp3.MultipartBody;
+
 
 /**
  * Created by wivi on 10/01/17.
@@ -15,7 +17,7 @@ import java.util.Date;
 
 public class User implements Serializable {
 
-    private static final String BASE_URL = "http://192.168.0.106:3000";
+    private static final String BASE_URL = "http://192.168.0.110:3000";
 
     @SerializedName("id")
     private Integer userId;
@@ -27,7 +29,7 @@ public class User implements Serializable {
     private String birthdate;
     @SerializedName("description")
     private String description;
-    @SerializedName("phonenumber")
+    @SerializedName("phone_number")
     private String phoneNumber;
     @SerializedName("occupation")
     private String occupation;
@@ -38,10 +40,13 @@ public class User implements Serializable {
     @SerializedName("mango_id")
     private Integer mangoId;
     @SerializedName("authentication_token")
-    private String authenticationToken;
+    private String token;
     @SerializedName("email")
     private String email;
-
+    @SerializedName("phone_country_code")
+    private String phoneCountryCode;
+    @SerializedName("time_zone")
+    private String timeZone;
 
     private String avatarUrl;
 
@@ -85,6 +90,8 @@ public class User implements Serializable {
     }
 
     public String getDescription() {
+        description = description.replace("\\n\\n", "");
+        description = description.replace("\\n", "");
         return description;
     }
 
@@ -183,13 +190,6 @@ public class User implements Serializable {
         this.mangoId = mangoId;
     }
 
-    public String getAuthenticationToken() {
-        return authenticationToken;
-    }
-
-    public void setAuthenticationToken(String authenticationToken) {
-        this.authenticationToken = authenticationToken;
-    }
 
     public String getEmail() {
         return email;
@@ -197,5 +197,29 @@ public class User implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPhoneCountryCode() {
+        return phoneCountryCode;
+    }
+
+    public void setPhoneCountryCode(String phoneCountryCode) {
+        this.phoneCountryCode = phoneCountryCode;
+    }
+
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

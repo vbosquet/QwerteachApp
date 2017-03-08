@@ -18,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
 import com.pusher.android.PusherAndroid;
 import com.pusher.android.notifications.ManifestValidator;
 import com.pusher.android.notifications.PushNotificationRegistration;
@@ -42,13 +43,13 @@ import retrofit2.Response;
 
 public class MyMessagesActivity extends AppCompatActivity implements ConversationAdapter.Callback {
 
-    String email, token, userId;
     List<Conversation> conversationsList;
     List<User> usersList;
     QwerteachService service;
     RecyclerView conversationRecyclerView;
     RecyclerView.Adapter conversationAdapter;
     RecyclerView.LayoutManager conversationLayoutManager;
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,16 +63,16 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
         service = ApiClient.getClient().create(QwerteachService.class);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
-        userId = preferences.getString("userId", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         getAllConversations();
 
     }
 
     public void getAllConversations() {
-        Call<JsonResponse> call = service.getConversations(email, token);
+        Call<JsonResponse> call = service.getConversations(user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -89,7 +90,7 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
 
                     for (int j = 0; j < messages.size(); j++) {
                         boolean isMine = false;
-                        if (userId.equals(String.valueOf(messages.get(j).getSenderId()))) {
+                        if (Objects.equals(user.getUserId(), messages.get(j).getSenderId())) {
                             isMine = true;
                         }
                         messages.get(j).setMine(isMine);

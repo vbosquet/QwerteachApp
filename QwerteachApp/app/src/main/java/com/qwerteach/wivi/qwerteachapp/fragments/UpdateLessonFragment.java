@@ -13,11 +13,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,9 +38,9 @@ public class UpdateLessonFragment extends Fragment implements View.OnClickListen
     Lesson lesson;
     TextView topicGroupTextView, topicTextView, levelTextView, totalPriceTextView, lessonDurationTextView, dateTextView, timeTextView;
     Button datePickerButton, timePickerButton, saveLessonInfosButton;
-    String email, token;
     ProgressDialog progressDialog;
     QwerteachService service;
+    User user;
 
     public static UpdateLessonFragment newInstance(Lesson lesson) {
         UpdateLessonFragment updateLessonFragment = new UpdateLessonFragment();
@@ -53,8 +55,9 @@ public class UpdateLessonFragment extends Fragment implements View.OnClickListen
         super.onCreate(savedInstanceState);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         if (getArguments() != null) {
             lesson = (Lesson) getArguments().getSerializable("lesson");
@@ -123,7 +126,7 @@ public class UpdateLessonFragment extends Fragment implements View.OnClickListen
         requestbody.put("lesson", lesson);
 
         startProgressDialog();
-        Call<JsonResponse> call = service.updateLesson(lessonId, requestbody, email, token);
+        Call<JsonResponse> call = service.updateLesson(lessonId, requestbody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

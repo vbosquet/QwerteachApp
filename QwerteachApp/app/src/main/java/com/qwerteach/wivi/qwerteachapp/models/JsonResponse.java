@@ -20,11 +20,11 @@ public class JsonResponse {
     private String success;
     @SerializedName("user")
     private User user;
-    @SerializedName("adverts")
+    @SerializedName("offers")
     private ArrayList<SmallAd> smallAds;
     @SerializedName("topic_titles")
     private ArrayList<String> topicTitles;
-    @SerializedName("advert_prices")
+    @SerializedName("offer_prices")
     private ArrayList<ArrayList<SmallAdPrice>> smallAdPrices;
     @SerializedName("reviews")
     private ArrayList<Review> reviews;

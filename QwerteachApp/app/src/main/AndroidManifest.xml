@@ -30,7 +30,9 @@
             android:name=".SignInActivity"
             android:label="@string/title_activity_sign_in"
             android:parentActivityName=".MainActivity" />
-        <activity android:name=".DashboardActivity">
+        <activity
+            android:name=".DashboardActivity"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -76,7 +78,8 @@
         <activity
             android:name=".VirtualWalletActivity"
             android:label="@string/virtual_wallet_activity_title"
-            android:parentActivityName=".DashboardActivity" />
+            android:parentActivityName=".DashboardActivity"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".PaymentMethodActivity"
             android:label="@string/payment_method_activity_title" />
@@ -87,7 +90,8 @@
         <activity
             android:name=".MyLessonsActivity"
             android:label="@string/my_lessons_activity_title"
-            android:parentActivityName=".DashboardActivity" />
+            android:parentActivityName=".DashboardActivity"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".ReloadWalletActivity"
             android:label="@string/reload_wallet_activity_title" />

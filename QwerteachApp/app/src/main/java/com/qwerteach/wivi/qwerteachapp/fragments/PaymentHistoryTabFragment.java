@@ -13,12 +13,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Transaction;
 import com.qwerteach.wivi.qwerteachapp.models.TransactionAdapter;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +37,6 @@ import retrofit2.Response;
 public class PaymentHistoryTabFragment extends Fragment implements View.OnClickListener {
 
     View view;
-    String email, token;
     ArrayList<Transaction> transactions;
     RecyclerView transactionsRecyclerView;
     RecyclerView.Adapter transactionAdapter;
@@ -44,6 +45,7 @@ public class PaymentHistoryTabFragment extends Fragment implements View.OnClickL
     ProgressDialog progressDialog;
     int page = 1, scrollPosition;
     QwerteachService service;
+    User user;
 
     public static PaymentHistoryTabFragment newInstance() {
         PaymentHistoryTabFragment paymentHistoryTabFragment = new PaymentHistoryTabFragment();
@@ -55,8 +57,9 @@ public class PaymentHistoryTabFragment extends Fragment implements View.OnClickL
         super.onCreate(savedInstanceState);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        email = preferences.getString("email", "");
-        token = preferences.getString("token", "");
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         transactions = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
@@ -86,7 +89,7 @@ public class PaymentHistoryTabFragment extends Fragment implements View.OnClickL
 
     public void startGetAllWalletInfos() {
         startProgressDialog();
-        Call<JsonResponse> call = service.getAllWallletInfos(page, email, token);
+        Call<JsonResponse> call = service.getAllWallletInfos(page, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -112,7 +115,7 @@ public class PaymentHistoryTabFragment extends Fragment implements View.OnClickL
         data.put("author_id", authorId);
         data.put("credited_user_id", creditedUserId);
 
-        Call<JsonResponse> call = service.getTransactionInfos(data, email, token);
+        Call<JsonResponse> call = service.getTransactionInfos(data, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

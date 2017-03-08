@@ -39,30 +39,30 @@ import retrofit2.http.Url;
 public interface QwerteachService {
 
     @GET("users/{id}")
-    Call<JsonResponse> getUserInfos(@Path("id") String userId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+    Call<JsonResponse> getUserInfos(@Path("id") int userId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @PUT("users/{id}")
-    Call<JsonResponse> getStudentInfos(@Path("id") String userId, @Body Map<String, User> body, @Header("X-User-Email") String email,
+    Call<JsonResponse> getStudentInfos(@Path("id") int userId, @Body Map<String, User> body, @Header("X-User-Email") String email,
                                        @Header("X-User-Token") String token);
 
     @Multipart
     @PUT("users/{id}")
-    Call<JsonResponse> uploadAvatar(@Path("id") String userId, @Part MultipartBody.Part file, @Header("X-User-Email") String email,
+    Call<JsonResponse> uploadAvatar(@Path("id") int userId, @Part MultipartBody.Part file, @Header("X-User-Email") String email,
                                     @Header("X-User-Token") String token);
 
-    @GET("profiles/find_level")
+    @GET("users/find_level")
     Call<JsonResponse> getLevels();
 
-    @GET("adverts")
+    @GET("offers")
     Call<JsonResponse> getAdverts(@Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
-    @GET("adverts/show/{id}")
+    @GET("offers/{id}")
     Call<JsonResponse> showAdvertInfos(@Path("id") int advertId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
-    @DELETE("adverts/{id}")
+    @DELETE("offers/{id}")
     Call<JsonResponse> deleteSmallAd(@Path("id") int advertId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
-    @PATCH("adverts/{id}")
+    @PATCH("offers/{id}")
     Call<JsonResponse> updateSmallAd(@Path("id") int advertId, @Query("topic_id") int topicId, @Body Map<String, SmallAd> body,
                                      @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
@@ -78,7 +78,7 @@ public interface QwerteachService {
     @GET("level_choice")
     Call<JsonResponse> getLevels(@Query("topic_id") int topicId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
-    @POST("adverts")
+    @POST("offers")
     Call<JsonResponse> createNewAdvert(@Body Map<String, SmallAd> body, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @GET("get_infos_for_detailed_prices_modal")
@@ -100,7 +100,7 @@ public interface QwerteachService {
                                        @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @GET("wallets/get_total_wallet/{user_id}")
-    Call<JsonResponse> getTotalWallet(@Path("user_id") String userId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+    Call<JsonResponse> getTotalWallet(@Path("user_id") int userId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @GET("profs")
     Call<JsonResponse> getSearchResults(@Query("topic") String topic, @Query("search_sorting") String searchSortingOption, @Query("page") int pageNumber,
@@ -147,7 +147,7 @@ public interface QwerteachService {
     @GET("cours")
     Call<JsonResponse> getLessons(@Query("page") int pageNumber, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
-    @GET("lessons/find_lesson_infos/{lesson_id}")
+    @GET("lessons/find_lesson_informations/{lesson_id}")
     Call<JsonResponse> getLessonInfos(@Path("lesson_id") int lessonId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @GET("lessons/{lesson_id}/cancel")
