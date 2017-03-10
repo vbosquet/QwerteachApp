@@ -47,6 +47,7 @@ import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import retrofit2.Call;
@@ -151,21 +152,17 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void displayDateAndTimePickers() {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT+1:00"));
-        Date currentLocalTime = cal.getTime();
-        DateFormat tf = new SimpleDateFormat("HH:mm");
-        DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
-        tf.setTimeZone(TimeZone.getTimeZone("GMT+1:00"));
-        String currentTime = tf.format(currentLocalTime);
-        String currentDate = df.format(currentLocalTime);
+        Date newDate  = new Date(System.currentTimeMillis());
+        Calendar c = Calendar.getInstance();
+        c.setTime(newDate);
 
         if (savedState!= null) {
             dateTextView.setText(savedState.getString("date"));
             timeTextView.setText(savedState.getString("time"));
 
         } else {
-            dateTextView.setText(currentDate);
-            timeTextView.setText(currentTime);
+            dateTextView.setText(c.get(Calendar.DAY_OF_MONTH) + "/" + (c.get(Calendar.MONTH) + 1) + "/" + c.get(Calendar.YEAR));
+            timeTextView.setText(newDate.getHours() + ":" + newDate.getMinutes());
 
         }
 

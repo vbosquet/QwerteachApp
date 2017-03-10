@@ -40,6 +40,7 @@ import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -124,6 +125,7 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
         return view;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void displayUserInfos() {
         firstNameEditText.setText(user.getFirstName());
         lastNameEditText.setText(user.getLastName());

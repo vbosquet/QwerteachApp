@@ -104,7 +104,7 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp" />
 
-            </LinearLayout>
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

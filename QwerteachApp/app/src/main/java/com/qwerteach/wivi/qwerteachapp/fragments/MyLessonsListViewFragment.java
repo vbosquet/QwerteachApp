@@ -1,7 +1,9 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -24,6 +26,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.R;
+import com.qwerteach.wivi.qwerteachapp.UpdateLessonActivity;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
@@ -34,6 +37,7 @@ import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import retrofit2.Call;
@@ -126,11 +130,8 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
                 lessons.get(index).setDuration(response.body().getDuration().getHours(), response.body().getDuration().getMinutes());
                 lessons.get(index).setStatus(response.body().getLessonStatus());
 
-                if (lessonId == lessons.get(lessons.size() - 1).getLessonId()) {
-                    progressDialog.dismiss();
-                    displayLessonListView();
-                }
-
+                progressDialog.dismiss();
+                displayLessonListView();
             }
 
             @Override
@@ -232,11 +233,9 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
     }
 
     public void didTouchUpdateLessonButton(Lesson lesson) {
-        Fragment newFragment = UpdateLessonFragment.newInstance(lesson);
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, newFragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
+        Intent intent = new Intent(getContext(), UpdateLessonActivity.class);
+        intent.putExtra("lesson", lesson);
+        startActivityForResult(intent, 10003);
     }
 
     public void didTouchReviewButton(final int teacherId) {
@@ -295,7 +294,6 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
                 lessons.get(index).setStatus(lesson.getStatus());
             }
 
-            page = 1;
             refreshFragment();
         }
 
@@ -333,6 +331,7 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
     }
 
     public void refreshFragment() {
+        page = 1;
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.detach(this).attach(this).commit();
     }
@@ -343,5 +342,13 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
         scrollPosition = lessons.size() - 1;
         getLessons();
 
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if ((requestCode == 10003) && (resultCode == Activity.RESULT_OK)) {
+            refreshFragment();
+        }
     }
 }

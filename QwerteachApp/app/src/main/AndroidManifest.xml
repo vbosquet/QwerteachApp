@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -13,8 +13,6 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -77,9 +75,9 @@
             android:label="@string/lesson_reservation_activity_title" />
         <activity
             android:name=".VirtualWalletActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/virtual_wallet_activity_title"
-            android:parentActivityName=".DashboardActivity"
-            android:configChanges="orientation|screenSize"/>
+            android:parentActivityName=".DashboardActivity" />
         <activity
             android:name=".PaymentMethodActivity"
             android:label="@string/payment_method_activity_title" />
@@ -89,9 +87,9 @@
             android:parentActivityName=".PaymentMethodActivity" />
         <activity
             android:name=".MyLessonsActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/my_lessons_activity_title"
-            android:parentActivityName=".DashboardActivity"
-            android:configChanges="orientation|screenSize"/>
+            android:parentActivityName=".DashboardActivity" />
         <activity
             android:name=".ReloadWalletActivity"
             android:label="@string/reload_wallet_activity_title" />
@@ -99,29 +97,26 @@
             android:name=".MyMessagesActivity"
             android:label="@string/my_messages_activity_title"
             android:parentActivityName=".DashboardActivity">
-
             <intent-filter>
                 <action android:name="MY_MESSAGES" />
-                <category android:name="android.intent.category.DEFAULT"/>
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
-
         </activity>
-
-
         <activity
             android:name=".ChatActivity"
             android:parentActivityName=".MyMessagesActivity" />
         <activity
             android:name=".ReadCommentsActivity"
             android:label="@string/read_comments_activity_title" />
-        <activity android:name=".UnloadWalletActivity"
-            android:label="@string/unload_wallet_activity_title"/>
+        <activity
+            android:name=".UnloadWalletActivity"
+            android:label="@string/unload_wallet_activity_title" />
 
         <!-- [START firebase_service] -->
         <service android:name=".services.MyFirebaseMessagingService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
         <!-- [END firebase_service] -->
@@ -130,27 +125,24 @@
         <!-- [START firebase_iid_service] -->
         <service android:name=".services.MyFirebaseInstanceIDService">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
         <!-- [END firebase_iid_service] -->
 
-        <service
-            android:name="com.pusher.android.notifications.fcm.FCMMessagingService">
+        <service android:name="com.pusher.android.notifications.fcm.FCMMessagingService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service android:name="com.pusher.android.notifications.fcm.FCMInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
 
-        <service
-            android:name="com.pusher.android.notifications.fcm.FCMInstanceIDService">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
-            </intent-filter>
-        </service>
-
-
-
+        <activity android:name=".UpdateLessonActivity"
+            android:label="@string/update_leson_activity_title"/>
     </application>
 
 </manifest>

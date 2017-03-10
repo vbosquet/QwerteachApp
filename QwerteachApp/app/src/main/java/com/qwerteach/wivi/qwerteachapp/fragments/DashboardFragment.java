@@ -1,5 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
@@ -15,6 +16,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,9 +40,11 @@ import com.pusher.android.notifications.interests.InterestSubscriptionChangeList
 import com.pusher.android.notifications.tokens.PushNotificationRegistrationListener;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.SearchTeacherActivity;
+import com.qwerteach.wivi.qwerteachapp.UpdateLessonActivity;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.Conversation;
+import com.qwerteach.wivi.qwerteachapp.models.ConversationAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 import com.qwerteach.wivi.qwerteachapp.models.Review;
@@ -48,7 +52,9 @@ import com.qwerteach.wivi.qwerteachapp.models.TeacherToReviewAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.ToDoListAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.UpcomingLessonAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.User;
+import com.qwerteach.wivi.qwerteachapp.models.UserBankAccountAdapter;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,12 +77,9 @@ public class DashboardFragment extends Fragment {
     View view;
     ProgressDialog progressDialog;
     QwerteachService service;
-    RecyclerView toDoListRecyclerView;
-    RecyclerView.Adapter toDoListAdapter;
-    RecyclerView.LayoutManager toDoListLayoutManager;
-    RecyclerView teacherToReviewRecyclerView;
-    RecyclerView.Adapter teacherToReviewAdapter;
-    RecyclerView.LayoutManager teacherToReviewLayoutManager;
+    RecyclerView toDoListRecyclerView, teacherToReviewRecyclerView, upcomingLessonRecyclerView;
+    RecyclerView.Adapter toDoListAdapter, teacherToReviewAdapter, upcomingLessonAdapter;
+    RecyclerView.LayoutManager toDoListLayoutManager, teacherToReviewLayoutManager, upcomingLessonLayoutManager;
     User user;
 
     public static DashboardFragment newInstance() {
@@ -178,18 +181,8 @@ public class DashboardFragment extends Fragment {
                 lessons.get(index).setDuration(response.body().getDuration().getHours(), response.body().getDuration().getMinutes());
                 lessons.get(index).setStatus(response.body().getLessonStatus());
 
-                if (toDoList.size() > 0) {
-                    if (lessonId == toDoList.get(toDoList.size() - 1).getLessonId()) {
-                        displayToDoListView();
-                    }
-                }
-
-
-                if (upcomingLessons.size() > 0) {
-                    if (lessonId == upcomingLessons.get(upcomingLessons.size() - 1).getLessonId()) {
-                        displayUpcomingLessonListView();
-                    }
-                }
+                displayToDoListView();
+                displayUpcomingLessonListView();
             }
 
             @Override
@@ -213,13 +206,12 @@ public class DashboardFragment extends Fragment {
     public void displayUpcomingLessonListView() {
         upcomingLessonsTextView.setText(upcomingLessons.size() + " cours à venir");
         upcomingLessonLinearLayout.setVisibility(View.VISIBLE);
-        LinearLayout upcomingLessonView = (LinearLayout) view.findViewById(R.id.upcoming_lesson);
-
-        for (int i = 0; i < upcomingLessons.size(); i++) {
-            UpcomingLessonAdapter upcomingLessonAdapter = new UpcomingLessonAdapter(getContext(), upcomingLessons);
-            View view = upcomingLessonAdapter.getView(i, null, null);
-            upcomingLessonView.addView(view);
-        }
+        upcomingLessonRecyclerView = (RecyclerView) view.findViewById(R.id.upcoming_lesson);
+        upcomingLessonAdapter = new UpcomingLessonAdapter(upcomingLessons, getContext());
+        upcomingLessonLayoutManager = new LinearLayoutManager(getContext());
+        upcomingLessonRecyclerView.setLayoutManager(upcomingLessonLayoutManager);
+        upcomingLessonRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        upcomingLessonRecyclerView.setAdapter(upcomingLessonAdapter);
     }
 
     public void displayTeachersToReviewListView() {
@@ -265,11 +257,9 @@ public class DashboardFragment extends Fragment {
     }
 
     public void didTouchUpdateLessonButton(Lesson lesson) {
-        Fragment newFragment = UpdateLessonFragment.newInstance(lesson);
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, newFragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
+        Intent intent = new Intent(getContext(), UpdateLessonActivity.class);
+        intent.putExtra("lesson", lesson);
+        startActivityForResult(intent, 10004);
     }
 
     public void didTouchPositiveFeedBackButton(final int index) {
@@ -418,6 +408,14 @@ public class DashboardFragment extends Fragment {
 
         } catch (ManifestValidator.InvalidManifestException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if ((requestCode == 10004) && (resultCode == Activity.RESULT_OK)) {
+            refreshFragment();
         }
     }
 }

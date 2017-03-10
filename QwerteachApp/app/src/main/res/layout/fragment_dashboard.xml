@@ -82,7 +82,7 @@
                         android:paddingTop="5dp"
                         android:textColor="@color/white" />
 
-                    <LinearLayout
+                    <android.support.v7.widget.RecyclerView
                         android:id="@+id/upcoming_lesson"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

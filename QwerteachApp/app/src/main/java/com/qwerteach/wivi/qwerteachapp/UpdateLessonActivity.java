@@ -1,20 +1,24 @@
-package com.qwerteach.wivi.qwerteachapp.fragments;
+package com.qwerteach.wivi.qwerteachapp;
 
+import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
-import android.os.Bundle;;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.qwerteach.wivi.qwerteachapp.R;
+import com.qwerteach.wivi.qwerteachapp.fragments.DatePickerFragment;
+import com.qwerteach.wivi.qwerteachapp.fragments.TimePickerFragment;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
@@ -28,13 +32,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-/**
- * Created by wivi on 15/12/16.
- */
+public class UpdateLessonActivity extends AppCompatActivity implements View.OnClickListener {
 
-public class UpdateLessonFragment extends Fragment implements View.OnClickListener {
-
-    View view;
     Lesson lesson;
     TextView topicGroupTextView, topicTextView, levelTextView, totalPriceTextView, lessonDurationTextView, dateTextView, timeTextView;
     Button datePickerButton, timePickerButton, saveLessonInfosButton;
@@ -42,44 +41,37 @@ public class UpdateLessonFragment extends Fragment implements View.OnClickListen
     QwerteachService service;
     User user;
 
-    public static UpdateLessonFragment newInstance(Lesson lesson) {
-        UpdateLessonFragment updateLessonFragment = new UpdateLessonFragment();
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("lesson", lesson);
-        updateLessonFragment.setArguments(bundle);
-        return updateLessonFragment;
-    }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_update_lesson);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         Gson gson = new Gson();
         String json = preferences.getString("user", "");
         user = gson.fromJson(json, User.class);
 
-        if (getArguments() != null) {
-            lesson = (Lesson) getArguments().getSerializable("lesson");
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            lesson = (Lesson) getIntent().getSerializableExtra("lesson");
         }
 
-        progressDialog = new ProgressDialog(getContext());
+        progressDialog = new ProgressDialog(this);
         service = ApiClient.getClient().create(QwerteachService.class);
-    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_update_lesson, container, false);
-        topicGroupTextView = (TextView) view.findViewById(R.id.lesson_topic_group_text_view);
-        topicTextView = (TextView) view.findViewById(R.id.lesson_topic_text_view);
-        levelTextView = (TextView) view.findViewById(R.id.lesson_level_text_view);
-        totalPriceTextView = (TextView) view.findViewById(R.id.total_price_text_view);
-        lessonDurationTextView = (TextView) view.findViewById(R.id.lesson_duration_text_view);
-        dateTextView = (TextView) view.findViewById(R.id.date_picker_text_view);
-        timeTextView = (TextView) view.findViewById(R.id.time_picker_text_view);
-        datePickerButton = (Button) view.findViewById(R.id.date_picker_button);
-        timePickerButton = (Button) view.findViewById(R.id.time_picker_button);
-        saveLessonInfosButton = (Button) view.findViewById(R.id.save_lesson_infos_button);
+        topicGroupTextView = (TextView) findViewById(R.id.lesson_topic_group_text_view);
+        topicTextView = (TextView) findViewById(R.id.lesson_topic_text_view);
+        levelTextView = (TextView) findViewById(R.id.lesson_level_text_view);
+        totalPriceTextView = (TextView) findViewById(R.id.total_price_text_view);
+        lessonDurationTextView = (TextView) findViewById(R.id.lesson_duration_text_view);
+        dateTextView = (TextView) findViewById(R.id.date_picker_text_view);
+        timeTextView = (TextView) findViewById(R.id.time_picker_text_view);
+        datePickerButton = (Button) findViewById(R.id.date_picker_button);
+        timePickerButton = (Button) findViewById(R.id.time_picker_button);
+        saveLessonInfosButton = (Button) findViewById(R.id.save_lesson_infos_button);
 
         dateTextView.setText(lesson.getDate(lesson.getTimeStart()));
         timeTextView.setText(lesson.getTime(lesson.getTimeStart()));
@@ -92,8 +84,6 @@ public class UpdateLessonFragment extends Fragment implements View.OnClickListen
         datePickerButton.setOnClickListener(this);
         timePickerButton.setOnClickListener(this);
         saveLessonInfosButton.setOnClickListener(this);
-
-        return  view;
     }
 
     @Override
@@ -101,17 +91,16 @@ public class UpdateLessonFragment extends Fragment implements View.OnClickListen
         switch (view.getId()) {
             case R.id.time_picker_button:
                 DialogFragment timePickerFragment = new TimePickerFragment();
-                timePickerFragment.show(getActivity().getFragmentManager(), "timePicker");
+                timePickerFragment.show(this.getFragmentManager(), "timePicker");
                 break;
             case R.id.date_picker_button:
                 DialogFragment datePickerFragment = new DatePickerFragment();
-                datePickerFragment.show(getActivity().getFragmentManager(), "datePicker");
+                datePickerFragment.show(this.getFragmentManager(), "datePicker");
                 break;
             case R.id.save_lesson_infos_button:
                 didTouchUpdateLessonButton();
                 break;
         }
-
     }
 
     public void didTouchUpdateLessonButton() {
@@ -134,10 +123,11 @@ public class UpdateLessonFragment extends Fragment implements View.OnClickListen
                 String message = response.body().getMessage();
 
                 progressDialog.dismiss();
-                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
 
                 if (success.equals("true")) {
-                    getActivity().getSupportFragmentManager().popBackStack();
+                    setResult(Activity.RESULT_OK);
+                    finish();
                 }
 
             }
@@ -155,5 +145,23 @@ public class UpdateLessonFragment extends Fragment implements View.OnClickListen
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setCancelable(true);
         progressDialog.show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.teacher_profile_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
