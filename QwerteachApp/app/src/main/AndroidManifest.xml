@@ -113,6 +113,14 @@
             android:name=".UnloadWalletActivity"
             android:label="@string/unload_wallet_activity_title" />
 
+        <activity
+            android:name=".UpdateLessonActivity"
+            android:label="@string/update_leson_activity_title"/>
+
+        <activity
+            android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat"/>
+
         <!-- [START firebase_service] -->
         <service android:name=".services.MyFirebaseMessagingService">
             <intent-filter>
@@ -141,8 +149,6 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".UpdateLessonActivity"
-            android:label="@string/update_leson_activity_title"/>
     </application>
 
 </manifest>

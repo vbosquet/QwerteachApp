@@ -1,10 +1,14 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
 import android.icu.util.TimeZone;
@@ -14,6 +18,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,6 +43,9 @@ import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -61,6 +69,12 @@ import static android.app.Activity.RESULT_OK;
 
 public class DescriptionTabFragment extends Fragment implements View.OnClickListener {
 
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+
     EditText firstNameEditText, lastNameEditText, birthDateEditText, phoneNumberEditText;
     Calendar calendar;
     View view;
@@ -81,10 +95,10 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        Gson gson = new Gson();
-        String json = preferences.getString("user", "");
-        user = gson.fromJson(json, User.class);
+        Bundle extras = getActivity().getIntent().getExtras();
+        if (extras != null) {
+            user = (User) getActivity().getIntent().getSerializableExtra("user");
+        }
 
         progressDialog = new ProgressDialog(getContext());
         service = ApiClient.getClient().create(QwerteachService.class);
@@ -232,14 +246,25 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
         startActivityForResult(intent, 1);
     }
 
-    public String getPath(Uri uri) {
+    public void uploadFile(Uri image) {
+        File file = new File(image.getPath());
+        RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), file);
+        MultipartBody.Part body = MultipartBody.Part.createFormData("user[avatar]", file.getName(), requestFile);
 
-        String[] projection = { MediaStore.Images.Media.DATA };
-        Cursor cursor = getActivity().managedQuery(uri, projection, null, null, null);
-        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
+        Call<JsonResponse> call = service.uploadAvatar(user.getUserId(), body, user.getEmail(), user.getToken());
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                Log.i("UPLOAD_AVATAR", "OK");
+            }
 
-        return cursor.getString(column_index);
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+                Log.d("ERROR", t.toString());
+
+            }
+        });
+
     }
 
     @Override
@@ -247,26 +272,32 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 1 && resultCode == RESULT_OK && null != data) {
-            Log.i("REQUEST_CODE", "1");
             Uri imageUri = data.getData();
-            Picasso.with(getContext()).load(imageUri.toString()).resize(150, 150).centerCrop().into(userAvatar);
+            CropImage.activity(imageUri).setMaxCropResultSize(2250, 2250).start(getContext(), this);
 
-            File file = new File(getPath(imageUri));
-            RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), file);
-            MultipartBody.Part body = MultipartBody.Part.createFormData("user[avatar]", file.getName(), requestFile);
+        } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+                Uri resultUri = result.getUri();
+                Picasso.with(getContext()).load(resultUri.toString()).resize(150, 150).centerCrop().into(userAvatar);
+                verifyStoragePermissions(getActivity());
+                uploadFile(resultUri);
 
-            Call<JsonResponse> call = service.uploadAvatar(user.getUserId(), body, user.getEmail(), user.getToken());
-            call.enqueue(new Callback<JsonResponse>() {
-                @Override
-                public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                    Log.i("UPLOAD_AVATAR", "OK");
-                }
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+            }
+        }
+    }
 
-                @Override
-                public void onFailure(Call<JsonResponse> call, Throwable t) {
+    public static void verifyStoragePermissions(Activity activity) {
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-                }
-            });
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
         }
     }
 }

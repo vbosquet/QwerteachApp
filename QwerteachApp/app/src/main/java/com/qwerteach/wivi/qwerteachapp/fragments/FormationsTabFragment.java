@@ -65,10 +65,10 @@ public class FormationsTabFragment extends Fragment implements AdapterView.OnIte
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        Gson gson = new Gson();
-        String json = preferences.getString("user", "");
-        user = gson.fromJson(json, User.class);
+        Bundle extras = getActivity().getIntent().getExtras();
+        if (extras != null) {
+            user = (User) getActivity().getIntent().getSerializableExtra("user");
+        }
 
         levels = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
@@ -88,7 +88,6 @@ public class FormationsTabFragment extends Fragment implements AdapterView.OnIte
 
         userDescriptionEditTet.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View view, MotionEvent event) {
-                // TODO Auto-generated method stub
                 if (view.getId() == R.id.description) {
                     view.getParent().requestDisallowInterceptTouchEvent(true);
                     switch (event.getAction()&MotionEvent.ACTION_MASK){

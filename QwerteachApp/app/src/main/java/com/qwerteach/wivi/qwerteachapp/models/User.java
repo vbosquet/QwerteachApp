@@ -1,6 +1,9 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import android.graphics.Bitmap;
+
 import com.google.gson.annotations.SerializedName;
+import com.squareup.picasso.Transformation;
 
 import java.io.Serializable;
 import java.text.ParseException;
@@ -223,3 +226,4 @@ public class User implements Serializable {
         this.token = token;
     }
 }
+

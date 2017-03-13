@@ -60,14 +60,10 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        Gson gson = new Gson();
-        String json = preferences.getString("user", "");
-        user = gson.fromJson(json, User.class);
-
         Bundle extras = getActivity().getIntent().getExtras();
         if (extras != null) {
             teacher = (Teacher) getActivity().getIntent().getSerializableExtra("teacher");
+            user = (User) getActivity().getIntent().getSerializableExtra("user");
         }
 
         progressDialog = new ProgressDialog(getContext());

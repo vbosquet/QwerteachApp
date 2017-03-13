@@ -3,6 +3,7 @@ package com.qwerteach.wivi.qwerteachapp;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -25,6 +26,7 @@ import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
+import com.squareup.picasso.Transformation;
 
 import java.util.ArrayList;
 
@@ -139,6 +141,7 @@ public class ProfileActivity extends AppCompatActivity  {
                 intent = new Intent(this, EditProfileActivity.class);
                 if (user.getPostulanceAccepted()) {
                     intent.putExtra("teacher", teacher);
+                    intent.putExtra("user", user);
                 }
 
                 startActivity(intent);
