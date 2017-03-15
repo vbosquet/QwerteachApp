@@ -2,16 +2,11 @@ package com.qwerteach.wivi.qwerteachapp.fragments;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
-import android.icu.util.TimeZone;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,10 +23,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -40,20 +33,15 @@ import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
-import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
 import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
+import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
-import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -67,7 +55,8 @@ import static android.app.Activity.RESULT_OK;
  * Created by wivi on 26/10/16.
  */
 
-public class DescriptionTabFragment extends Fragment implements View.OnClickListener {
+public class DescriptionTabFragment extends Fragment implements View.OnClickListener,
+        DatePickerDialog.OnDateSetListener {
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
@@ -76,15 +65,14 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
     };
 
     EditText firstNameEditText, lastNameEditText, birthDateEditText, phoneNumberEditText;
-    Calendar calendar;
     View view;
-    DatePickerDialog.OnDateSetListener dateSetListener;
     ProgressDialog progressDialog;
     Button saveInfosButton, updateUserAvatarButton;
     User user;
     ImageView userAvatar;
     QwerteachService service;
     CountryCodePicker ccp;
+    DatePickerDialog dialog;
 
     public static DescriptionTabFragment newInstance() {
         DescriptionTabFragment descriptionTabFragment = new DescriptionTabFragment();
@@ -109,17 +97,9 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         view  = inflater.inflate(R.layout.fragment_description_tab, container, false);
 
-        calendar = Calendar.getInstance(TimeZone.getDefault());
-        dateSetListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int monthOfYear, int dayOfMonth) {
-                calendar.set(Calendar.YEAR, year);
-                calendar.set(Calendar.MONTH, monthOfYear);
-                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                updateLabel();
-
-            }
-        };
+        Calendar now = Calendar.getInstance();
+        dialog = DatePickerDialog.newInstance(this, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
+        dialog.setMaxDate(java.util.Calendar.getInstance());
 
         firstNameEditText = (EditText) view.findViewById(R.id.firstname);
         lastNameEditText = (EditText) view.findViewById(R.id.lastname);
@@ -151,15 +131,8 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public void updateLabel() {
-        String myFormat = "yyyy-MM-dd";
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-        birthDateEditText.setText(sdf.format(calendar.getTime()));
-    }
-
     public void startSaveInfosProfile() {
-        final User newUser = new User();
+        User newUser = new User();
         newUser.setFirstName(firstNameEditText.getText().toString());
         newUser.setLastName(lastNameEditText.getText().toString());
         newUser.setBirthdate(birthDateEditText.getText().toString());
@@ -171,6 +144,7 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
 
         Call<JsonResponse> call = service.getStudentInfos(user.getUserId(), requestBody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 User userResponse = response.body().getUser();
@@ -191,6 +165,7 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
 
                 } else {
                     Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                    displayUserInfos();
                 }
             }
 
@@ -209,9 +184,7 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
 
         switch (view.getId()) {
             case R.id.birthdate:
-                new DatePickerDialog(getContext(), dateSetListener,
-                        calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH)).show();
+                dialog.show(getActivity().getFragmentManager(), "datePickerDialog");
                 break;
             case R.id.save_infos_button:
                 startProgressDialog();
@@ -284,7 +257,7 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
                 uploadFile(resultUri);
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Exception error = result.getError();
+                Log.d("ERROR", result.getError().toString());
             }
         }
     }
@@ -299,5 +272,10 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
                     REQUEST_EXTERNAL_STORAGE
             );
         }
+    }
+
+    @Override
+    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+        birthDateEditText.setText(dayOfMonth+"-"+(monthOfYear+1)+"-"+year);
     }
 }

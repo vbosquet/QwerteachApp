@@ -44,6 +44,7 @@ dependencies {
     compile 'com.pusher:pusher-websocket-android:0.5.0'
     compile 'com.hbb20:ccp:1.7.1'
     compile 'com.theartofdev.edmodo:android-image-cropper:2.3.1'
+    compile 'com.wdullaer:materialdatetimepicker:3.1.3'
 
 }
 

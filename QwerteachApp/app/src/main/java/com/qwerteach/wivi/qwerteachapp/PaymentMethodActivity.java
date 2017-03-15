@@ -371,6 +371,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
     }
 
     public void setCreditCardChoice() {
+        paymentWithVirtualWallet.setChecked(false);
         float scale = this.getResources().getDisplayMetrics().density;
         int dpAsPixels = (int) (10 * scale + 0.5f);
 
@@ -431,58 +432,63 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
     }
 
     public void didTouchPaymentButton(View view) {
-        if (paymentMode.equals("transfert")) {
-            if (totalWallet < totalPrice) {
-                Toast.makeText(this, R.string.total_wallet_insufficient_toast_message, Toast.LENGTH_SHORT).show();
+        switch (paymentMode) {
+            case "transfert":
+                if (totalWallet < totalPrice) {
+                    Toast.makeText(this, R.string.total_wallet_insufficient_toast_message, Toast.LENGTH_SHORT).show();
 
-            } else {
-                payLesson();
-            }
-
-        } else if (paymentMode.equals("cd")) {
-            if (!currentAlias.equals("Nouvelle carte de crédit")) {
-                for (int i = 0; i < userCreditCards.size(); i++) {
-                    if (userCreditCards.get(i).getAlias().equals(currentAlias)) {
-                        cardId = userCreditCards.get(i).getCardId();
-                    }
+                } else {
+                    payLesson();
                 }
 
+                break;
+            case "cd":
+                if (!currentAlias.equals("Nouvelle carte de crédit")) {
+                    for (int i = 0; i < userCreditCards.size(); i++) {
+                        if (userCreditCards.get(i).getAlias().equals(currentAlias)) {
+                            cardId = userCreditCards.get(i).getCardId();
+                        }
+                    }
+
+                    payLesson();
+
+                } else {
+                    String year = currentYear.substring(2);
+                    String cardNumber = cardNumberEditText.getText().toString();
+                    String expirationDate = currentMonth + year;
+                    String securityCode = cvvEditText.getText().toString();
+
+                    MangoPayBuilder builder = new MangoPayBuilder(this);
+                    builder.baseURL("https://api.sandbox.mangopay.com")
+                            .clientId("qwerteachrails")
+                            .accessKey(cardRegistrationData.getAccessKey())
+                            .cardRegistrationURL(cardRegistrationData.getCardRegistrationURL())
+                            .preregistrationData(cardRegistrationData.getPreRegistrationData())
+                            .cardPreregistrationId(cardRegistrationData.getCardPreregistrationId())
+                            .cardNumber(cardNumber)
+                            .cardExpirationDate(expirationDate)
+                            .cardCvx(securityCode)
+                            .callback(new Callback() {
+                                @Override
+                                public void success(CardRegistration cardRegistration) {
+                                    Log.d(MainActivity.class.getSimpleName(), cardRegistration.toString());
+                                    cardId = cardRegistration.getCardId();
+                                    payLesson();
+                                }
+
+                                @Override
+                                public void failure(MangoException error) {
+                                    Toast.makeText(PaymentMethodActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                                }
+
+                            }).start();
+
+                }
+
+                break;
+            case "bancontact":
                 payLesson();
-
-            } else  {
-                String year = currentYear.substring(2);
-                String cardNumber = cardNumberEditText.getText().toString();
-                String expirationDate = currentMonth + year;
-                String securityCode = cvvEditText.getText().toString();
-
-                MangoPayBuilder builder = new MangoPayBuilder(this);
-                builder.baseURL("https://api.sandbox.mangopay.com")
-                        .clientId("qwerteachrails")
-                        .accessKey(cardRegistrationData.getAccessKey())
-                        .cardRegistrationURL(cardRegistrationData.getCardRegistrationURL())
-                        .preregistrationData(cardRegistrationData.getPreRegistrationData())
-                        .cardPreregistrationId(cardRegistrationData.getCardPreregistrationId())
-                        .cardNumber(cardNumber)
-                        .cardExpirationDate(expirationDate)
-                        .cardCvx(securityCode)
-                        .callback(new Callback() {
-                            @Override public void success(CardRegistration cardRegistration) {
-                                Log.d(MainActivity.class.getSimpleName(), cardRegistration.toString());
-                                cardId = cardRegistration.getCardId();
-                                payLesson();
-                            }
-
-                            @Override
-                            public void failure(MangoException error) {
-                                Toast.makeText(PaymentMethodActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
-                            }
-
-                        }).start();
-
-            }
-
-        } else if (paymentMode.equals("bancontact")) {
-            payLesson();
+                break;
         }
     }
 

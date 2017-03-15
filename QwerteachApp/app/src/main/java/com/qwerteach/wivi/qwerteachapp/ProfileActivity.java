@@ -64,6 +64,7 @@ public class ProfileActivity extends AppCompatActivity  {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 user = response.body().getUser();
+                Log.d("FIRSTNAME", user.getFirstName());
                 String avatarUrl = response.body().getAvatar();
                 user.setAvatarUrl(avatarUrl);
 
@@ -139,9 +140,10 @@ public class ProfileActivity extends AppCompatActivity  {
                 return true;
             case R.id.edit_profile_button:
                 intent = new Intent(this, EditProfileActivity.class);
+                intent.putExtra("user", user);
+
                 if (user.getPostulanceAccepted()) {
                     intent.putExtra("teacher", teacher);
-                    intent.putExtra("user", user);
                 }
 
                 startActivity(intent);

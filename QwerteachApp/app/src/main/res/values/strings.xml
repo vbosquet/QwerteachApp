@@ -226,4 +226,5 @@
     <string name="update_user_avatar_button">Changer image de profil</string>
     <string name="password_validation_message">Votre mot de passe doit contenir au moins 8 caractères.</string>
     <string name="update_leson_activity_title">Modifier réservation</string>
+    <string name="valid_time_message">Veuillez saisir une heure postérieure à maintenant.</string>
 </resources>

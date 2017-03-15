@@ -1,20 +1,16 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
-import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.icu.text.DateFormat;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
-import android.icu.util.TimeZone;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.PaymentMethodActivity;
@@ -43,11 +40,13 @@ import com.qwerteach.wivi.qwerteachapp.models.TopicGroup;
 import com.qwerteach.wivi.qwerteachapp.models.TopicGroupAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
+import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
+import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import retrofit2.Call;
@@ -58,7 +57,11 @@ import retrofit2.Response;
  * Created by wivi on 13/12/16.
  */
 
-public class CreateNewLessonFragment extends Fragment implements AdapterView.OnItemSelectedListener, View.OnClickListener {
+public class CreateNewLessonFragment extends Fragment implements
+        AdapterView.OnItemSelectedListener,
+        View.OnClickListener,
+        TimePickerDialog.OnTimeSetListener,
+        DatePickerDialog.OnDateSetListener {
 
     View view;
     TextView timeTextView, dateTextView, totalPriceTextView;
@@ -75,10 +78,13 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
     Bundle savedState;
     ProgressDialog progressDialog;
     QwerteachService service;
-    int currentTopicGroupId, currentTopicId, currentLevelId;
-    int currentTopicGroupPosition, currentTopicPosition, currentLevelPosition;
+    int currentTopicGroupId, currentTopicId, currentLevelId, currentTopicGroupPosition, currentTopicPosition, currentLevelPosition;
     Call<JsonResponse> call;
     User user;
+    Date newDate;
+    Calendar now;
+    TimePickerDialog timePickerDialog;
+    DatePickerDialog datePickerDialog;
 
 
     public static CreateNewLessonFragment newInstance() {
@@ -105,9 +111,16 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         progressDialog = new ProgressDialog(getContext());
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_create_new_lesson, container, false);
+
+        newDate  = new Date(System.currentTimeMillis());
+        now = Calendar.getInstance();
+        timePickerDialog = TimePickerDialog.newInstance(this, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), true);
+        datePickerDialog = DatePickerDialog.newInstance(this, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.setMinDate(java.util.Calendar.getInstance());
 
         timeTextView = (TextView) view.findViewById(R.id.time_picker_text_view);
         dateTextView = (TextView) view.findViewById(R.id.date_picker_text_view);
@@ -152,16 +165,12 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void displayDateAndTimePickers() {
-        Date newDate  = new Date(System.currentTimeMillis());
-        Calendar c = Calendar.getInstance();
-        c.setTime(newDate);
-
         if (savedState!= null) {
             dateTextView.setText(savedState.getString("date"));
             timeTextView.setText(savedState.getString("time"));
 
         } else {
-            dateTextView.setText(c.get(Calendar.DAY_OF_MONTH) + "/" + (c.get(Calendar.MONTH) + 1) + "/" + c.get(Calendar.YEAR));
+            dateTextView.setText(now.get(Calendar.DAY_OF_MONTH) + "/" + (now.get(Calendar.MONTH) + 1) + "/" + now.get(Calendar.YEAR));
             timeTextView.setText(newDate.getHours() + ":" + newDate.getMinutes());
 
         }
@@ -192,6 +201,8 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         if (savedState != null) {
             int hourPosition = getIndexByString(hourSpinner, savedState.getString("hour"));
             hourSpinner.setSelection(hourPosition);
+        } else {
+            hourSpinner.setSelection(1);
         }
 
     }
@@ -230,6 +241,8 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         if (savedState != null) {
             levelSpinner.setSelection(savedState.getInt("level"));
 
+        } else {
+            levelSpinner.setSelection(2);
         }
     }
 
@@ -337,16 +350,67 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public boolean checkIfCurrentDate() {
+        boolean isCurrentDate = false;
+        try {
+            Date selectedDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateTextView.getText().toString());
+            Calendar selectedDateTime = Calendar.getInstance();
+            selectedDateTime.setTimeInMillis(selectedDate.getTime());
+
+            if (selectedDateTime.get(Calendar.DAY_OF_MONTH) == now.get(Calendar.DAY_OF_MONTH)
+                    && selectedDateTime.get(Calendar.MONTH) == now.get(Calendar.MONTH)
+                    && selectedDateTime.get(Calendar.YEAR) == now.get(Calendar.YEAR)) {
+                isCurrentDate = true;
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return  isCurrentDate;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public boolean checkIfValidTime() {
+        boolean isValidTime = true;
+        try {
+            Date selectedDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateTextView.getText().toString());
+            Calendar selectedDateTime = Calendar.getInstance();
+            selectedDateTime.setTimeInMillis(selectedDate.getTime());
+
+            if (selectedDateTime.get(Calendar.DAY_OF_MONTH) == now.get(Calendar.DAY_OF_MONTH)
+                    && selectedDateTime.get(Calendar.MONTH) == now.get(Calendar.MONTH)
+                    && selectedDateTime.get(Calendar.YEAR) == now.get(Calendar.YEAR)) {
+
+                if (newDate.getHours() > Integer.parseInt(hour)) {
+                    isValidTime = false;
+                } else if (newDate.getHours() == Integer.parseInt(hour) && newDate.getMinutes() > Integer.parseInt(minute)) {
+                    isValidTime = false;
+                }
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return isValidTime;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.time_picker_button:
-                DialogFragment timePickerFragment = new TimePickerFragment();
-                timePickerFragment.show(getActivity().getFragmentManager(), "timePicker");
+                if (checkIfCurrentDate()) {
+                    timePickerDialog.setMinTime(newDate.getHours(), newDate.getMinutes(), newDate.getSeconds());
+                } else {
+                    timePickerDialog.setMinTime(0, 0, 0);
+                }
+                timePickerDialog.show(getActivity().getFragmentManager(), "timePickerDialog");
                 break;
             case R.id.date_picker_button:
-                DialogFragment datePickerFragment = new DatePickerFragment();
-                datePickerFragment.show(getActivity().getFragmentManager(), "datePicker");
+                datePickerDialog.show(getActivity().getFragmentManager(), "datePickerDialog");
                 break;
             case R.id.create_new_lesson_button:
                 didTouchCreateNewLessonButton();
@@ -354,55 +418,56 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void didTouchCreateNewLessonButton() {
-        String date = dateTextView.getText().toString();
-        String time = timeTextView.getText().toString();
-        String timeStart = date + " " + time;
-
         Lesson request = new Lesson();
         request.setLevelId(currentLevelId);
         request.setTopicId(currentTopicId);
-        request.setTimeStart(timeStart);
+        request.setTimeStart(dateTextView.getText().toString() + " " + timeTextView.getText().toString());
         request.setHours(hour);
         request.setMinutes(minute);
 
         Lesson lesson = new Lesson();
         lesson.setTeacherId(teacher.getUser().getUserId());
-
         Map<String, Lesson> requestBody = new HashMap<>();
         requestBody.put("request", request);
         requestBody.put("lesson", lesson);
 
-        startProgressDialog();
-        Call<JsonResponse> call = service.createNewLesson(teacher.getUser().getUserId(), requestBody, user.getEmail(), user.getToken());
-        call.enqueue(new Callback<JsonResponse>() {
-            @Override
-            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                String message = response.body().getMessage();
+        if (checkIfValidTime()) {
+            startProgressDialog();
+            Call<JsonResponse> call = service.createNewLesson(teacher.getUser().getUserId(), requestBody, user.getEmail(), user.getToken());
+            call.enqueue(new Callback<JsonResponse>() {
+                @Override
+                public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                    String message = response.body().getMessage();
 
-                if (message.equals("no account")) {
-                    progressDialog.dismiss();
-                    displayCreateVirtualWalletFragment();
+                    if (message.equals("no account")) {
+                        progressDialog.dismiss();
+                        displayCreateVirtualWalletFragment();
 
-                } else if (message.equals("true")) {
-                    ArrayList<UserCreditCard> creditCards = response.body().getUserCreditCards();
-                    CardRegistrationData cardRegistrationData = response.body().getCardRegistrationData();
+                    } else if (message.equals("true")) {
+                        ArrayList<UserCreditCard> creditCards = response.body().getUserCreditCards();
+                        CardRegistrationData cardRegistrationData = response.body().getCardRegistrationData();
 
-                    progressDialog.dismiss();
-                    Intent intent = new Intent(getContext(), PaymentMethodActivity.class);
-                    intent.putExtra("totalPrice", totalPrice);
-                    intent.putExtra("teacher", teacher);
-                    intent.putExtra("userCreditCardList", creditCards);
-                    intent.putExtra("cardRegistration", cardRegistrationData);
-                    startActivity(intent);
+                        progressDialog.dismiss();
+                        Intent intent = new Intent(getContext(), PaymentMethodActivity.class);
+                        intent.putExtra("totalPrice", totalPrice);
+                        intent.putExtra("teacher", teacher);
+                        intent.putExtra("userCreditCardList", creditCards);
+                        intent.putExtra("cardRegistration", cardRegistrationData);
+                        startActivity(intent);
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<JsonResponse> call, Throwable t) {
+                @Override
+                public void onFailure(Call<JsonResponse> call, Throwable t) {
 
-            }
-        });
+                }
+            });
+
+        } else {
+            Toast.makeText(getContext(), R.string.valid_time_message, Toast.LENGTH_LONG).show();
+        }
 
     }
 
@@ -451,4 +516,14 @@ public class CreateNewLessonFragment extends Fragment implements AdapterView.OnI
         outState.putString("activityTitle", getActivity().getTitle().toString());
     }
 
+    @Override
+    public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
+        timeTextView.setText(hourOfDay+":"+minute);
+
+    }
+
+    @Override
+    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+        dateTextView.setText(dayOfMonth+"/"+ (monthOfYear + 1) +"/"+ year);
+    }
 }
