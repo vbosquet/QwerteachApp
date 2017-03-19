@@ -135,7 +135,7 @@ public class UnloadWalletActivity extends AppCompatActivity implements
                     startActivity(intent);
 
                 } else {
-                    startRedirectUrlAsyncTask("http://192.168.0.110:3000/api/" + response.body().getUrl());
+                    startRedirectUrlAsyncTask("http://192.168.0.116:3000/api/" + response.body().getUrl());
 
                 }
 

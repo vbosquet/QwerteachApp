@@ -2,9 +2,4 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/new_conversation_button"
-        android:title="@string/new_conversation_button"
-        android:icon="@mipmap/ic_pencil_box"
-        app:showAsAction="always"/>
-
 </menu>

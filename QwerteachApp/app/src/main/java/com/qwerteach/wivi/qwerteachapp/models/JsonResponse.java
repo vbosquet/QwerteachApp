@@ -66,10 +66,6 @@ public class JsonResponse {
     private ArrayList<UserBankAccount> bankAccounts;
     @SerializedName("transactions")
     private ArrayList<Transaction> transactions;
-    @SerializedName("author")
-    private String transactionAuthorName;
-    @SerializedName("credited_user")
-    private String transactionCreditedUserName;
     @SerializedName("lessons")
     private ArrayList<Lesson> lessons;
     @SerializedName("payment_status")
@@ -106,6 +102,10 @@ public class JsonResponse {
     private Message lastMessage;
     @SerializedName("participant_avatars")
     private List<String> participantAvatars;
+    @SerializedName("author_names")
+    private ArrayList<String> transactionAuthorNames;
+    @SerializedName("credited_user_names")
+    private ArrayList<String> transactionCreditedUserNames;
 
     public String getAvatar() {
         return avatar;
@@ -211,14 +211,6 @@ public class JsonResponse {
         return transactions;
     }
 
-    public String getTransactionAuthorName() {
-        return transactionAuthorName;
-    }
-
-    public String getTransactionCreditedUserName() {
-        return transactionCreditedUserName;
-    }
-
     public ArrayList<Lesson> getLessons() {
         return lessons;
     }
@@ -293,6 +285,14 @@ public class JsonResponse {
 
     public List<String> getParticipantAvatars() {
         return participantAvatars;
+    }
+
+    public ArrayList<String> getTransactionAuthorNames() {
+        return transactionAuthorNames;
+    }
+
+    public ArrayList<String> getTransactionCreditedUserNames() {
+        return transactionCreditedUserNames;
     }
 
     public static class Duration

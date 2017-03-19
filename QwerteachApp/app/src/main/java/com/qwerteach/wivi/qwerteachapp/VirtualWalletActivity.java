@@ -168,6 +168,14 @@ public class VirtualWalletActivity extends AppCompatActivity {
                 userBankAccounts = response.body().getBankAccounts();
                 transactions = response.body().getTransactions();
                 userCreditCards = response.body().getUserCreditCards();
+
+                ArrayList<String> transactionAuthorNames = response.body().getTransactionAuthorNames();
+                ArrayList<String> creditedUserNames = response.body().getTransactionCreditedUserNames();
+                for (int i = 0; i < transactions.size(); i++) {
+                    transactions.get(i).setAuthorName(transactionAuthorNames.get(i));
+                    transactions.get(i).setCreditedUserName(creditedUserNames.get(i));
+                }
+
                 getPreRegistrationCardData();
 
             }

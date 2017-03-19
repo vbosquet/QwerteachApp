@@ -130,8 +130,6 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
                 Intent intent = new Intent(this, DashboardActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.new_conversation_button:
-                return true;
         }
 
         return super.onOptionsItemSelected(item);

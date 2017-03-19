@@ -9,11 +9,13 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.pusher.client.Pusher;
@@ -29,6 +31,7 @@ import com.qwerteach.wivi.qwerteachapp.models.MessageAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,9 +49,10 @@ public class ChatActivity extends AppCompatActivity {
     RecyclerView messageRecyclerView;
     RecyclerView.Adapter messageAdapter;
     RecyclerView.LayoutManager messageLayoutManager;
-    int scrollPosition;
+    int scrollPosition, page = 1;
     QwerteachService service;
     User user;
+    boolean loading = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,11 +86,10 @@ public class ChatActivity extends AppCompatActivity {
         Pusher pusher = new Pusher("1e87927ec5fb91180bb0", options);
         pusher.connect();
 
-        Channel channel = pusher.subscribe("my-channel");
-        channel.bind("my-event", new SubscriptionEventListener() {
+        Channel channel = pusher.subscribe(String.valueOf(conversation.getConversationId()));
+        channel.bind(String.valueOf(conversation.getConversationId()), new SubscriptionEventListener() {
             @Override
             public void onEvent(String channelName, String eventName, final String data) {
-                System.out.println(data);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -103,7 +106,6 @@ public class ChatActivity extends AppCompatActivity {
 
     public void addNewMessage(Message message) {
         messageToSendEditText.setText("");
-
         Boolean isMine = false;
         if (Objects.equals(user.getUserId(), message.getSenderId())) {
             isMine = true;
@@ -111,6 +113,7 @@ public class ChatActivity extends AppCompatActivity {
 
         message.setMine(isMine);
         messages.add(message);
+        scrollPosition = messages.size() - 1;
         messageAdapter.notifyDataSetChanged();
         messageRecyclerView.scrollToPosition(scrollPosition);
 
@@ -143,16 +146,27 @@ public class ChatActivity extends AppCompatActivity {
         messageRecyclerView.setItemAnimator(new DefaultItemAnimator());
         messageRecyclerView.setAdapter(messageAdapter);
         messageRecyclerView.scrollToPosition(scrollPosition);
+        messageRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int pastVisiblesItems = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+                if (loading) {
+                    if (pastVisiblesItems == 0) {
+                        loading = false;
+                        page += 1;
+                        getMoreMessages();
+                    }
+                }
+            }
+        });
     }
 
     public void didTouchSendButton(View view) {
-        final String message = messageToSendEditText.getText().toString();
-        final int conversationId = conversation.getConversationId();
-
         Map<String, String> requestBody = new HashMap<>();
-        requestBody.put("body", message);
+        requestBody.put("body", messageToSendEditText.getText().toString());
 
-        Call<JsonResponse> call = service.reply(conversationId, requestBody, user.getEmail(), user.getToken());
+        Call<JsonResponse> call = service.reply(conversation.getConversationId(), requestBody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -165,5 +179,36 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    public void getMoreMessages() {
+        Call<JsonResponse> call = service.getMoreMessages(conversation.getConversationId(), page, user.getEmail(), user.getToken());
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                List<Message> newMessages = response.body().getMessages();
+                List<String> avatars = response.body().getAvatars();
+
+                if (newMessages.size() > 0) {
+                    for (int i = 0; i < newMessages.size(); i++) {
+                        boolean isMine = false;
+                        if (Objects.equals(user.getUserId(), newMessages.get(i).getSenderId())) {
+                            isMine = true;
+                        }
+                        newMessages.get(i).setMine(isMine);
+                        newMessages.get(i).setAvatar(avatars.get(i));
+                        messages.add(0, newMessages.get(i));
+                    }
+
+                    loading = true;
+                    displayMessagesListView();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
     }
 }

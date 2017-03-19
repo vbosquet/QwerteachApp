@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,15 +75,7 @@ public class PaymentHistoryTabFragment extends Fragment implements View.OnClickL
         floatingActionButton.setOnClickListener(this);
 
         transactions = (ArrayList<Transaction>) getArguments().getSerializable("transactions");
-
-        if (transactions != null && transactions.size() > 0) {
-            startProgressDialog();
-            for (int i = 0; i < transactions.size(); i++) {
-                startFindUsersByMangoId(transactions.get(i).getAuthorId(), transactions.get(i).getCreditedUserId(),
-                        transactions.get(i).getTransactionId());
-            }
-
-        }
+        setTransactionsListView();
 
         return view;
     }
@@ -95,11 +88,16 @@ public class PaymentHistoryTabFragment extends Fragment implements View.OnClickL
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
                 ArrayList<Transaction> transactionList = response.body().getTransactions();
+                ArrayList<String> transactionAuthorNames = response.body().getTransactionAuthorNames();
+                ArrayList<String> creditedUserNames = response.body().getTransactionCreditedUserNames();
+
                 for (int i = 0; i < transactionList.size(); i++) {
+                    transactionList.get(i).setAuthorName(transactionAuthorNames.get(i));
+                    transactionList.get(i).setCreditedUserName(creditedUserNames.get(i));
                     transactions.add(transactionList.get(i));
-                    startFindUsersByMangoId(transactions.get(i).getAuthorId(), transactions.get(i).getCreditedUserId(),
-                            transactions.get(i).getTransactionId());
                 }
+
+                setTransactionsListView();
             }
 
             @Override
@@ -108,41 +106,6 @@ public class PaymentHistoryTabFragment extends Fragment implements View.OnClickL
             }
         });
 
-    }
-
-    public void startFindUsersByMangoId(String authorId, String creditedUserId, final String transactionId) {
-        Map<String, String> data = new HashMap<>();
-        data.put("author_id", authorId);
-        data.put("credited_user_id", creditedUserId);
-
-        Call<JsonResponse> call = service.getTransactionInfos(data, user.getEmail(), user.getToken());
-        call.enqueue(new Callback<JsonResponse>() {
-            @Override
-            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                String authorName = response.body().getTransactionAuthorName();
-                String creditedUserName = response.body().getTransactionCreditedUserName();
-
-                for (int i = 0; i < transactions.size(); i++) {
-                    String id = transactions.get(i).getTransactionId();
-
-                    if (id.equals(transactionId)) {
-                        transactions.get(i).setAuthorName(authorName);
-                        transactions.get(i).setCreditedUserName(creditedUserName);
-                    }
-
-                    if (id.equals(transactions.get(transactions.size() - 1).getTransactionId())) {
-                        progressDialog.dismiss();
-                        setTransactionsListView();
-                    }
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<JsonResponse> call, Throwable t) {
-
-            }
-        });
     }
 
     public void startProgressDialog() {

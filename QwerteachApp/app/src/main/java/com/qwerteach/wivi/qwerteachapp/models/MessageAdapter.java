@@ -87,4 +87,5 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             recipientAvatar = (ImageView) itemView.findViewById(R.id.recipient_avatar);
         }
     }
+
 }

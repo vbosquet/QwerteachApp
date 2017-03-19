@@ -2,6 +2,7 @@ package com.qwerteach.wivi.qwerteachapp.models;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,18 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Transaction transaction = transactions.get(position);
+
+        if (transaction.getAuthorName() != null) {
+            Log.d("HOLDER_AUTHOR_NAME", transaction.getAuthorName());
+        } else {
+            Log.d("HOLDER_AUTHOR_NAME", "No Data");
+        }
+
+        if (transaction.getCreditedUserName() != null) {
+            Log.d("HOLDER_CREDITED_USER", transaction.getCreditedUserName());
+        } else {
+            Log.d("HOLDER_CREDITED_USER", "No Data");
+        }
 
         holder.transactionDate.setText("Date du paiement : " + transaction.getDate());
         holder.transactionType.setText("Type de paiement : " + transaction.getType());
