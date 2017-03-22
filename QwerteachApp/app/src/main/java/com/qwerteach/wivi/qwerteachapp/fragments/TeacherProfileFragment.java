@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +41,11 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -269,7 +274,6 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         title.setText("Tarif(s) de " + teacher.getUser().getFirstName());
 
         for (int i = 0; i < smallAds.size(); i++) {
-
             final String topic = smallAds.get(i).getTitle();
             final ArrayList<SmallAdPrice> smallAdPrices = smallAds.get(i).getSmallAdPrices();
 
@@ -278,12 +282,26 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
                 @Override
                 public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                     ArrayList<Level> levels = response.body().getLevels();
+                    List<Level> newLevelsList = new ArrayList<>();
+                    for (Level element : levels) {
+                        if (!newLevelsList.contains(element)) {
+                            newLevelsList.add(element);
+                        }
+                    }
+
+                    List<SmallAdPrice> newSmallAdPricesList = new ArrayList<>();
+                    for (SmallAdPrice element : smallAdPrices) {
+                        if (!newSmallAdPricesList.contains(element)) {
+                            newSmallAdPricesList.add(element);
+                        }
+                    }
+
                     String topicGroup = response.body().getTopicGroupTitle();
                     addSmallAdTitlesToAlertDialog(topic, topicGroup, alertDialog);
 
-                    for (int j = 0; j < smallAdPrices.size(); j++) {
-                        addSmallAdLevelsAndPricesToAlertDialog(String.valueOf(smallAdPrices.get(j).getPrice()),
-                                levels.get(j).getLevelName(), alertDialog);
+                    for (int j = 0; j < newSmallAdPricesList.size(); j++) {
+                        addSmallAdLevelsAndPricesToAlertDialog(String.valueOf(newSmallAdPricesList.get(j).getPrice()),
+                                newLevelsList.get(j).getLevelName(), alertDialog);
                     }
 
                     progressDialog.dismiss();

@@ -3,6 +3,7 @@ package com.qwerteach.wivi.qwerteachapp.models;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Created by wivi on 7/11/16.
@@ -12,11 +13,9 @@ public class Level implements Serializable {
 
     @SerializedName("id")
     private int levelId;
-    @SerializedName("fr")
+    @SerializedName("be")
     private String levelName;
-
     private boolean isChecked;
-    //private double price;
 
     public Level() {
 
@@ -52,11 +51,13 @@ public class Level implements Serializable {
         isChecked = checked;
     }
 
-    /*public double getPrice() {
-        return price;
-    }*/
-
-    /*public void setPrice(double price) {
-        this.price = price;
-    }*/
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Level) {
+            Level temp = (Level) obj;
+            if(Objects.equals(this.levelName, temp.levelName) && this.levelId == temp.levelId)
+                return true;
+        }
+        return false;
+    }
 }

@@ -238,4 +238,12 @@
     <string name="bank_wire_communication">Communication</string>
     <string name="bank_wire_title">Pour charger votre portefeuille, effectuez un virement bancaire aux coordonnées suivantes. Ces dernières ne sont valables que pour un seul virement.</string>
     <string name="validation_button">VALIDER</string>
+    <string name="visa_checkbox">Visa</string>
+    <string name="mastercard_checkbox">Mastercard</string>
+    <string name="blue_card_checkbox">Carte Bleue</string>
+    <string name="bancontact_checkbox">Bancontact</string>
+    <string name="bank_wire_checkbox">Virement</string>
+    <string name="error_payment_message">Impossible d\'effectuer le payement. Veuillez réessayer.</string>
+    <string name="check_expiration_date">Attention : la date de votre carte de crédit est expirée.</string>
+    <string name="check_card_number">Veuillez introduire un numéro de carte de crédit.</string>
 </resources>

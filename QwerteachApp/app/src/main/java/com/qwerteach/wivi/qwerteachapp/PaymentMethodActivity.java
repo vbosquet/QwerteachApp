@@ -436,7 +436,6 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
             case "transfert":
                 if (totalWallet < totalPrice) {
                     Toast.makeText(this, R.string.total_wallet_insufficient_toast_message, Toast.LENGTH_SHORT).show();
-
                 } else {
                     payLesson();
                 }
@@ -453,36 +452,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                     payLesson();
 
                 } else {
-                    String year = currentYear.substring(2);
-                    String cardNumber = cardNumberEditText.getText().toString();
-                    String expirationDate = currentMonth + year;
-                    String securityCode = cvvEditText.getText().toString();
-
-                    MangoPayBuilder builder = new MangoPayBuilder(this);
-                    builder.baseURL("https://api.sandbox.mangopay.com")
-                            .clientId("qwerteachrails")
-                            .accessKey(cardRegistrationData.getAccessKey())
-                            .cardRegistrationURL(cardRegistrationData.getCardRegistrationURL())
-                            .preregistrationData(cardRegistrationData.getPreRegistrationData())
-                            .cardPreregistrationId(cardRegistrationData.getCardPreregistrationId())
-                            .cardNumber(cardNumber)
-                            .cardExpirationDate(expirationDate)
-                            .cardCvx(securityCode)
-                            .callback(new Callback() {
-                                @Override
-                                public void success(CardRegistration cardRegistration) {
-                                    Log.d(MainActivity.class.getSimpleName(), cardRegistration.toString());
-                                    cardId = cardRegistration.getCardId();
-                                    payLesson();
-                                }
-
-                                @Override
-                                public void failure(MangoException error) {
-                                    Toast.makeText(PaymentMethodActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
-                                }
-
-                            }).start();
-
+                    createNewCreditCard();
                 }
 
                 break;
@@ -490,6 +460,34 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                 payLesson();
                 break;
         }
+    }
+
+    public void createNewCreditCard() {
+        MangoPayBuilder builder = new MangoPayBuilder(this);
+        builder.baseURL("https://api.sandbox.mangopay.com")
+                .clientId("qwerteachrails")
+                .accessKey(cardRegistrationData.getAccessKey())
+                .cardRegistrationURL(cardRegistrationData.getCardRegistrationURL())
+                .preregistrationData(cardRegistrationData.getPreRegistrationData())
+                .cardPreregistrationId(cardRegistrationData.getCardPreregistrationId())
+                .cardNumber(cardNumberEditText.getText().toString())
+                .cardExpirationMonth(Integer.parseInt(currentMonth))
+                .cardExpirationYear(Integer.parseInt(currentYear))
+                .cardCvx(cvvEditText.getText().toString())
+                .callback(new Callback() {
+                    @Override
+                    public void success(CardRegistration cardRegistration) {
+                        Log.d(MainActivity.class.getSimpleName(), cardRegistration.toString());
+                        cardId = cardRegistration.getCardId();
+                        payLesson();
+                    }
+
+                    @Override
+                    public void failure(MangoException error) {
+                        Toast.makeText(PaymentMethodActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+
+                }).start();
     }
 
     @Override

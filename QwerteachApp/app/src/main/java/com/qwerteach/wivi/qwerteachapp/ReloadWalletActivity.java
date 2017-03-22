@@ -3,6 +3,7 @@ package com.qwerteach.wivi.qwerteachapp;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -26,9 +27,13 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.mangopay.android.sdk.Callback;
+import com.mangopay.android.sdk.MangoPay;
 import com.mangopay.android.sdk.MangoPayBuilder;
 import com.mangopay.android.sdk.model.CardRegistration;
+import com.mangopay.android.sdk.model.MangoCard;
+import com.mangopay.android.sdk.model.MangoSettings;
 import com.mangopay.android.sdk.model.exception.MangoException;
+import com.mangopay.android.sdk.util.JsonUtil;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.BankWireData;
@@ -37,11 +42,24 @@ import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -54,17 +72,19 @@ public class ReloadWalletActivity extends AppCompatActivity implements
     ArrayList<String> amounts, months, years, easyPayments;
     Spinner amountToReloadSpinner, creditCardListSpinner, yearSpinner, monthSpinner;
     CheckBox visaCheckbox, mastercardCheckbox, cbCheckbox, bcmcCheckbox, bankWireCheckbox, easyPaymentCheckBox;
-    LinearLayout cardNumberLinearLayout, newCreditCardLinearLayout, bankWireData;
+    LinearLayout cardNumberLinearLayout, newCreditCardLinearLayout;
+            //bankWireData;
     EditText otherAmountEditText, cardNumberEditText, securityCodeEditText;
     String currentAmount, cardType = "", currentCardNumber = "", cardId, currentMonth, currentYear, paymentMode;
     ArrayList<UserCreditCard> userCreditCards;
     CardRegistrationData cardRegistrationData;
-    TextView noCreditCardForEasyPaymentTextView, bankWireBeneficiary, bankWireAddress, bankWireIban, bankWireBic, bankWireAmount, bankWireCommunication;
+    TextView noCreditCardForEasyPaymentTextView;
+            //bankWireBeneficiary, bankWireAddress, bankWireIban, bankWireBic, bankWireAmount, bankWireCommunication;
     QwerteachService service;
     Intent intent;
     User user;
     ProgressDialog progressDialog;
-    Button validationButton;
+    //Button validationButton;
 
 
     @Override
@@ -74,13 +94,6 @@ public class ReloadWalletActivity extends AppCompatActivity implements
 
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-
-        userCreditCards = new ArrayList<>();
-        months = new ArrayList<>();
-        years = new ArrayList<>();
-        easyPayments = new ArrayList<>();
-        service = ApiClient.getClient().create(QwerteachService.class);
-        progressDialog = new ProgressDialog(this);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -93,6 +106,12 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         String json = preferences.getString("user", "");
         user = gson.fromJson(json, User.class);
 
+        service = ApiClient.getClient().create(QwerteachService.class);
+
+        months = new ArrayList<>();
+        years = new ArrayList<>();
+        easyPayments = new ArrayList<>();
+        progressDialog = new ProgressDialog(this);
         amounts = new ArrayList<>();
         amounts.add("20");
         amounts.add("50");
@@ -105,7 +124,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         mastercardCheckbox = (CheckBox) findViewById(R.id.mastercard);
         cbCheckbox = (CheckBox) findViewById(R.id.cb);
         bcmcCheckbox = (CheckBox) findViewById(R.id.bcmc);
-        bankWireCheckbox = (CheckBox) findViewById(R.id.banck_wire);
+        //bankWireCheckbox = (CheckBox) findViewById(R.id.banck_wire);
         easyPaymentCheckBox = (CheckBox) findViewById(R.id.easy_payment);
         cardNumberLinearLayout = (LinearLayout) findViewById(R.id.card_number_linear_layout);
         creditCardListSpinner = (Spinner) findViewById(R.id.card_list_spinner);
@@ -115,20 +134,20 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         yearSpinner = (Spinner) findViewById(R.id.year_spinner);
         monthSpinner = (Spinner) findViewById(R.id.month_spinner);
         noCreditCardForEasyPaymentTextView = (TextView) findViewById(R.id.no_credit_card_for_easy_payment_text_view);
-        bankWireData = (LinearLayout) findViewById(R.id.bank_wire_data);
+        /*bankWireData = (LinearLayout) findViewById(R.id.bank_wire_data);
         bankWireBeneficiary = (TextView) findViewById(R.id.bank_wire_beneficiary);
         bankWireAddress = (TextView) findViewById(R.id.bank_wire_address);
         bankWireIban = (TextView) findViewById(R.id.bank_wire_iban);
         bankWireBic = (TextView) findViewById(R.id.bank_wire_bic);
         bankWireAmount = (TextView) findViewById(R.id.bank_wire_amount);
         bankWireCommunication = (TextView) findViewById(R.id.bank_wire_communication);
-        validationButton = (Button) findViewById(R.id.validation_button);
+        validationButton = (Button) findViewById(R.id.validation_button);*/
 
         visaCheckbox.setOnClickListener(this);
         mastercardCheckbox.setOnClickListener(this);
         cbCheckbox.setOnClickListener(this);
         bcmcCheckbox.setOnClickListener(this);
-        bankWireCheckbox.setOnClickListener(this);
+        //bankWireCheckbox.setOnClickListener(this);
         easyPaymentCheckBox.setOnClickListener(this);
 
         if (userCreditCards.size() > 0) {
@@ -221,42 +240,59 @@ public class ReloadWalletActivity extends AppCompatActivity implements
     }
 
     public void didTouchValidateButton(View view) {
-        startProgressDialog();
         if (currentCardNumber.equals("Nouvelle carte")) {
-            String year = currentYear.substring(2);
-            String cardNumber = cardNumberEditText.getText().toString();
-            String expirationDate = currentMonth + year;
-            String securityCode = securityCodeEditText.getText().toString();
+            if (cardNumberEditText.getText().toString().equals("")) {
+                Toast.makeText(getApplicationContext(), R.string.check_card_number, Toast.LENGTH_LONG).show();
+            } else if (checkEpirationDate()) {
+                Toast.makeText(getApplicationContext(), R.string.check_expiration_date, Toast.LENGTH_LONG).show();
+            } else {
+                startProgressDialog();
+                createNewCreditCard();
+            }
 
-            MangoPayBuilder builder = new MangoPayBuilder(this);
-            builder.baseURL("https://api.sandbox.mangopay.com")
-                    .clientId("qwerteachrails")
-                    .accessKey(cardRegistrationData.getAccessKey())
-                    .cardRegistrationURL(cardRegistrationData.getCardRegistrationURL())
-                    .preregistrationData(cardRegistrationData.getPreRegistrationData())
-                    .cardPreregistrationId(cardRegistrationData.getCardPreregistrationId())
-                    .cardNumber(cardNumber)
-                    .cardExpirationDate(expirationDate)
-                    .cardCvx(securityCode)
-                    .callback(new Callback() {
-                        @Override public void success(CardRegistration cardRegistration) {
-                            Log.d(MainActivity.class.getSimpleName(), cardRegistration.toString());
-                            cardId = cardRegistration.getCardId();
-                            cardType = "CB_VISA_MASTERCARD";
-
-                            startLoadWallet();
-                        }
-
-                        @Override
-                        public void failure(MangoException error) {
-                            progressDialog.dismiss();
-                            Toast.makeText(ReloadWalletActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
-                        }
-
-                    }).start();
         } else {
+            startProgressDialog();
             startLoadWallet();
         }
+    }
+
+    private void createNewCreditCard() {
+        MangoPayBuilder builder = new MangoPayBuilder(this);
+        builder.baseURL("https://api.sandbox.mangopay.com")
+                .clientId("qwerteachrails")
+                .accessKey(cardRegistrationData.getAccessKey())
+                .cardRegistrationURL(cardRegistrationData.getCardRegistrationURL())
+                .preregistrationData(cardRegistrationData.getPreRegistrationData())
+                .cardPreregistrationId(cardRegistrationData.getCardPreregistrationId())
+                .cardNumber(cardNumberEditText.getText().toString())
+                .cardExpirationMonth(Integer.parseInt(currentMonth))
+                .cardExpirationYear(Integer.parseInt(currentYear))
+                .cardCvx(securityCodeEditText.getText().toString())
+                .callback(new Callback() {
+                    @Override public void success(CardRegistration cardRegistration) {
+                        cardId = cardRegistration.getCardId();
+                        cardType = "CB_VISA_MASTERCARD";
+                        startLoadWallet();
+                    }
+
+                    @Override
+                    public void failure(MangoException error) {
+                        progressDialog.dismiss();
+                        Toast.makeText(ReloadWalletActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                }).start();
+    }
+
+    private boolean checkEpirationDate() {
+        boolean isExpired = false;
+        int year = Calendar.getInstance().get(Calendar.YEAR);
+        int month = Calendar.getInstance().get(Calendar.MONTH) + 1;
+
+        if (Integer.parseInt(currentYear) == year && Integer.parseInt(currentMonth) < month) {
+            isExpired = true;
+        }
+
+        return isExpired;
     }
 
     @Override
@@ -271,7 +307,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     mastercardCheckbox.setChecked(false);
                     cbCheckbox.setChecked(false);
                     bcmcCheckbox.setChecked(false);
-                    bankWireCheckbox.setChecked(false);
+                    //bankWireCheckbox.setChecked(false);
 
                     if (userCreditCards.size() > 0) {
                         ArrayList<String> cardIdList = new ArrayList<>();
@@ -288,8 +324,8 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     cardType = "CB_VISA_MASTERCARD";
                     cardNumberLinearLayout.setVisibility(View.GONE);
                     newCreditCardLinearLayout.setVisibility(View.GONE);
-                    bankWireData.setVisibility(View.GONE);
-                    validationButton.setVisibility(View.VISIBLE);
+                    //bankWireData.setVisibility(View.GONE);
+                    //validationButton.setVisibility(View.VISIBLE);
                     paymentMode = "cd";
 
                 }
@@ -302,12 +338,12 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     mastercardCheckbox.setChecked(false);
                     cbCheckbox.setChecked(false);
                     bcmcCheckbox.setChecked(false);
-                    bankWireCheckbox.setChecked(false);
+                    //bankWireCheckbox.setChecked(false);
 
                     setCreditCardSpinner();
                     paymentMode = "cd";
-                    bankWireData.setVisibility(View.GONE);
-                    validationButton.setVisibility(View.VISIBLE);
+                    //bankWireData.setVisibility(View.GONE);
+                    //validationButton.setVisibility(View.VISIBLE);
                 }
                 break;
             case R.id.mastercard:
@@ -318,12 +354,12 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     mastercardCheckbox.setChecked(true);
                     cbCheckbox.setChecked(false);
                     bcmcCheckbox.setChecked(false);
-                    bankWireCheckbox.setChecked(false);
+                    //bankWireCheckbox.setChecked(false);
 
                     setCreditCardSpinner();
                     paymentMode = "cd";
-                    bankWireData.setVisibility(View.GONE);
-                    validationButton.setVisibility(View.VISIBLE);
+                    //bankWireData.setVisibility(View.GONE);
+                    //validationButton.setVisibility(View.VISIBLE);
                 }
                 break;
             case R.id.cb:
@@ -334,12 +370,12 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     mastercardCheckbox.setChecked(false);
                     cbCheckbox.setChecked(true);
                     bcmcCheckbox.setChecked(false);
-                    bankWireCheckbox.setChecked(false);
+                    //bankWireCheckbox.setChecked(false);
 
                     setCreditCardSpinner();
                     paymentMode = "cd";
-                    bankWireData.setVisibility(View.GONE);
-                    validationButton.setVisibility(View.VISIBLE);
+                    //bankWireData.setVisibility(View.GONE);
+                    //validationButton.setVisibility(View.VISIBLE);
                 }
                 break;
             case R.id.bcmc:
@@ -350,16 +386,16 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     mastercardCheckbox.setChecked(false);
                     cbCheckbox.setChecked(false);
                     bcmcCheckbox.setChecked(true);
-                    bankWireCheckbox.setChecked(false);
+                    //bankWireCheckbox.setChecked(false);
 
                     cardNumberLinearLayout.setVisibility(View.GONE);
                     newCreditCardLinearLayout.setVisibility(View.GONE);
-                    bankWireData.setVisibility(View.GONE);
-                    validationButton.setVisibility(View.VISIBLE);
+                    //bankWireData.setVisibility(View.GONE);
+                    //validationButton.setVisibility(View.VISIBLE);
                     paymentMode = "bancontact";
                 }
                 break;
-            case R.id.banck_wire:
+            /*case R.id.banck_wire:
                 if (checked) {
                     cardType = "BANK_WIRE";
                     easyPaymentCheckBox.setChecked(false);
@@ -372,7 +408,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     cardNumberLinearLayout.setVisibility(View.GONE);
                     newCreditCardLinearLayout.setVisibility(View.GONE);
                 }
-                break;
+                break;*/
         }
 
     }
@@ -409,7 +445,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         }
 
         int thisYear = Calendar.getInstance().get(Calendar.YEAR);
-        for (int j = 2026; j >= thisYear; j--) {
+        for (int j = 2067; j >= thisYear; j--) {
             years.add(Integer.toString(j));
         }
 
@@ -449,7 +485,9 @@ public class ReloadWalletActivity extends AppCompatActivity implements
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("ERROR", t.toString());
+                Log.d("FAILURE", t.toString());
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), R.string.error_payment_message, Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -470,14 +508,22 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                 intent.putExtra("mode", paymentMode);
                 startActivity(intent);
                 break;
-            case "bank wire":
+            case "error":
+                List<String> errorMessages = response.body().getErrorMessages();
+                if (errorMessages.size() > 0) {
+                    for (int i = 0; i < errorMessages.size(); i++) {
+                        Log.d("ERROR", errorMessages.get(i));
+                    }
+                }
+                break;
+            /*case "bank wire":
                 BankWireData bankWireData = response.body().getBankWireData();
                 displayBankWireData(bankWireData);
-                break;
+                break;*/
         }
     }
 
-    public void displayBankWireData(BankWireData newBankWireData) {
+    /*public void displayBankWireData(BankWireData newBankWireData) {
         bankWireData.setVisibility(View.VISIBLE);
         validationButton.setVisibility(View.GONE);
         bankWireBeneficiary.setText(newBankWireData.getBankAccount().getOwnerName());
@@ -486,7 +532,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         bankWireBic.setText(newBankWireData.getBankAccount().getBic());
         bankWireAmount.setText(currentAmount);
         bankWireCommunication.setText(newBankWireData.getWireReference());
-    }
+    }*/
 
     public void startProgressDialog() {
         progressDialog.setMessage("Loading...");

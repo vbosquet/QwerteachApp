@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Created by wivi on 9/11/16.
@@ -45,5 +46,15 @@ public class SmallAdPrice implements Serializable {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof SmallAdPrice) {
+            SmallAdPrice temp = (SmallAdPrice) obj;
+            if(Objects.equals(this.levelId, temp.levelId) && Objects.equals(this.price, temp.price))
+                return true;
+        }
+        return false;
     }
 }

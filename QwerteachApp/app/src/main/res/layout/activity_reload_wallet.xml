@@ -127,31 +127,31 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/visa"
-                android:text="Visa"/>
+                android:text="@string/visa_checkbox"/>
 
             <CheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/mastercard"
-                android:text="Mastercard"/>
+                android:text="@string/mastercard_checkbox"/>
 
             <CheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/cb"
-                android:text="Carte Bleue"/>
+                android:text="@string/blue_card_checkbox"/>
 
             <CheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/bcmc"
-                android:text="Bancontact"/>
+                android:text="@string/bancontact_checkbox"/>
 
-            <CheckBox
+            <!--<CheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/banck_wire"
-                android:text="Virement"/>
+                android:text="@string/bank_wire_checkbox"/>-->
 
         </LinearLayout>
 
