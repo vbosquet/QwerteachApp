@@ -16,6 +16,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
@@ -50,6 +52,7 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
     RecyclerView.Adapter conversationAdapter;
     RecyclerView.LayoutManager conversationLayoutManager;
     User user;
+    TextView emptyMailboxTitle, emptyMailboxMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,8 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        emptyMailboxTitle = (TextView) findViewById(R.id.empty_mailbox_title);
+        emptyMailboxMessage = (TextView) findViewById(R.id.empty_mailbox_message);
         conversationRecyclerView = (RecyclerView) findViewById(R.id.conversation_list_view);
         service = ApiClient.getClient().create(QwerteachService.class);
 
@@ -76,36 +81,41 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                List<Message> messages = response.body().getMessages();
-                conversationsList = response.body().getConversations();
-                usersList = response.body().getRecipients();
-                List<String> avatars = response.body().getAvatars();
-                List<String> participantAvatar = response.body().getParticipantAvatars();
+                if (response.body() != null) {
+
+                    List<Message> messages = response.body().getMessages();
+                    conversationsList = response.body().getConversations();
+                    usersList = response.body().getRecipients();
+                    List<String> avatars = response.body().getAvatars();
+                    List<String> participantAvatar = response.body().getParticipantAvatars();
 
 
-                for (int i = 0; i < conversationsList.size(); i++) {
-                    int conversationId = conversationsList.get(i).getConversationId();
-                    conversationsList.get(i).setUser(usersList.get(i));
-                    conversationsList.get(i).getUser().setAvatarUrl(participantAvatar.get(i));
+                    for (int i = 0; i < conversationsList.size(); i++) {
+                        int conversationId = conversationsList.get(i).getConversationId();
+                        conversationsList.get(i).setUser(usersList.get(i));
+                        conversationsList.get(i).getUser().setAvatarUrl(participantAvatar.get(i));
 
-                    for (int j = 0; j < messages.size(); j++) {
-                        boolean isMine = false;
-                        if (Objects.equals(user.getUserId(), messages.get(j).getSenderId())) {
-                            isMine = true;
-                        }
-                        messages.get(j).setMine(isMine);
-                        messages.get(j).setAvatar(avatars.get(j));
+                        for (int j = 0; j < messages.size(); j++) {
+                            boolean isMine = false;
+                            if (Objects.equals(user.getUserId(), messages.get(j).getSenderId())) {
+                                isMine = true;
+                            }
+                            messages.get(j).setMine(isMine);
+                            messages.get(j).setAvatar(avatars.get(j));
 
-                        if (Objects.equals(messages.get(j).getConversationId(), conversationId)) {
-                            conversationsList.get(i).addMessageToConverstaion(messages.get(j));
-                        }
+                            if (Objects.equals(messages.get(j).getConversationId(), conversationId)) {
+                                conversationsList.get(i).addMessageToConverstaion(messages.get(j));
+                            }
 
-                        if (conversationId == conversationsList.get(conversationsList.size() - 1).getConversationId()) {
-                            displayConversationListView();
+                            if (conversationId == conversationsList.get(conversationsList.size() - 1).getConversationId()) {
+                                displayConversationListView();
+                            }
                         }
                     }
+                } else {
+                    emptyMailboxTitle.setVisibility(View.VISIBLE);
+                    emptyMailboxMessage.setVisibility(View.VISIBLE);
                 }
-
             }
 
             @Override

@@ -13,6 +13,16 @@
     android:orientation="vertical"
     android:background="#dfdfdf">
 
+    <TextView
+        android:id="@+id/no_lessons_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/no_lessons_title"
+        android:visibility="gone"
+        android:gravity="center"
+        android:textColor="@color/colorPrimary"
+        android:textSize="17dp"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/lesson_recycler_view"
         android:layout_width="match_parent"
@@ -25,6 +35,7 @@
         android:layout_gravity="bottom|right"
         android:layout_margin="16dp"
         android:src="@drawable/plus"
-        app:layout_anchorGravity="bottom|right|end" />
+        app:layout_anchorGravity="bottom|right|end"
+        android:visibility="gone"/>
 
 </android.support.design.widget.CoordinatorLayout>

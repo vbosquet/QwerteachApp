@@ -77,7 +77,6 @@ public class UserInfosTabFragment extends Fragment implements
         }
 
         Collections.sort(countries);
-
         userWalletInfos = (UserWalletInfos) getArguments().getSerializable("user");
 
         if (userWalletInfos != null) {
@@ -121,7 +120,6 @@ public class UserInfosTabFragment extends Fragment implements
     }
 
     public void displayUserInfos() {
-
         firstNameEditText.setText(userWalletInfos.getFirstName());
         lastNameEditText.setText(userWalletInfos.getLastName());
         addressEditText.setText(userWalletInfos.getAddress());

@@ -227,4 +227,15 @@
     <string name="password_validation_message">Votre mot de passe doit contenir au moins 8 caractères.</string>
     <string name="update_leson_activity_title">Modifier réservation</string>
     <string name="valid_time_message">Veuillez saisir une heure postérieure à maintenant.</string>
+    <string name="empty_mailbox_title">Votre boîte de réception est vide.</string>
+    <string name="empty_mailbox_message">Pour contacter un utilisateur pour la première fois, rendez-vous sur son profil. Entamez quelques conversations, puis revenez ici pour lire vos nouveaux messages.</string>
+    <string name="no_lessons_title">Vous n\'avez pas encore pris de cours sur Qwerteach.</string>
+    <string name="bank_wire_beneficiary">Bénéficiaire</string>
+    <string name="bank_wire_address">Adresse</string>
+    <string name="bank_wire_iban">IBAN</string>
+    <string name="bank_wire_bic">BIC</string>
+    <string name="bank_wire_amount">Montant</string>
+    <string name="bank_wire_communication">Communication</string>
+    <string name="bank_wire_title">Pour charger votre portefeuille, effectuez un virement bancaire aux coordonnées suivantes. Ces dernières ne sont valables que pour un seul virement.</string>
+    <string name="validation_button">VALIDER</string>
 </resources>

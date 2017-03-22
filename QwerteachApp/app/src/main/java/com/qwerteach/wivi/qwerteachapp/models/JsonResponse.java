@@ -106,6 +106,8 @@ public class JsonResponse {
     private ArrayList<String> transactionAuthorNames;
     @SerializedName("credited_user_names")
     private ArrayList<String> transactionCreditedUserNames;
+    @SerializedName("bank_wire")
+    private BankWireData bankWireData;
 
     public String getAvatar() {
         return avatar;
@@ -293,6 +295,10 @@ public class JsonResponse {
 
     public ArrayList<String> getTransactionCreditedUserNames() {
         return transactionCreditedUserNames;
+    }
+
+    public BankWireData getBankWireData() {
+        return bankWireData;
     }
 
     public static class Duration

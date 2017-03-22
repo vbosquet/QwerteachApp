@@ -22,6 +22,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -61,6 +62,7 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
     int page = 1, scrollPosition = 0;
     QwerteachService service;
     User user;
+    TextView noLessonsTitle;
 
     public static MyLessonsListViewFragment newInstance() {
         MyLessonsListViewFragment myLessonsListViewFragment = new MyLessonsListViewFragment();
@@ -85,6 +87,7 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
         progressDialog = new ProgressDialog(getContext());
         service = ApiClient.getClient().create(QwerteachService.class);
 
+        noLessonsTitle = (TextView) view.findViewById(R.id.no_lessons_title);
         lessonRecyclerView = (RecyclerView) view.findViewById(R.id.lesson_recycler_view);
         floatingActionButton = (FloatingActionButton) view.findViewById(R.id.floating_action_button);
         floatingActionButton.setOnClickListener(this);
@@ -101,13 +104,20 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 ArrayList<Lesson> lessonList = response.body().getLessons();
+                if (lessonList.size() > 0) {
+                    floatingActionButton.setVisibility(View.VISIBLE);
 
-                for (int i = 0; i < lessonList.size(); i++) {
-                    lessons.add(lessonList.get(i));
-                }
+                    for (int i = 0; i < lessonList.size(); i++) {
+                        lessons.add(lessonList.get(i));
+                    }
 
-                for (int i = 0; i < lessons.size(); i++) {
-                    startGetLessonInfos(lessons.get(i).getLessonId(), i);
+                    for (int i = 0; i < lessons.size(); i++) {
+                        startGetLessonInfos(lessons.get(i).getLessonId(), i);
+                    }
+
+                } else {
+                   progressDialog.dismiss();
+                    noLessonsTitle.setVisibility(View.VISIBLE);
                 }
             }
 

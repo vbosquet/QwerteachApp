@@ -73,7 +73,6 @@ public class VirtualWalletActivity extends AppCompatActivity {
 
         service = ApiClient.getClient().create(QwerteachService.class);
         progressDialog = new ProgressDialog(this);
-
         getTotalWallet();
 
     }
@@ -143,19 +142,7 @@ public class VirtualWalletActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.add(R.id.fragment_container, CreateVirtualWalletFragment.newInstance(), "CREATE_NEW_WALLET");
-        transaction.addToBackStack(null);
-        transaction.commit();
-
-        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-            public void onBackStackChanged() {
-                Fragment someFragment = getSupportFragmentManager().findFragmentByTag("CREATE_NEW_WALLET");
-
-                if (someFragment == null) {
-                    finish();
-                    startActivity(getIntent());
-                }
-            }
-        });
+        transaction.commitNow();
     }
 
     public void getAllWalletInfos() {

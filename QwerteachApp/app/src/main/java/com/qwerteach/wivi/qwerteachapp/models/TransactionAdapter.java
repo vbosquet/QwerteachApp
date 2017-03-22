@@ -35,19 +35,6 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Transaction transaction = transactions.get(position);
-
-        if (transaction.getAuthorName() != null) {
-            Log.d("HOLDER_AUTHOR_NAME", transaction.getAuthorName());
-        } else {
-            Log.d("HOLDER_AUTHOR_NAME", "No Data");
-        }
-
-        if (transaction.getCreditedUserName() != null) {
-            Log.d("HOLDER_CREDITED_USER", transaction.getCreditedUserName());
-        } else {
-            Log.d("HOLDER_CREDITED_USER", "No Data");
-        }
-
         holder.transactionDate.setText("Date du paiement : " + transaction.getDate());
         holder.transactionType.setText("Type de paiement : " + transaction.getType());
         holder.transactionAuthor.setText("Donneur d'ordre : " + transaction.getAuthorName());

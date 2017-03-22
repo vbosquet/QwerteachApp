@@ -1,17 +1,12 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
-import android.graphics.Bitmap;
-
 import com.google.gson.annotations.SerializedName;
-import com.squareup.picasso.Transformation;
 
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-
-import okhttp3.MultipartBody;
 
 
 /**
@@ -93,9 +88,13 @@ public class User implements Serializable {
     }
 
     public String getDescription() {
-        description = description.replace("\\n\\n", "");
-        description = description.replace("\\n", "");
-        return description;
+        if (description != null) {
+            description = description.replace("\\n\\n", "");
+            description = description.replace("\\n", "");
+            return description;
+        } else {
+            return "";
+        }
     }
 
     public void setDescription(String description) {

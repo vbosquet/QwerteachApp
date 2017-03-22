@@ -1,6 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.R;
+import com.qwerteach.wivi.qwerteachapp.VirtualWalletActivity;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
@@ -183,11 +185,10 @@ public class CreateVirtualWalletFragment extends Fragment implements
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 String message = response.body().getMessage();
                 progressDialog.dismiss();
-
                 if (message.equals("true")) {
                     Toast.makeText(getContext(), R.string.registration_new_wallet_success_toast_message, Toast.LENGTH_SHORT).show();
-                    getActivity().getSupportFragmentManager().popBackStack();
-
+                    Intent intent = new Intent(getActivity(), VirtualWalletActivity.class);
+                    startActivity(intent);
                 } else if (message.equals("errors")) {
                     Toast.makeText(getContext(), R.string.registration_new_wallet_erros_toast_messsage, Toast.LENGTH_SHORT).show();
                 }
