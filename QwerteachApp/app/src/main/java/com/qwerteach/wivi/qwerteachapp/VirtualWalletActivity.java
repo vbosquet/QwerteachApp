@@ -48,7 +48,6 @@ public class VirtualWalletActivity extends AppCompatActivity {
     ArrayList<UserCreditCard> userCreditCards;
     ArrayList<Transaction> transactions;
     ArrayList<UserBankAccount> userBankAccounts;
-    CardRegistrationData cardRegistrationData;
     Intent intent;
     boolean isTeacher;
     ProgressDialog progressDialog;
@@ -100,7 +99,6 @@ public class VirtualWalletActivity extends AppCompatActivity {
             case R.id.reload_wallet_button:
                 intent = new Intent(this, ReloadWalletActivity.class);
                 intent.putExtra("easy_payment", userCreditCards);
-                intent.putExtra("card_registration", cardRegistrationData);
                 startActivity(intent);
                 return true;
             case R.id.unload_wallet_button:
@@ -115,6 +113,7 @@ public class VirtualWalletActivity extends AppCompatActivity {
     }
 
     public void getTotalWallet() {
+        startProgressDialog();
         Call<JsonResponse> call = service.getTotalWallet(user.getUserId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
@@ -122,6 +121,7 @@ public class VirtualWalletActivity extends AppCompatActivity {
                 String message = response.body().getMessage();
 
                 if (message != null && message.equals("no wallet")) {
+                    progressDialog.dismiss();
                     displayCreateVirtualWalletFragment();
 
                 } else {
@@ -146,7 +146,6 @@ public class VirtualWalletActivity extends AppCompatActivity {
     }
 
     public void getAllWalletInfos() {
-        startProgressDialog();
         Call<JsonResponse> call = service.getAllWallletInfos(0, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
@@ -163,26 +162,10 @@ public class VirtualWalletActivity extends AppCompatActivity {
                     transactions.get(i).setCreditedUserName(creditedUserNames.get(i));
                 }
 
-                getPreRegistrationCardData();
-
-            }
-
-            @Override
-            public void onFailure(Call<JsonResponse> call, Throwable t) {
-
-            }
-        });
-    }
-
-    public void getPreRegistrationCardData() {
-        Call<JsonResponse> call = service.getPreRegistrationCardData(user.getEmail(), user.getToken());
-        call.enqueue(new Callback<JsonResponse>() {
-            @Override
-            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                cardRegistrationData = response.body().getCardRegistrationData();
                 actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
                 setViewPager();
+
             }
 
             @Override

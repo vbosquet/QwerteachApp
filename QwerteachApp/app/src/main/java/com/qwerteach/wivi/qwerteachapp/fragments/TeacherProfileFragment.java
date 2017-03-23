@@ -301,7 +301,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
 
                     for (int j = 0; j < newSmallAdPricesList.size(); j++) {
                         addSmallAdLevelsAndPricesToAlertDialog(String.valueOf(newSmallAdPricesList.get(j).getPrice()),
-                                newLevelsList.get(j).getLevelName(), alertDialog);
+                                newLevelsList.get(j).getBeLevelName(), alertDialog);
                     }
 
                     progressDialog.dismiss();

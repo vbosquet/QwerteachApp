@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -122,12 +123,12 @@ public class FormationsTabFragment extends Fragment implements AdapterView.OnIte
         ArrayList<String> levelNames = new ArrayList<>();
 
         for (int i = 0; i < levels.size(); i++) {
-            levelNames.add(levels.get(i).getLevelName());
+            levelNames.add(levels.get(i).getFrLevelName());
         }
 
         for (int i = 0; i < levels.size(); i++) {
             if (levels.get(i).getLevelId() == levelId) {
-                defaultTextForLevelSpinner = levels.get(i).getLevelName();
+                defaultTextForLevelSpinner = levels.get(i).getFrLevelName();
             }
         }
 
@@ -145,7 +146,7 @@ public class FormationsTabFragment extends Fragment implements AdapterView.OnIte
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        levelName = levels.get(i).getLevelName();
+        levelName = levels.get(i).getFrLevelName();
     }
 
     @Override
@@ -160,7 +161,7 @@ public class FormationsTabFragment extends Fragment implements AdapterView.OnIte
 
 
         for (int i = 0; i < levels.size(); i++) {
-            if (levels.get(i).getLevelName().equals(levelName)) {
+            if (levels.get(i).getFrLevelName().equals(levelName)) {
                 levelId = levels.get(i).getLevelId();
             }
         }

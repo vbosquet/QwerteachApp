@@ -14,8 +14,11 @@ public class Level implements Serializable {
     @SerializedName("id")
     private int levelId;
     @SerializedName("be")
-    private String levelName;
+    private String beLevelName;
+    @SerializedName("fr")
+    private String frLevelName;
     private boolean isChecked;
+    private boolean needBeLevel;
 
     public Level() {
 
@@ -23,7 +26,7 @@ public class Level implements Serializable {
 
     public  Level(int levelId, String levelName) {
         this.levelId = levelId;
-        this.levelName = levelName;
+        this.beLevelName = levelName;
         isChecked = false;
     }
 
@@ -35,12 +38,20 @@ public class Level implements Serializable {
         this.levelId = levelId;
     }
 
-    public String getLevelName() {
-        return levelName;
+    public String getBeLevelName() {
+        return beLevelName;
     }
 
-    public void setLevelName(String levelName) {
-        this.levelName = levelName;
+    public void setBeLevelName(String beLevelName) {
+        this.beLevelName = beLevelName;
+    }
+
+    public String getFrLevelName() {
+        return frLevelName;
+    }
+
+    public void setFrLevelName(String frLevelName) {
+        this.frLevelName = frLevelName;
     }
 
     public boolean isChecked() {
@@ -51,11 +62,19 @@ public class Level implements Serializable {
         isChecked = checked;
     }
 
+    public boolean isNeedBeLevel() {
+        return needBeLevel;
+    }
+
+    public void setNeedBeLevel(boolean needBeLevel) {
+        this.needBeLevel = needBeLevel;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof Level) {
             Level temp = (Level) obj;
-            if(Objects.equals(this.levelName, temp.levelName) && this.levelId == temp.levelId)
+            if(Objects.equals(this.beLevelName, temp.beLevelName) && this.levelId == temp.levelId)
                 return true;
         }
         return false;

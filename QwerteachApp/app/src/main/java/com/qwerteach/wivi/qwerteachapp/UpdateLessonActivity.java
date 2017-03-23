@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.qwerteach.wivi.qwerteachapp.common.Common;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
@@ -38,7 +39,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class UpdateLessonActivity extends AppCompatActivity implements View.OnClickListener, TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
+@RequiresApi(api = Build.VERSION_CODES.N)
+public class UpdateLessonActivity extends AppCompatActivity implements View.OnClickListener,
+        TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
 
     Lesson lesson;
     TextView topicGroupTextView, topicTextView, levelTextView, totalPriceTextView, lessonDurationTextView, dateTextView, timeTextView;
@@ -51,7 +54,6 @@ public class UpdateLessonActivity extends AppCompatActivity implements View.OnCl
     Date newDate;
     Calendar now;
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,61 +105,11 @@ public class UpdateLessonActivity extends AppCompatActivity implements View.OnCl
         saveLessonInfosButton.setOnClickListener(this);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public boolean checkIfCurrentDate() {
-        boolean isCurrentDate = false;
-        try {
-            Date selectedDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateTextView.getText().toString());
-            Calendar selectedDateTime = Calendar.getInstance();
-            selectedDateTime.setTimeInMillis(selectedDate.getTime());
-
-            if (selectedDateTime.get(Calendar.DAY_OF_MONTH) == now.get(Calendar.DAY_OF_MONTH)
-                    && selectedDateTime.get(Calendar.MONTH) == now.get(Calendar.MONTH)
-                    && selectedDateTime.get(Calendar.YEAR) == now.get(Calendar.YEAR)) {
-                isCurrentDate = true;
-            }
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return  isCurrentDate;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public boolean checkIfValidTime() {
-        boolean isValidTime = true;
-        try {
-            Date selectedDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateTextView.getText().toString());
-            Calendar selectedDateTime = Calendar.getInstance();
-            selectedDateTime.setTimeInMillis(selectedDate.getTime());
-            int hour = Integer.parseInt(timeTextView.getText().toString().substring(0, 2));
-            int minute = Integer.parseInt(timeTextView.getText().toString().substring(3));
-
-            if (selectedDateTime.get(Calendar.DAY_OF_MONTH) == now.get(Calendar.DAY_OF_MONTH)
-                    && selectedDateTime.get(Calendar.MONTH) == now.get(Calendar.MONTH)
-                    && selectedDateTime.get(Calendar.YEAR) == now.get(Calendar.YEAR)) {
-
-                if (newDate.getHours() > hour) {
-                    isValidTime = false;
-                } else if (newDate.getHours() == hour && newDate.getMinutes() > minute) {
-                    isValidTime = false;
-                }
-            }
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return isValidTime;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.time_picker_button:
-                if (checkIfCurrentDate()) {
+                if (Common.checkIfCurrentDate(dateTextView.getText().toString())) {
                     timePickerDialog.setMinTime(newDate.getHours(), newDate.getMinutes(), newDate.getSeconds());
                 } else {
                     timePickerDialog.setMinTime(0, 0, 0);
@@ -174,7 +126,7 @@ public class UpdateLessonActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+
     public void didTouchUpdateLessonButton() {
         int lessonId = lesson.getLessonId();
         String newDate = dateTextView.getText().toString();
@@ -186,7 +138,7 @@ public class UpdateLessonActivity extends AppCompatActivity implements View.OnCl
         Map<String, Lesson> requestbody = new HashMap<>();
         requestbody.put("lesson", lesson);
 
-        if (checkIfValidTime()) {
+        if (Common.checkIfValidTime(dateTextView.getText().toString(), timeTextView.getText().toString())) {
             startProgressDialog();
             Call<JsonResponse> call = service.updateLesson(lessonId, requestbody, user.getEmail(), user.getToken());
             call.enqueue(new Callback<JsonResponse>() {

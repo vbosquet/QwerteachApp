@@ -73,7 +73,6 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
 
         coursePriceEditTextList = new ArrayList<>();
         service = ApiClient.getClient().create(QwerteachService.class);
-
         prices = smallAd.getSmallAdPrices();
 
         Call<JsonResponse> call = service.showAdvertInfos(smallAd.getAdvertId(), user.getEmail(), user.getToken());
@@ -168,7 +167,6 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
         for (int i = 0; i < levels.size(); i++) {
 
             final Level level = levels.get(i);
-
             LinearLayout linearLayout = new LinearLayout(this);
             CheckBox checkBox = new CheckBox(this);
             final EditText editText = new EditText(this);
@@ -181,7 +179,7 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
             TableRow.LayoutParams params1 = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.73f);
             TableRow.LayoutParams params2 = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.27f);
 
-            checkBox.setText(level.getLevelName());
+            checkBox.setText(level.getFrLevelName());
             checkBox.setLayoutParams(params1);
 
             editText.setLayoutParams(params2);

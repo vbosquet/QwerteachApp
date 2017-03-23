@@ -98,7 +98,6 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             userCreditCards = (ArrayList<UserCreditCard>) getIntent().getSerializableExtra("easy_payment");
-            cardRegistrationData = (CardRegistrationData) getIntent().getSerializableExtra("card_registration");
         }
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -150,6 +149,10 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         //bankWireCheckbox.setOnClickListener(this);
         easyPaymentCheckBox.setOnClickListener(this);
 
+        getPreRegistrationCardData();
+    }
+
+    public void displayInitialLayout() {
         if (userCreditCards.size() > 0) {
             for (int i = 0; i < userCreditCards.size(); i++) {
                 if (userCreditCards.get(i).getValidity().equals("VALID")) {
@@ -168,6 +171,24 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         amountToReloadAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         amountToReloadSpinner.setAdapter(amountToReloadAdapter);
         amountToReloadSpinner.setOnItemSelectedListener(this);
+    }
+
+    public void getPreRegistrationCardData() {
+        startProgressDialog();
+        Call<JsonResponse> call = service.getPreRegistrationCardData(user.getEmail(), user.getToken());
+        call.enqueue(new retrofit2.Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                progressDialog.dismiss();
+                cardRegistrationData = response.body().getCardRegistrationData();
+                displayInitialLayout();
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override

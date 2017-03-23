@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.PaymentMethodActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
+import com.qwerteach.wivi.qwerteachapp.common.Common;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.CardRegistrationData;
@@ -57,11 +59,10 @@ import retrofit2.Response;
  * Created by wivi on 13/12/16.
  */
 
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class CreateNewLessonFragment extends Fragment implements
-        AdapterView.OnItemSelectedListener,
-        View.OnClickListener,
-        TimePickerDialog.OnTimeSetListener,
-        DatePickerDialog.OnDateSetListener {
+        AdapterView.OnItemSelectedListener, View.OnClickListener,
+        TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
 
     View view;
     TextView timeTextView, dateTextView, totalPriceTextView;
@@ -78,7 +79,8 @@ public class CreateNewLessonFragment extends Fragment implements
     Bundle savedState;
     ProgressDialog progressDialog;
     QwerteachService service;
-    int currentTopicGroupId, currentTopicId, currentLevelId, currentTopicGroupPosition, currentTopicPosition, currentLevelPosition;
+    int currentTopicGroupId, currentTopicId, currentLevelId, currentTopicGroupPosition,
+            currentTopicPosition, currentLevelPosition;
     Call<JsonResponse> call;
     User user;
     Date newDate;
@@ -111,7 +113,6 @@ public class CreateNewLessonFragment extends Fragment implements
         progressDialog = new ProgressDialog(getContext());
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_create_new_lesson, container, false);
@@ -141,11 +142,9 @@ public class CreateNewLessonFragment extends Fragment implements
         startProgressDialog();
         call = service.getTeacherTopicGroups(teacher.getUser().getUserId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 topicGroups = response.body().getTopicGroups();
-
                 displayDateAndTimePickers();
                 displayHourSpinner();
                 displayMinutSpinner();
@@ -163,7 +162,6 @@ public class CreateNewLessonFragment extends Fragment implements
         return  view;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public void displayDateAndTimePickers() {
         if (savedState!= null) {
             dateTextView.setText(savedState.getString("date"));
@@ -193,7 +191,8 @@ public class CreateNewLessonFragment extends Fragment implements
     }
 
     public void displayHourSpinner() {
-        ArrayAdapter hourSpinnerAdapter = ArrayAdapter.createFromResource(getContext(), R.array.hour_spinner_items, android.R.layout.simple_spinner_item);
+        ArrayAdapter hourSpinnerAdapter = ArrayAdapter.createFromResource(getContext(), R.array.hour_spinner_items,
+                android.R.layout.simple_spinner_item);
         hourSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         hourSpinner.setAdapter(hourSpinnerAdapter);
         hourSpinner.setOnItemSelectedListener(this);
@@ -208,7 +207,8 @@ public class CreateNewLessonFragment extends Fragment implements
     }
 
     public void displayMinutSpinner() {
-        ArrayAdapter minutSpinnerAdapter = ArrayAdapter.createFromResource(getContext(), R.array.minut_spinner_items, android.R.layout.simple_spinner_item);
+        ArrayAdapter minutSpinnerAdapter = ArrayAdapter.createFromResource(getContext(), R.array.minut_spinner_items,
+                android.R.layout.simple_spinner_item);
         minutSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         minuteSpinner.setAdapter(minutSpinnerAdapter);
         minuteSpinner.setOnItemSelectedListener(this);
@@ -233,6 +233,9 @@ public class CreateNewLessonFragment extends Fragment implements
     }
 
     public void displayLevelSpinner() {
+        for (int i = 0; i < levels.size(); i++) {
+            levels.get(i).setNeedBeLevel(true);
+        }
         LevelAdapter levelAdapter = new LevelAdapter(getContext(), android.R.layout.simple_spinner_item, levels);
         levelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         levelSpinner.setAdapter(levelAdapter);
@@ -241,14 +244,11 @@ public class CreateNewLessonFragment extends Fragment implements
         if (savedState != null) {
             levelSpinner.setSelection(savedState.getInt("level"));
 
-        } else {
-            levelSpinner.setSelection(2);
         }
     }
 
     private int getIndexByString(Spinner spinner, String string) {
         int index = 0;
-
         for (int i = 0; i < spinner.getCount(); i++) {
             if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(string)) {
                 index = i;
@@ -299,7 +299,8 @@ public class CreateNewLessonFragment extends Fragment implements
                     }
                 }
 
-                Call<JsonResponse> callForLevels = service.getTeacherLevels(teacher.getUser().getUserId(), currentTopicId, user.getEmail(), user.getToken());
+                Call<JsonResponse> callForLevels = service.getTeacherLevels(teacher.getUser().getUserId(),
+                        currentTopicId, user.getEmail(), user.getToken());
                 callForLevels.enqueue(new Callback<JsonResponse>() {
                     @Override
                     public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -350,59 +351,11 @@ public class CreateNewLessonFragment extends Fragment implements
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public boolean checkIfCurrentDate() {
-        boolean isCurrentDate = false;
-        try {
-            Date selectedDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateTextView.getText().toString());
-            Calendar selectedDateTime = Calendar.getInstance();
-            selectedDateTime.setTimeInMillis(selectedDate.getTime());
-
-            if (selectedDateTime.get(Calendar.DAY_OF_MONTH) == now.get(Calendar.DAY_OF_MONTH)
-                    && selectedDateTime.get(Calendar.MONTH) == now.get(Calendar.MONTH)
-                    && selectedDateTime.get(Calendar.YEAR) == now.get(Calendar.YEAR)) {
-                isCurrentDate = true;
-            }
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return  isCurrentDate;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public boolean checkIfValidTime() {
-        boolean isValidTime = true;
-        try {
-            Date selectedDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateTextView.getText().toString());
-            Calendar selectedDateTime = Calendar.getInstance();
-            selectedDateTime.setTimeInMillis(selectedDate.getTime());
-
-            if (selectedDateTime.get(Calendar.DAY_OF_MONTH) == now.get(Calendar.DAY_OF_MONTH)
-                    && selectedDateTime.get(Calendar.MONTH) == now.get(Calendar.MONTH)
-                    && selectedDateTime.get(Calendar.YEAR) == now.get(Calendar.YEAR)) {
-
-                if (newDate.getHours() > Integer.parseInt(hour)) {
-                    isValidTime = false;
-                } else if (newDate.getHours() == Integer.parseInt(hour) && newDate.getMinutes() > Integer.parseInt(minute)) {
-                    isValidTime = false;
-                }
-            }
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return isValidTime;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.time_picker_button:
-                if (checkIfCurrentDate()) {
+                if (Common.checkIfCurrentDate(dateTextView.getText().toString())) {
                     timePickerDialog.setMinTime(newDate.getHours(), newDate.getMinutes(), newDate.getSeconds());
                 } else {
                     timePickerDialog.setMinTime(0, 0, 0);
@@ -418,7 +371,6 @@ public class CreateNewLessonFragment extends Fragment implements
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public void didTouchCreateNewLessonButton() {
         Lesson request = new Lesson();
         request.setLevelId(currentLevelId);
@@ -433,7 +385,7 @@ public class CreateNewLessonFragment extends Fragment implements
         requestBody.put("request", request);
         requestBody.put("lesson", lesson);
 
-        if (checkIfValidTime()) {
+        if (Common.checkIfValidTime(dateTextView.getText().toString(), timeTextView.getText().toString())) {
             startProgressDialog();
             Call<JsonResponse> call = service.createNewLesson(teacher.getUser().getUserId(), requestBody, user.getEmail(), user.getToken());
             call.enqueue(new Callback<JsonResponse>() {
@@ -497,7 +449,6 @@ public class CreateNewLessonFragment extends Fragment implements
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         if (savedInstanceState != null) {
             savedState = savedInstanceState;
             getActivity().setTitle(savedInstanceState.getString("activityTitle"));

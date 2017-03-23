@@ -264,7 +264,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
             linearLayout.setOrientation(LinearLayout.HORIZONTAL);
             linearLayout.setWeightSum(1);
 
-            checkBox.setText(level.getLevelName());
+            checkBox.setText(level.getFrLevelName());
             TableRow.LayoutParams params1 = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.73f);
             TableRow.LayoutParams params2 = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.27f);
             checkBox.setLayoutParams(params1);

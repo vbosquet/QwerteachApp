@@ -29,7 +29,11 @@ public class LevelAdapter extends ArrayAdapter<Level> {
     public View getView(final int position, View convertView, ViewGroup parent) {
         TextView textView = new TextView(context);
         textView.setTextColor(Color.BLACK);
-        textView.setText(levels.get(position).getLevelName());
+        if (levels.get(position).isNeedBeLevel()) {
+            textView.setText(levels.get(position).getBeLevelName());
+        } else {
+            textView.setText(levels.get(position).getFrLevelName());
+        }
         return textView;
     }
 
@@ -38,7 +42,11 @@ public class LevelAdapter extends ArrayAdapter<Level> {
         View v = super.getDropDownView(position, convertView, parent);
         TextView tv = ((TextView) v);
         tv.setTextColor(Color.BLACK);
-        tv.setText(levels.get(position).getLevelName());
+        if (levels.get(position).isNeedBeLevel()) {
+            tv.setText(levels.get(position).getBeLevelName());
+        } else {
+            tv.setText(levels.get(position).getFrLevelName());
+        }
         return v;
     }
 }
