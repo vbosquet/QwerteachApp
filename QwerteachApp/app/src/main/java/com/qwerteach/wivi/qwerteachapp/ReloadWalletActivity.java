@@ -72,19 +72,17 @@ public class ReloadWalletActivity extends AppCompatActivity implements
     ArrayList<String> amounts, months, years, easyPayments;
     Spinner amountToReloadSpinner, creditCardListSpinner, yearSpinner, monthSpinner;
     CheckBox visaCheckbox, mastercardCheckbox, cbCheckbox, bcmcCheckbox, bankWireCheckbox, easyPaymentCheckBox;
-    LinearLayout cardNumberLinearLayout, newCreditCardLinearLayout;
-            //bankWireData;
+    LinearLayout cardNumberLinearLayout, newCreditCardLinearLayout, bankWireData;
     EditText otherAmountEditText, cardNumberEditText, securityCodeEditText;
     String currentAmount, cardType = "", currentCardNumber = "", cardId, currentMonth, currentYear, paymentMode;
     ArrayList<UserCreditCard> userCreditCards;
     CardRegistrationData cardRegistrationData;
-    TextView noCreditCardForEasyPaymentTextView;
-            //bankWireBeneficiary, bankWireAddress, bankWireIban, bankWireBic, bankWireAmount, bankWireCommunication;
+    TextView noCreditCardForEasyPaymentTextView, bankWireBeneficiary, bankWireAddress, bankWireIban, bankWireBic, bankWireAmount, bankWireCommunication;
     QwerteachService service;
     Intent intent;
     User user;
     ProgressDialog progressDialog;
-    //Button validationButton;
+    Button validationButton;
 
 
     @Override
@@ -123,7 +121,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         mastercardCheckbox = (CheckBox) findViewById(R.id.mastercard);
         cbCheckbox = (CheckBox) findViewById(R.id.cb);
         bcmcCheckbox = (CheckBox) findViewById(R.id.bcmc);
-        //bankWireCheckbox = (CheckBox) findViewById(R.id.banck_wire);
+        bankWireCheckbox = (CheckBox) findViewById(R.id.banck_wire);
         easyPaymentCheckBox = (CheckBox) findViewById(R.id.easy_payment);
         cardNumberLinearLayout = (LinearLayout) findViewById(R.id.card_number_linear_layout);
         creditCardListSpinner = (Spinner) findViewById(R.id.card_list_spinner);
@@ -133,20 +131,20 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         yearSpinner = (Spinner) findViewById(R.id.year_spinner);
         monthSpinner = (Spinner) findViewById(R.id.month_spinner);
         noCreditCardForEasyPaymentTextView = (TextView) findViewById(R.id.no_credit_card_for_easy_payment_text_view);
-        /*bankWireData = (LinearLayout) findViewById(R.id.bank_wire_data);
+        bankWireData = (LinearLayout) findViewById(R.id.bank_wire_data);
         bankWireBeneficiary = (TextView) findViewById(R.id.bank_wire_beneficiary);
         bankWireAddress = (TextView) findViewById(R.id.bank_wire_address);
         bankWireIban = (TextView) findViewById(R.id.bank_wire_iban);
         bankWireBic = (TextView) findViewById(R.id.bank_wire_bic);
         bankWireAmount = (TextView) findViewById(R.id.bank_wire_amount);
         bankWireCommunication = (TextView) findViewById(R.id.bank_wire_communication);
-        validationButton = (Button) findViewById(R.id.validation_button);*/
+        validationButton = (Button) findViewById(R.id.validation_button);
 
         visaCheckbox.setOnClickListener(this);
         mastercardCheckbox.setOnClickListener(this);
         cbCheckbox.setOnClickListener(this);
         bcmcCheckbox.setOnClickListener(this);
-        //bankWireCheckbox.setOnClickListener(this);
+        bankWireCheckbox.setOnClickListener(this);
         easyPaymentCheckBox.setOnClickListener(this);
 
         getPreRegistrationCardData();
@@ -328,7 +326,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     mastercardCheckbox.setChecked(false);
                     cbCheckbox.setChecked(false);
                     bcmcCheckbox.setChecked(false);
-                    //bankWireCheckbox.setChecked(false);
+                    bankWireCheckbox.setChecked(false);
 
                     if (userCreditCards.size() > 0) {
                         ArrayList<String> cardIdList = new ArrayList<>();
@@ -345,8 +343,8 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     cardType = "CB_VISA_MASTERCARD";
                     cardNumberLinearLayout.setVisibility(View.GONE);
                     newCreditCardLinearLayout.setVisibility(View.GONE);
-                    //bankWireData.setVisibility(View.GONE);
-                    //validationButton.setVisibility(View.VISIBLE);
+                    bankWireData.setVisibility(View.GONE);
+                    validationButton.setVisibility(View.VISIBLE);
                     paymentMode = "cd";
 
                 }
@@ -359,12 +357,12 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     mastercardCheckbox.setChecked(false);
                     cbCheckbox.setChecked(false);
                     bcmcCheckbox.setChecked(false);
-                    //bankWireCheckbox.setChecked(false);
+                    bankWireCheckbox.setChecked(false);
 
                     setCreditCardSpinner();
                     paymentMode = "cd";
-                    //bankWireData.setVisibility(View.GONE);
-                    //validationButton.setVisibility(View.VISIBLE);
+                    bankWireData.setVisibility(View.GONE);
+                    validationButton.setVisibility(View.VISIBLE);
                 }
                 break;
             case R.id.mastercard:
@@ -375,12 +373,12 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     mastercardCheckbox.setChecked(true);
                     cbCheckbox.setChecked(false);
                     bcmcCheckbox.setChecked(false);
-                    //bankWireCheckbox.setChecked(false);
+                    bankWireCheckbox.setChecked(false);
 
                     setCreditCardSpinner();
                     paymentMode = "cd";
-                    //bankWireData.setVisibility(View.GONE);
-                    //validationButton.setVisibility(View.VISIBLE);
+                    bankWireData.setVisibility(View.GONE);
+                    validationButton.setVisibility(View.VISIBLE);
                 }
                 break;
             case R.id.cb:
@@ -391,12 +389,12 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     mastercardCheckbox.setChecked(false);
                     cbCheckbox.setChecked(true);
                     bcmcCheckbox.setChecked(false);
-                    //bankWireCheckbox.setChecked(false);
+                    bankWireCheckbox.setChecked(false);
 
                     setCreditCardSpinner();
                     paymentMode = "cd";
-                    //bankWireData.setVisibility(View.GONE);
-                    //validationButton.setVisibility(View.VISIBLE);
+                    bankWireData.setVisibility(View.GONE);
+                    validationButton.setVisibility(View.VISIBLE);
                 }
                 break;
             case R.id.bcmc:
@@ -407,16 +405,16 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     mastercardCheckbox.setChecked(false);
                     cbCheckbox.setChecked(false);
                     bcmcCheckbox.setChecked(true);
-                    //bankWireCheckbox.setChecked(false);
+                    bankWireCheckbox.setChecked(false);
 
                     cardNumberLinearLayout.setVisibility(View.GONE);
                     newCreditCardLinearLayout.setVisibility(View.GONE);
-                    //bankWireData.setVisibility(View.GONE);
-                    //validationButton.setVisibility(View.VISIBLE);
+                    bankWireData.setVisibility(View.GONE);
+                    validationButton.setVisibility(View.VISIBLE);
                     paymentMode = "bancontact";
                 }
                 break;
-            /*case R.id.banck_wire:
+            case R.id.banck_wire:
                 if (checked) {
                     cardType = "BANK_WIRE";
                     easyPaymentCheckBox.setChecked(false);
@@ -429,7 +427,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     cardNumberLinearLayout.setVisibility(View.GONE);
                     newCreditCardLinearLayout.setVisibility(View.GONE);
                 }
-                break;*/
+                break;
         }
 
     }
@@ -537,14 +535,14 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     }
                 }
                 break;
-            /*case "bank wire":
+            case "bank wire":
                 BankWireData bankWireData = response.body().getBankWireData();
                 displayBankWireData(bankWireData);
-                break;*/
+                break;
         }
     }
 
-    /*public void displayBankWireData(BankWireData newBankWireData) {
+    public void displayBankWireData(BankWireData newBankWireData) {
         bankWireData.setVisibility(View.VISIBLE);
         validationButton.setVisibility(View.GONE);
         bankWireBeneficiary.setText(newBankWireData.getBankAccount().getOwnerName());
@@ -553,7 +551,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         bankWireBic.setText(newBankWireData.getBankAccount().getBic());
         bankWireAmount.setText(currentAmount);
         bankWireCommunication.setText(newBankWireData.getWireReference());
-    }*/
+    }
 
     public void startProgressDialog() {
         progressDialog.setMessage("Loading...");

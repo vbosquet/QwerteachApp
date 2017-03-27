@@ -1,7 +1,9 @@
 package com.qwerteach.wivi.qwerteachapp;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.icu.text.LocaleDisplayNames;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -53,6 +55,7 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
     RecyclerView.LayoutManager conversationLayoutManager;
     User user;
     TextView emptyMailboxTitle, emptyMailboxMessage;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +69,7 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
         emptyMailboxMessage = (TextView) findViewById(R.id.empty_mailbox_message);
         conversationRecyclerView = (RecyclerView) findViewById(R.id.conversation_list_view);
         service = ApiClient.getClient().create(QwerteachService.class);
+        progressDialog = new ProgressDialog(this);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         Gson gson = new Gson();
@@ -77,18 +81,17 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
     }
 
     public void getAllConversations() {
+        startProgressDialog();
         Call<JsonResponse> call = service.getConversations(user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 if (response.body() != null) {
 
-                    List<Message> messages = response.body().getMessages();
                     conversationsList = response.body().getConversations();
                     usersList = response.body().getRecipients();
-                    List<String> avatars = response.body().getAvatars();
+                    List<Message> messages = response.body().getMessages();
                     List<String> participantAvatar = response.body().getParticipantAvatars();
-
 
                     for (int i = 0; i < conversationsList.size(); i++) {
                         int conversationId = conversationsList.get(i).getConversationId();
@@ -96,22 +99,17 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
                         conversationsList.get(i).getUser().setAvatarUrl(participantAvatar.get(i));
 
                         for (int j = 0; j < messages.size(); j++) {
-                            boolean isMine = false;
-                            if (Objects.equals(user.getUserId(), messages.get(j).getSenderId())) {
-                                isMine = true;
-                            }
-                            messages.get(j).setMine(isMine);
-                            messages.get(j).setAvatar(avatars.get(j));
-
                             if (Objects.equals(messages.get(j).getConversationId(), conversationId)) {
-                                conversationsList.get(i).addMessageToConverstaion(messages.get(j));
-                            }
-
-                            if (conversationId == conversationsList.get(conversationsList.size() - 1).getConversationId()) {
-                                displayConversationListView();
+                                conversationsList.get(i).setLastMessage(messages.get(j));
                             }
                         }
+
+                        if (conversationId == conversationsList.get(conversationsList.size() - 1).getConversationId()) {
+                            progressDialog.dismiss();
+                            displayConversationListView();
+                        }
                     }
+
                 } else {
                     emptyMailboxTitle.setVisibility(View.VISIBLE);
                     emptyMailboxMessage.setVisibility(View.VISIBLE);
@@ -159,5 +157,13 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("conversation", conversationsList.get(index));
         startActivity(intent);
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 }

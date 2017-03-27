@@ -185,4 +185,7 @@ public interface QwerteachService {
     Call<JsonResponse> getMoreMessages(@Path("id") int conversationId, @Path("page") int pageNumber,
                                        @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
+    @GET("conversations/{id}")
+    Call<JsonResponse> showMessages(@Path("id") int conversationId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
 }

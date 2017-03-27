@@ -21,10 +21,9 @@ public class Conversation implements Serializable{
     @SerializedName("updated_at")
     private String conversationUpdatingDate;
     private User user;
-    private List<Message> messages;
+    private Message lastMessage;
 
     public Conversation() {
-        messages = new ArrayList<>();
     }
 
     public Integer getConversationId() {
@@ -67,15 +66,11 @@ public class Conversation implements Serializable{
         this.user = user;
     }
 
-    public List<Message> getMessages() {
-        return messages;
+    public Message getLastMessage() {
+        return lastMessage;
     }
 
-    public void setMessages(List<Message> messages) {
-        this.messages = messages;
-    }
-
-    public void addMessageToConverstaion(Message message) {
-        messages.add(message);
+    public void setLastMessage(Message lastMessage) {
+        this.lastMessage = lastMessage;
     }
 }

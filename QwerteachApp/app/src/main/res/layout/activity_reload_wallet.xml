@@ -147,11 +147,11 @@
                 android:id="@+id/bcmc"
                 android:text="@string/bancontact_checkbox"/>
 
-            <!--<CheckBox
+            <CheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/banck_wire"
-                android:text="@string/bank_wire_checkbox"/>-->
+                android:text="@string/bank_wire_checkbox"/>
 
         </LinearLayout>
 

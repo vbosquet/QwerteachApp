@@ -1,5 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -53,6 +54,7 @@ public class ChatActivity extends AppCompatActivity {
     QwerteachService service;
     User user;
     boolean loading = true;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,12 +76,10 @@ public class ChatActivity extends AppCompatActivity {
         actionBar.setTitle(conversation.getUser().getFirstName());
 
         service = ApiClient.getClient().create(QwerteachService.class);
-
         messageToSendEditText = (EditText) findViewById(R.id.message_to_send_edit_text);
         messageRecyclerView = (RecyclerView) findViewById(R.id.message_list_view);
-        messages = conversation.getMessages();
-        scrollPosition = messages.size() - 1;
-        displayMessagesListView();
+        progressDialog = new ProgressDialog(this);
+        showMessages();
 
         PusherOptions options = new PusherOptions();
         options.setCluster("eu");
@@ -100,6 +100,35 @@ public class ChatActivity extends AppCompatActivity {
                         addNewMessage(message);
                     }
                 });
+            }
+        });
+    }
+
+    public void showMessages() {
+        startProgressDialog();
+        Call<JsonResponse> call = service.showMessages(conversation.getConversationId(), user.getEmail(), user.getToken());
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                messages = response.body().getMessages();
+                List<String> avatars = response.body().getAvatars();
+                for (int j = 0; j < messages.size(); j++) {
+                    boolean isMine = false;
+                    if (Objects.equals(user.getUserId(), messages.get(j).getSenderId())) {
+                        isMine = true;
+                    }
+                    messages.get(j).setMine(isMine);
+                    messages.get(j).setAvatar(avatars.get(j));
+                }
+
+                scrollPosition = messages.size() - 1;
+                progressDialog.dismiss();
+                displayMessagesListView();
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
             }
         });
     }
@@ -210,5 +239,13 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 }

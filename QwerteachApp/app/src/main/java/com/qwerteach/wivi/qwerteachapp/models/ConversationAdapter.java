@@ -48,25 +48,22 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     public void onBindViewHolder(ViewHolder holder, final int position) {
         final Conversation conversation = conversations.get(position);
 
-        List<Message> messages = conversation.getMessages();
-        String lastMessage = messages.get(messages.size() - 1).getBody();
-
-        String dateToFormat = messages.get(messages.size() - 1).getCreationDate();
+        String lastMessage = conversation.getLastMessage().getBody();
+        String dateToFormat = conversation.getLastMessage().getCreationDate();
         Date oldDate = getDate(dateToFormat);
         Date currentDate = new Date();
-
-        holder.recipient.setText(conversation.getUser().getFirstName());
         holder.body.setText(lastMessage);
-        holder.creationDate.setText(String.valueOf(DateUtils.getRelativeTimeSpanString(oldDate.getTime(), currentDate.getTime(),DateUtils.MINUTE_IN_MILLIS)));
-
+        holder.creationDate.setText(String.valueOf(DateUtils.getRelativeTimeSpanString(oldDate.getTime(),
+                currentDate.getTime(),DateUtils.MINUTE_IN_MILLIS)));
+        holder.recipient.setText(conversation.getUser().getFirstName());
+        Picasso.with(context).load(conversation.getUser().getAvatarUrl())
+                .resize(150, 150).centerCrop().into(holder.avatar);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 callback.didTouchConversation(position);
             }
         });
-
-        Picasso.with(context).load(conversation.getUser().getAvatarUrl()).resize(150, 150).centerCrop().into(holder.avatar);
 
     }
 
@@ -89,7 +86,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         }
     }
 
-    public static Date getDate(String dateToFormat) {
+    private static Date getDate(String dateToFormat) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         Date date = null;
         try {
