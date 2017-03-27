@@ -469,7 +469,11 @@ public class CreateNewLessonFragment extends Fragment implements
 
     @Override
     public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
-        timeTextView.setText(hourOfDay+":"+minute);
+        if (hourOfDay < 10) {
+            timeTextView.setText("0" + hourOfDay+":"+minute);
+        } else {
+            timeTextView.setText(hourOfDay+":"+minute);
+        }
 
     }
 
