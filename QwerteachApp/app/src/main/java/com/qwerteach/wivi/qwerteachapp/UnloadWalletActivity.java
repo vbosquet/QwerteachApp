@@ -73,7 +73,7 @@ public class UnloadWalletActivity extends AppCompatActivity implements
 
         accountNumbers = new ArrayList<>();
         for (int i = 0; i < userBankAccounts.size(); i++) {
-            String bankAccount = "";
+            String bankAccount;
             if (userBankAccounts.get(i).getType().equals("IBAN")) {
                 bankAccount = userBankAccounts.get(i).getIban();
             } else {

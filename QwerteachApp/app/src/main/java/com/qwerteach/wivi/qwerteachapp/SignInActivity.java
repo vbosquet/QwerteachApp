@@ -64,8 +64,8 @@ public class SignInActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        email = (EditText) findViewById(R.id.email);
-        password = (EditText) findViewById(R.id.password);
+        email = (EditText) findViewById(R.id.email_sign_in);
+        password = (EditText) findViewById(R.id.password_sign_in);
 
         service = ApiClient.getClient().create(QwerteachService.class);
 

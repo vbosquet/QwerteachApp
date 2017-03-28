@@ -36,7 +36,7 @@
         android:layout_height="wrap_content" >
 
         <EditText
-            android:id="@+id/email"
+            android:id="@+id/email_sign_in"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/email_edit_text"
@@ -50,7 +50,7 @@
         android:layout_height="wrap_content">
 
         <EditText
-            android:id="@+id/password"
+            android:id="@+id/password_sign_in"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/password_edit_text"

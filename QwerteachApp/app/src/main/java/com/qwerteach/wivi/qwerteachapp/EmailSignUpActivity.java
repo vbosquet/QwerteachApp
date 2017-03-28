@@ -66,8 +66,8 @@ public class EmailSignUpActivity extends AppCompatActivity  {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        email = (EditText) findViewById(R.id.email);
-        password = (EditText) findViewById(R.id.password);
+        email = (EditText) findViewById(R.id.email_sign_up);
+        password = (EditText) findViewById(R.id.password_sign_up);
         passwordConfirmation = (EditText) findViewById(R.id.passwordConfirmation);
 
         service = ApiClient.getClient().create(QwerteachService.class);

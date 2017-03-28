@@ -49,7 +49,6 @@ public class VirtualWalletActivity extends AppCompatActivity {
     ArrayList<Transaction> transactions;
     ArrayList<UserBankAccount> userBankAccounts;
     Intent intent;
-    boolean isTeacher;
     ProgressDialog progressDialog;
     UserWalletInfos userWalletInfos;
     double totalWallet;
@@ -68,7 +67,6 @@ public class VirtualWalletActivity extends AppCompatActivity {
         Gson gson = new Gson();
         String json = preferences.getString("user", "");
         user = gson.fromJson(json, User.class);
-        isTeacher = preferences.getBoolean("isTeacher", false);
 
         service = ApiClient.getClient().create(QwerteachService.class);
         progressDialog = new ProgressDialog(this);
@@ -81,7 +79,7 @@ public class VirtualWalletActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.virtual_wallet_menu, menu);
 
-        if(isTeacher) {
+        if(user.getPostulanceAccepted()) {
             MenuItem menuItem = menu.findItem(R.id.unload_wallet_button);
             menuItem.setVisible(true);
         }
