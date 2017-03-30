@@ -104,12 +104,9 @@ public class EmailSignUpActivity extends AppCompatActivity  {
 
                 if (connected) {
                     Boolean emailValidated = emailValidator(email.getText().toString());
-
                     if (emailValidated) {
-
                         if (!password.getText().toString().equals(passwordConfirmation.getText().toString())) {
                             displayToastMessage(R.string.password_confirmation_problem_message);
-
                         } else {
                             boolean passwordValidated = passwordValidator(password.getText().toString());
                             if (passwordValidated) {
@@ -117,7 +114,6 @@ public class EmailSignUpActivity extends AppCompatActivity  {
                             } else {
                                 displayToastMessage(R.string.password_validation_message);
                             }
-
                         }
 
                     } else {
@@ -156,11 +152,9 @@ public class EmailSignUpActivity extends AppCompatActivity  {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 String success = response.body().getSuccess();
-
                 switch (success) {
                     case "true":
                         User user = response.body().getUser();
-
                         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                         SharedPreferences.Editor editor = preferences.edit();
                         Gson gson = new Gson();
@@ -172,11 +166,9 @@ public class EmailSignUpActivity extends AppCompatActivity  {
                         Toast.makeText(getApplicationContext(), R.string.registration_success_toast, Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
                         startActivity(intent);
-
                         break;
                     case "exist":
                         displayToastMessage(R.string.email_already_in_use_message);
-
                         break;
                     default:
                         displayToastMessage(R.string.registration_error_message);
@@ -206,15 +198,15 @@ public class EmailSignUpActivity extends AppCompatActivity  {
     }
 
     public boolean emailValidator(String email) {
-        String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-        Pattern pattern = Pattern.compile(EMAIL_PATTERN);
+        String emailPattern = "\\A[^@\\s]+@[^@\\s]+\\z";
+        Pattern pattern = Pattern.compile(emailPattern);
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
     }
 
     public boolean passwordValidator(String password) {
-        String PASSWORD_PATTERN = "(.{8,128})";
-        Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
+        String passwordPattern = "(.{8,128})";
+        Pattern pattern = Pattern.compile(passwordPattern);
         Matcher matcher = pattern.matcher(password);
         return matcher.matches();
     }
