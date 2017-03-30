@@ -1,5 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -39,6 +40,7 @@ public class SignInActivity extends AppCompatActivity {
     TextView connectionProblemMessage;
     Menu myMenu;
     QwerteachService service;
+    ProgressDialog progressDialog;
 
     TextWatcher textWatcher = new TextWatcher() {
         @Override
@@ -70,6 +72,7 @@ public class SignInActivity extends AppCompatActivity {
         connectionProblemMessage = (TextView) findViewById(R.id.problem_message_sign_in_textview);
 
         service = ApiClient.getClient().create(QwerteachService.class);
+        progressDialog = new ProgressDialog(this);
         email.addTextChangedListener(textWatcher);
         password.addTextChangedListener(textWatcher);
     }
@@ -111,6 +114,7 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     public void signIn() {
+        startProgressDialog();
         Map<String, String> data = new HashMap<>();
         data.put("email", email.getText().toString());
         data.put("password", password.getText().toString());
@@ -125,10 +129,10 @@ public class SignInActivity extends AppCompatActivity {
                 String success = response.body().getSuccess();
 
                 if (success.equals("false")) {
+                    progressDialog.dismiss();
                     connectionProblemMessage.setText(R.string.login_error_message);
                 } else {
                     User user = response.body().getUser();
-
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                     SharedPreferences.Editor editor = preferences.edit();
                     Gson gson = new Gson();
@@ -137,6 +141,7 @@ public class SignInActivity extends AppCompatActivity {
                     editor.putBoolean("isLogin", true);
                     editor.apply();
 
+                    progressDialog.dismiss();
                     Toast.makeText(getApplication(), R.string.connection_success_toast, Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
                     startActivity(intent);
@@ -175,5 +180,13 @@ public class SignInActivity extends AppCompatActivity {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         return (networkInfo != null && networkInfo.isConnected());
 
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 }

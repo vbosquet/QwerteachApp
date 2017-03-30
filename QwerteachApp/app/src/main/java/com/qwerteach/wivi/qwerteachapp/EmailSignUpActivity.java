@@ -1,5 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -40,6 +41,7 @@ public class EmailSignUpActivity extends AppCompatActivity  {
     EditText email, password, passwordConfirmation;
     Menu myMenu;
     QwerteachService service;
+    ProgressDialog progressDialog;
 
     TextWatcher textWatcher = new TextWatcher() {
         @Override
@@ -71,7 +73,7 @@ public class EmailSignUpActivity extends AppCompatActivity  {
         passwordConfirmation = (EditText) findViewById(R.id.password_confirmation);
 
         service = ApiClient.getClient().create(QwerteachService.class);
-
+        progressDialog = new ProgressDialog(this);
         email.addTextChangedListener(textWatcher);
         password.addTextChangedListener(textWatcher);
         passwordConfirmation.addTextChangedListener(textWatcher);
@@ -139,6 +141,7 @@ public class EmailSignUpActivity extends AppCompatActivity  {
     }
 
     public void signUpWithEmail() {
+        startProgressDialog();
         Map<String, String> data = new HashMap<>();
         data.put("email", email.getText().toString());
         data.put("password", password.getText().toString());
@@ -163,14 +166,17 @@ public class EmailSignUpActivity extends AppCompatActivity  {
                         editor.putBoolean("isLogin", true);
                         editor.apply();
 
+                        progressDialog.dismiss();
                         Toast.makeText(getApplicationContext(), R.string.registration_success_toast, Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
                         startActivity(intent);
                         break;
                     case "exist":
+                        progressDialog.dismiss();
                         displayToastMessage(R.string.email_already_in_use_message);
                         break;
                     default:
+                        progressDialog.dismiss();
                         displayToastMessage(R.string.registration_error_message);
                         break;
                 }
@@ -222,6 +228,14 @@ public class EmailSignUpActivity extends AppCompatActivity  {
         } else {
             myMenu.findItem(R.id.sign_up_button).setEnabled(false);
         }
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 
 }
