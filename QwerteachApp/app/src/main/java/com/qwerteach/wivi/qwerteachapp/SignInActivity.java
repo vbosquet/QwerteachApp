@@ -36,6 +36,7 @@ import retrofit2.Response;
 public class SignInActivity extends AppCompatActivity {
 
     EditText email, password;
+    TextView connectionProblemMessage;
     Menu myMenu;
     QwerteachService service;
 
@@ -66,9 +67,9 @@ public class SignInActivity extends AppCompatActivity {
 
         email = (EditText) findViewById(R.id.email_sign_in);
         password = (EditText) findViewById(R.id.password_sign_in);
+        connectionProblemMessage = (TextView) findViewById(R.id.problem_message_sign_in_textview);
 
         service = ApiClient.getClient().create(QwerteachService.class);
-
         email.addTextChangedListener(textWatcher);
         password.addTextChangedListener(textWatcher);
     }
@@ -99,14 +100,8 @@ public class SignInActivity extends AppCompatActivity {
 
                 if (connected) {
                     signIn();
-
                 } else {
-                    TextView connectionProblemMessage = (TextView) findViewById(R.id.problem_message_textview);
-                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) connectionProblemMessage.getLayoutParams();
-                    params.setMargins(0, 15, 0, 15);
-                    connectionProblemMessage.setLayoutParams(params);
                     connectionProblemMessage.setText(R.string.sign_in_connection_problem_message);
-
                 }
 
                 return  true;
@@ -130,12 +125,7 @@ public class SignInActivity extends AppCompatActivity {
                 String success = response.body().getSuccess();
 
                 if (success.equals("false")) {
-                    TextView connectionProblemMessage = (TextView) findViewById(R.id.problem_message_textview);
-                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) connectionProblemMessage.getLayoutParams();
-                    params.setMargins(0, 15, 0, 15);
-                    connectionProblemMessage.setLayoutParams(params);
                     connectionProblemMessage.setText(R.string.login_error_message);
-
                 } else {
                     User user = response.body().getUser();
 
@@ -175,7 +165,6 @@ public class SignInActivity extends AppCompatActivity {
 
         if (emailField.trim().length() > 0 && passwordField.trim().length() > 0) {
             myMenu.findItem(R.id.sign_in_button).setEnabled(true);
-
         } else {
             myMenu.findItem(R.id.sign_in_button).setEnabled(false);
         }

@@ -86,13 +86,12 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                if (response.body() != null) {
+                conversationsList = response.body().getConversations();
+                usersList = response.body().getRecipients();
+                List<Message> messages = response.body().getMessages();
+                List<String> participantAvatar = response.body().getParticipantAvatars();
 
-                    conversationsList = response.body().getConversations();
-                    usersList = response.body().getRecipients();
-                    List<Message> messages = response.body().getMessages();
-                    List<String> participantAvatar = response.body().getParticipantAvatars();
-
+                if (conversationsList.size() > 0) {
                     for (int i = 0; i < conversationsList.size(); i++) {
                         int conversationId = conversationsList.get(i).getConversationId();
                         conversationsList.get(i).setUser(usersList.get(i));
@@ -109,8 +108,9 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
                             displayConversationListView();
                         }
                     }
-
+                    
                 } else {
+                    progressDialog.dismiss();
                     emptyMailboxTitle.setVisibility(View.VISIBLE);
                     emptyMailboxMessage.setVisibility(View.VISIBLE);
                 }

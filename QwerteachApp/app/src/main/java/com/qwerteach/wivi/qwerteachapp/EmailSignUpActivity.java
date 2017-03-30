@@ -68,7 +68,7 @@ public class EmailSignUpActivity extends AppCompatActivity  {
 
         email = (EditText) findViewById(R.id.email_sign_up);
         password = (EditText) findViewById(R.id.password_sign_up);
-        passwordConfirmation = (EditText) findViewById(R.id.passwordConfirmation);
+        passwordConfirmation = (EditText) findViewById(R.id.password_confirmation);
 
         service = ApiClient.getClient().create(QwerteachService.class);
 
@@ -134,7 +134,7 @@ public class EmailSignUpActivity extends AppCompatActivity  {
     }
 
     public void displayToastMessage(int idString) {
-        TextView passwordConfirmationProblemMessage = (TextView) findViewById(R.id.problem_message_textview);
+        TextView passwordConfirmationProblemMessage = (TextView) findViewById(R.id.problem_message_sign_up_textview);
         LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) passwordConfirmationProblemMessage.getLayoutParams();
         params.setMargins(0, 15, 0, 15);
         passwordConfirmationProblemMessage.setLayoutParams(params);

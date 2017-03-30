@@ -396,7 +396,7 @@ public class DashboardFragment extends Fragment {
         try {
             PusherAndroid pusher = new PusherAndroid("1e87927ec5fb91180bb0");
             PushNotificationRegistration nativePusher = pusher.nativePusher();
-            nativePusher.subscribe("qwerteach");
+            nativePusher.subscribe(String.valueOf(user.getUserId()));
             nativePusher.registerFCM(getContext());
 
             nativePusher.setFCMListener(new FCMPushNotificationReceivedListener() {

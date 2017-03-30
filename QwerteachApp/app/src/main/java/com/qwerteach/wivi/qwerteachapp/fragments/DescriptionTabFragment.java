@@ -246,7 +246,7 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
 
         if (requestCode == 1 && resultCode == RESULT_OK && null != data) {
             Uri imageUri = data.getData();
-            CropImage.activity(imageUri).setMaxCropResultSize(2250, 2250).start(getContext(), this);
+            CropImage.activity(imageUri).setMaxCropResultSize(2100, 2100).start(getContext(), this);
 
         } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);

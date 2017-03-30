@@ -227,7 +227,6 @@ public class SearchTeacherActivity extends AppCompatActivity implements
 
     public void getSearchResults(String query, final String searchSortingOption, int pageNumber) {
         optionList.clear();
-
         Call<JsonResponse> call = service.getSearchResults(query, searchSortingOption, pageNumber, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override

@@ -18,7 +18,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
+import com.pusher.android.PusherAndroid;
+import com.pusher.android.notifications.ManifestValidator;
+import com.pusher.android.notifications.PushNotificationRegistration;
+import com.pusher.android.notifications.fcm.FCMPushNotificationReceivedListener;
 import com.pusher.client.Pusher;
 import com.pusher.client.PusherOptions;
 import com.pusher.client.channel.Channel;
