@@ -108,7 +108,7 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
                             displayConversationListView();
                         }
                     }
-                    
+
                 } else {
                     progressDialog.dismiss();
                     emptyMailboxTitle.setVisibility(View.VISIBLE);

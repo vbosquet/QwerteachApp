@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.github.curioustechizen.ago.RelativeTimeTextView;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.squareup.picasso.Picasso;
 
@@ -19,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -51,10 +53,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         String lastMessage = conversation.getLastMessage().getBody();
         String dateToFormat = conversation.getLastMessage().getCreationDate();
         Date oldDate = getDate(dateToFormat);
-        Date currentDate = new Date();
+
         holder.body.setText(lastMessage);
-        holder.creationDate.setText(String.valueOf(DateUtils.getRelativeTimeSpanString(oldDate.getTime(),
-                currentDate.getTime(),DateUtils.MINUTE_IN_MILLIS)));
+        holder.creationDate.setReferenceTime(oldDate.getTime());
         holder.recipient.setText(conversation.getUser().getFirstName());
         Picasso.with(context).load(conversation.getUser().getAvatarUrl())
                 .resize(150, 150).centerCrop().into(holder.avatar);
@@ -73,21 +74,23 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView recipient, body, creationDate;
+        TextView recipient, body;
         ImageView avatar;
+        RelativeTimeTextView creationDate;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
             recipient = (TextView) itemView.findViewById(R.id.recipient);
             body = (TextView) itemView.findViewById(R.id.body);
-            creationDate = (TextView) itemView.findViewById(R.id.creation_date);
+            creationDate = (RelativeTimeTextView) itemView.findViewById(R.id.creation_date);
             avatar = (ImageView) itemView.findViewById(R.id.user_avatar);
         }
     }
 
     private static Date getDate(String dateToFormat) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date date = null;
         try {
             date = format.parse(dateToFormat);
