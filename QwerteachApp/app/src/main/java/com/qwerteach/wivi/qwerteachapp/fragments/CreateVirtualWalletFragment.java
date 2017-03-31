@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -29,6 +30,7 @@ import com.qwerteach.wivi.qwerteachapp.models.UserWalletInfos;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -189,14 +191,19 @@ public class CreateVirtualWalletFragment extends Fragment implements
                     Toast.makeText(getContext(), R.string.registration_new_wallet_success_toast_message, Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getActivity(), VirtualWalletActivity.class);
                     startActivity(intent);
-                } else if (message.equals("errors")) {
-                    Toast.makeText(getContext(), R.string.registration_new_wallet_erros_toast_messsage, Toast.LENGTH_SHORT).show();
+                } else if (message.equals("false")) {
+                    String errorMessage = response.body().getErrorMesage();
+                    if (errorMessage.equals("Internal Server Error")) {
+                        Toast.makeText(getContext(), R.string.internal_server_error, Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(getContext(), R.string.registration_new_wallet_error_toast_messsage, Toast.LENGTH_LONG).show();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("FAILURE", t.toString());
             }
         });
     }

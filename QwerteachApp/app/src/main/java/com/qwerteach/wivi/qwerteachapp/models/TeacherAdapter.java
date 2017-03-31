@@ -65,7 +65,7 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.ViewHold
 
         Picasso.with(context)
                 .load(teacher.getUser().getAvatarUrl())
-                .resize(holder.teacherAvatar.getWidth(), 1000)
+                .resize(1800, 1800).centerInside()
                 .into(holder.teacherAvatar);
 
     }

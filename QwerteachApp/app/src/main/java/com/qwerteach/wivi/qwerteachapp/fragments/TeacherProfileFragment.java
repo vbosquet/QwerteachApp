@@ -143,7 +143,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
             displayLastComment();
         }
 
-        Picasso.with(getContext()).load(teacher.getUser().getAvatarUrl()).resize(teacherAvatar.getWidth(), 1000).into(teacherAvatar);
+        Picasso.with(getContext()).load(teacher.getUser().getAvatarUrl()).resize(1800, 1800).centerInside().into(teacherAvatar);
     }
 
     public void displayLastComment() {

@@ -110,6 +110,8 @@ public class JsonResponse {
     private BankWireData bankWireData;
     @SerializedName("errors")
     private List<String> errorMessages;
+    @SerializedName("error")
+    private String errorMesage;
 
     public String getAvatar() {
         return avatar;
@@ -305,6 +307,10 @@ public class JsonResponse {
 
     public List<String> getErrorMessages() {
         return errorMessages;
+    }
+
+    public String getErrorMesage() {
+        return errorMesage;
     }
 
     public static class Duration

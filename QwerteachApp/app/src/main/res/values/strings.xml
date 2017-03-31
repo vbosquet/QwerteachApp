@@ -141,7 +141,8 @@
     <string name="nationality_text_view">Nationalité</string>
     <string name="residence_place_text_view">Lieu de résidence</string>
     <string name="registration_new_wallet_success_toast_message">Votre Portefeuille virtuel a été créé avec succès.</string>
-    <string name="registration_new_wallet_erros_toast_messsage">Impossible de créer votre Portefeuille virtuel. Veuillez remplir tous les champs.</string>
+    <string name="registration_new_wallet_error_toast_messsage">Impossible de créer votre Portefeuille virtuel. Veuillez remplir tous les champs.</string>
+    <string name="internal_server_error">Impossible de créer votre Portefeuille virtuel. Essayez à nouveau.</string>
     <string name="payment_method_activity_title">Paiement</string>
     <string name="payment_with_virtual_wallet">Payer avec mon Portefeuille virtuel</string>
     <string name="payment_with_bancontact">Payer par Bancontact</string>
@@ -246,4 +247,9 @@
     <string name="error_payment_message">Impossible d\'effectuer le payement. Veuillez réessayer.</string>
     <string name="check_expiration_date">Attention : la date de votre carte de crédit est expirée.</string>
     <string name="check_card_number">Veuillez introduire un numéro de carte de crédit.</string>
+    <string name="date_expiration_text_view">Date expiration</string>
+    <string name="card_number_text_view">Numéro de carte</string>
+    <string name="card_validity_text_view">CVV</string>
+    <string name="credit_card_choice_text_view">Sélectionnez une de vos cartes de crédit</string>
+    <string name="bancontact_text_view">Nous allons vous rediriger vers le terminal de votre banque pour finaliser le paiement.</string>
 </resources>

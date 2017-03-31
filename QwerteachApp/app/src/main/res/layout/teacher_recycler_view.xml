@@ -27,7 +27,8 @@
         <ImageView
             android:id="@+id/teacher_avatar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"/>
 
         <TextView
             android:id="@+id/teacher_name_text_view"

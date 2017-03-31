@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -212,15 +213,9 @@ public class LessonsAdapter extends RecyclerView.Adapter<LessonsAdapter.ViewHold
             holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
             displayReviewButton(holder);
 
-        } else if (lesson.getStatus().equals("disputed") && userId.equals(String.valueOf(lesson.getStudentId()))) {
+        } else if (lesson.getStatus().equals("disputed")) {
             holder.lessonStatus.setVisibility(View.VISIBLE);
             holder.lessonStatus.setText(R.string.lesson_disputed_status);
-            holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.orange));
-            removeAllButtons(holder);
-
-        } else if (lesson.getStatus().equals("disputed") && userId.equals(String.valueOf(lesson.getTeacherId()))) {
-            holder.lessonStatus.setVisibility(View.VISIBLE);
-            holder.lessonStatus.setText(R.string.lesson_waiting_for_payment_status);
             holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.orange));
             removeAllButtons(holder);
 
@@ -228,12 +223,11 @@ public class LessonsAdapter extends RecyclerView.Adapter<LessonsAdapter.ViewHold
             holder.lessonStatus.setVisibility(View.GONE);
             removeAllButtons(holder);
 
-        } else if (lesson.getStatus().equals("waiting")){
+        } else if (lesson.getStatus().equals("waiting")) {
             holder.lessonStatus.setText(R.string.lesson_to_validate);
             holder.lessonStatus.setVisibility(View.VISIBLE);
             holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.orange));
             displayCancelButtonOnly(holder);
-
         }
 
     }

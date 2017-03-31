@@ -80,7 +80,8 @@
             android:parentActivityName=".DashboardActivity" />
         <activity
             android:name=".PaymentMethodActivity"
-            android:label="@string/payment_method_activity_title" />
+            android:label="@string/payment_method_activity_title"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".MangoPaySecureModeActivity"
             android:label="@string/mango_pay_web_view_activity_title"

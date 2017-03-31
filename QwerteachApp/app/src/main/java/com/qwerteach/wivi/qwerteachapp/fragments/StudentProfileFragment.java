@@ -59,6 +59,6 @@ public class StudentProfileFragment extends Fragment {
         ageTextView.setText(user.getAge() + " ans");
         occupationTextView.setText(user.getOccupation());
         descriptionTextView.setText(Html.fromHtml(user.getDescription()), TextView.BufferType.SPANNABLE);
-        Picasso.with(getContext()).load(user.getAvatarUrl()).resize(studentAvatar.getWidth(), 1000).into(studentAvatar);
+        Picasso.with(getContext()).load(user.getAvatarUrl()).resize(1800, 1800).centerInside().into(studentAvatar);
     }
 }

@@ -1,9 +1,11 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,6 +52,7 @@ public class UserInfosTabFragment extends Fragment implements
     UserWalletInfos userWalletInfos;
     QwerteachService service;
     User user;
+    ProgressDialog progressDialog;
 
     public static UserInfosTabFragment newInstance() {
         UserInfosTabFragment userInfosTabFragment = new UserInfosTabFragment();
@@ -68,6 +71,7 @@ public class UserInfosTabFragment extends Fragment implements
         locales = Locale.getAvailableLocales();
         countries = new ArrayList<>();
         service = ApiClient.getClient().create(QwerteachService.class);
+        progressDialog = new ProgressDialog(getContext());
 
         for (Locale locale : locales) {
             String country = locale.getDisplayCountry();
@@ -195,6 +199,8 @@ public class UserInfosTabFragment extends Fragment implements
 
     @Override
     public void onClick(View view) {
+        startProgressDialog();
+
         UserWalletInfos userWalletInfos = new UserWalletInfos();
         userWalletInfos.setFirstName(firstNameEditText.getText().toString());
         userWalletInfos.setLastName(lastNameEditText.getText().toString());
@@ -215,20 +221,27 @@ public class UserInfosTabFragment extends Fragment implements
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 String message = response.body().getMessage();
+                progressDialog.dismiss();
                 if (message.equals("true")) {
-
                     Toast.makeText(getContext(), R.string.updating_wallet_success_toast_message, Toast.LENGTH_SHORT).show();
 
-                } else if (message.equals("errors")) {
+                } else if (message.equals("false")) {
                     Toast.makeText(getContext(), R.string.updating_wallet_error_toast_message, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("FAILURE", t.toString());
             }
         });
+    }
 
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 }

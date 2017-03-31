@@ -1,5 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -50,22 +51,28 @@ import retrofit2.Response;
 public class PaymentMethodActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
         CompoundButton.OnCheckedChangeListener {
 
+    public static final String NEW_CREDIT_CARD = "Nouvelle carte de crédit";
+    public static final String BANCONTACT_MODE = "bancontact";
+    public static final String TRANSFER_MODE = "transfert";
+    public static final String CREDIT_CARD_MODE = "cd";
+
     Double totalPrice;
-    TextView totalWalletTextView;
-    Spinner otherPaymentMethodSpinner;
+    TextView totalWalletTextView, bancontactTextView;
+    Spinner otherPaymentMethodSpinner, creditCardSpinner, endMonthSpinner, endYearSpinner;
     CheckBox paymentWithVirtualWallet;
-    LinearLayout otherPaymentMethodDetailsLayout;
-    ArrayList<String> otherPaymentMethods, months, years;
-    String paymentMode = "";
+    LinearLayout newCreditCardLinearLayout, creditCardChoiceLinearLayout;
+    ArrayList<String> otherPaymentMethods, months, years, creditCards;
     Teacher teacher;
     Integer teacherId, totalWallet;
-    String cardId, currentAlias, currentMonth, currentYear;
+    String cardId, currentAlias, currentMonth, currentYear, paymentMode = "";
     ArrayList<UserCreditCard> userCreditCards;
     EditText cardNumberEditText, cvvEditText;
     CardRegistrationData cardRegistrationData;
     QwerteachService service;
     Call<JsonResponse> call;
     User user;
+    Intent intent;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +85,14 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
         totalWalletTextView = (TextView) findViewById(R.id.total_wallet_text_view);
         otherPaymentMethodSpinner = (Spinner) findViewById(R.id.other_paiment_method_spinner);
         paymentWithVirtualWallet = (CheckBox) findViewById(R.id.payment_with_virtual_wallet);
-        otherPaymentMethodDetailsLayout = (LinearLayout) findViewById(R.id.other_payment_method_details_layout);
+        cvvEditText = (EditText) findViewById(R.id.card_validity_edit_text);
+        cardNumberEditText = (EditText) findViewById(R.id.card_number_edit_text);
+        newCreditCardLinearLayout = (LinearLayout) findViewById(R.id.new_credit_card_linear_layout);
+        endMonthSpinner = (Spinner) findViewById(R.id.end_month_spinner);
+        endYearSpinner = (Spinner) findViewById(R.id.end_year_spinner);
+        creditCardSpinner = (Spinner) findViewById(R.id.credit_card_choice_spinner);
+        creditCardChoiceLinearLayout = (LinearLayout) findViewById(R.id.credit_card_choice_linear_layout);
+        bancontactTextView = (TextView) findViewById(R.id.bancontact_text_view);
         paymentWithVirtualWallet.setOnCheckedChangeListener(this);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -98,18 +112,26 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
         teacherId = teacher.getUser().getUserId();
         months = new ArrayList<>();
         years = new ArrayList<>();
+        creditCards = new ArrayList<>();
         service = ApiClient.getClient().create(QwerteachService.class);
+        progressDialog = new ProgressDialog(this);
 
         otherPaymentMethods = new ArrayList<>();
         otherPaymentMethods.add("Type de paiement");
         otherPaymentMethods.add("Carte de crédit");
         otherPaymentMethods.add("Bancontact");
 
+        setCreditCards();
+        setYears();
+        setMonths();
+
+        startProgressDialog();
         call = service.getTotalWallet(user.getUserId(), user.getEmail(), user.getToken());
         call.enqueue(new retrofit2.Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 totalWallet = response.body().getTotalWallet();
+                progressDialog.dismiss();
                 totalWalletTextView.setText("Solde de mon Portefeuille : " + totalWallet/100 + "€");
                 displayOtherPaymentMethodSpinner();
             }
@@ -140,53 +162,31 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
     }
 
     public void displayOtherPaymentMethodSpinner() {
-        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, otherPaymentMethods);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, otherPaymentMethods);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         otherPaymentMethodSpinner.setAdapter(arrayAdapter);
         otherPaymentMethodSpinner.setOnItemSelectedListener(this);
 
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        otherPaymentMethodDetailsLayout.removeAllViews();
-        months.clear();
-        years.clear();
-
-        String otherPaymentMethodName = adapterView.getItemAtPosition(i).toString();
-
-        if (otherPaymentMethodName.equals(otherPaymentMethods.get(1))) {
-            paymentMode = "cd";
-
-            if (userCreditCards.size() > 0) {
-                setCreditCardChoice();
-
-            } else {
-                currentAlias = "Nouvelle carte de crédit";
-                otherPaymentMethodDetailsLayout.addView(addNewCreditCard());
-            }
-
-        } else if (otherPaymentMethodName.equals(otherPaymentMethods.get(2))) {
-            paymentMode = "bancontact";
-            setBancontactForm();
+    public void setCreditCards() {
+        creditCards.add(NEW_CREDIT_CARD);
+        for (int i = 0; i < userCreditCards.size(); i++) {
+            String alias = userCreditCards.get(i).getAlias();
+            creditCards.add(alias);
         }
     }
 
-    @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
-
+    public void setYears() {
+        int thisYear = Calendar.getInstance().get(Calendar.YEAR);
+        for (int j = 2026; j >= thisYear; j--) {
+            years.add(Integer.toString(j));
+        }
+        Collections.reverse(years);
+        years.add("aaaa");
     }
 
-    public LinearLayout addNewCreditCard() {
-
-        LinearLayout mainLinearLayout = new LinearLayout(this);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        mainLinearLayout.setLayoutParams(layoutParams);
-        mainLinearLayout.setOrientation(LinearLayout.VERTICAL);
-
-        float scale = this.getResources().getDisplayMetrics().density;
-        int dpAsPixels = (int) (10 * scale + 0.5f);
-
+    public void setMonths() {
         months.add("mm");
         for (int j = 1; j <= 12; j++) {
             if (j >= 10) {
@@ -195,105 +195,77 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                 months.add("0" + j);
             }
         }
+    }
 
-        int thisYear = Calendar.getInstance().get(Calendar.YEAR);
-        for (int j = 2026; j >= thisYear; j--) {
-            years.add(Integer.toString(j));
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        switch (adapterView.getId()) {
+            case R.id.other_paiment_method_spinner:
+                String otherPaymentMethodName = adapterView.getItemAtPosition(i).toString();
+                if (otherPaymentMethodName.equals(otherPaymentMethods.get(0))) {
+                    newCreditCardLinearLayout.setVisibility(View.GONE);
+                    creditCardChoiceLinearLayout.setVisibility(View.GONE);
+                    bancontactTextView.setVisibility(View.GONE);
+                } else if (otherPaymentMethodName.equals(otherPaymentMethods.get(1))) {
+                    paymentMode = CREDIT_CARD_MODE;
+                    if (userCreditCards.size() > 0) {
+                        creditCardChoiceLinearLayout.setVisibility(View.VISIBLE);
+                        newCreditCardLinearLayout.setVisibility(View.GONE);
+                        bancontactTextView.setVisibility(View.GONE);
+                        paymentWithVirtualWallet.setChecked(false);
+                        setCreditCardSpinner();
+                    } else {
+                        currentAlias = NEW_CREDIT_CARD;
+                        newCreditCardLinearLayout.setVisibility(View.VISIBLE);
+                        bancontactTextView.setVisibility(View.GONE);
+                        paymentWithVirtualWallet.setChecked(false);
+                        addNewCreditCard();
+                    }
+                } else if (otherPaymentMethodName.equals(otherPaymentMethods.get(2))) {
+                    paymentMode = BANCONTACT_MODE;
+                    bancontactTextView.setVisibility(View.VISIBLE);
+                    creditCardChoiceLinearLayout.setVisibility(View.GONE);
+                    newCreditCardLinearLayout.setVisibility(View.GONE);
+                    paymentWithVirtualWallet.setChecked(false);
+                }
+                break;
+            case R.id.credit_card_choice_spinner:
+                currentAlias = adapterView.getItemAtPosition(i).toString();
+                if (currentAlias.equals(creditCards.get(0))) {
+                    newCreditCardLinearLayout.setVisibility(View.VISIBLE);
+                    addNewCreditCard();
+                } else {
+                    newCreditCardLinearLayout.setVisibility(View.GONE);
+                }
+                break;
+            case R.id.end_month_spinner:
+                currentMonth = adapterView.getItemAtPosition(i).toString();
+                break;
+            case R.id.end_year_spinner:
+                currentYear = adapterView.getItemAtPosition(i).toString();
+                break;
         }
+    }
 
-        Collections.reverse(years);
-        years.add("aaaa");
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
 
-        TextView endDateTextView = new TextView(this);
-        TextView cvvTextView = new TextView(this);
-        TextView cardNumberTextView = new TextView(this);
+    }
 
-        cardNumberEditText = new EditText(this);
-        cvvEditText = new EditText(this);
+    public void addNewCreditCard() {
+        displayEndMonthSpinner();
+        displayEndYearSpinner();
 
-        Spinner endMonthSpinner = new Spinner(this);
-        Spinner endYearSpinner = new Spinner(this);
-
-        LinearLayout endDateLinearLayout = new LinearLayout(this);
-        LinearLayout endMonthSpinnerLinearLayout = new LinearLayout(this);
-        LinearLayout endYearSpinnerLinearLayout = new LinearLayout(this);
-
-        cardNumberTextView.setText("Numéro de carte");
-        endDateTextView.setText("Date expiration");
-        cvvTextView.setText("CVV");
-
-        LinearLayout.LayoutParams layoutParamsForTextView = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        LinearLayout.LayoutParams layoutParamsForLongEditText = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        LinearLayout.LayoutParams layoutParamsForShortEditText = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        LinearLayout.LayoutParams layoutParamsForSpinner = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        LinearLayout.LayoutParams layoutParamsForLinearLayout = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-
-        layoutParamsForLongEditText.setMargins(0, 0, 0, dpAsPixels);
-        layoutParamsForShortEditText.setMargins(0, 0, 0, dpAsPixels);
-        layoutParamsForLinearLayout.setMargins(0, 0, 0, dpAsPixels);
-        layoutParamsForSpinner.setMargins(0, 0, dpAsPixels, 0);
-
-        cardNumberTextView.setLayoutParams(layoutParamsForTextView);
-        endDateTextView.setLayoutParams(layoutParamsForTextView);
-        cvvTextView.setLayoutParams(layoutParamsForTextView);
-
-        cardNumberEditText.setLayoutParams(layoutParamsForLongEditText);
-        cvvEditText.setLayoutParams(layoutParamsForShortEditText);
-
-        cardNumberEditText.setBackgroundResource(R.drawable.edit_text_border);
-        cardNumberEditText.setPadding(dpAsPixels, dpAsPixels, dpAsPixels, dpAsPixels);
-        cardNumberEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
-
-        cvvEditText.setBackgroundResource(R.drawable.edit_text_border);
-        cvvEditText.setPadding(dpAsPixels, dpAsPixels, dpAsPixels, dpAsPixels);
-        cvvEditText.setEms(3);
-        cvvEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
         cvvEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-
         InputFilter[] filters = new InputFilter[1];
         filters[0] = new InputFilter.LengthFilter(3);
         cvvEditText .setFilters(filters);
+    }
 
-
-        ArrayAdapter monthsAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, months) {
-            @Override
-            public View getDropDownView(int position, View convertView, ViewGroup parent) {
-
-                View v = null;
-
-                if (position == 0) {
-                    TextView tv = new TextView(getContext());
-                    tv.setHeight(0);
-                    tv.setVisibility(View.GONE);
-                    v = tv;
-                }
-                else {
-
-                    v = super.getDropDownView(position, null, parent);
-                }
-
-                parent.setVerticalScrollBarEnabled(false);
-                return v;
-            }
-        };
-        monthsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        endMonthSpinner.setAdapter(monthsAdapter);
-        endMonthSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                currentMonth = adapterView.getItemAtPosition(i).toString();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
-
+    public void displayEndYearSpinner() {
         ArrayAdapter  yearsAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, years) {
             @Override
             public View getDropDownView(int position, View convertView, ViewGroup parent) {
-
                 View v = null;
                 int lastPosition = years.size() -1;
 
@@ -315,125 +287,47 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
         yearsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         endYearSpinner.setAdapter(yearsAdapter);
         endYearSpinner.setSelection(years.size() - 1);
-        endYearSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                currentYear = adapterView.getItemAtPosition(i).toString();
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
-
-        endDateLinearLayout.setLayoutParams(layoutParamsForLinearLayout);
-        endDateLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
-
-        endMonthSpinnerLinearLayout.setLayoutParams(layoutParamsForSpinner);
-        endMonthSpinnerLinearLayout.setOrientation(LinearLayout.VERTICAL);
-        endMonthSpinnerLinearLayout.setBackgroundResource(R.drawable.edit_text_border);
-        endMonthSpinnerLinearLayout.setPadding(dpAsPixels, dpAsPixels, dpAsPixels, dpAsPixels);
-
-        endYearSpinnerLinearLayout.setLayoutParams(layoutParamsForSpinner);
-        endYearSpinnerLinearLayout.setOrientation(LinearLayout.VERTICAL);
-        endYearSpinnerLinearLayout.setBackgroundResource(R.drawable.edit_text_border);
-        endYearSpinnerLinearLayout.setPadding(dpAsPixels, dpAsPixels, dpAsPixels, dpAsPixels);
-
-        endMonthSpinnerLinearLayout.addView(endMonthSpinner);
-        endYearSpinnerLinearLayout.addView(endYearSpinner);
-        endDateLinearLayout.addView(endMonthSpinnerLinearLayout);
-        endDateLinearLayout.addView(endYearSpinnerLinearLayout);
-
-        mainLinearLayout.addView(cardNumberTextView);
-        mainLinearLayout.addView(cardNumberEditText);
-        mainLinearLayout.addView(endDateTextView);
-        mainLinearLayout.addView(endDateLinearLayout);
-        mainLinearLayout.addView(cvvTextView);
-        mainLinearLayout.addView(cvvEditText);
-
-        return mainLinearLayout;
-
+        endYearSpinner.setOnItemSelectedListener(this);
     }
 
-    public void setBancontactForm() {
-        paymentWithVirtualWallet.setChecked(false);
-        float scale = this.getResources().getDisplayMetrics().density;
-        int dpAsPixels = (int) (10 * scale + 0.5f);
-        TextView messageTextView = new TextView(this);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        layoutParams.setMargins(0, 0, 0, dpAsPixels);
-        messageTextView.setLayoutParams(layoutParams);
-        messageTextView.setText("Nous allons vous rediriger vers le terminal de votre banque pour finaliser le paiement.");
-        messageTextView.setGravity(Gravity.CENTER);
-        otherPaymentMethodDetailsLayout.addView(messageTextView);
-    }
-
-    public void setCreditCardChoice() {
-        paymentWithVirtualWallet.setChecked(false);
-        float scale = this.getResources().getDisplayMetrics().density;
-        int dpAsPixels = (int) (10 * scale + 0.5f);
-
-        final ArrayList<String> creditCardAlias = new ArrayList<>();
-        creditCardAlias.add("Nouvelle carte de crédit");
-        for (int i = 0; i < userCreditCards.size(); i++) {
-            String alias = userCreditCards.get(i).getAlias();
-            creditCardAlias.add(alias);
-        }
-
-
-        TextView titleTextView = new TextView(this);
-        final Spinner creditCarsAliasSpinner = new Spinner(this);
-        LinearLayout creditCardAliasLinearLayout = new LinearLayout(this);
-        final LinearLayout newCrediCardFormLinearLayout = new LinearLayout(this);
-
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        LinearLayout.LayoutParams layoutParamsForLinearLayout = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-
-        layoutParams.setMargins(0, 0, 0, dpAsPixels);
-        layoutParamsForLinearLayout.setMargins(0, 0, 0, dpAsPixels);
-
-        titleTextView.setLayoutParams(layoutParams);
-        titleTextView.setText("Sélectionnez une de vos cartes de crédit");
-
-        ArrayAdapter creditCardAliasAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, creditCardAlias);
-        creditCardAliasAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        creditCarsAliasSpinner.setAdapter(creditCardAliasAdapter);
-        creditCarsAliasSpinner.setSelection(1);
-        creditCarsAliasSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+    public void displayEndMonthSpinner() {
+        ArrayAdapter monthsAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, months) {
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                currentAlias = adapterView.getItemAtPosition(i).toString();
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                View v = null;
 
-                if (currentAlias.equals(creditCardAlias.get(0))) {
-                    newCrediCardFormLinearLayout.addView(addNewCreditCard());
-                } else {
-                    newCrediCardFormLinearLayout.removeAllViews();
+                if (position == 0) {
+                    TextView tv = new TextView(getContext());
+                    tv.setHeight(0);
+                    tv.setVisibility(View.GONE);
+                    v = tv;
                 }
+                else {
+
+                    v = super.getDropDownView(position, null, parent);
+                }
+
+                parent.setVerticalScrollBarEnabled(false);
+                return v;
             }
+        };
 
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
+        monthsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        endMonthSpinner.setAdapter(monthsAdapter);
+        endMonthSpinner.setOnItemSelectedListener(this);
+    }
 
-            }
-        });
-
-        creditCardAliasLinearLayout.setLayoutParams(layoutParamsForLinearLayout);
-        creditCardAliasLinearLayout.setOrientation(LinearLayout.VERTICAL);
-        creditCardAliasLinearLayout.setBackgroundResource(R.drawable.edit_text_border);
-        creditCardAliasLinearLayout.setPadding(dpAsPixels, dpAsPixels, dpAsPixels, dpAsPixels);
-        creditCardAliasLinearLayout.addView(creditCarsAliasSpinner);
-
-        otherPaymentMethodDetailsLayout.addView(titleTextView);
-        otherPaymentMethodDetailsLayout.addView(creditCardAliasLinearLayout);
-        otherPaymentMethodDetailsLayout.addView(newCrediCardFormLinearLayout);
-
+    public void setCreditCardSpinner() {
+        ArrayAdapter<String> creditCardAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, creditCards);
+        creditCardAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        creditCardSpinner.setAdapter(creditCardAdapter);
+        creditCardSpinner.setSelection(1);
+        creditCardSpinner.setOnItemSelectedListener(this);
     }
 
     public void didTouchPaymentButton(View view) {
         switch (paymentMode) {
-            case "transfert":
+            case TRANSFER_MODE:
                 if (totalWallet < totalPrice) {
                     Toast.makeText(this, R.string.total_wallet_insufficient_toast_message, Toast.LENGTH_SHORT).show();
                 } else {
@@ -441,8 +335,8 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                 }
 
                 break;
-            case "cd":
-                if (!currentAlias.equals("Nouvelle carte de crédit")) {
+            case CREDIT_CARD_MODE:
+                if (!currentAlias.equals(NEW_CREDIT_CARD)) {
                     for (int i = 0; i < userCreditCards.size(); i++) {
                         if (userCreditCards.get(i).getAlias().equals(currentAlias)) {
                             cardId = userCreditCards.get(i).getCardId();
@@ -456,13 +350,14 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                 }
 
                 break;
-            case "bancontact":
+            case BANCONTACT_MODE:
                 payLesson();
                 break;
         }
     }
 
     public void createNewCreditCard() {
+        startProgressDialog();
         MangoPayBuilder builder = new MangoPayBuilder(this);
         builder.baseURL("https://api.sandbox.mangopay.com")
                 .clientId("qwerteachrails")
@@ -477,13 +372,13 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                 .callback(new Callback() {
                     @Override
                     public void success(CardRegistration cardRegistration) {
-                        Log.d(MainActivity.class.getSimpleName(), cardRegistration.toString());
                         cardId = cardRegistration.getCardId();
                         payLesson();
                     }
 
                     @Override
                     public void failure(MangoException error) {
+                        progressDialog.dismiss();
                         Toast.makeText(PaymentMethodActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
                     }
 
@@ -493,44 +388,57 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
     @Override
     public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
         if (isChecked) {
-            paymentMode = "transfert";
+            paymentMode = TRANSFER_MODE;
         } else {
             paymentMode = "";
         }
-
     }
 
     public void payLesson() {
-        if (paymentMode.equals("cd")) {
+        if (paymentMode.equals(CREDIT_CARD_MODE)) {
             call = service.payLessonWithCreditCard(teacherId, paymentMode, cardId, user.getEmail(), user.getToken());
-
         } else {
             call = service.payLesson(teacherId, paymentMode, user.getEmail(), user.getToken());
         }
 
-        call.enqueue(new retrofit2.Callback<JsonResponse>() {
+       call.enqueue(new retrofit2.Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 String message = response.body().getMessage();
-
-                if (message.equals("result")) {
-                    String url = response.body().getUrl();
-                    Intent intent = new Intent(getApplication(), MangoPaySecureModeActivity.class);
-                    intent.putExtra("url", url);
-                    intent.putExtra("mode", paymentMode);
-                    startActivity(intent);
-
-                } else if (message.equals("finish")) {
-                    Toast.makeText(getApplication(), R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
-                    Intent intent = new Intent(getApplication(), MyLessonsActivity.class);
-                    startActivity(intent);
+                progressDialog.dismiss();
+                switch (message) {
+                    case "result":
+                        String url = response.body().getUrl();
+                        intent = new Intent(getApplication(), MangoPaySecureModeActivity.class);
+                        intent.putExtra("url", url);
+                        intent.putExtra("mode", paymentMode);
+                        startActivity(intent);
+                        break;
+                    case "finish":
+                        Toast.makeText(getApplication(), R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
+                        intent = new Intent(getApplication(), MyLessonsActivity.class);
+                        startActivity(intent);
+                        break;
+                    case "errors":
+                        Log.d("ERROR", "error");
+                        break;
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                progressDialog.dismiss();
+                Log.d("ERROR", t.toString());
 
             }
         });
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 }

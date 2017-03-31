@@ -15,7 +15,7 @@ import java.util.Date;
 
 public class User implements Serializable {
 
-    private static final String BASE_URL = "http://167.114.246.31:3000";
+    private static final String BASE_URL = "http://192.168.0.110:3000";
 
     @SerializedName("id")
     private Integer userId;
