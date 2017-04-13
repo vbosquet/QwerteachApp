@@ -4,16 +4,17 @@
     android:id="@+id/activity_read_comments"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:context="com.qwerteach.wivi.qwerteachapp.ReadCommentsActivity"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.qwerteach.wivi.qwerteachapp.ReadCommentsActivity">
+    android:paddingTop="@dimen/activity_vertical_margin">
 
     <ListView
         android:id="@+id/comments_list_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/edit_text_border"/>
+        android:layout_height="match_parent"
+        android:divider="@color/dark_grey"
+        android:dividerHeight="1dp"/>
 
 </LinearLayout>

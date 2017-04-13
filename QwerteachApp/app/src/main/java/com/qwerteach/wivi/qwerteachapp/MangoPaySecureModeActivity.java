@@ -121,14 +121,12 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
                         Toast.makeText(getApplication(), R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(getApplicationContext(), MyLessonsActivity.class);
                         startActivity(intent);
-
                         break;
                     }
                     case "loaded": {
                         Toast.makeText(getApplication(), R.string.load_wallet_by_credit_card_sucess_toast_message, Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(getApplicationContext(), VirtualWalletActivity.class);
                         startActivity(intent);
-
                         break;
                     }
                     default: {
@@ -157,7 +155,6 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
                     intent.putExtra("url", url);
                     intent.putExtra("mode", mode);
                     startActivity(intent);
-
                     break;
                 }
                 case "https://homologation-secure-p.payline.com/webpayment/step2.do?reqCode=doStep2": {
@@ -165,7 +162,6 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
                     intent.putExtra("url", url);
                     intent.putExtra("mode", mode);
                     startActivity(intent);
-
                     break;
                 }
                 case "https://homologation-secure-p.payline.com/webpayment/step1.do?reqCode=prepareStep1": {

@@ -19,13 +19,14 @@
     <TextView
         android:id="@+id/lesson_details_text_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_grey"/>
 
     <TextView
         android:id="@+id/lesson_date_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/dark"/>
+        android:textColor="@color/text_grey"/>
 
     <LinearLayout
         android:id="@+id/lesson_management_buttons"
@@ -39,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/accept_lesson_button"
-            android:background="@color/green"
+            android:background="@drawable/green_button"
             android:textColor="@color/white"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
@@ -50,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/update_lesson_button"
-            android:background="@color/orange"
+            android:background="@drawable/orange_button"
             android:textColor="@color/white"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
@@ -61,8 +62,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/refuse_lesson_button"
-            android:background="@color/red"
-            android:textColor="@color/white"
+            android:background="@android:color/transparent"
+            android:textColor="@color/text_grey"
             android:paddingLeft="10dp"
             android:paddingRight="10dp" />
 
@@ -80,9 +81,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/positive_feed_back_button"
-            android:textColor="@color/message_out_color"
-            android:background="@color/transparent"
-            android:layout_marginRight="10dp"/>
+            android:textColor="@color/white"
+            android:background="@drawable/green_button"
+            android:layout_marginRight="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"/>
 
         <Button
             android:id="@+id/negative_feedback_button"
@@ -90,7 +93,7 @@
             android:layout_height="wrap_content"
             android:text="@string/negative_feed_back_button"
             android:background="@color/transparent"
-            android:textColor="@color/gray" />
+            android:textColor="@color/text_grey" />
         
     </LinearLayout>
 

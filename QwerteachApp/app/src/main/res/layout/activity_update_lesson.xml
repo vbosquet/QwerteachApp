@@ -9,7 +9,8 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.qwerteach.wivi.qwerteachapp.LessonReservationActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/lesson_start_time_title_text_view"
                 android:paddingBottom="10dp"
-                android:textColor="@color/black"/>
+                android:textColor="@color/medium_grey"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -44,13 +45,16 @@
                     android:paddingBottom="10dp"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:textColor="@color/medium_grey"/>
 
                 <Button
                     android:id="@+id/date_picker_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/date_picker_button" />
+                    android:text="@string/date_picker_button"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:textColor="@color/white"/>
 
             </LinearLayout>
 
@@ -69,13 +73,16 @@
                     android:paddingBottom="10dp"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:textColor="@color/medium_grey"/>
 
                 <Button
                     android:id="@+id/time_picker_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/time_picker_button" />
+                    android:text="@string/time_picker_button"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:textColor="@color/white"/>
 
             </LinearLayout>
 
@@ -92,7 +99,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/lesson_duration_title_text_view"
                 android:paddingBottom="10dp"
-                android:textColor="@color/black"/>
+                android:textColor="@color/medium_grey"/>
 
             <TextView
                 android:id="@+id/lesson_duration_text_view"
@@ -102,7 +109,8 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
+                android:paddingRight="10dp"
+                android:textColor="@color/medium_grey"/>
 
         </LinearLayout>
 
@@ -117,7 +125,7 @@
                 android:layout_height="wrap_content"
                 android:text="Catégorie"
                 android:paddingBottom="10dp"
-                android:textColor="@color/black"/>
+                android:textColor="@color/medium_grey"/>
 
             <TextView
                 android:id="@+id/lesson_topic_group_text_view"
@@ -127,7 +135,8 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
+                android:paddingRight="10dp"
+                android:textColor="@color/medium_grey"/>
 
         </LinearLayout>
 
@@ -142,7 +151,7 @@
                 android:layout_height="wrap_content"
                 android:text="Matière"
                 android:paddingBottom="10dp"
-                android:textColor="@color/black"/>
+                android:textColor="@color/medium_grey"/>
 
             <TextView
                 android:id="@+id/lesson_topic_text_view"
@@ -152,7 +161,8 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
+                android:paddingRight="10dp"
+                android:textColor="@color/medium_grey"/>
 
         </LinearLayout>
 
@@ -168,7 +178,7 @@
                 android:layout_height="wrap_content"
                 android:text="Niveau"
                 android:paddingBottom="10dp"
-                android:textColor="@color/black"/>
+                android:textColor="@color/medium_grey"/>
 
             <TextView
                 android:id="@+id/lesson_level_text_view"
@@ -178,7 +188,8 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
+                android:paddingRight="10dp"
+                android:textColor="@color/medium_grey"/>
 
         </LinearLayout>
 
@@ -192,7 +203,7 @@
                 android:id="@+id/total_price_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
+                android:textColor="@color/medium_grey"
                 android:textSize="20dp"
                 android:gravity="center"/>
 
@@ -202,7 +213,9 @@
             android:id="@+id/save_lesson_infos_button"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/save_profile_button" />
+            android:text="@string/save_profile_button"
+            android:backgroundTint="@color/colorPrimary"
+            android:textColor="@color/white"/>
 
     </LinearLayout>
 

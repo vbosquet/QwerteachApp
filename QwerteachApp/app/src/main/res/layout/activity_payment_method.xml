@@ -9,7 +9,8 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.qwerteach.wivi.qwerteachapp.PaymentMethodActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,15 +21,17 @@
             android:id="@+id/payment_with_virtual_wallet"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/payment_with_virtual_wallet" />
+            android:text="@string/payment_with_virtual_wallet"
+            android:textColor="@color/medium_grey"/>
 
         <TextView
             android:id="@+id/total_wallet_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/text_view_bottom_border"
+            android:background="@drawable/light_text_view_bottom_border"
             android:paddingBottom="@dimen/activity_vertical_margin"
-            android:paddingLeft="32dp"/>
+            android:paddingLeft="32dp"
+            android:textColor="@color/medium_grey"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -36,12 +39,8 @@
             android:text="@string/or_textview"
             android:gravity="center"
             android:paddingTop="@dimen/activity_vertical_margin"
-            android:paddingBottom="@dimen/activity_vertical_margin"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/choosing_other_payment_method_text_view" />
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:textColor="@color/medium_grey"/>µ
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -68,7 +67,8 @@
             android:text="@string/bancontact_text_view"
             android:paddingBottom="10dp"
             android:gravity="center"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:textColor="@color/medium_grey"/>
 
         <LinearLayout
             android:id="@+id/credit_card_choice_linear_layout"
@@ -82,7 +82,8 @@
                 android:id="@+id/credit_card_choice_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/credit_card_choice_text_view"/>
+                android:text="@string/credit_card_choice_text_view"
+                android:textColor="@color/medium_grey"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -115,7 +116,8 @@
                 android:id="@+id/card_number_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/card_number_text_view"/>
+                android:text="@string/card_number_text_view"
+                android:textColor="@color/medium_grey"/>
 
             <EditText
                 android:id="@+id/card_number_edit_text"
@@ -127,13 +129,15 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:layout_marginBottom="10dp"
-                android:inputType="number"/>
+                android:inputType="number"
+                android:textColor ="@color/medium_grey"/>
 
             <TextView
                 android:id="@+id/expiration_date_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/date_expiration_text_view"/>
+                android:text="@string/date_expiration_text_view"
+                android:textColor="@color/medium_grey"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -182,7 +186,8 @@
                 android:id="@+id/card_validity_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/card_validity_text_view"/>
+                android:text="@string/card_validity_text_view"
+                android:textColor="@color/medium_grey"/>
 
             <EditText
                 android:id="@+id/card_validity_edit_text"
@@ -195,7 +200,8 @@
                 android:paddingRight="10dp"
                 android:layout_marginBottom="10dp"
                 android:inputType="number"
-                android:ems="3"/>
+                android:ems="3"
+                android:textColor="@color/medium_grey"/>
 
 
         </LinearLayout>
@@ -206,7 +212,9 @@
             android:layout_height="wrap_content"
             android:text="@string/lesson_reservation_finish_button"
             android:onClick="didTouchPaymentButton"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+            android:backgroundTint="@color/colorPrimary"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_marginTop="16dp"/>
 
     </LinearLayout>
 

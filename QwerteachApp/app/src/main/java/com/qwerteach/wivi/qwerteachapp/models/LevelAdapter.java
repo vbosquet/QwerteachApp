@@ -28,7 +28,6 @@ public class LevelAdapter extends ArrayAdapter<Level> {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         TextView textView = new TextView(context);
-        textView.setTextColor(Color.BLACK);
         if (levels.get(position).isNeedBeLevel()) {
             textView.setText(levels.get(position).getBeLevelName());
         } else {
@@ -41,7 +40,6 @@ public class LevelAdapter extends ArrayAdapter<Level> {
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
         View v = super.getDropDownView(position, convertView, parent);
         TextView tv = ((TextView) v);
-        tv.setTextColor(Color.BLACK);
         if (levels.get(position).isNeedBeLevel()) {
             tv.setText(levels.get(position).getBeLevelName());
         } else {

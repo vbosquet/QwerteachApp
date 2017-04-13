@@ -13,7 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="20dp"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:textColor="@color/colorPrimaryDark"/>
 
     <EditText
         android:id="@+id/alert_dialog_user_message"
@@ -29,6 +30,6 @@
         android:lines="10"
         android:maxLines="15"
         android:hint="Ecrivez un message..."
-        android:textColorHint="#dfdfdf"/>
+        android:textColorHint="@color/text_light_grey"/>
 
 </LinearLayout>

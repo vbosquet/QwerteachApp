@@ -114,8 +114,8 @@ public class UserInfosTabFragment extends Fragment implements
     public void setSpinner(ArrayList arrayList, Spinner spinner, String countryCode) {
         String countryName = getCountryNameFromCountryCode(countryCode);
 
-        ArrayAdapter arrayAdapter = new ArrayAdapter(getContext(), android.R.layout.simple_spinner_item, arrayList);
-        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter arrayAdapter = new ArrayAdapter(getContext(), R.layout.simple_spinner_item, arrayList);
+        arrayAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
 
         spinner.setAdapter(arrayAdapter);
         int position = getIndexByString(spinner, countryName);

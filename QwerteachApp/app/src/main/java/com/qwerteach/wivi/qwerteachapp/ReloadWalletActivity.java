@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 import com.mangopay.android.sdk.Callback;
 import com.mangopay.android.sdk.MangoPay;
 import com.mangopay.android.sdk.MangoPayBuilder;
@@ -67,6 +68,12 @@ import retrofit2.Response;
 public class ReloadWalletActivity extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener,
         View.OnClickListener {
+
+    static final String OTHER_AMOUNT = "Autre montant";
+    static final String NEW_CREDIT_CARD = "Nouvelle carte";
+    static final String CB_VISA_MASTERCARD = "CB_VISA_MASTERCARD";
+    static final String BCMC = "BCMC";
+    static final String BANK_WIRE = "BANK_WIRE";
 
     ActionBar actionBar;
     ArrayList<String> amounts, months, years, easyPayments;
@@ -113,7 +120,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         amounts.add("20");
         amounts.add("50");
         amounts.add("100");
-        amounts.add("Autre montant");
+        amounts.add(OTHER_AMOUNT);
 
         otherAmountEditText = (EditText) findViewById(R.id.other_amount_edit_text);
         amountToReloadSpinner = (Spinner) findViewById(R.id.amount_spinner);
@@ -165,8 +172,8 @@ public class ReloadWalletActivity extends AppCompatActivity implements
             noCreditCardForEasyPaymentTextView.setVisibility(View.VISIBLE);
         }
 
-        ArrayAdapter amountToReloadAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, amounts);
-        amountToReloadAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter amountToReloadAdapter = new ArrayAdapter(this, R.layout.simple_spinner_item, amounts);
+        amountToReloadAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         amountToReloadSpinner.setAdapter(amountToReloadAdapter);
         amountToReloadSpinner.setOnItemSelectedListener(this);
     }
@@ -201,8 +208,6 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
-            case R.id.cancel_button:
-                finish();
                 return true;
         }
 
@@ -215,9 +220,8 @@ public class ReloadWalletActivity extends AppCompatActivity implements
             case R.id.amount_spinner:
                 currentAmount = adapterView.getItemAtPosition(i).toString();
 
-                if (currentAmount.equals(amounts.get(amounts.size()-1))) {
+                if (currentAmount.equals(OTHER_AMOUNT)) {
                     otherAmountEditText.setVisibility(View.VISIBLE);
-                    currentAmount = otherAmountEditText.getText().toString();
                 } else {
                     otherAmountEditText.setVisibility(View.GONE);
                     currentAmount = adapterView.getItemAtPosition(i).toString();
@@ -227,7 +231,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
             case R.id.card_list_spinner:
                 currentCardNumber = adapterView.getItemAtPosition(i).toString();
 
-                if (currentCardNumber.equals("Nouvelle carte")) {
+                if (currentCardNumber.equals(NEW_CREDIT_CARD)) {
                     newCreditCardLinearLayout.setVisibility(View.VISIBLE);
                     setNewCreditCardLayout();
                 } else {
@@ -259,7 +263,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
     }
 
     public void didTouchValidateButton(View view) {
-        if (currentCardNumber.equals("Nouvelle carte")) {
+        if (currentCardNumber.equals(NEW_CREDIT_CARD)) {
             if (cardNumberEditText.getText().toString().equals("")) {
                 Toast.makeText(getApplicationContext(), R.string.check_card_number, Toast.LENGTH_LONG).show();
             } else if (checkEpirationDate()) {
@@ -290,7 +294,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                 .callback(new Callback() {
                     @Override public void success(CardRegistration cardRegistration) {
                         cardId = cardRegistration.getCardId();
-                        cardType = "CB_VISA_MASTERCARD";
+                        cardType = CB_VISA_MASTERCARD;
                         startLoadWallet();
                     }
 
@@ -340,7 +344,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                         cardId = cardIdList.get(0);
                     }
 
-                    cardType = "CB_VISA_MASTERCARD";
+                    cardType = CB_VISA_MASTERCARD;
                     cardNumberLinearLayout.setVisibility(View.GONE);
                     newCreditCardLinearLayout.setVisibility(View.GONE);
                     bankWireData.setVisibility(View.GONE);
@@ -351,7 +355,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                 break;
             case R.id.visa:
                 if (checked) {
-                    cardType = "CB_VISA_MASTERCARD";
+                    cardType = CB_VISA_MASTERCARD;
                     easyPaymentCheckBox.setChecked(false);
                     visaCheckbox.setChecked(true);
                     mastercardCheckbox.setChecked(false);
@@ -367,7 +371,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                 break;
             case R.id.mastercard:
                 if (checked) {
-                    cardType = "CB_VISA_MASTERCARD";
+                    cardType = CB_VISA_MASTERCARD;
                     easyPaymentCheckBox.setChecked(false);
                     visaCheckbox.setChecked(false);
                     mastercardCheckbox.setChecked(true);
@@ -383,7 +387,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                 break;
             case R.id.cb:
                 if (checked) {
-                    cardType = "CB_VISA_MASTERCARD";
+                    cardType = CB_VISA_MASTERCARD;
                     easyPaymentCheckBox.setChecked(false);
                     visaCheckbox.setChecked(false);
                     mastercardCheckbox.setChecked(false);
@@ -399,7 +403,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                 break;
             case R.id.bcmc:
                 if (checked) {
-                    cardType = "BCMC";
+                    cardType = BCMC;
                     easyPaymentCheckBox.setChecked(false);
                     visaCheckbox.setChecked(false);
                     mastercardCheckbox.setChecked(false);
@@ -416,7 +420,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                 break;
             case R.id.banck_wire:
                 if (checked) {
-                    cardType = "BANK_WIRE";
+                    cardType = BANK_WIRE;
                     easyPaymentCheckBox.setChecked(false);
                     visaCheckbox.setChecked(false);
                     mastercardCheckbox.setChecked(false);
@@ -434,7 +438,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
 
     public void setCreditCardSpinner() {
         ArrayList<String> creditCardList = new ArrayList<>();
-        creditCardList.add("Nouvelle carte");
+        creditCardList.add(NEW_CREDIT_CARD);
 
         if (userCreditCards.size() > 0) {
             for (int j = 0; j < userCreditCards.size(); j++) {
@@ -444,8 +448,8 @@ public class ReloadWalletActivity extends AppCompatActivity implements
 
         cardNumberLinearLayout.setVisibility(View.VISIBLE);
 
-        ArrayAdapter creditcardAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, creditCardList);
-        creditcardAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter creditcardAdapter = new ArrayAdapter(this, R.layout.simple_spinner_item, creditCardList);
+        creditcardAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         creditCardListSpinner.setAdapter(creditcardAdapter);
         if (creditCardList.size() > 1) {
             creditCardListSpinner.setSelection(1);
@@ -470,13 +474,13 @@ public class ReloadWalletActivity extends AppCompatActivity implements
 
         Collections.reverse(years);
 
-        ArrayAdapter monthsAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, months);
-        monthsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter monthsAdapter = new ArrayAdapter(this, R.layout.simple_spinner_item, months);
+        monthsAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         monthSpinner.setAdapter(monthsAdapter);
         monthSpinner.setOnItemSelectedListener(this);
 
-        ArrayAdapter  yearsAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, years);
-        yearsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter  yearsAdapter = new ArrayAdapter(this, R.layout.simple_spinner_item, years);
+        yearsAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         yearSpinner.setAdapter(yearsAdapter);
         yearSpinner.setOnItemSelectedListener(this);
 
@@ -488,6 +492,9 @@ public class ReloadWalletActivity extends AppCompatActivity implements
 
     public void startLoadWallet() {
         Map<String, String> resquestBody = new HashMap<>();
+        if (currentAmount.equals(OTHER_AMOUNT)) {
+            currentAmount = otherAmountEditText.getText().toString();
+        }
         resquestBody.put("amount", currentAmount);
         resquestBody.put("card_type", cardType);
 
@@ -532,6 +539,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                 if (errorMessages.size() > 0) {
                     for (int i = 0; i < errorMessages.size(); i++) {
                         Log.d("ERROR", errorMessages.get(i));
+                        Toast.makeText(getApplicationContext(), R.string.error_payment_message, Toast.LENGTH_LONG).show();
                     }
                 }
                 break;

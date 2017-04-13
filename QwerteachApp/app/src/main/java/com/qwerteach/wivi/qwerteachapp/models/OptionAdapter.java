@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.qwerteach.wivi.qwerteachapp.R;
+
 import java.util.ArrayList;
 
 /**
@@ -28,9 +30,10 @@ public class OptionAdapter extends ArrayAdapter<String> {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         TextView textView = new TextView(context);
-        textView.setTextColor(Color.WHITE);
-        textView.setTextSize(18);
-        textView.setText(options.get(position));
+        textView.setTextColor(context.getResources().getColor(R.color.colorPrimaryDark));
+        if (options.size() > 0) {
+            textView.setText(options.get(position));
+        }
         return textView;
     }
 
@@ -39,7 +42,9 @@ public class OptionAdapter extends ArrayAdapter<String> {
         View v = super.getDropDownView(position, convertView, parent);
         TextView tv = ((TextView) v);
         tv.setTextColor(Color.BLACK);
-        tv.setText(options.get(position));
+        if (options.size() > 0)  {
+            tv.setText(options.get(position));
+        }
         return v;
     }
 }

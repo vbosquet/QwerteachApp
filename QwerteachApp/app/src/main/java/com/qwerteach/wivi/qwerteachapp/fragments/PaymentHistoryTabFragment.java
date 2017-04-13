@@ -35,18 +35,18 @@ import retrofit2.Response;
  * Created by wivi on 8/12/16.
  */
 
-public class PaymentHistoryTabFragment extends Fragment implements View.OnClickListener {
+public class PaymentHistoryTabFragment extends Fragment {
 
     View view;
     ArrayList<Transaction> transactions;
     RecyclerView transactionsRecyclerView;
     RecyclerView.Adapter transactionAdapter;
     RecyclerView.LayoutManager transactionLayoutManager;
-    FloatingActionButton floatingActionButton;
     ProgressDialog progressDialog;
     int page = 1, scrollPosition;
     QwerteachService service;
     User user;
+    boolean loading = true;
 
     public static PaymentHistoryTabFragment newInstance() {
         PaymentHistoryTabFragment paymentHistoryTabFragment = new PaymentHistoryTabFragment();
@@ -71,11 +71,10 @@ public class PaymentHistoryTabFragment extends Fragment implements View.OnClickL
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         view  = inflater.inflate(R.layout.fragment_payment_history_tab, container, false);
         transactionsRecyclerView = (RecyclerView) view.findViewById(R.id.transactions_recycler_view);
-        floatingActionButton = (FloatingActionButton) view.findViewById(R.id.floating_action_button);
-        floatingActionButton.setOnClickListener(this);
-
         transactions = (ArrayList<Transaction>) getArguments().getSerializable("transactions");
-        setTransactionsListView();
+        if (transactions != null && transactions.size() > 0) {
+            setTransactionsListView();
+        }
 
         return view;
     }
@@ -86,18 +85,24 @@ public class PaymentHistoryTabFragment extends Fragment implements View.OnClickL
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                progressDialog.dismiss();
                 ArrayList<Transaction> transactionList = response.body().getTransactions();
                 ArrayList<String> transactionAuthorNames = response.body().getTransactionAuthorNames();
                 ArrayList<String> creditedUserNames = response.body().getTransactionCreditedUserNames();
 
-                for (int i = 0; i < transactionList.size(); i++) {
-                    transactionList.get(i).setAuthorName(transactionAuthorNames.get(i));
-                    transactionList.get(i).setCreditedUserName(creditedUserNames.get(i));
-                    transactions.add(transactionList.get(i));
-                }
+                if (transactionList.size() > 0) {
+                    for (int i = 0; i < transactionList.size(); i++) {
+                        transactionList.get(i).setAuthorName(transactionAuthorNames.get(i));
+                        transactionList.get(i).setCreditedUserName(creditedUserNames.get(i));
+                        transactions.add(transactionList.get(i));
+                    }
 
-                setTransactionsListView();
+                    loading = true;
+                    progressDialog.dismiss();
+                    setTransactionsListView();
+
+                } else {
+                    progressDialog.dismiss();
+                }
             }
 
             @Override
@@ -124,11 +129,26 @@ public class PaymentHistoryTabFragment extends Fragment implements View.OnClickL
         transactionsRecyclerView.setItemAnimator(new DefaultItemAnimator());
         transactionsRecyclerView.setAdapter(transactionAdapter);
         transactionsRecyclerView.scrollToPosition(scrollPosition);
+        transactionsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int total = recyclerView.getLayoutManager().getItemCount();
+                int lastVisibleItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
+                if (loading) {
+                    if (total > 0) {
+                        if ((total - 1) == lastVisibleItem) {
+                            getMoreTransactions();
+                        }
+                    }
+                }
+            }
+        });
 
     }
 
-    @Override
-    public void onClick(View view) {
+    public void getMoreTransactions() {
+        loading = false;
         page += 1;
         scrollPosition = transactions.size() - 1;
         startGetAllWalletInfos();

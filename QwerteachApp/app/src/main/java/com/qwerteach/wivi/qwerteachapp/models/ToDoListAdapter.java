@@ -2,6 +2,7 @@ package com.qwerteach.wivi.qwerteachapp.models;
 
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ public class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHo
     public ToDoListAdapter(List<Lesson> lessons, DashboardFragment fragment) {
         this.lessons = lessons;
         this.fragment = fragment;
+        setHasStableIds(true);
     }
 
     @Override
@@ -101,6 +103,16 @@ public class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHo
     @Override
     public int getItemCount() {
         return lessons.size();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{

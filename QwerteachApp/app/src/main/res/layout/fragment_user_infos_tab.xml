@@ -6,7 +6,8 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin">
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,7 +17,8 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/firstname_textview_description_tab" />
+            android:text="@string/firstname_textview_description_tab"
+            android:textColor="@color/medium_grey"/>
 
         <EditText
             android:layout_width="match_parent"
@@ -27,12 +29,14 @@
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:textColor="@color/medium_grey" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/lastname_textview_description_tab" />
+            android:text="@string/lastname_textview_description_tab"
+            android:textColor="@color/medium_grey"/>
 
         <EditText
             android:layout_width="match_parent"
@@ -43,7 +47,8 @@
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:textColor="@color/medium_grey" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -61,7 +66,8 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/address_text_view" />
+                    android:text="@string/address_text_view"
+                    android:textColor="@color/medium_grey"/>
 
                 <EditText
                     android:layout_width="match_parent"
@@ -71,7 +77,8 @@
                     android:paddingTop="10dp"
                     android:paddingBottom="10dp"
                     android:paddingLeft="10dp"
-                    android:paddingRight="10dp" />
+                    android:paddingRight="10dp"
+                    android:textColor="@color/medium_grey" />
 
             </LinearLayout>
 
@@ -85,7 +92,8 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/street_number_text_view" />
+                    android:text="@string/street_number_text_view"
+                    android:textColor="@color/medium_grey"/>
 
                 <EditText
                     android:layout_width="match_parent"
@@ -96,7 +104,8 @@
                     android:paddingTop="10dp"
                     android:paddingBottom="10dp"
                     android:paddingLeft="10dp"
-                    android:paddingRight="10dp" />
+                    android:paddingRight="10dp"
+                    android:textColor="@color/medium_grey" />
 
             </LinearLayout>
 
@@ -119,7 +128,8 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/postal_code_text_view" />
+                    android:text="@string/postal_code_text_view"
+                    android:textColor="@color/medium_grey"/>
 
                 <EditText
                     android:layout_width="match_parent"
@@ -130,7 +140,8 @@
                     android:paddingTop="10dp"
                     android:paddingBottom="10dp"
                     android:paddingLeft="10dp"
-                    android:paddingRight="10dp" />
+                    android:paddingRight="10dp"
+                    android:textColor="@color/medium_grey" />
 
             </LinearLayout>
 
@@ -143,7 +154,8 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/city_name_text_view" />
+                    android:text="@string/city_name_text_view"
+                    android:textColor="@color/medium_grey"/>
 
                 <EditText
                     android:layout_width="match_parent"
@@ -153,7 +165,8 @@
                     android:paddingTop="10dp"
                     android:paddingBottom="10dp"
                     android:paddingLeft="10dp"
-                    android:paddingRight="10dp" />
+                    android:paddingRight="10dp"
+                    android:textColor="@color/medium_grey" />
 
             </LinearLayout>
 
@@ -162,7 +175,8 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/region_name_text_view" />
+            android:text="@string/region_name_text_view"
+            android:textColor="@color/medium_grey"/>
 
         <EditText
             android:layout_width="match_parent"
@@ -173,7 +187,8 @@
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:textColor="@color/medium_grey" />
 
         <TextView
             android:layout_width="match_parent"
@@ -248,7 +263,9 @@
             android:id="@+id/save_infos_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/save_profile_button" />
+            android:text="@string/save_profile_button"
+            android:backgroundTint="@color/colorPrimary"
+            android:textColor="@color/white"/>
 
     </LinearLayout>
 

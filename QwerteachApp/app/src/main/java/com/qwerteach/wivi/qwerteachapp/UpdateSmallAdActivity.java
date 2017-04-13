@@ -3,6 +3,7 @@ package com.qwerteach.wivi.qwerteachapp;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
@@ -56,6 +57,9 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_small_ad);
 
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
         coursePriceLinearLayout = (LinearLayout) findViewById(R.id.course_price);
         descriptionEditText = (EditText) findViewById(R.id.description);
         topicTextView = (TextView) findViewById(R.id.topic);
@@ -106,14 +110,43 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.cancel_button:
+            case android.R.id.home:
                 finish();
+                return true;
+            case R.id.save_infos_small_ad_button:
+                didTouchUpdateSmallAd();
+                return true;
+            case R.id.delete_small_ad_button:
+                didTouchOnDeleteButton();
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public void didTouchUpdateSmallAd(View view) {
+    public void didTouchOnDeleteButton() {
+        Call<JsonResponse> call = service.deleteSmallAd(smallAd.getAdvertId(), user.getEmail(), user.getToken());
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                String success = response.body().getSuccess();
+
+                if (success.equals("true")) {
+                    setResult(Activity.RESULT_OK);
+                    finish();
+                    Toast.makeText(getApplicationContext(), R.string.delete_small_ad_success_true_message, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.delete_small_ad_success_false_message, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void didTouchUpdateSmallAd() {
         ArrayList<SmallAdPrice> newPrices = new ArrayList<>();
 
         for (int i = 0; i < levels.size(); i++) {
@@ -180,11 +213,15 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
             TableRow.LayoutParams params2 = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.27f);
 
             checkBox.setText(level.getFrLevelName());
+            checkBox.setTextColor(this.getResources().getColor(R.color.medium_grey));
             checkBox.setLayoutParams(params1);
 
             editText.setLayoutParams(params2);
-            editText.setBackgroundResource(R.color.gray);
+            editText.setBackgroundResource(R.drawable.edit_text_border);
             editText.setGravity(Gravity.CENTER);
+            editText.setTextColor(this.getResources().getColor(R.color.medium_grey));
+            editText.setHint(R.string.course_price_eddit_text);
+            editText.setHintTextColor(getResources().getColor(R.color.text_light_grey));
             editText.setId(i);
             editText.setVisibility(View.GONE);
 
@@ -212,8 +249,6 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
                     if(checked) {
                         level.setChecked(true);
                         displayEditTextLayout(editText);
-                        editText.setHint(R.string.course_price_eddit_text);
-                        editText.setHintTextColor(getResources().getColor(R.color.gray));
 
                     } else {
                         level.setChecked(false);

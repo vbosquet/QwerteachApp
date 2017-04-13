@@ -4,11 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="#dfdfdf">
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,6 +12,7 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/credit_card_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/credit_cards_text_view"
@@ -26,11 +23,14 @@
             android:paddingBottom="10dp"
             android:gravity="center"
             android:textColor="@color/white"
-            android:backgroundTint="@color/colorPrimary" />
+            android:backgroundTint="@color/blue"
+            android:visibility="gone"/>
 
         <android.support.design.widget.CoordinatorLayout
+            android:id="@+id/credit_card_coordinator_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:visibility="gone">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/user_cards_recycler_view"
@@ -51,11 +51,11 @@
             android:paddingBottom="10dp"
             android:gravity="center"
             android:textColor="@color/white"
-            android:backgroundTint="@color/colorPrimary"
+            android:backgroundTint="@color/blue"
             android:visibility="gone"/>
 
         <android.support.design.widget.CoordinatorLayout
-            android:id="@+id/ban_account_coordinator_layout"
+            android:id="@+id/bank_account_coordinator_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone">
@@ -71,8 +71,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|right"
                 android:layout_margin="16dp"
-                android:src="@drawable/plus"
-                app:layout_anchorGravity="bottom|right|end" />
+                android:src="@drawable/white_plus"
+                app:layout_anchorGravity="bottom|right|end"
+                app:backgroundTint="@color/blue"/>
 
         </android.support.design.widget.CoordinatorLayout>
 

@@ -64,9 +64,8 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
             usaABA, usaBankAccountType, canadaBankName, canadaBankNumber, canadaBranchCode,
             canadaBankAccountNumber, otherCountry, otherBIC, otherBankAccountNumber;
     ProgressDialog progressDialog;
-    boolean isTeacher;
-    TextView bankAccountTextView;
-    CoordinatorLayout bankAccountCoordinatorLayout;
+    TextView bankAccountTextView, creditCardTextView;
+    CoordinatorLayout bankAccountCoordinatorLayout, creditCardCoodinatorLayout;
     QwerteachService service;
     User user;
 
@@ -83,7 +82,6 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
         Gson gson = new Gson();
         String json = preferences.getString("user", "");
         user = gson.fromJson(json, User.class);
-        isTeacher = preferences.getBoolean("isTeacher", false);
 
         userCreditCards = new ArrayList<>();
         userBankAccounts = new ArrayList<>();
@@ -98,13 +96,20 @@ public class BankAccountInfosTabFragment extends Fragment  implements View.OnCli
         userBankAccountRecyclerView = (RecyclerView) view.findViewById(R.id.user_bank_accounts_recycler_view);
         floatingActionButton = (FloatingActionButton) view.findViewById(R.id.floating_action_button);
         bankAccountTextView = (TextView) view.findViewById(R.id.bank_account_text_view);
-        bankAccountCoordinatorLayout = (CoordinatorLayout) view.findViewById(R.id.ban_account_coordinator_layout);
+        bankAccountCoordinatorLayout = (CoordinatorLayout) view.findViewById(R.id.bank_account_coordinator_layout);
+        creditCardTextView = (TextView) view.findViewById(R.id.credit_card_text_view);
+        creditCardCoodinatorLayout = (CoordinatorLayout) view.findViewById(R.id.credit_card_coordinator_layout);
         floatingActionButton.setOnClickListener(this);
         userCreditCards = (ArrayList<UserCreditCard>) getArguments().getSerializable("userCreditCards");
         userBankAccounts = (ArrayList<UserBankAccount>) getArguments().getSerializable("userBankAccounts");
-        setUserCreditCardsrecyclerView();
 
-        if (isTeacher) {
+        if (userCreditCards.size() > 0) {
+            creditCardTextView.setVisibility(View.VISIBLE);
+            creditCardCoodinatorLayout.setVisibility(View.VISIBLE);
+            setUserCreditCardsrecyclerView();
+        }
+
+        if (user.getPostulanceAccepted()) {
             bankAccountTextView.setVisibility(View.VISIBLE);
             bankAccountCoordinatorLayout.setVisibility(View.VISIBLE);
             setUserBankAccountsRecyclerView();

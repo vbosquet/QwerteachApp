@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +30,7 @@ import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
+import com.qwerteach.wivi.qwerteachapp.models.TeacherAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import java.util.ArrayList;
@@ -44,8 +48,9 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
     FloatingActionButton floatingActionButton;
     View view;
     ArrayList<SmallAd> smallAds;
-    ListView listView;
-    SmallAdAdapter smallAdAdapter;
+    RecyclerView smallAdRecyclerView;
+    RecyclerView.Adapter smallAdAdapter;
+    RecyclerView.LayoutManager smallAdLayoutManager;
     User user;
     Teacher teacher;
     ProgressDialog progressDialog;
@@ -73,13 +78,15 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_ad_tab, container, false);
-        listView = (ListView) view.findViewById(R.id.title_ad);
+        smallAdRecyclerView = (RecyclerView) view.findViewById(R.id.title_ad);
         floatingActionButton = (FloatingActionButton) view.findViewById(R.id.floating_action_button);
         floatingActionButton.setOnClickListener(this);
 
         if (teacher != null) {
             smallAds = teacher.getSmallAds();
-            displaySmallAdListView();
+            if (getActivity() != null) {
+                displaySmallAdListView();
+            }
         }
 
         return  view;
@@ -87,14 +94,11 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
 
     public void displaySmallAdListView() {
         smallAdAdapter = new SmallAdAdapter(getActivity(), smallAds, this);
-        listView.setAdapter(smallAdAdapter);
-
-    }
-
-    public void didTouchOnDeleteButton(int position) {
-        int advertId = smallAds.get(position).getAdvertId();
-        startProgressDialog();
-        startDeleteSmallAdAsyncTask(advertId);
+        smallAdRecyclerView.setHasFixedSize(true);
+        smallAdLayoutManager = new LinearLayoutManager(getContext());
+        smallAdRecyclerView.setLayoutManager(smallAdLayoutManager);
+        smallAdRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        smallAdRecyclerView.setAdapter(smallAdAdapter);
     }
 
     public void didTouchOnEditButton(int position) {
@@ -138,30 +142,6 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
         });
     }
 
-    public void startDeleteSmallAdAsyncTask(int advertId) {
-        Call<JsonResponse> call = service.deleteSmallAd(advertId, user.getEmail(), user.getToken());
-        call.enqueue(new Callback<JsonResponse>() {
-            @Override
-            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                String success = response.body().getSuccess();
-                progressDialog.dismiss();
-
-                if (success.equals("true")) {
-                    smallAds.clear();
-                    startDisplayInfosSmallAd();
-                    Toast.makeText(getContext(), R.string.delete_small_ad_success_true_message, Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getContext(), R.string.delete_small_ad_success_false_message, Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<JsonResponse> call, Throwable t) {
-
-            }
-        });
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -178,13 +158,8 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        if (teacher != null) {
-            Intent intent = new Intent(getContext(), CreateSmallAdActivity.class);
-            startActivityForResult(intent, 10001);
-        } else {
-            Intent intent = new Intent(getContext(), ToBecomeATeacherActivity.class);
-            startActivity(intent);
-        }
+        Intent intent = new Intent(getContext(), CreateSmallAdActivity.class);
+        startActivityForResult(intent, 10001);
     }
 
     public void startProgressDialog() {

@@ -1,10 +1,12 @@
 package com.qwerteach.wivi.qwerteachapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -13,17 +15,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.fragments.AdTabFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.DescriptionTabFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.FormationsTabFragment;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
 public class EditProfileActivity extends AppCompatActivity {
 
-    static final int NUM_ITEMS = 3;
-
-    String[] actionBarTabs = {"Description", "Formation", "Annonce"};
     ViewPager viewPager;
-    MyAdapter myAdapter;
+    TabLayout tabLayout;
+    User user;
+    int numItems = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,37 +35,21 @@ public class EditProfileActivity extends AppCompatActivity {
 
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        getSupportActionBar().setElevation(0);
 
-        myAdapter = new MyAdapter(getSupportFragmentManager());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
+
+        if (user.getPostulanceAccepted()) {
+            numItems = 3;
+        } else numItems = 2;
+
         viewPager = (ViewPager) findViewById(R.id.pager);
-        viewPager.setAdapter(myAdapter);
-        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
-            }
-
-        });
-
-        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
-            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
-                viewPager.setCurrentItem(tab.getPosition());
-            }
-
-            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
-
-            }
-
-            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
-
-            }
-        };
-
-        for (int i = 0; i < actionBarTabs.length; i++) {
-            actionBar.addTab(actionBar.newTab().setText(actionBarTabs[i]).setTabListener(tabListener));
-        }
-
+        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        viewPager.setAdapter(new MyAdapter(getSupportFragmentManager(), numItems));
+        tabLayout.setupWithViewPager(viewPager);
     }
 
     @Override
@@ -86,8 +73,11 @@ public class EditProfileActivity extends AppCompatActivity {
 
     public static class MyAdapter extends FragmentPagerAdapter {
 
-        public MyAdapter(FragmentManager fm) {
+        private int numItems;
+
+        public MyAdapter(FragmentManager fm, int numItems) {
             super(fm);
+            this.numItems = numItems;
         }
 
         @Override
@@ -106,8 +96,23 @@ public class EditProfileActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return NUM_ITEMS;
+            return numItems;
         }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return "Infos générales";
+                case 1:
+                    return "Formations";
+                case 2:
+                    return "Annonces";
+                default:
+                    return null;
+            }
+        }
+
     }
 
 }

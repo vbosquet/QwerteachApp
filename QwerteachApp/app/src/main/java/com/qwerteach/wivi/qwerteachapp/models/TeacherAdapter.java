@@ -26,13 +26,13 @@ import java.util.ArrayList;
 public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.ViewHolder> {
 
     private ArrayList<Teacher> teachers;
-    private MyClickListener listener;
     private Context context;
+    private ISearcTeacher callback;
 
-    public TeacherAdapter(ArrayList<Teacher> teachers, MyClickListener listener, Context context) {
+    public TeacherAdapter(Context context, ArrayList<Teacher> teachers, ISearcTeacher callback) {
         this.teachers = teachers;
-        this.listener = listener;
         this.context = context;
+        this.callback = callback;
     }
 
     @Override
@@ -47,26 +47,21 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.ViewHold
         Teacher teacher = teachers.get(position);
 
         holder.teacherName.setText(teacher.getUser().getFirstName() + " " + teacher.getUser().getLastName());
-        String text = teacher.getUser().getDescription();
-        text = text.replace("\\n\\n", "");
-        text = text.replace("<p>", "");
-        text= text.replace("</p>", "<br>");
-        holder.description.setText(Html.fromHtml(text), TextView.BufferType.SPANNABLE);
-        holder.materialCourseNames.setText(teacher.getTopics());
         holder.minPrice.setText(teacher.getMinPrice() + " €/h");
         holder.ratingBar.setRating(teacher.getRating());
         holder.numberOfReviews.setText(teacher.getNumberOfReviews() + " commentaire(s)");
-        holder.readMore.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                listener.onClicked(position);
-            }
-        });
 
         Picasso.with(context)
                 .load(teacher.getUser().getAvatarUrl())
                 .resize(1800, 1800).centerInside()
                 .into(holder.teacherAvatar);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                callback.onClicked(position);
+            }
+        });
 
     }
 
@@ -75,25 +70,22 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.ViewHold
         return teachers.size();
     }
 
-    public interface MyClickListener {
-        void onClicked(int position);
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder{
-        TextView teacherName, description, materialCourseNames, minPrice, numberOfReviews, readMore;
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView teacherName, minPrice, numberOfReviews;
         RatingBar ratingBar;
         ImageView teacherAvatar;
 
         public ViewHolder(View itemView) {
             super(itemView);
             teacherName = (TextView) itemView.findViewById(R.id.teacher_name_text_view);
-            description = (TextView) itemView.findViewById(R.id.teach_description_text_view);
-            materialCourseNames = (TextView) itemView.findViewById(R.id.teacher_course_material_names_text_view);
             minPrice = (TextView) itemView.findViewById(R.id.teacher_min_price);
             ratingBar = (RatingBar) itemView.findViewById(R.id.rating_bar);
             numberOfReviews = (TextView) itemView.findViewById(R.id.number_of_reviews);
-            readMore = (TextView) itemView.findViewById(R.id.read_more_text_view);
             teacherAvatar = (ImageView) itemView.findViewById(R.id.teacher_avatar);
         }
+    }
+
+    public interface ISearcTeacher {
+        void onClicked(int position);
     }
 }

@@ -9,35 +9,47 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.qwerteach.wivi.qwerteachapp.UnloadWalletActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/white">
 
     <TextView
         android:id="@+id/amount_to_be_transferred"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="16dp"
+        android:textColor="@color/medium_grey"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/bank_account_to_be_credited_text_view"/>
+        android:text="@string/bank_account_to_be_credited_text_view"
+        android:textColor="@color/medium_grey"/>
 
-    <Spinner
-        android:id="@+id/bank_accounts"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:background="@drawable/edit_text_border"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="16dp">
+
+        <Spinner
+            android:id="@+id/bank_accounts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/unload_wallet_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/unload_wallet_confirmation_button"
-        android:onClick="didTouchUnloadWalletButton"/>
+        android:onClick="didTouchUnloadWalletButton"
+        android:backgroundTint="@color/colorPrimary"
+        android:textColor="@color/white"/>
 
 </LinearLayout>

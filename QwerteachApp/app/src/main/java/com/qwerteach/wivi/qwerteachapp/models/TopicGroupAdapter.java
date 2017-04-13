@@ -33,7 +33,6 @@ public class TopicGroupAdapter extends ArrayAdapter<TopicGroup> {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         TextView textView = new TextView(context);
-        textView.setTextColor(Color.BLACK);
         textView.setText(topicGroups.get(position).getTopicGroupTitle());
         return textView;
     }
@@ -42,7 +41,6 @@ public class TopicGroupAdapter extends ArrayAdapter<TopicGroup> {
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
         View v = super.getDropDownView(position, convertView, parent);
         TextView tv = ((TextView) v);
-        tv.setTextColor(Color.BLACK);
         tv.setText(topicGroups.get(position).getTopicGroupTitle());
         return v;
     }

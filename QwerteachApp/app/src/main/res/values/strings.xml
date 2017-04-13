@@ -5,11 +5,11 @@
     <string name="facebook_sign_up_button">Continuer avec Facebook</string>
     <string name="sign_up_textview">J\'ai déjà un compte</string>
     <string name="title_activity_email_sign_up">Créer un compte</string>
-    <string name="email_edit_text">E-mail</string>
+    <string name="email_edit_text">Adresse e-mail</string>
     <string name="password_edit_text">Mot de passe</string>
     <string name="password_confirmation_edit_text">Confirmer mot de passe</string>
     <string name="or_textview">OU</string>
-    <string name="title_activity_sign_in">Bienvenue</string>
+    <string name="title_activity_sign_in">Se connecter</string>
     <string name="facebook_sign_in_button">Se connecter via Facebook</string>
     <string name="google_sign_in_button">Se connecter à l\'aide de Google</string>
     <string name="connection_email_textview">Connexion par e-mail</string>
@@ -18,15 +18,15 @@
     <string name="sign_in_button">CONNEXION</string>
     <string name="sign_out_button">DECONNEXION</string>
     <string name="cancel_button">ANNULER</string>
-    <string name="sign_up_connection_problem_message">Création du compte inpossible.\nRéessayez lorsque vous serez connecté !</string>
-    <string name="password_confirmation_problem_message">"Erreur ! La confirmation du mot de passe ne correspond pas. Essayez à nouveau.</string>
+    <string name="sign_up_connection_problem_message">Création du compte inpossible. Réessayez lorsque vous serez connecté !</string>
+    <string name="password_confirmation_problem_message">"La confirmation du mot de passe ne correspond pas.</string>
     <string name="title_alert_email_validation">Qwerteach</string>
-    <string name="message_alert_email_validation">Veuillez saisir une adresse e-mail valide.</string>
+    <string name="message_alert_email_validation">Adresse électronique incorrecte.</string>
     <string name="registration_success_toast">Inscription réussie</string>
     <string name="registration_error_message">Une erreur s\'est produite. Veuillez réessayer.</string>
-    <string name="sign_in_connection_problem_message">Connexion au compte impossible.\nRéessayez lorsque vous serez connecté !</string>
-    <string name="login_error_message">Votre e-mail ou mot de passe est incorrect.\nEsssayez à nouveau !</string>
-    <string name="email_already_in_use_message">Erreur ! L\'adresse e-mail existe déjà.\nEssayez à nouveau.</string>
+    <string name="sign_in_connection_problem_message">Connexion au compte impossible. Réessayez lorsque vous serez connecté !</string>
+    <string name="login_error_message">Votre e-mail ou mot de passe est incorrect. Esssayez à nouveau !</string>
+    <string name="email_already_in_use_message">Erreur ! L\'adresse e-mail existe déjà. Essayez à nouveau.</string>
     <string name="drawer_open">Ouvrir le menu</string>
     <string name="drawer_close">Fermer le menu</string>
     <string name="search_button">RECHERCHER</string>
@@ -83,7 +83,7 @@
     <string name="save_small_ad_success_need_message">Indiquez vos tarifs avant d\'enregistrer votre annonce</string>
     <string name="delete_small_ad_success_true_message">Votre annonce a bien été supprimée</string>
     <string name="delete_small_ad_success_false_message">Impossible de supprimer votre annonce. Essayez à nouveau</string>
-    <string name="delete_small_ad_button">Supprimer</string>
+    <string name="delete_small_ad_button">SUPPRIMER</string>
     <string name="edit_small_ad_button">Modifier</string>
     <string name="title_activity_update_small_ad">Editer annonce</string>
     <string name="categoty_text_view_update_small_ad">Catégorie</string>
@@ -97,7 +97,7 @@
     <string name="occupation_text_view_title">Occupation</string>
     <string name="description_text_view_title">Description</string>
     <string name="to_become_a_teacher_introduction_message">Vous souhaitez donner des cours en ligne ? Dès à présent, envoyez votre candidature.\n\nComplétez vos informations de profil et suivez attentivement chaque étape.</string>
-    <string name="search_teacher_activity_title">Professeurs de</string>
+    <string name="search_teacher_activity_title">Rechercher un professeur</string>
     <string name="app_label">Qwerteach</string>
     <string name="search_hint">Rechercher professeur</string>
     <string name="read_more_text_view">lire plus</string>
@@ -106,7 +106,7 @@
     <string name="detailed_prices_text_view">Voir le tarif détaillé</string>
     <string name="drop_down_menu_item_title">Choisir une matière</string>
     <string name="no_result_found_toast_message">Aucun résultat ne correspond à votre recherche.</string>
-    <string name="teacher_search_filter_text_view">Triés par</string>
+    <string name="teacher_search_filter_text_view_2">Triés par&#160;</string>
     <string name="lesson_reservation_button">Réserver un cours</string>
     <string name="lesson_reservation_activity_title">Réserver un cours</string>
     <string name="time_picker_button">Heure</string>
@@ -148,7 +148,7 @@
     <string name="payment_with_bancontact">Payer par Bancontact</string>
     <string name="payment_with_credit_card">Payer par carte de crédit</string>
     <string name="choosing_other_payment_method_text_view">Choisir un autre type de paiement</string>
-    <string name="lesson_reservation_finish_button">Finaliser la demande de cours</string>
+    <string name="lesson_reservation_finish_button">Finaliser la demande de cour</string>
     <string name="mango_pay_web_view_activity_title">Finaliser le paiement</string>
     <string name="payment_success_toast_message">Merci ! Votre demande a bien été envoyée au professeur.</string>
     <string name="payment_error_toast_message">Il y a eu un problème lors de la réservation. Le cours n\'a pas été réservé.</string>
@@ -158,7 +158,7 @@
     <string name="lesson_canceled_status">Demande de cours annulée</string>
     <string name="lesson_to_validate">En attente de validation</string>
     <string name="lesson_to_accept">Acceptez-vous cette demande de cours ?</string>
-    <string name="cancel_lesson_button">Annuler</string>
+    <string name="cancel_lesson_button">Annuler le cours</string>
     <string name="updating_wallet_success_toast_message">Vos informations ont été enregistrées avec succès.</string>
     <string name="updating_wallet_error_toast_message">Impossible d\'enregistrer vos informations. Veuillez réessayer.</string>
     <string name="reload_wallet_button">Recharger</string>
@@ -222,7 +222,7 @@
     <string name="delete_bank_account_button">Supprimer</string>
     <string name="unload_wallet_activity_title">Récupérer solde</string>
     <string name="bank_account_to_be_credited_text_view">Compte en banque à créditer</string>
-    <string name="unload_wallet_confirmation_button">Confirmer</string>
+    <string name="unload_wallet_confirmation_button">CONFIRMER</string>
     <string name="credit_transferred_success_toast_message">Le transfert s\'est correctement déroulé.</string>
     <string name="update_user_avatar_button">Changer image de profil</string>
     <string name="password_validation_message">Votre mot de passe doit contenir au moins 8 caractères.</string>
@@ -252,4 +252,15 @@
     <string name="card_validity_text_view">CVV</string>
     <string name="credit_card_choice_text_view">Sélectionnez une de vos cartes de crédit</string>
     <string name="bancontact_text_view">Nous allons vous rediriger vers le terminal de votre banque pour finaliser le paiement.</string>
+    <string name="heure">heure</string>
+    <string name="min">min</string>
+    <string name="teacher_search_filter_text_view_1">Professeurs de&#160;</string>
+    <string name="lesson_details">Payements associés</string>
+    <string name="payment_statut">Statut</string>
+    <string name="payment_price">Montant (€)</string>
+    <string name="payment_id">ID</string>
+    <string name="send_button">ENVOYER</string>
+    <string name="message_to_send_edit_text">Ecrivez un message</string>
+    <string name="landing_page_text">Le bon prof au bon moment\nPassez au soutien scolaire à la demande.</string>
+    <string name="welcome_text">Bienvenue sur Qwerteach</string>
 </resources>

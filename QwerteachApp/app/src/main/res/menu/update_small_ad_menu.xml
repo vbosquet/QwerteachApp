@@ -2,8 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/cancel_button"
-        android:title="@string/cancel_button"
+    <item android:id="@+id/save_infos_small_ad_button"
+        android:title="@string/save_profile_button"
+        android:icon="@drawable/content_save_icon"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/delete_small_ad_button"
+        android:title="@string/delete_small_ad_button"
+        android:icon="@drawable/delete_icon"
         app:showAsAction="always"/>
 
 </menu>

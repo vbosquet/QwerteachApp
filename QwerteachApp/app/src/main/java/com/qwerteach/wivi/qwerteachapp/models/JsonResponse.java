@@ -32,6 +32,8 @@ public class JsonResponse {
     private ArrayList<String> reviewSenderNames;
     @SerializedName("avg")
     private float rating;
+    @SerializedName("avgs")
+    private List<Float> ratings;
     @SerializedName("min_price")
     private double minPrice;
     @SerializedName("notes")
@@ -112,6 +114,8 @@ public class JsonResponse {
     private List<String> errorMessages;
     @SerializedName("error")
     private String errorMesage;
+    @SerializedName("payments")
+    private List<Payment> payments;
 
     public String getAvatar() {
         return avatar;
@@ -311,6 +315,14 @@ public class JsonResponse {
 
     public String getErrorMesage() {
         return errorMesage;
+    }
+
+    public List<Float> getRatings() {
+        return ratings;
+    }
+
+    public List<Payment> getPayments() {
+        return payments;
     }
 
     public static class Duration

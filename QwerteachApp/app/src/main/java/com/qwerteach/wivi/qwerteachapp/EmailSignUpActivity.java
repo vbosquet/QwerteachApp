@@ -12,10 +12,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -39,26 +41,12 @@ import retrofit2.Response;
 public class EmailSignUpActivity extends AppCompatActivity  {
 
     EditText email, password, passwordConfirmation;
+    LinearLayout emailLinearLayout, passwordLinearLayout, passwordConfirmationLinearLayout;
+    TextView emailValidation, passwordValidation, passwordConfirmationValidation;
+    Button emailSignUpButton;
     Menu myMenu;
     QwerteachService service;
     ProgressDialog progressDialog;
-
-    TextWatcher textWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            checkFieldForEmptyValues();
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,12 +59,82 @@ public class EmailSignUpActivity extends AppCompatActivity  {
         email = (EditText) findViewById(R.id.email_sign_up);
         password = (EditText) findViewById(R.id.password_sign_up);
         passwordConfirmation = (EditText) findViewById(R.id.password_confirmation);
+        emailValidation = (TextView) findViewById(R.id.email_validation_text_view);
+        emailLinearLayout = (LinearLayout) findViewById(R.id.email_linear_layout);
+        passwordLinearLayout = (LinearLayout) findViewById(R.id.password_linear_layout);
+        passwordValidation = (TextView) findViewById(R.id.password_validation_text_view);
+        passwordConfirmationLinearLayout = (LinearLayout) findViewById(R.id.password_confirmation_linear_layout);
+        passwordConfirmationValidation = (TextView)findViewById(R.id.password_confirmation_validation_text_view);
+        emailSignUpButton = (Button) findViewById(R.id.email_sign_up_button);
 
         service = ApiClient.getClient().create(QwerteachService.class);
         progressDialog = new ProgressDialog(this);
-        email.addTextChangedListener(textWatcher);
-        password.addTextChangedListener(textWatcher);
-        passwordConfirmation.addTextChangedListener(textWatcher);
+
+        email.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (!passwordValidator(password.getText().toString()) && !password.getText().toString().equals("")) {
+                    passwordValidation.setVisibility(View.VISIBLE);
+                    passwordLinearLayout.setBackgroundColor(getResources().getColor(R.color.red));
+                }
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                emailValidation.setVisibility(View.GONE);
+                emailLinearLayout.setBackgroundDrawable(getDrawable(R.drawable.grey_edit_text_border));
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+
+        password.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (!emailValidator(email.getText().toString()) && !email.getText().toString().equals("")) {
+                    emailValidation.setVisibility(View.VISIBLE);
+                    emailLinearLayout.setBackgroundColor(getResources().getColor(R.color.red));
+                }
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                passwordValidation.setVisibility(View.GONE);
+                passwordLinearLayout.setBackgroundDrawable(getDrawable(R.drawable.grey_edit_text_border));
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+        passwordConfirmation.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (!emailValidator(email.getText().toString()) && !email.getText().toString().equals("")) {
+                    emailValidation.setVisibility(View.VISIBLE);
+                    emailLinearLayout.setBackgroundColor(getResources().getColor(R.color.red));
+                } else if (!passwordValidator(password.getText().toString()) && !password.getText().toString().equals("")){
+                    passwordValidation.setVisibility(View.VISIBLE);
+                    passwordLinearLayout.setBackgroundColor(getResources().getColor(R.color.red));
+                }
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                passwordConfirmationValidation.setVisibility(View.GONE);
+                passwordConfirmationLinearLayout.setBackgroundDrawable(getDrawable(R.drawable.grey_edit_text_border));
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
 
     }
 
@@ -90,7 +148,6 @@ public class EmailSignUpActivity extends AppCompatActivity  {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         myMenu = menu;
-        myMenu.findItem(R.id.sign_up_button).setEnabled(false);
         return true;
     }
 
@@ -101,43 +158,8 @@ public class EmailSignUpActivity extends AppCompatActivity  {
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.sign_up_button:
-                Boolean connected = isOnline();
-
-                if (connected) {
-                    Boolean emailValidated = emailValidator(email.getText().toString());
-                    if (emailValidated) {
-                        if (!password.getText().toString().equals(passwordConfirmation.getText().toString())) {
-                            displayToastMessage(R.string.password_confirmation_problem_message);
-                        } else {
-                            boolean passwordValidated = passwordValidator(password.getText().toString());
-                            if (passwordValidated) {
-                                signUpWithEmail();
-                            } else {
-                                displayToastMessage(R.string.password_validation_message);
-                            }
-                        }
-
-                    } else {
-                        displayToastMessage(R.string.message_alert_email_validation);
-                    }
-
-                } else {
-                    displayToastMessage(R.string.sign_up_connection_problem_message);
-                }
-
-                return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void displayToastMessage(int idString) {
-        TextView passwordConfirmationProblemMessage = (TextView) findViewById(R.id.problem_message_sign_up_textview);
-        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) passwordConfirmationProblemMessage.getLayoutParams();
-        params.setMargins(0, 15, 0, 15);
-        passwordConfirmationProblemMessage.setLayoutParams(params);
-        passwordConfirmationProblemMessage.setText(idString);
-
     }
 
     public void signUpWithEmail() {
@@ -173,11 +195,11 @@ public class EmailSignUpActivity extends AppCompatActivity  {
                         break;
                     case "exist":
                         progressDialog.dismiss();
-                        displayToastMessage(R.string.email_already_in_use_message);
+                        Toast.makeText(getApplicationContext(), R.string.email_already_in_use_message, Toast.LENGTH_LONG).show();
                         break;
                     default:
                         progressDialog.dismiss();
-                        displayToastMessage(R.string.registration_error_message);
+                        Toast.makeText(getApplicationContext(), R.string.registration_error_message, Toast.LENGTH_LONG).show();
                         break;
                 }
             }
@@ -187,13 +209,6 @@ public class EmailSignUpActivity extends AppCompatActivity  {
 
             }
         });
-    }
-
-    public void didTouchFacebookSignUpButton(View view) {
-    }
-
-    public void didTouchGoogleSignUpButton(View view) {
-
     }
 
     public boolean isOnline() {
@@ -217,19 +232,6 @@ public class EmailSignUpActivity extends AppCompatActivity  {
         return matcher.matches();
     }
 
-    public void checkFieldForEmptyValues() {
-        String emailField = email.getText().toString();
-        String passwordField = password.getText().toString();
-        String passwordConfirmationField = passwordConfirmation.getText().toString();
-
-        if (emailField.trim().length() > 0 && passwordField.trim().length() > 0 && passwordConfirmationField.trim().length() > 0) {
-            myMenu.findItem(R.id.sign_up_button).setEnabled(true);
-
-        } else {
-            myMenu.findItem(R.id.sign_up_button).setEnabled(false);
-        }
-    }
-
     public void startProgressDialog() {
         progressDialog.setMessage("Loading...");
         progressDialog.setIndeterminate(false);
@@ -238,4 +240,31 @@ public class EmailSignUpActivity extends AppCompatActivity  {
         progressDialog.show();
     }
 
+    public void didTouchSignUpButton(View view) {
+        Boolean connected = isOnline();
+        if (!connected) {
+            Toast.makeText(this, R.string.sign_in_connection_problem_message, Toast.LENGTH_LONG).show();
+        } else {
+            if (emailValidator(email.getText().toString()) && passwordValidator(password.getText().toString()) &&
+                    password.getText().toString().equals(passwordConfirmation.getText().toString())) {
+                signUpWithEmail();
+            } else {
+                if (!emailValidator(email.getText().toString()) && !passwordValidator(password.getText().toString())) {
+                    emailValidation.setVisibility(View.VISIBLE);
+                    emailLinearLayout.setBackgroundColor(getResources().getColor(R.color.red));
+                    passwordValidation.setVisibility(View.VISIBLE);
+                    passwordLinearLayout.setBackgroundColor(getResources().getColor(R.color.red));
+                } else if (!emailValidator(email.getText().toString())) {
+                    emailValidation.setVisibility(View.VISIBLE);
+                    emailLinearLayout.setBackgroundColor(getResources().getColor(R.color.red));
+                } else if (!passwordValidator(password.getText().toString())) {
+                    passwordValidation.setVisibility(View.VISIBLE);
+                    passwordLinearLayout.setBackgroundColor(getResources().getColor(R.color.red));
+                } else if (!password.getText().toString().equals(passwordConfirmation.getText().toString())) {
+                    passwordConfirmationValidation.setVisibility(View.VISIBLE);
+                    passwordConfirmationLinearLayout.setBackgroundColor(getResources().getColor(R.color.red));
+                }
+            }
+        }
+    }
 }

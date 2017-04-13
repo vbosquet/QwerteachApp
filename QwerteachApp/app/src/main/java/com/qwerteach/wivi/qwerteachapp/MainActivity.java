@@ -2,11 +2,15 @@ package com.qwerteach.wivi.qwerteachapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,6 +21,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         isLogin = preferences.getBoolean("isLogin", false);
@@ -36,11 +43,5 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, EmailSignUpActivity.class);
         startActivity(intent);
 
-    }
-
-    public void didTouchGoogleSignUpButton(View view) {
-    }
-
-    public void didTouchFacebookSignUpButton(View view) {
     }
 }

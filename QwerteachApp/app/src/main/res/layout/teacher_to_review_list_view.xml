@@ -16,12 +16,27 @@
         android:textColor="@color/dark"
         android:textSize="17dp" />
 
+    <RatingBar
+        android:id="@+id/rating_bar"
+        style="?android:attr/ratingBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:isIndicator="true"
+        android:numStars="5"
+        android:rating="0"
+        android:stepSize="0.1"
+        android:progressTint="@color/colorPrimaryDark"
+        android:progressBackgroundTint="@color/text_grey"/>
+
     <Button
         android:id="@+id/review_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/review_button"
-        android:textColor="@color/message_out_color"
-        android:background="@color/transparent"/>
+        android:textColor="@color/white"
+        android:background="@drawable/green_button"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp" />
 
 </LinearLayout>

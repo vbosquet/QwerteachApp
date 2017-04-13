@@ -3,14 +3,12 @@ package com.qwerteach.wivi.qwerteachapp;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -26,9 +24,9 @@ import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
-import com.squareup.picasso.Transformation;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -64,7 +62,6 @@ public class ProfileActivity extends AppCompatActivity  {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 user = response.body().getUser();
-                Log.d("FIRSTNAME", user.getFirstName());
                 String avatarUrl = response.body().getAvatar();
                 user.setAvatarUrl(avatarUrl);
 
@@ -93,6 +90,7 @@ public class ProfileActivity extends AppCompatActivity  {
         float rating = response.body().getRating();
         double minPrice = response.body().getMinPrice();
         ArrayList<Integer> notes = response.body().getNotes();
+        List<String> reviewAvatars = response.body().getAvatars();
 
         for (int i = 0; i < smallAds.size(); i++) {
             smallAds.get(i).setTitle(topics.get(i));
@@ -110,6 +108,7 @@ public class ProfileActivity extends AppCompatActivity  {
 
         for (int i = 0; i < reviews.size(); i++) {
             reviews.get(i).setSenderFirstName(reviewSenderNames.get(i));
+            reviews.get(i).setAvatar(reviewAvatars.get(i));
         }
 
         teacher.setUser(user);
@@ -127,7 +126,7 @@ public class ProfileActivity extends AppCompatActivity  {
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.profil_menu, menu);
+        inflater.inflate(R.menu.profile_menu, menu);
         return true;
     }
 

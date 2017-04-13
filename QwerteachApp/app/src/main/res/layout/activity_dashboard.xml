@@ -9,7 +9,8 @@
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimaryDark"/>
 
     <!-- The navigation drawer -->
     <ListView android:id="@+id/left_drawer"
@@ -17,6 +18,8 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:choiceMode="singleChoice"
-        android:background="#ffffff"/>
+        android:background="@color/colorPrimaryDark"
+        android:divider="@color/colorPrimary"
+        android:dividerHeight="0.2dp"/>
 
 </android.support.v4.widget.DrawerLayout>

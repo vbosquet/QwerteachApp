@@ -9,7 +9,8 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.qwerteach.wivi.qwerteachapp.ReloadWalletActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,7 +23,7 @@
             android:text="@string/amount_tewt_view"
             android:layout_marginBottom="10dp"
             android:textSize="17dp"
-            android:textColor="@color/dark"/>
+            android:textColor="@color/medium_grey"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -54,8 +55,8 @@
         android:paddingRight="10dp"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:visibility="gone"
-        android:inputType="number"/>
-
+        android:inputType="number"
+        android:textColor="@color/medium_grey"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -63,13 +64,14 @@
             android:text="@string/payment_method_text_view"
             android:layout_marginBottom="10dp"
             android:textSize="17dp"
-            android:textColor="@color/dark"/>
+            android:textColor="@color/medium_grey"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Payer par "
-        android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:textColor="@color/medium_grey"/>
 
 
     <LinearLayout
@@ -86,12 +88,14 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Easy Payment"/>
+            android:text="Easy Payment"
+            android:textColor="@color/medium_grey"/>
 
         <CheckBox
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/easy_payment" />
+            android:id="@+id/easy_payment"
+            android:textColor="@color/medium_grey"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -109,7 +113,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/or_textview"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:textColor="@color/medium_grey"/>
 
 
         <LinearLayout
@@ -127,31 +132,36 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/visa"
-                android:text="@string/visa_checkbox"/>
+                android:text="@string/visa_checkbox"
+                android:textColor="@color/medium_grey"/>
 
             <CheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/mastercard"
-                android:text="@string/mastercard_checkbox"/>
+                android:text="@string/mastercard_checkbox"
+                android:textColor="@color/medium_grey"/>
 
             <CheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/cb"
-                android:text="@string/blue_card_checkbox"/>
+                android:text="@string/blue_card_checkbox"
+                android:textColor="@color/medium_grey"/>
 
             <CheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/bcmc"
-                android:text="@string/bancontact_checkbox"/>
+                android:text="@string/bancontact_checkbox"
+                android:textColor="@color/medium_grey"/>
 
             <CheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/banck_wire"
-                android:text="@string/bank_wire_checkbox"/>
+                android:text="@string/bank_wire_checkbox"
+                android:textColor="@color/medium_grey"/>
 
         </LinearLayout>
 
@@ -165,7 +175,8 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Sélectionnez votre carte de crédit"/>
+                android:text="Sélectionnez votre carte de crédit"
+                android:textColor="@color/medium_grey"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -198,7 +209,8 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Numéro de carte"/>
+                android:text="Numéro de carte"
+                android:textColor="@color/medium_grey"/>
 
             <EditText
                 android:id="@+id/card_number_edit_text"
@@ -210,12 +222,14 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:inputType="number"/>
+                android:inputType="number"
+                android:textColor="@color/medium_grey"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Date expiration"/>
+                android:text="Date expiration"
+                android:textColor="@color/medium_grey"/>
 
             <LinearLayout
                 android:id="@+id/expiration_date_linear_layout"
@@ -265,7 +279,8 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="CVV"/>
+                android:text="CVV"
+                android:textColor="@color/medium_grey"/>
 
             <EditText
                 android:id="@+id/security_code_edit_text"
@@ -277,7 +292,8 @@
                 android:paddingBottom="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:ems="3"/>
+                android:ems="3"
+                android:textColor="@color/medium_grey"/>
         </LinearLayout>
 
         <LinearLayout
@@ -299,7 +315,8 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/bank_wire_beneficiary"/>
+                android:text="@string/bank_wire_beneficiary"
+                android:textColor="@color/medium_grey"/>
             <TextView
                 android:id="@+id/bank_wire_beneficiary"
                 android:layout_width="match_parent"
@@ -309,12 +326,14 @@
                 android:paddingBottom="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:textColor="@color/medium_grey"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/bank_wire_address"/>
+                android:text="@string/bank_wire_address"
+                android:textColor="@color/medium_grey"/>
 
             <TextView
                 android:id="@+id/bank_wire_address"
@@ -325,12 +344,14 @@
                 android:paddingBottom="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:textColor="@color/medium_grey"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/bank_wire_iban"/>
+                android:text="@string/bank_wire_iban"
+                android:textColor="@color/medium_grey"/>
 
             <TextView
                 android:id="@+id/bank_wire_iban"
@@ -341,12 +362,14 @@
                 android:paddingBottom="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:textColor="@color/medium_grey"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/bank_wire_bic"/>
+                android:text="@string/bank_wire_bic"
+                android:textColor="@color/medium_grey"/>
 
             <TextView
                 android:id="@+id/bank_wire_bic"
@@ -357,12 +380,14 @@
                 android:paddingBottom="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:textColor="@color/medium_grey"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/bank_wire_amount"/>
+                android:text="@string/bank_wire_amount"
+                android:textColor="@color/medium_grey"/>
 
             <TextView
                 android:id="@+id/bank_wire_amount"
@@ -373,12 +398,14 @@
                 android:paddingBottom="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:textColor="@color/medium_grey"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/bank_wire_communication"/>
+                android:text="@string/bank_wire_communication"
+                android:textColor="@color/medium_grey"/>
 
             <TextView
                 android:id="@+id/bank_wire_communication"
@@ -389,7 +416,8 @@
                 android:paddingBottom="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:textColor="@color/medium_grey"/>
 
         </LinearLayout>
 
@@ -398,7 +426,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/validation_button"
-            android:onClick="didTouchValidateButton"/>
+            android:onClick="didTouchValidateButton"
+            android:backgroundTint="@color/colorPrimary"
+            android:textColor="@color/white"/>
 
     </LinearLayout>
 

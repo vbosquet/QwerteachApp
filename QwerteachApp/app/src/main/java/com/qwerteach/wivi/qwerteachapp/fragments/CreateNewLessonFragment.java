@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -179,8 +180,8 @@ public class CreateNewLessonFragment extends Fragment implements
     }
 
     public void displayTopicGroupSpinner() {
-        TopicGroupAdapter topicGroupAdapter = new TopicGroupAdapter(getContext(), android.R.layout.simple_spinner_item, topicGroups);
-        topicGroupAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        TopicGroupAdapter topicGroupAdapter = new TopicGroupAdapter(getContext(), R.layout.simple_spinner_item, topicGroups);
+        topicGroupAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         topicGroupSpinner.setAdapter(topicGroupAdapter);
         topicGroupSpinner.setOnItemSelectedListener(this);
 
@@ -191,9 +192,8 @@ public class CreateNewLessonFragment extends Fragment implements
     }
 
     public void displayHourSpinner() {
-        ArrayAdapter hourSpinnerAdapter = ArrayAdapter.createFromResource(getContext(), R.array.hour_spinner_items,
-                android.R.layout.simple_spinner_item);
-        hourSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter hourSpinnerAdapter = ArrayAdapter.createFromResource(getContext(), R.array.hour_spinner_items, R.layout.simple_spinner_item);
+        hourSpinnerAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         hourSpinner.setAdapter(hourSpinnerAdapter);
         hourSpinner.setOnItemSelectedListener(this);
 
@@ -207,9 +207,8 @@ public class CreateNewLessonFragment extends Fragment implements
     }
 
     public void displayMinutSpinner() {
-        ArrayAdapter minutSpinnerAdapter = ArrayAdapter.createFromResource(getContext(), R.array.minut_spinner_items,
-                android.R.layout.simple_spinner_item);
-        minutSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter minutSpinnerAdapter = ArrayAdapter.createFromResource(getContext(), R.array.minut_spinner_items, R.layout.simple_spinner_item);
+        minutSpinnerAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         minuteSpinner.setAdapter(minutSpinnerAdapter);
         minuteSpinner.setOnItemSelectedListener(this);
 
@@ -221,8 +220,8 @@ public class CreateNewLessonFragment extends Fragment implements
     }
 
     public void displayTopicSpinner() {
-        TopicAdapter topicAdapter = new TopicAdapter(getContext(), android.R.layout.simple_spinner_item, topics);
-        topicAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        TopicAdapter topicAdapter = new TopicAdapter(getContext(), R.layout.simple_spinner_item, topics);
+        topicAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         topicSpinner.setAdapter(topicAdapter);
         topicSpinner.setOnItemSelectedListener(this);
 
@@ -236,8 +235,8 @@ public class CreateNewLessonFragment extends Fragment implements
         for (int i = 0; i < levels.size(); i++) {
             levels.get(i).setNeedBeLevel(true);
         }
-        LevelAdapter levelAdapter = new LevelAdapter(getContext(), android.R.layout.simple_spinner_item, levels);
-        levelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        LevelAdapter levelAdapter = new LevelAdapter(getContext(), R.layout.simple_spinner_item, levels);
+        levelAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         levelSpinner.setAdapter(levelAdapter);
         levelSpinner.setOnItemSelectedListener(this);
 

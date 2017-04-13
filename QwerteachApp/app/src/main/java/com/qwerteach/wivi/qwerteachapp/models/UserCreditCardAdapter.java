@@ -36,7 +36,6 @@ public class UserCreditCardAdapter extends RecyclerView.Adapter<UserCreditCardAd
         holder.cardProvider.setText(userCreditCard.getCardProvider() + " (" + userCreditCard.getCurrency() + ")");
         holder.cardAlias.setText(userCreditCard.getAlias());
         holder.expirationDate.setText("Expiration : " + userCreditCard.getExpirationDate());
-        holder.cardValidity.setText(userCreditCard.getValidity());
 
     }
 
@@ -46,7 +45,7 @@ public class UserCreditCardAdapter extends RecyclerView.Adapter<UserCreditCardAd
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView cardProvider, cardAlias, expirationDate, cardValidity;
+        TextView cardProvider, cardAlias, expirationDate;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -54,7 +53,6 @@ public class UserCreditCardAdapter extends RecyclerView.Adapter<UserCreditCardAd
             cardProvider = (TextView) itemView.findViewById(R.id.card_provider_text_view);
             cardAlias = (TextView) itemView.findViewById(R.id.card_alias_text_view);
             expirationDate = (TextView) itemView.findViewById(R.id.expiration_date_text_view);
-            cardValidity = (TextView) itemView.findViewById(R.id.card_validity_text_view);
         }
     }
 }

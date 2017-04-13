@@ -29,12 +29,32 @@ public class Transaction implements Serializable{
     private CreditedFund creditedFund;
     @SerializedName("fees")
     private Fee fee;
+    @SerializedName("status")
+    private String status;
+    @SerializedName("result_message")
+    private String resultMessage;
 
     private String authorName;
     private String creditedUserName;
 
     public Transaction() {
 
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getResultMessage() {
+        return resultMessage;
+    }
+
+    public void setResultMessage(String resultMessage) {
+        this.resultMessage = resultMessage;
     }
 
     public String getTransactionId() {

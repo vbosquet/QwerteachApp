@@ -2,18 +2,30 @@ package com.qwerteach.wivi.qwerteachapp.models;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Paint;
+import android.os.Build;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
+import android.support.annotation.RequiresApi;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.github.curioustechizen.ago.RelativeTimeTextView;
 import com.qwerteach.wivi.qwerteachapp.R;
+import com.qwerteach.wivi.qwerteachapp.common.Common;
 import com.qwerteach.wivi.qwerteachapp.fragments.MyLessonsListViewFragment;
+import com.squareup.picasso.Picasso;
+
+import org.ocpsoft.prettytime.PrettyTime;
 
 import java.sql.Time;
 import java.text.DateFormat;
@@ -22,6 +34,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -33,11 +47,13 @@ public class LessonsAdapter extends RecyclerView.Adapter<LessonsAdapter.ViewHold
     private Context context;
     private MyLessonsListViewFragment fragment;
     private ArrayList<Lesson> lessons;
+    private boolean isClicked = true;
 
     public LessonsAdapter(Context context, ArrayList<Lesson> lessons, MyLessonsListViewFragment fragment) {
         this.lessons = lessons;
         this.context = context;
         this.fragment = fragment;
+        setHasStableIds(true);
     }
 
     private static void displayAcceptLessonButton(ViewHolder viewHolder) {
@@ -97,18 +113,21 @@ public class LessonsAdapter extends RecyclerView.Adapter<LessonsAdapter.ViewHold
         return new ViewHolder(itemView);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         final Lesson lesson = lessons.get(position);
+        final String timeStart = lesson.getTimeStart();
+        final List<Payment> payments = lesson.getPayments();
+        Date oldDate = Common.getDate(timeStart);
+        PrettyTime p = new PrettyTime(new Locale("fr"));
+        String timeAgo = "<font color='#501dd4'>" + p.format(oldDate) + "</font>";
+        String lessonTopic = "<font color='#501dd4'>" + lesson.getTopicTitle() + "</font>";
+        String userName = "<font color='#501dd4'>" + lesson.getUserName() + "</font>";
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String userId = preferences.getString("userId", "");
-        String timeStart = lesson.getTimeStart();
-
-        holder.lessonTitle.setText("Cours de " + lesson.getTopicTitle() +  " avec " + lesson.getUserName());
-        holder.lessonStartTime.setText("Prévu le " + lesson.getDate(timeStart) + " à " + lesson.getTime(timeStart));
-        holder.lessonDuration.setText("Durée : " + lesson.getDuration());
-        holder.lessonPrice.setText("Prix : " + lesson.getPrice() + " €");
+        holder.lessonTitle.setText(Html.fromHtml(lesson.getDuration() + " de " + lessonTopic +  " avec " + userName));
+        holder.lessonStartTime.setText(Html.fromHtml("Prévu " + timeAgo +  " (le "+ lesson.getDate(timeStart) + " à " + lesson.getTime(timeStart) + ")"));
+        Picasso.with(context).load(lesson.getAvatar()).resize(150, 150).centerCrop().into(holder.lessonOtherAvatar);
 
         holder.lessonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -159,75 +178,160 @@ public class LessonsAdapter extends RecyclerView.Adapter<LessonsAdapter.ViewHold
             }
         });
 
-        if (lesson.getStatus().equals("expired")) {
-            holder.lessonStatus.setVisibility(View.VISIBLE);
-            holder.lessonStatus.setText(R.string.lesson_expired_status);
-            holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.red));
-            removeAllButtons(holder);
+        holder.detailsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isClicked) {
+                    isClicked = false;
+                    holder.detailsLinearLayout.setVisibility(View.VISIBLE);
+                    for (int i = 0; i < payments.size(); i++) {
+                        TextView id = new TextView(context);
+                        TextView price = new TextView(context);
+                        TextView status = new TextView(context);
+                        id.setText(String.valueOf(payments.get(i).getPaymentId()));
+                        id.setTextColor(context.getResources().getColor(R.color.text_grey));
+                        price.setText(String.valueOf(payments.get(i).getPrice()));
+                        price.setTextColor(context.getResources().getColor(R.color.text_grey));
+                        status.setText(payments.get(i).getStatus());
+                        status.setTextColor(context.getResources().getColor(R.color.text_grey));
+                        holder.idLinearLayout.addView(id);
+                        holder.priceLinearLayout.addView(price);
+                        holder.statusLinearLayout.addView(status);
+                    }
+                } else {
+                    isClicked = true;
+                    holder.detailsLinearLayout.setVisibility(View.GONE);
+                    holder.idLinearLayout.removeAllViews();
+                    holder.priceLinearLayout.removeAllViews();
+                    holder.statusLinearLayout.removeAllViews();
+                }
+            }
+        });
 
-        } else if (lesson.getStatus().equals("refused")) {
-            holder.lessonStatus.setVisibility(View.VISIBLE);
-            holder.lessonStatus.setText(R.string.lesson_refused_status);
-            holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.red));
-            removeAllButtons(holder);
+        switch (lesson.getStatus()) {
+            case "expired":
+                holder.lessonStatus.setVisibility(View.VISIBLE);
+                holder.lessonStatus.setText(R.string.lesson_expired_status);
+                removeAllButtons(holder);
 
-        } else if (lesson.getStatus().equals("canceled")) {
-            holder.lessonStatus.setVisibility(View.VISIBLE);
-            holder.lessonStatus.setText(R.string.lesson_canceled_status);
-            holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.red));
-            removeAllButtons(holder);
+                break;
+            case "refused":
+                holder.lessonTitle.setText(lesson.getDuration() + " de " + lesson.getTopicTitle() +  " avec " + lesson.getUserName());
+                holder.lessonTitle.setPaintFlags(holder.lessonTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                holder.lessonStartTime.setText("Prévu " +  p.format(oldDate) +  " (le "+ lesson.getDate(timeStart) + " à " + lesson.getTime(timeStart) + ")");
+                holder.lessonStartTime.setPaintFlags(holder.lessonStartTime.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                holder.lessonStatus.setVisibility(View.VISIBLE);
+                holder.lessonStatus.setText(R.string.lesson_refused_status);
+                holder.detailsButton.setTextColor(context.getResources().getColor(R.color.text_grey));
+                removeAllButtons(holder);
 
-        } else if (lesson.getStatus().equals("accepted")) {
-            holder.lessonStatus.setVisibility(View.VISIBLE);
-            holder.lessonStatus.setText(R.string.lesson_accepted_status);
-            holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
-            displayCancelButtonOnly(holder);
+                break;
+            case "canceled":
+                holder.lessonTitle.setText(lesson.getDuration() + " de " + lesson.getTopicTitle() +  " avec " + lesson.getUserName());
+                holder.lessonTitle.setPaintFlags(holder.lessonTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                holder.lessonStartTime.setText("Prévu " +  p.format(oldDate) +  " (le "+ lesson.getDate(timeStart) + " à " + lesson.getTime(timeStart) + ")");
+                holder.lessonStartTime.setPaintFlags(holder.lessonStartTime.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                holder.lessonStatus.setVisibility(View.VISIBLE);
+                holder.lessonStatus.setText(R.string.lesson_canceled_status);
+                holder.detailsButton.setTextColor(context.getResources().getColor(R.color.text_grey));
+                removeAllButtons(holder);
 
-        } else if (lesson.getStatus().equals("pay")) {
-            holder.lessonStatus.setVisibility(View.VISIBLE);
-            holder.lessonStatus.setText(R.string.lesson_past_status);
-            holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
-            displayPayTeacherButtons(holder);
+                break;
+            case "accepted":
+                holder.lessonStatus.setVisibility(View.VISIBLE);
+                holder.lessonStatus.setText(R.string.lesson_accepted_status);
+                displayCancelButtonOnly(holder);
 
-        } else if (lesson.getStatus().equals("past&paid")) {
-            holder.lessonStatus.setVisibility(View.GONE);
-            removeAllButtons(holder);
+                break;
+            case "pay":
+                holder.lessonStatus.setVisibility(View.VISIBLE);
+                holder.lessonStatus.setText(R.string.lesson_past_status);
+                displayPayTeacherButtons(holder);
 
-        } else if (userId.equals(String.valueOf(lesson.getTeacherId()))
-                && lesson.getStatus().equals("confirm")) {
-            holder.lessonStatus.setVisibility(View.VISIBLE);
-            holder.lessonStatus.setText(R.string.lesson_to_accept);
-            holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
-            displayAcceptLessonButton(holder);
+                break;
+            case "past&paid":
+                holder.lessonStatus.setVisibility(View.GONE);
+                removeAllButtons(holder);
 
-        } else if (userId.equals(String.valueOf(lesson.getStudentId()))
-                && lesson.getStatus().equals("confirm")) {
-            holder.lessonStatus.setVisibility(View.VISIBLE);
-            holder.lessonStatus.setText(R.string.lesson_to_accept);
-            holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
-            displayAcceptLessonButton(holder);
+                break;
+            case "confirm":
+                holder.lessonStatus.setVisibility(View.VISIBLE);
+                holder.lessonStatus.setText(R.string.lesson_to_accept);
+                displayAcceptLessonButton(holder);
 
-        } else if (lesson.getStatus().equals("review")) {
-            holder.lessonStatus.setVisibility(View.VISIBLE);
-            holder.lessonStatus.setText("Laissez un commentaire à " + lesson.getUserName());
-            holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.green));
-            displayReviewButton(holder);
+                break;
+            case "review":
+                holder.lessonStatus.setVisibility(View.VISIBLE);
+                holder.lessonStatus.setText("Laissez un commentaire à " + lesson.getUserName());
+                displayReviewButton(holder);
 
-        } else if (lesson.getStatus().equals("disputed")) {
-            holder.lessonStatus.setVisibility(View.VISIBLE);
-            holder.lessonStatus.setText(R.string.lesson_disputed_status);
-            holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.orange));
-            removeAllButtons(holder);
+                break;
+            case "disputed":
+                holder.lessonStatus.setVisibility(View.VISIBLE);
+                holder.lessonStatus.setText(R.string.lesson_disputed_status);
+                removeAllButtons(holder);
 
-        } else if (lesson.getStatus().equals("past")) {
-            holder.lessonStatus.setVisibility(View.GONE);
-            removeAllButtons(holder);
+                break;
+            case "past":
+                holder.lessonStatus.setVisibility(View.GONE);
+                removeAllButtons(holder);
 
-        } else if (lesson.getStatus().equals("waiting")) {
-            holder.lessonStatus.setText(R.string.lesson_to_validate);
-            holder.lessonStatus.setVisibility(View.VISIBLE);
-            holder.lessonStatus.setTextColor(context.getResources().getColor(R.color.orange));
-            displayCancelButtonOnly(holder);
+                break;
+            case "waiting":
+                holder.lessonStatus.setText(R.string.lesson_to_validate);
+                holder.lessonStatus.setVisibility(View.VISIBLE);
+                displayCancelButtonOnly(holder);
+                break;
+        }
+
+        if (lesson.getTopicGroupId() == 3) {
+            if (lesson.getStatus().equals("refused") || lesson.getStatus().equals("canceled")) {
+                holder.topicGroupIcon.setBackground(context.getResources().getDrawable(R.drawable.grey_list_view_item));
+            } else {
+                holder.topicGroupIcon.setBackground(context.getResources().getDrawable(R.drawable.orange_list_view_item));
+            }
+            Picasso.with(context).load(R.drawable.lettres_small).resize(150, 150).centerCrop().into(holder.topicGroupIcon);
+        } else if (lesson.getTopicGroupId() == 1) {
+            if (lesson.getStatus().equals("refused") || lesson.getStatus().equals("canceled")) {
+                holder.topicGroupIcon.setBackground(context.getResources().getDrawable(R.drawable.grey_list_view_item));
+            } else {
+                holder.topicGroupIcon.setBackground(context.getResources().getDrawable(R.drawable.yellow_list_view_item));
+            }
+            Picasso.with(context).load(R.drawable.maths_small_white).resize(150, 150).centerCrop().into(holder.topicGroupIcon);
+        } else if (lesson.getTopicGroupId() == 2) {
+            if (lesson.getStatus().equals("refused") || lesson.getStatus().equals("canceled")) {
+                holder.topicGroupIcon.setBackground(context.getResources().getDrawable(R.drawable.grey_list_view_item));
+            } else {
+                holder.topicGroupIcon.setBackground(context.getResources().getDrawable(R.drawable.pink_list_view_item));
+            }
+            Picasso.with(context).load(R.drawable.sciences_small).resize(150, 150).centerCrop().into(holder.topicGroupIcon);
+        } else if (lesson.getTopicGroupId() == 4) {
+            if (lesson.getStatus().equals("refused") || lesson.getStatus().equals("canceled")) {
+                holder.topicGroupIcon.setBackground(context.getResources().getDrawable(R.drawable.grey_list_view_item));
+            } else {
+                holder.topicGroupIcon.setBackground(context.getResources().getDrawable(R.drawable.purple_light_list_view_item));
+            }
+            Picasso.with(context).load(R.drawable.langues_small).resize(150, 150).centerCrop().into(holder.topicGroupIcon);
+        } else if (lesson.getTopicGroupId() == 5) {
+            if (lesson.getStatus().equals("refused") || lesson.getStatus().equals("canceled")) {
+                holder.topicGroupIcon.setBackground(context.getResources().getDrawable(R.drawable.grey_list_view_item));
+            } else {
+                holder.topicGroupIcon.setBackground(context.getResources().getDrawable(R.drawable.green_list_view_item));
+            }
+            Picasso.with(context).load(R.drawable.economie_small).resize(150, 150).centerCrop().into(holder.topicGroupIcon);
+        } else if (lesson.getTopicGroupId() == 6) {
+            if (lesson.getStatus().equals("refused") || lesson.getStatus().equals("canceled")) {
+                holder.topicGroupIcon.setBackground(context.getResources().getDrawable(R.drawable.grey_list_view_item));
+            } else {
+                holder.topicGroupIcon.setBackground(context.getResources().getDrawable(R.drawable.blue_list_view_item));
+            }
+            Picasso.with(context).load(R.drawable.informatique_small).resize(150, 150).centerCrop().into(holder.topicGroupIcon);
+        } else if (lesson.getTopicGroupId() == 7 || lesson.getTopicGroupId() == 8 ){
+            if (lesson.getStatus().equals("refused") || lesson.getStatus().equals("canceled")) {
+                holder.topicGroupIcon.setBackground(context.getResources().getDrawable(R.drawable.grey_list_view_item));
+            } else {
+                holder.topicGroupIcon.setBackground(context.getResources().getDrawable(R.drawable.red_list_view_item));
+            }
         }
 
     }
@@ -237,18 +341,28 @@ public class LessonsAdapter extends RecyclerView.Adapter<LessonsAdapter.ViewHold
         return lessons.size();
     }
 
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder{
-        TextView lessonTitle, lessonStartTime, lessonDuration, lessonStatus, lessonPrice;
-        Button lessonCancel, lessonUpdate, lessonAccept, lessonRefuse, positiveReviewButton, negativeReviewButton, reviewButton;
+        TextView lessonTitle, lessonStatus, lessonStartTime;
+        Button lessonCancel, lessonUpdate, lessonAccept, lessonRefuse, positiveReviewButton, negativeReviewButton, reviewButton, detailsButton;
+        ImageView lessonOtherAvatar, topicGroupIcon;
+        LinearLayout detailsLinearLayout, idLinearLayout, priceLinearLayout, statusLinearLayout;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
             lessonTitle = (TextView) itemView.findViewById(R.id.lesson_title_text_view);
             lessonStartTime = (TextView) itemView.findViewById(R.id.lesson_start_time_text_view);
-            lessonDuration = (TextView) itemView.findViewById(R.id.lesson_duration_text_view);
             lessonStatus = (TextView) itemView.findViewById(R.id.lesson_status_text_view);
-            lessonPrice = (TextView) itemView.findViewById(R.id.lesson_price_text_view);
             lessonCancel = (Button) itemView.findViewById(R.id.cancel_lesson_button);
             lessonUpdate = (Button) itemView.findViewById(R.id.update_lesson_button);
             lessonAccept = (Button) itemView.findViewById(R.id.accept_lesson_button);
@@ -256,6 +370,13 @@ public class LessonsAdapter extends RecyclerView.Adapter<LessonsAdapter.ViewHold
             positiveReviewButton = (Button) itemView.findViewById(R.id.yes_button);
             negativeReviewButton = (Button) itemView.findViewById(R.id.no_button);
             reviewButton = (Button) itemView.findViewById(R.id.review_button);
+            lessonOtherAvatar = (ImageView) itemView.findViewById(R.id.lesson_other_avatar);
+            topicGroupIcon = (ImageView) itemView.findViewById(R.id.topic_group_icon);
+            detailsButton = (Button) itemView.findViewById(R.id.details_button);
+            detailsLinearLayout = (LinearLayout) itemView.findViewById(R.id.details_linear_layout);
+            idLinearLayout = (LinearLayout) itemView.findViewById(R.id.id_linear_layout);
+            priceLinearLayout = (LinearLayout) itemView.findViewById(R.id.price_linear_layout);
+            statusLinearLayout = (LinearLayout) itemView.findViewById(R.id.status_linear_layout);
         }
     }
 }

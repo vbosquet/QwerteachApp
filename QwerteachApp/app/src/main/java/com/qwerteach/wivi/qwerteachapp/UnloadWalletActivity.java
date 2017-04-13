@@ -86,8 +86,8 @@ public class UnloadWalletActivity extends AppCompatActivity implements
         bankAccountSpinner = (Spinner) findViewById(R.id.bank_accounts);
 
         amountToBeTransferred.setText("Montant à transférer : " + totalWallet/100 + " €");
-        bankAccountAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, accountNumbers);
-        bankAccountAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        bankAccountAdapter = new ArrayAdapter<>(this, R.layout.simple_spinner_item, accountNumbers);
+        bankAccountAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         bankAccountSpinner.setAdapter(bankAccountAdapter);
         bankAccountSpinner.setOnItemSelectedListener(this);
 

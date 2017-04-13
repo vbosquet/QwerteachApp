@@ -9,7 +9,8 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.qwerteach.wivi.qwerteachapp.ChatActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -39,14 +40,18 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Ecrivez un message"
-            android:background="@android:color/transparent"/>
+            android:hint="@string/message_to_send_edit_text"
+            android:background="@android:color/transparent"
+            android:textColor="@color/medium_grey"
+            android:textColorHint="@color/text_light_grey"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ENVOYER"
-            android:onClick="didTouchSendButton" />
+            android:text="@string/send_button"
+            android:onClick="didTouchSendButton"
+            android:backgroundTint="@color/colorPrimary"
+            android:textColor="@color/white"/>
 
     </LinearLayout>
 

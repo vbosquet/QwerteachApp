@@ -2,45 +2,31 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#dfdfdf">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        android:background="#ffffff">
+        android:paddingTop="@dimen/activity_vertical_margin">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20dp"
-            android:text="@string/formations_tab_title"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/formations_tab_subtitle"
-            android:textColor="#dfdfdf"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+            android:text="@string/formations_tab_title"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:textColor="@color/dark_grey"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/formations_tab_profession_text_view"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:textColor="@color/medium_grey"/>
 
         <EditText
             android:id="@+id/profession"
@@ -53,13 +39,15 @@
             android:paddingRight="10dp"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:hint="@string/formations_tab_profession_edit_text"
-            android:textColorHint="#dfdfdf"/>
+            android:textColorHint="@color/text_light_grey"
+            android:textColor="@color/medium_grey"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/formations_tab_level_text_view"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:textColor="@color/medium_grey"/>
 
         <LinearLayout
             android:id="@+id/level_linear_layout"
@@ -70,6 +58,7 @@
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:paddingRight="10dp"
+            android:paddingLeft="10dp"
             android:layout_marginBottom="@dimen/activity_vertical_margin">
 
             <Spinner
@@ -83,7 +72,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/description_textview_description_tab"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:textColor="@color/medium_grey"/>
 
         <EditText
             android:id="@+id/description"
@@ -100,16 +90,17 @@
             android:lines="10"
             android:scrollbars="vertical"
             android:hint="@string/description_edittext_desciption_tab"
-            android:textColorHint="#dfdfdf"/>
+            android:textColorHint="@color/text_light_grey"
+            android:textColor="@color/medium_grey"/>
 
         <Button
             android:id="@+id/save_infos_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/save_profile_button"/>
+            android:text="@string/save_profile_button"
+            android:backgroundTint="@color/colorPrimary"
+            android:textColor="@color/white"/>
 
-
-    </LinearLayout>
 
     </LinearLayout>
 

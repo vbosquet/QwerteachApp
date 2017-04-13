@@ -4,7 +4,7 @@
 
     <item android:id="@+id/edit_profile_button"
         android:title="@string/edit_profile_button"
-        android:icon="@mipmap/ic_lead_pencil"
+        android:icon="@drawable/pencil_icon"
         app:showAsAction="always"/>
 
 </menu>

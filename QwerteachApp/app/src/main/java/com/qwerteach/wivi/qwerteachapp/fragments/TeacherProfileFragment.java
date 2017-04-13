@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.view.ContextThemeWrapper;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -67,7 +68,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
     ArrayList<Review> reviews;
     ArrayList<SmallAd> smallAds;
     ProgressDialog progressDialog;
-    ImageView teacherAvatar;
+    ImageView teacherAvatar, senderAvatar;
     QwerteachService service;
     AlertDialog.Builder contactDialog;
     User user;
@@ -87,7 +88,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         user = gson.fromJson(json, User.class);
 
         progressDialog = new ProgressDialog(getContext());
-        contactDialog = new AlertDialog.Builder(getContext());
+        contactDialog = new AlertDialog.Builder(new ContextThemeWrapper(getContext(), R.style.AlertDialogCustom));
     }
 
     @Override
@@ -153,6 +154,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         sendingDate = (TextView) view.findViewById(R.id.sending_date);
         readMoreComments = (TextView) view.findViewById(R.id.read_more_comments);
         ratingBar = (RatingBar) view.findViewById(R.id.rating_bar);
+        senderAvatar = (ImageView) view.findViewById(R.id.sender_avatar);
 
         int lastPosition = reviews.size() - 1;
 
@@ -165,6 +167,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         readMoreComments.setText("Lire " + teacher.getNumberOfReviews() + " commentaire(s)");
         readMoreComments.setOnClickListener(this);
         ratingBar.setRating(teacher.getRating());
+        Picasso.with(getContext()).load(reviews.get(lastPosition).getAvatar()).resize(150, 150).centerCrop().into(senderAvatar);
 
         if (reviews.size() > 1) {
             readMoreComments.setVisibility(View.VISIBLE);

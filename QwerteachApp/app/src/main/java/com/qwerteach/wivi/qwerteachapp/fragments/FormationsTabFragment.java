@@ -119,9 +119,7 @@ public class FormationsTabFragment extends Fragment implements AdapterView.OnIte
     }
 
     public void displayLevels() {
-
         ArrayList<String> levelNames = new ArrayList<>();
-
         for (int i = 0; i < levels.size(); i++) {
             levelNames.add(levels.get(i).getFrLevelName());
         }
@@ -132,12 +130,14 @@ public class FormationsTabFragment extends Fragment implements AdapterView.OnIte
             }
         }
 
-        ArrayAdapter levelAdapter = new ArrayAdapter(getContext(), android.R.layout.simple_spinner_item, levelNames);
-        levelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        levelSpinner.setAdapter(levelAdapter);
-        int position = getIndexByString(levelSpinner, defaultTextForLevelSpinner);
-        levelSpinner.setSelection(position);
-        levelSpinner.setOnItemSelectedListener(this);
+        if (getActivity() != null) {
+            ArrayAdapter levelAdapter = new ArrayAdapter(getActivity(), R.layout.simple_spinner_item, levelNames);
+            levelAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+            levelSpinner.setAdapter(levelAdapter);
+            int position = getIndexByString(levelSpinner, defaultTextForLevelSpinner);
+            levelSpinner.setSelection(position);
+            levelSpinner.setOnItemSelectedListener(this);
+        }
 
         professionEditText.setText(user.getOccupation());
         userDescriptionEditTet.setText(Html.fromHtml(user.getDescription()), TextView.BufferType.SPANNABLE);

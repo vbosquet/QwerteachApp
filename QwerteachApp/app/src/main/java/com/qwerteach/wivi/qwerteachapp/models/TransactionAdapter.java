@@ -42,6 +42,8 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         holder.creditedAmount.setText("Montant crédité : " + transaction.getCreditedFund().getAmount()/100 + " " + transaction.getCreditedFund().getCurrency());
         holder.debitedAmount.setText("Montant débité : " + transaction.getDebitedFund().getAmount()/100 + " " + transaction.getDebitedFund().getCurrency());
         holder.fees.setText("Frais : " + transaction.getFee().getAmount() + " " + transaction.getFee().getCurrency());
+        holder.status.setText("Status : " + transaction.getStatus());
+        holder.resultMessage.setText("Message : " +transaction.getResultMessage());
 
     }
 
@@ -52,7 +54,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
         TextView transactionDate, transactionType, transactionAuthor,
-                creditedUserName, creditedAmount, debitedAmount, fees;
+                creditedUserName, creditedAmount, debitedAmount, fees, status, resultMessage;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -64,6 +66,8 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             creditedAmount = (TextView) itemView.findViewById(R.id.credited_amount_text_view);
             debitedAmount = (TextView) itemView.findViewById(R.id.debited_amount_text_view);
             fees = (TextView) itemView.findViewById(R.id.fees_text_view);
+            resultMessage = (TextView) itemView.findViewById(R.id.result_message_text_view);
+            status = (TextView) itemView.findViewById(R.id.status_text_view);
         }
     }
 }

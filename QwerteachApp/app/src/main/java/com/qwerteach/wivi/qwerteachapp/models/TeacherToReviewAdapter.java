@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.qwerteach.wivi.qwerteachapp.R;
@@ -19,11 +20,12 @@ import java.util.List;
 public class TeacherToReviewAdapter extends RecyclerView.Adapter<TeacherToReviewAdapter.ViewHolder> {
 
     private DashboardFragment fragment;
-    private List<User> teachers;
+    private List<Teacher> teachers;
 
-    public TeacherToReviewAdapter(List<User> teachers, DashboardFragment fragment) {
+    public TeacherToReviewAdapter(List<Teacher> teachers, DashboardFragment fragment) {
         this.teachers = teachers;
         this.fragment = fragment;
+        setHasStableIds(true);
     }
 
     @Override
@@ -35,15 +37,16 @@ public class TeacherToReviewAdapter extends RecyclerView.Adapter<TeacherToReview
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        final User user = teachers.get(position);
+        final Teacher teacher = teachers.get(position);
 
-        holder.title.setText("Recommandez-vous " + user.getFirstName() + " ?");
+        holder.title.setText("Recommandez-vous " + teacher.getUser().getFirstName() + " ?");
         holder.reviewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 fragment.didTouchTeacherReviewButton(position);
             }
         });
+        holder.ratingBar.setRating(teacher.getRating());
 
     }
 
@@ -52,15 +55,27 @@ public class TeacherToReviewAdapter extends RecyclerView.Adapter<TeacherToReview
         return teachers.size();
     }
 
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder{
         TextView title;
         Button reviewButton;
+        RatingBar ratingBar;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
             title = (TextView) itemView.findViewById(R.id.title_text_view);
             reviewButton = (Button) itemView.findViewById(R.id.review_button);
+            ratingBar = (RatingBar) itemView.findViewById(R.id.rating_bar);
         }
     }
 

@@ -1,17 +1,23 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import android.util.Log;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by wivi on 7/12/16.
  */
 
 public class Lesson implements Serializable {
+
+    private static final String BASE_URL = "http://192.168.0.110:3000";
 
     @SerializedName("id")
     private Integer lessonId;
@@ -41,6 +47,8 @@ public class Lesson implements Serializable {
     private String topicGroupTitle;
     private String level;
     private String duration;
+    private String avatar;
+    private List<Payment> payments;
 
     public Lesson(){
 
@@ -243,5 +251,21 @@ public class Lesson implements Serializable {
             e.printStackTrace();
         }
         return time;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = BASE_URL + avatar;
+    }
+
+    public List<Payment> getPayments() {
+        return payments;
+    }
+
+    public void setPayments(List<Payment> payments) {
+        this.payments = payments;
     }
 }

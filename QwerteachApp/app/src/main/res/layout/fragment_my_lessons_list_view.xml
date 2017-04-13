@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fragment_student_lessons_list_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.qwerteach.wivi.qwerteachapp.MyLessonsActivity"
-    android:orientation="vertical"
-    android:background="#dfdfdf">
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/no_lessons_title"
@@ -27,15 +21,5 @@
         android:id="@+id/lesson_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floating_action_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        android:layout_margin="16dp"
-        android:src="@drawable/plus"
-        app:layout_anchorGravity="bottom|right|end"
-        android:visibility="gone"/>
 
 </android.support.design.widget.CoordinatorLayout>

@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:textSize="17dp"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:background="@drawable/text_view_bottom_border"
+            android:background="@drawable/dark_text_view_bottom_border"
             android:paddingBottom="10dp"
             android:textColor="@color/dark"
             android:text="@string/new_bank_account_alert_dialog_title"/>

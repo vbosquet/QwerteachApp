@@ -4,18 +4,13 @@
     android:id="@+id/activity_create_small_ad"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#dfdfdf"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@color/white"
     tools:context="com.qwerteach.wivi.qwerteachapp.CreateSmallAdActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#ffffff"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:orientation="vertical"
@@ -28,7 +23,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:text="@string/categoty_text_view_update_small_ad"/>
+            android:text="@string/categoty_text_view_update_small_ad"
+            android:textColor="@color/medium_grey"/>
 
         <TextView
             android:id="@+id/topic_group"
@@ -40,7 +36,8 @@
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:paddingTop="10dp"/>
+            android:paddingTop="10dp"
+            android:textColor="@color/medium_grey"/>
 
 
         <TextView
@@ -48,7 +45,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:text="@string/material_course_text_view_update_small_ad" />
+            android:text="@string/material_course_text_view_update_small_ad"
+            android:textColor="@color/medium_grey"/>
 
         <TextView
             android:id="@+id/topic"
@@ -60,13 +58,15 @@
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:paddingTop="10dp"/>
+            android:paddingTop="10dp"
+            android:textColor="@color/medium_grey"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:text="@string/prices_text_view_update_small_ad"/>
+            android:text="@string/prices_text_view_update_small_ad"
+            android:textColor="@color/medium_grey"/>
 
 
         <LinearLayout
@@ -85,7 +85,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:text="@string/description_textview_description_tab"/>
+            android:text="@string/description_textview_description_tab"
+            android:textColor="@color/medium_grey"/>
 
         <EditText
             android:id="@+id/description"
@@ -102,14 +103,8 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:paddingTop="10dp"
-            android:textColorHint="#dfdfdf"/>
-
-        <Button
-            android:id="@+id/update_infos_small_ad"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="didTouchUpdateSmallAd"
-            android:text="@string/update_small_ad_button"/>
+            android:textColorHint="@color/text_light_grey"
+            android:textColor="@color/medium_grey"/>
 
     </LinearLayout>
 

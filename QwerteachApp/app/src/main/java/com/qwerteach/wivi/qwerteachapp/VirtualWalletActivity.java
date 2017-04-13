@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -16,6 +17,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.fragments.BankAccountInfosTabFragment;
@@ -41,9 +43,9 @@ import retrofit2.Response;
 public class VirtualWalletActivity extends AppCompatActivity {
 
     static final int NUM_ITEMS = 3;
-    String[] actionBarTabs = {"Cartes bancaires", "Historique", "Coordonnées"};
+
     ViewPager viewPager;
-    MyAdapter myAdapter;
+    TabLayout tabLayout;
     ActionBar actionBar;
     ArrayList<UserCreditCard> userCreditCards;
     ArrayList<Transaction> transactions;
@@ -54,6 +56,7 @@ public class VirtualWalletActivity extends AppCompatActivity {
     double totalWallet;
     QwerteachService service;
     User user;
+    TextView balanceWallet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +65,7 @@ public class VirtualWalletActivity extends AppCompatActivity {
 
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setElevation(0);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         Gson gson = new Gson();
@@ -124,7 +128,8 @@ public class VirtualWalletActivity extends AppCompatActivity {
 
                 } else {
                     totalWallet = response.body().getTotalWallet();
-                    actionBar.setSubtitle("Solde de mon Portefeuille : " + totalWallet/100 + "€");
+                    balanceWallet = (TextView) findViewById(R.id.wallet_balance);
+                    balanceWallet.setText("Solde : " + totalWallet/100 + "€");
                     getAllWalletInfos();
                 }
             }
@@ -161,7 +166,6 @@ public class VirtualWalletActivity extends AppCompatActivity {
                 }
 
                 progressDialog.dismiss();
-                actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
                 setViewPager();
 
             }
@@ -182,37 +186,10 @@ public class VirtualWalletActivity extends AppCompatActivity {
     }
 
     public void setViewPager() {
-        myAdapter = new MyAdapter(getSupportFragmentManager());
         viewPager = (ViewPager) findViewById(R.id.pager);
-        viewPager.setAdapter(myAdapter);
-        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
-            }
-
-        });
-
-        viewPager.setOffscreenPageLimit(2);
-
-        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
-            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
-                viewPager.setCurrentItem(tab.getPosition());
-            }
-
-            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
-
-            }
-
-            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
-
-            }
-        };
-
-        for (String actionBarTab : actionBarTabs) {
-            actionBar.addTab(actionBar.newTab().setText(actionBarTab).setTabListener(tabListener));
-        }
-
+        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        viewPager.setAdapter(new MyAdapter(getSupportFragmentManager()));
+        tabLayout.setupWithViewPager(viewPager);
     }
 
     public class MyAdapter extends FragmentPagerAdapter {
@@ -251,6 +228,20 @@ public class VirtualWalletActivity extends AppCompatActivity {
         @Override
         public int getCount() {
             return NUM_ITEMS;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return "Informations bancaires";
+                case 1:
+                    return "Historique";
+                case 2:
+                    return "Coordonnées";
+                default:
+                    return null;
+            }
         }
     }
 }

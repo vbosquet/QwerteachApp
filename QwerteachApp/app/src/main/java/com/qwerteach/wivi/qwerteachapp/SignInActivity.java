@@ -37,27 +37,9 @@ import retrofit2.Response;
 public class SignInActivity extends AppCompatActivity {
 
     EditText email, password;
-    TextView connectionProblemMessage;
     Menu myMenu;
     QwerteachService service;
     ProgressDialog progressDialog;
-
-    TextWatcher textWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            checkFieldForEmptyValues();
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,12 +51,8 @@ public class SignInActivity extends AppCompatActivity {
 
         email = (EditText) findViewById(R.id.email_sign_in);
         password = (EditText) findViewById(R.id.password_sign_in);
-        connectionProblemMessage = (TextView) findViewById(R.id.problem_message_sign_in_textview);
-
         service = ApiClient.getClient().create(QwerteachService.class);
         progressDialog = new ProgressDialog(this);
-        email.addTextChangedListener(textWatcher);
-        password.addTextChangedListener(textWatcher);
     }
 
     @Override
@@ -87,7 +65,6 @@ public class SignInActivity extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         myMenu = menu;
-        myMenu.findItem(R.id.sign_in_button).setEnabled(false);
         return true;
     }
 
@@ -98,16 +75,6 @@ public class SignInActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.sign_in_button:
-                Boolean connected = isOnline();
-
-                if (connected) {
-                    signIn();
-                } else {
-                    connectionProblemMessage.setText(R.string.sign_in_connection_problem_message);
-                }
-
-                return  true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -130,7 +97,7 @@ public class SignInActivity extends AppCompatActivity {
 
                 if (success.equals("false")) {
                     progressDialog.dismiss();
-                    connectionProblemMessage.setText(R.string.login_error_message);
+                    Toast.makeText(getApplicationContext(), R.string.login_error_message, Toast.LENGTH_LONG).show();
                 } else {
                     User user = response.body().getUser();
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -155,24 +122,7 @@ public class SignInActivity extends AppCompatActivity {
         });
     }
 
-    public void didTouchFacebookSignInButton(View view) {
-    }
-
-    public void didTouchGoogleSignInButton(View view) {
-    }
-
     public void didTouchTextView(View view) {
-    }
-
-    public void checkFieldForEmptyValues() {
-        String emailField = email.getText().toString();
-        String passwordField = password.getText().toString();
-
-        if (emailField.trim().length() > 0 && passwordField.trim().length() > 0) {
-            myMenu.findItem(R.id.sign_in_button).setEnabled(true);
-        } else {
-            myMenu.findItem(R.id.sign_in_button).setEnabled(false);
-        }
     }
 
     public boolean isOnline() {
@@ -188,5 +138,14 @@ public class SignInActivity extends AppCompatActivity {
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setCancelable(true);
         progressDialog.show();
+    }
+
+    public void didTouchSignInButton(View view) {
+        Boolean connected = isOnline();
+        if (connected) {
+            signIn();
+        } else {
+            Toast.makeText(this, R.string.sign_in_connection_problem_message, Toast.LENGTH_LONG).show();
+        }
     }
 }

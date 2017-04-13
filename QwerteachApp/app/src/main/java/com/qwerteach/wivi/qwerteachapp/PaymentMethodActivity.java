@@ -117,7 +117,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
         progressDialog = new ProgressDialog(this);
 
         otherPaymentMethods = new ArrayList<>();
-        otherPaymentMethods.add("Type de paiement");
+        otherPaymentMethods.add("Choisissez votre mode de paiement");
         otherPaymentMethods.add("Carte de crédit");
         otherPaymentMethods.add("Bancontact");
 
@@ -162,8 +162,8 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
     }
 
     public void displayOtherPaymentMethodSpinner() {
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, otherPaymentMethods);
-        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.simple_spinner_item, otherPaymentMethods);
+        arrayAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         otherPaymentMethodSpinner.setAdapter(arrayAdapter);
         otherPaymentMethodSpinner.setOnItemSelectedListener(this);
 
@@ -263,7 +263,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
     }
 
     public void displayEndYearSpinner() {
-        ArrayAdapter  yearsAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, years) {
+        ArrayAdapter  yearsAdapter = new ArrayAdapter(this, R.layout.simple_spinner_item, years) {
             @Override
             public View getDropDownView(int position, View convertView, ViewGroup parent) {
                 View v = null;
@@ -284,14 +284,14 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                 return v;
             }
         };
-        yearsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        yearsAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         endYearSpinner.setAdapter(yearsAdapter);
         endYearSpinner.setSelection(years.size() - 1);
         endYearSpinner.setOnItemSelectedListener(this);
     }
 
     public void displayEndMonthSpinner() {
-        ArrayAdapter monthsAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, months) {
+        ArrayAdapter monthsAdapter = new ArrayAdapter(this, R.layout.simple_spinner_item, months) {
             @Override
             public View getDropDownView(int position, View convertView, ViewGroup parent) {
                 View v = null;
@@ -312,14 +312,14 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
             }
         };
 
-        monthsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        monthsAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         endMonthSpinner.setAdapter(monthsAdapter);
         endMonthSpinner.setOnItemSelectedListener(this);
     }
 
     public void setCreditCardSpinner() {
-        ArrayAdapter<String> creditCardAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, creditCards);
-        creditCardAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> creditCardAdapter = new ArrayAdapter<String>(this, R.layout.simple_spinner_item, creditCards);
+        creditCardAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         creditCardSpinner.setAdapter(creditCardAdapter);
         creditCardSpinner.setSelection(1);
         creditCardSpinner.setOnItemSelectedListener(this);

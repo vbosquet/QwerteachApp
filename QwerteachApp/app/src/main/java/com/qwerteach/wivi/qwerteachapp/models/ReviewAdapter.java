@@ -5,12 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.qwerteach.wivi.qwerteachapp.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -41,6 +43,7 @@ public class ReviewAdapter extends ArrayAdapter<Review> {
             viewHolder.sendingDate = (TextView) convertView.findViewById(R.id.sending_date);
             viewHolder.reviewText = (TextView) convertView.findViewById(R.id.review_text);
             viewHolder.ratingBar = (RatingBar) convertView.findViewById(R.id.rating_bar);
+            viewHolder.senderAvatar = (ImageView) convertView.findViewById(R.id.sender_avatar);
             convertView.setTag(viewHolder);
 
         } else {
@@ -51,16 +54,16 @@ public class ReviewAdapter extends ArrayAdapter<Review> {
         viewHolder.sendingDate.setText(review.getMonth(creationDate) + " " + review.getYear(creationDate));
         viewHolder.reviewText.setText(review.getReviewText());
         viewHolder.ratingBar.setRating(review.getNote());
+        Picasso.with(getContext()).load(review.getAvatar()).resize(150, 150).centerCrop().into(viewHolder.senderAvatar);
 
         return convertView;
     }
 
 
     public static class ViewHolder {
-        TextView senderFirstName;
-        TextView sendingDate;
-        TextView reviewText;
+        TextView senderFirstName, sendingDate, reviewText;
         RatingBar ratingBar;
+        ImageView senderAvatar;
 
     }
 }

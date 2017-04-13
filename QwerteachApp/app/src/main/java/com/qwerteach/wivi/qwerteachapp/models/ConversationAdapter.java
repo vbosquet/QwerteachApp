@@ -1,7 +1,9 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
 import android.content.Context;
+import android.os.Build;
 import android.provider.ContactsContract;
+import android.support.annotation.RequiresApi;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.format.DateUtils;
@@ -14,6 +16,7 @@ import android.widget.TextView;
 
 import com.github.curioustechizen.ago.RelativeTimeTextView;
 import com.qwerteach.wivi.qwerteachapp.R;
+import com.qwerteach.wivi.qwerteachapp.common.Common;
 import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
@@ -46,13 +49,14 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         return new ConversationAdapter.ViewHolder(itemView);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         final Conversation conversation = conversations.get(position);
 
         String lastMessage = conversation.getLastMessage().getBody();
         String dateToFormat = conversation.getLastMessage().getCreationDate();
-        Date oldDate = getDate(dateToFormat);
+        Date oldDate = Common.getDate(dateToFormat);
 
         holder.body.setText(lastMessage);
         holder.creationDate.setReferenceTime(oldDate.getTime());
@@ -86,19 +90,6 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             creationDate = (RelativeTimeTextView) itemView.findViewById(R.id.creation_date);
             avatar = (ImageView) itemView.findViewById(R.id.user_avatar);
         }
-    }
-
-    private static Date getDate(String dateToFormat) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date date = null;
-        try {
-            date = format.parse(dateToFormat);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return  date;
-
     }
 
     public interface Callback {

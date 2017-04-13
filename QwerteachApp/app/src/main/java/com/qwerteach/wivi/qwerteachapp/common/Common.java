@@ -7,6 +7,7 @@ import android.support.annotation.RequiresApi;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Created by wivi on 23/03/17.
@@ -63,5 +64,18 @@ public class Common {
         }
 
         return selectedDateTime;
+    }
+
+    public static Date getDate(String dateToFormat) {
+        java.text.SimpleDateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date date = null;
+        try {
+            date = format.parse(dateToFormat);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return  date;
+
     }
 }

@@ -3,6 +3,7 @@ package com.qwerteach.wivi.qwerteachapp;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
@@ -61,6 +62,9 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_small_ad);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         otherCourseMaterialTextView = (TextView) findViewById(R.id.other_course_material_text_view);
         otherCourseMaterialEditText = (EditText) findViewById(R.id.other_course_material_edit_text);
@@ -134,21 +138,21 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
     }
 
     public void displayTopicGroupSpinner() {
-        TopicGroupAdapter adapter = new TopicGroupAdapter(this, android.R.layout.simple_spinner_item, topicGroups);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        TopicGroupAdapter adapter = new TopicGroupAdapter(this, R.layout.simple_spinner_item, topicGroups);
+        adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         categoryCourseSpinner.setAdapter(adapter);
         categoryCourseSpinner.setOnItemSelectedListener(this);
 
     }
 
     public void displayTopicSpinner() {
-        TopicAdapter topicAdapter = new TopicAdapter(this, android.R.layout.simple_spinner_item, topics);
-        topicAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        TopicAdapter topicAdapter = new TopicAdapter(this, R.layout.simple_spinner_item, topics);
+        topicAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         courseMaterialSpinner.setAdapter(topicAdapter);
         courseMaterialSpinner.setOnItemSelectedListener(this);
     }
 
-    public void didTouchSaveSmallAd(View view) {
+    public void didTouchSaveSmallAd() {
         for (int i = 0; i < levels.size(); i++) {
             if (levels.get(i).isChecked() && !coursePriceEditTextList.get(i).getText().toString().equals("")) {
                 SmallAdPrice smallAdPrice = new SmallAdPrice();
@@ -239,8 +243,11 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.cancel_button:
+            case android.R.id.home:
                 finish();
+                return true;
+            case R.id.save_infos_small_ad_button:
+                didTouchSaveSmallAd();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -265,6 +272,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
             linearLayout.setWeightSum(1);
 
             checkBox.setText(level.getFrLevelName());
+            checkBox.setTextColor(getResources().getColor(R.color.medium_grey));
             TableRow.LayoutParams params1 = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.73f);
             TableRow.LayoutParams params2 = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.27f);
             checkBox.setLayoutParams(params1);
@@ -291,13 +299,14 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
                         editText.setInputType(InputType.TYPE_CLASS_NUMBER);
                         editText.setBackgroundResource(R.drawable.edit_text_border);
                         editText.setHint(R.string.course_price_eddit_text);
-                        editText.setHintTextColor(getResources().getColor(R.color.gray));
+                        editText.setHintTextColor(getResources().getColor(R.color.text_light_grey));
+                        editText.setTextColor(getResources().getColor(R.color.medium_grey));
 
 
                     } else {
                         level.setChecked(false);
                         editText.setKeyListener(null);
-                        editText.setBackgroundResource(R.color.gray);
+                        editText.setBackgroundResource(R.color.text_light_grey);
                         editText.setText("");
                     }
                 }

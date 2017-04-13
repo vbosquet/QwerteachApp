@@ -9,9 +9,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.qwerteach.wivi.qwerteachapp.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +26,12 @@ public class UpcomingLessonAdapter extends RecyclerView.Adapter<UpcomingLessonAd
 
     private List<Lesson> lessons;
     private LayoutInflater inflater;
+    private Context context;
 
     public UpcomingLessonAdapter(List<Lesson> lessons, Context context) {
         this.lessons = lessons;
         inflater = LayoutInflater.from(context);
+        this.context = context;
     }
 
     @Override
@@ -41,14 +45,15 @@ public class UpcomingLessonAdapter extends RecyclerView.Adapter<UpcomingLessonAd
     public void onBindViewHolder(ViewHolder holder, int position) {
         final Lesson lesson = lessons.get(position);
 
-        String lessonTopic = "<font color='#E166E1'>" + lesson.getTopicTitle() + "</font>";
-        String userName = "<font color='#E166E1'>" + lesson.getUserName() + "</font>";
+        String lessonTopic = "<font color='#d92d9b'>" + lesson.getTopicTitle() + "</font>";
+        String userName = "<font color='#d92d9b'>" + lesson.getUserName() + "</font>";
 
         holder.lessonTopic.setText(Html.fromHtml(lesson.getTime(lesson.getTimeStart()) + " " + lessonTopic));
         holder.lessonTeacher.setText(Html.fromHtml("avec " + userName));
         holder.lessonDuration.setText(lesson.getDuration());
         holder.lessonDay.setText(lesson.getDay(lesson.getTimeStart()));
         holder.lessonMonth.setText(lesson.getMonth(lesson.getTimeStart()));
+        Picasso.with(context).load(lesson.getAvatar()).resize(170, 170).centerCrop().into(holder.avatar);
 
     }
 
@@ -59,6 +64,7 @@ public class UpcomingLessonAdapter extends RecyclerView.Adapter<UpcomingLessonAd
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
         TextView lessonTopic, lessonTeacher, lessonDuration, lessonDay, lessonMonth;
+        ImageView avatar;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -67,6 +73,7 @@ public class UpcomingLessonAdapter extends RecyclerView.Adapter<UpcomingLessonAd
             lessonDuration = (TextView) itemView.findViewById(R.id.lesson_duration_text_view);
             lessonDay = (TextView) itemView.findViewById(R.id.lessson_day_text_view);
             lessonMonth = (TextView) itemView.findViewById(R.id.lesson_month_text_view);
+            avatar = (ImageView) itemView.findViewById(R.id.lesson_avatar);
         }
     }
 }

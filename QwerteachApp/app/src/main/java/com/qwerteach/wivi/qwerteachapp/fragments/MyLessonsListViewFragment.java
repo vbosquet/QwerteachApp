@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -49,7 +50,8 @@ import retrofit2.Response;
  * Created by wivi on 15/12/16.
  */
 
-public class MyLessonsListViewFragment extends Fragment implements View.OnClickListener {
+public class MyLessonsListViewFragment extends Fragment {
+
 
     View view;
     String note, comment;
@@ -58,11 +60,11 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
     RecyclerView.Adapter lessonAdapter;
     RecyclerView.LayoutManager lessonLayoutManager;
     ProgressDialog progressDialog;
-    FloatingActionButton floatingActionButton;
     int page = 1, scrollPosition = 0;
     QwerteachService service;
     User user;
     TextView noLessonsTitle;
+    boolean loading = true;
 
     public static MyLessonsListViewFragment newInstance() {
         MyLessonsListViewFragment myLessonsListViewFragment = new MyLessonsListViewFragment();
@@ -86,12 +88,8 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
         lessons = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
         service = ApiClient.getClient().create(QwerteachService.class);
-
         noLessonsTitle = (TextView) view.findViewById(R.id.no_lessons_title);
         lessonRecyclerView = (RecyclerView) view.findViewById(R.id.lesson_recycler_view);
-        floatingActionButton = (FloatingActionButton) view.findViewById(R.id.floating_action_button);
-        floatingActionButton.setOnClickListener(this);
-
         getLessons();
 
         return  view;
@@ -105,7 +103,6 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 ArrayList<Lesson> lessonList = response.body().getLessons();
                 if (lessonList.size() > 0) {
-                    floatingActionButton.setVisibility(View.VISIBLE);
 
                     for (int i = 0; i < lessonList.size(); i++) {
                         lessons.add(lessonList.get(i));
@@ -139,13 +136,19 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
                 lessons.get(index).setLevel(response.body().getLevelTitle());
                 lessons.get(index).setDuration(response.body().getDuration().getHours(), response.body().getDuration().getMinutes());
                 lessons.get(index).setStatus(response.body().getLessonStatus());
+                lessons.get(index).setAvatar(response.body().getAvatar());
+                lessons.get(index).setPayments(response.body().getPayments());
 
-                progressDialog.dismiss();
-                displayLessonListView();
+                if (lessonId == lessons.get(lessons.size() - 1).getLessonId()) {
+                    loading = true;
+                    progressDialog.dismiss();
+                    displayLessonListView();
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                Log.d("FAILURE", t.toString());
 
             }
         });
@@ -159,6 +162,21 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
         lessonRecyclerView.setItemAnimator(new DefaultItemAnimator());
         lessonRecyclerView.setAdapter(lessonAdapter);
         lessonRecyclerView.scrollToPosition(scrollPosition);
+        lessonRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int total = recyclerView.getLayoutManager().getItemCount();
+                int lastVisibleItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
+                if (loading) {
+                    if (total > 0) {
+                        if ((total - 1) == lastVisibleItem) {
+                            getMoreLessons();
+                        }
+                    }
+                }
+            }
+        });
 
     }
 
@@ -346,8 +364,8 @@ public class MyLessonsListViewFragment extends Fragment implements View.OnClickL
         ft.detach(this).attach(this).commit();
     }
 
-    @Override
-    public void onClick(View view) {
+    public void getMoreLessons() {
+        loading = false;
         page += 1;
         scrollPosition = lessons.size() - 1;
         getLessons();

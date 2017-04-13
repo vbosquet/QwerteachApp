@@ -13,6 +13,8 @@ import java.util.Date;
 
 public class Review implements Serializable {
 
+    private static final String BASE_URL = "http://192.168.0.110:3000";
+
     @SerializedName("id")
     private Integer reviewId;
     @SerializedName("sender_id")
@@ -26,6 +28,7 @@ public class Review implements Serializable {
     @SerializedName("created_at")
     private String creationDate;
     private String senderFirstName;
+    private String senderAvatar;
 
     public Review() {
 
@@ -113,5 +116,13 @@ public class Review implements Serializable {
         }
         return  year;
 
+    }
+
+    public String getAvatar() {
+        return senderAvatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.senderAvatar = BASE_URL + avatar;
     }
 }

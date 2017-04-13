@@ -48,6 +48,7 @@ import com.qwerteach.wivi.qwerteachapp.models.ConversationAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 import com.qwerteach.wivi.qwerteachapp.models.Review;
+import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.TeacherToReviewAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.ToDoListAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.UpcomingLessonAdapter;
@@ -55,6 +56,7 @@ import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserBankAccountAdapter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +75,9 @@ public class DashboardFragment extends Fragment {
     TextView upcomingLessonsTextView;
     String note, comment;
     List<Lesson> upcomingLessons, toDoList;
-    List<User> teachersToReview;
+    List<Teacher> teachers;
+    List<String> upcomingLessonAvatars;
+    List<Float> ratings;
     View view;
     ProgressDialog progressDialog;
     QwerteachService service;
@@ -96,6 +100,7 @@ public class DashboardFragment extends Fragment {
         String json = preferences.getString("user", "");
         user = gson.fromJson(json, User.class);
 
+        teachers = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
         service = ApiClient.getClient().create(QwerteachService.class);
         setUpPusherNotification();
@@ -139,21 +144,30 @@ public class DashboardFragment extends Fragment {
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 toDoList = response.body().getToDoList();
                 upcomingLessons = response.body().getUpcomingLesson();
-                teachersToReview = response.body().getTeachersToReview();
+                List<User> teachersToReview = response.body().getTeachersToReview();
+                upcomingLessonAvatars = response.body().getAvatars();
+                ratings = response.body().getRatings();
 
                 if (teachersToReview.size() > 0) {
+                    for (int i = 0; i < teachersToReview.size(); i++) {
+                        Teacher teacher = new Teacher();
+                        teacher.setUser(teachersToReview.get(i));
+                        teacher.setRating(ratings.get(i));
+                        teachers.add(teacher);
+                    }
+
                     displayTeachersToReviewListView();
                 }
 
                 if (upcomingLessons.size() > 0) {
                     for (int i = 0; i < upcomingLessons.size(); i++) {
-                        getLessonInfos(upcomingLessons.get(i).getLessonId(), i, upcomingLessons);
+                        getLessonInfos(upcomingLessons.get(i).getLessonId(), i, upcomingLessons, upcomingLessonAvatars);
                     }
                 }
 
                 if (toDoList.size() > 0) {
                     for (int i = 0; i < toDoList.size(); i++) {
-                        getLessonInfos(toDoList.get(i).getLessonId(), i, toDoList);
+                        getLessonInfos(toDoList.get(i).getLessonId(), i, toDoList, null);
                     }
                 }
 
@@ -169,7 +183,7 @@ public class DashboardFragment extends Fragment {
         });
     }
 
-    public void getLessonInfos(final int lessonId, final int index, final List<Lesson> lessons) {
+    public void getLessonInfos(final int lessonId, final int index, final List<Lesson> lessons, final List<String> avatars) {
         Call<JsonResponse> call = service.getLessonInfos(lessonId, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
@@ -180,6 +194,10 @@ public class DashboardFragment extends Fragment {
                 lessons.get(index).setLevel(response.body().getLevelTitle());
                 lessons.get(index).setDuration(response.body().getDuration().getHours(), response.body().getDuration().getMinutes());
                 lessons.get(index).setStatus(response.body().getLessonStatus());
+
+                if (avatars != null) {
+                    lessons.get(index).setAvatar(avatars.get(index));
+                }
 
                 displayToDoListView();
                 displayUpcomingLessonListView();
@@ -217,7 +235,7 @@ public class DashboardFragment extends Fragment {
     public void displayTeachersToReviewListView() {
         teacherToReviewRecyclerView = (RecyclerView) view.findViewById(R.id.teacher_to_review);
         teacherToReviewRecyclerView.setVisibility(View.VISIBLE);
-        teacherToReviewAdapter = new TeacherToReviewAdapter(teachersToReview, this);
+        teacherToReviewAdapter = new TeacherToReviewAdapter(teachers, this);
         teacherToReviewLayoutManager = new LinearLayoutManager(getContext());
         teacherToReviewRecyclerView.setLayoutManager(teacherToReviewLayoutManager);
         teacherToReviewRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -365,7 +383,7 @@ public class DashboardFragment extends Fragment {
         requestBody.put("review", review);
 
         startProgressDialog();
-        Call<JsonResponse> call = service.letReviewToTeacher(teachersToReview.get(index).getUserId(), requestBody, user.getEmail(), user.getToken());
+        Call<JsonResponse> call = service.letReviewToTeacher(teachers.get(index).getUser().getUserId(), requestBody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -404,7 +422,6 @@ public class DashboardFragment extends Fragment {
                 public void onMessageReceived(RemoteMessage remoteMessage) {
                 }
             });
-
 
         } catch (ManifestValidator.InvalidManifestException e) {
             e.printStackTrace();
