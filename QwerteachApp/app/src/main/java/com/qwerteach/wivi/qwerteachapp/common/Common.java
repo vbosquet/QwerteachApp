@@ -1,11 +1,11 @@
 package com.qwerteach.wivi.qwerteachapp.common;
 
 import android.icu.text.SimpleDateFormat;
-import android.icu.util.Calendar;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -13,11 +13,11 @@ import java.util.TimeZone;
  * Created by wivi on 23/03/17.
  */
 
-@RequiresApi(api = Build.VERSION_CODES.N)
 public class Common {
 
     private static Calendar now = Calendar.getInstance();
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public static boolean checkIfValidTime(String date, String time) {
         Date newDate = new Date(System.currentTimeMillis());
         Calendar selectedDateTime = getSelectedDate(date);
@@ -40,6 +40,7 @@ public class Common {
         return isValidTime;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public static boolean checkIfCurrentDate(String date) {
         Calendar selectedDateTime = getSelectedDate(date);
         boolean isCurrentDate = false;
@@ -53,6 +54,7 @@ public class Common {
         return  isCurrentDate;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private static Calendar getSelectedDate(String date) {
         Calendar selectedDateTime = null;
         try {

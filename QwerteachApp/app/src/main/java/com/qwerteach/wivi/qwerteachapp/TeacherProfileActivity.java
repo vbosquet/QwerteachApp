@@ -28,7 +28,11 @@ public class TeacherProfileActivity extends AppCompatActivity {
             query = getIntent().getStringExtra("query");
         }
 
-        actionBar.setTitle(query);
+        if (query != null) {
+            actionBar.setTitle("Résultats pour " + query);
+        } else {
+            actionBar.setTitle("Résultats pour tous les profs");
+        }
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();

@@ -188,4 +188,8 @@ public interface QwerteachService {
     @GET("conversations/{id}")
     Call<JsonResponse> showMessages(@Path("id") int conversationId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
+    @POST("users/{user_id}/lesson_requests/calculate")
+    Call<JsonResponse> calculateUserLessonRequest(@Path("user_id") int teacherId, @Body Map<String, String> body,
+                                                  @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
 }

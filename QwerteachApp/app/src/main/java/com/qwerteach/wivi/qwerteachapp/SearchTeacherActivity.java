@@ -116,14 +116,22 @@ public class SearchTeacherActivity extends AppCompatActivity implements
 
         if (query != null) {
             menuItems.add(query);
-            actionBar.setTitle("Résultats pour " + query);
         } else {
             menuItems.add("tous les profs");
-            actionBar.setTitle("Résultats pour tous les profs");
         }
+
+        setActionBarTitle();
         startSearchTeacher();
         getAllTopics();
 
+    }
+
+    public void setActionBarTitle() {
+        if (query != null) {
+            actionBar.setTitle("Résultats pour " + query);
+        } else {
+            actionBar.setTitle("Résultats pour tous les profs");
+        }
     }
 
     public void doMySearch(String query) {
@@ -290,7 +298,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
                 } else if (users.size() == 0 && page == 1) {
                     teacherList.clear();
                     progressDialog.dismiss();
-                    actionBar.setTitle("Résultats pour " + query);
+                    setActionBarTitle();
                     Toast.makeText(getApplication(), R.string.no_result_found_toast_message, Toast.LENGTH_SHORT).show();
                     displayTeacherListView();
                 } else {
@@ -382,7 +390,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
             if (Objects.equals(user.getUserId(), teacherList.get(teacherList.size() - 1).getUser().getUserId())) {
                 loading = true;
                 progressDialog.dismiss();
-                actionBar.setTitle("Résultats pour " + query);
+                setActionBarTitle();
                 displayTeacherListView();
             }
         }

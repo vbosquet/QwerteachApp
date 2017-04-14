@@ -89,45 +89,6 @@
         android:text="@string/password_validation_message"
         android:visibility="gone"/>
 
-    <LinearLayout
-        android:id="@+id/password_confirmation_linear_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@drawable/grey_edit_text_border"
-        android:paddingBottom="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="10dp"
-        android:layout_marginTop="10dp">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/lock_outline"
-            android:layout_gravity="center_vertical"
-            android:layout_marginRight="10dp"/>
-
-        <EditText
-            android:id="@+id/password_confirmation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/password_confirmation_edit_text"
-            android:inputType="textPassword"
-            android:textColor="@color/white"
-            android:textColorHint="@color/text_grey"
-            android:background="@null"/>
-
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/password_confirmation_validation_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/red"
-        android:text="@string/password_confirmation_problem_message"
-        android:visibility="gone"/>
-
     <Button
         android:id="@+id/email_sign_up_button"
         android:layout_width="match_parent"

@@ -40,9 +40,9 @@ import retrofit2.Response;
 
 public class EmailSignUpActivity extends AppCompatActivity  {
 
-    EditText email, password, passwordConfirmation;
-    LinearLayout emailLinearLayout, passwordLinearLayout, passwordConfirmationLinearLayout;
-    TextView emailValidation, passwordValidation, passwordConfirmationValidation;
+    EditText email, password;
+    LinearLayout emailLinearLayout, passwordLinearLayout;
+    TextView emailValidation, passwordValidation;
     Button emailSignUpButton;
     Menu myMenu;
     QwerteachService service;
@@ -58,13 +58,10 @@ public class EmailSignUpActivity extends AppCompatActivity  {
 
         email = (EditText) findViewById(R.id.email_sign_up);
         password = (EditText) findViewById(R.id.password_sign_up);
-        passwordConfirmation = (EditText) findViewById(R.id.password_confirmation);
         emailValidation = (TextView) findViewById(R.id.email_validation_text_view);
         emailLinearLayout = (LinearLayout) findViewById(R.id.email_linear_layout);
         passwordLinearLayout = (LinearLayout) findViewById(R.id.password_linear_layout);
         passwordValidation = (TextView) findViewById(R.id.password_validation_text_view);
-        passwordConfirmationLinearLayout = (LinearLayout) findViewById(R.id.password_confirmation_linear_layout);
-        passwordConfirmationValidation = (TextView)findViewById(R.id.password_confirmation_validation_text_view);
         emailSignUpButton = (Button) findViewById(R.id.email_sign_up_button);
 
         service = ApiClient.getClient().create(QwerteachService.class);
@@ -112,30 +109,6 @@ public class EmailSignUpActivity extends AppCompatActivity  {
             }
         });
 
-        passwordConfirmation.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (!emailValidator(email.getText().toString()) && !email.getText().toString().equals("")) {
-                    emailValidation.setVisibility(View.VISIBLE);
-                    emailLinearLayout.setBackgroundColor(getResources().getColor(R.color.red));
-                } else if (!passwordValidator(password.getText().toString()) && !password.getText().toString().equals("")){
-                    passwordValidation.setVisibility(View.VISIBLE);
-                    passwordLinearLayout.setBackgroundColor(getResources().getColor(R.color.red));
-                }
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                passwordConfirmationValidation.setVisibility(View.GONE);
-                passwordConfirmationLinearLayout.setBackgroundDrawable(getDrawable(R.drawable.grey_edit_text_border));
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-
     }
 
     @Override
@@ -167,7 +140,6 @@ public class EmailSignUpActivity extends AppCompatActivity  {
         Map<String, String> data = new HashMap<>();
         data.put("email", email.getText().toString());
         data.put("password", password.getText().toString());
-        data.put("password_confirmation", passwordConfirmation.getText().toString());
 
         Map<String, HashMap<String, String>> registration = new HashMap<>();
         registration.put("user", (HashMap<String, String>) data);
@@ -245,8 +217,7 @@ public class EmailSignUpActivity extends AppCompatActivity  {
         if (!connected) {
             Toast.makeText(this, R.string.sign_in_connection_problem_message, Toast.LENGTH_LONG).show();
         } else {
-            if (emailValidator(email.getText().toString()) && passwordValidator(password.getText().toString()) &&
-                    password.getText().toString().equals(passwordConfirmation.getText().toString())) {
+            if (emailValidator(email.getText().toString()) && passwordValidator(password.getText().toString())) {
                 signUpWithEmail();
             } else {
                 if (!emailValidator(email.getText().toString()) && !passwordValidator(password.getText().toString())) {
@@ -260,9 +231,6 @@ public class EmailSignUpActivity extends AppCompatActivity  {
                 } else if (!passwordValidator(password.getText().toString())) {
                     passwordValidation.setVisibility(View.VISIBLE);
                     passwordLinearLayout.setBackgroundColor(getResources().getColor(R.color.red));
-                } else if (!password.getText().toString().equals(passwordConfirmation.getText().toString())) {
-                    passwordConfirmationValidation.setVisibility(View.VISIBLE);
-                    passwordConfirmationLinearLayout.setBackgroundColor(getResources().getColor(R.color.red));
                 }
             }
         }

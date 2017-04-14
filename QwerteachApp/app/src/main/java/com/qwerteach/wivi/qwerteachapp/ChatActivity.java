@@ -34,6 +34,7 @@ import com.qwerteach.wivi.qwerteachapp.models.Conversation;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Message;
 import com.qwerteach.wivi.qwerteachapp.models.MessageAdapter;
+import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import java.util.ArrayList;
@@ -60,6 +61,8 @@ public class ChatActivity extends AppCompatActivity {
     User user;
     boolean loading = true;
     ProgressDialog progressDialog;
+    Intent intent;
+    Teacher teacher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,6 +120,15 @@ public class ChatActivity extends AppCompatActivity {
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 messages = response.body().getMessages();
                 List<String> avatars = response.body().getAvatars();
+                List<User> recipients = response.body().getRecipients();
+
+                for (int i = 0; i < recipients.size(); i++) {
+                    if (!user.getPostulanceAccepted()) {
+                        teacher = new Teacher();
+                        teacher.setUser(recipients.get(i));
+                    }
+                }
+
                 for (int j = 0; j < messages.size(); j++) {
                     boolean isMine = false;
                     if (Objects.equals(user.getUserId(), messages.get(j).getSenderId())) {
@@ -133,7 +145,7 @@ public class ChatActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
             }
         });
     }
@@ -158,6 +170,12 @@ public class ChatActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(final Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.chat_menu, menu);
+
+        if(!user.getPostulanceAccepted()) {
+            MenuItem menuItem = menu.findItem(R.id.lesson_request_button);
+            menuItem.setVisible(true);
+        }
+
         return true;
     }
 
@@ -165,7 +183,12 @@ public class ChatActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent(this, MyMessagesActivity.class);
+                intent = new Intent(this, MyMessagesActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.lesson_request_button:
+                intent = new Intent(this, LessonReservationActivity.class);
+                intent.putExtra("teacher", teacher);
                 startActivity(intent);
                 return true;
         }

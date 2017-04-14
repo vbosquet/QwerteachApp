@@ -3,15 +3,12 @@ package com.qwerteach.wivi.qwerteachapp.fragments;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.icu.text.SimpleDateFormat;
-import android.icu.util.Calendar;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,6 +45,7 @@ import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,7 +58,6 @@ import retrofit2.Response;
  * Created by wivi on 13/12/16.
  */
 
-@RequiresApi(api = Build.VERSION_CODES.N)
 public class CreateNewLessonFragment extends Fragment implements
         AdapterView.OnItemSelectedListener, View.OnClickListener,
         TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
@@ -69,14 +66,12 @@ public class CreateNewLessonFragment extends Fragment implements
     TextView timeTextView, dateTextView, totalPriceTextView;
     Spinner hourSpinner, minuteSpinner, topicGroupSpinner, topicSpinner, levelSpinner;
     Button datePickerButton, timePickerButton, createNewLessonButton;
-    ArrayList<SmallAd> smallAds;
     ArrayList<Topic> topics;
     ArrayList<Level> levels;
     ArrayList<TopicGroup> topicGroups;
-    ArrayList<SmallAdPrice> smallAdPrices;
     String hour = "00", minute = "00";
     Teacher teacher;
-    Double totalPrice;
+    Float totalPrice;
     Bundle savedState;
     ProgressDialog progressDialog;
     QwerteachService service;
@@ -109,7 +104,6 @@ public class CreateNewLessonFragment extends Fragment implements
             teacher = (Teacher) getActivity().getIntent().getSerializableExtra("teacher");
         }
 
-        smallAds = teacher.getSmallAds();
         service = ApiClient.getClient().create(QwerteachService.class);
         progressDialog = new ProgressDialog(getContext());
     }
@@ -138,7 +132,6 @@ public class CreateNewLessonFragment extends Fragment implements
 
         createNewLessonButton.setOnClickListener(this);
         totalPriceTextView.setText("0 €");
-        smallAdPrices = new ArrayList<>();
 
         startProgressDialog();
         call = service.getTeacherTopicGroups(teacher.getUser().getUserId(), user.getEmail(), user.getToken());
@@ -263,11 +256,11 @@ public class CreateNewLessonFragment extends Fragment implements
         switch (adapterView.getId()) {
             case R.id.hour_spinner:
                 hour = adapterView.getItemAtPosition(i).toString();
-                setTotalPrice(hour, minute);
+                setTotalPrice();
                 break;
             case R.id.minut_spinner:
                 minute = adapterView.getItemAtPosition(i).toString();
-                setTotalPrice(hour, minute);
+                setTotalPrice();
                 break;
             case R.id.topic_group_spinner:
                 currentTopicGroupPosition = i;
@@ -292,12 +285,6 @@ public class CreateNewLessonFragment extends Fragment implements
                 currentTopicPosition = i;
                 currentTopicId = topics.get(i).getTopicId();
 
-                for (int j = 0; j < smallAds.size(); j++) {
-                    if (smallAds.get(j).getTopicId() == currentTopicId) {
-                        smallAdPrices = smallAds.get(j).getSmallAdPrices();
-                    }
-                }
-
                 Call<JsonResponse> callForLevels = service.getTeacherLevels(teacher.getUser().getUserId(),
                         currentTopicId, user.getEmail(), user.getToken());
                 callForLevels.enqueue(new Callback<JsonResponse>() {
@@ -316,32 +303,34 @@ public class CreateNewLessonFragment extends Fragment implements
             case R.id.level_spinner:
                 currentLevelPosition = i;
                 currentLevelId = levels.get(i).getLevelId();
-                setTotalPrice(hour, minute);
+                setTotalPrice();
                 break;
         }
 
     }
 
-    public void setTotalPrice(String hourString, String minuteString) {
-        Integer newMinuteInt = 0;
-        totalPrice = 0.0;
+    public void setTotalPrice() {
+        startProgressDialog();
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("hours", hour);
+        requestBody.put("minutes", minute);
+        requestBody.put("topic_id", String.valueOf(currentTopicId));
+        requestBody.put("level_id", String.valueOf(currentLevelId));
 
-        if (!minute.equals("00")) {
-            Double minuteDouble = Double.parseDouble(minuteString);
-            Double newMinuteDouble = 100 / (60 / minuteDouble);
-            newMinuteInt = newMinuteDouble.intValue();
-        }
-
-        String totalDurationString = hourString + "." + newMinuteInt;
-        Double totalDurationDouble = Double.parseDouble(totalDurationString.toString());
-
-        for (int i = 0; i < smallAdPrices.size(); i++) {
-            if (smallAdPrices.get(i).getLevelId() == currentLevelId) {
-                totalPrice = totalDurationDouble * smallAdPrices.get(i).getPrice();
+        Call<JsonResponse> call = service.calculateUserLessonRequest(teacher.getUser().getUserId(), requestBody, user.getEmail(), user.getToken());
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                totalPrice = response.body().getLessonTotalPrice();
+                progressDialog.dismiss();
+                totalPriceTextView.setText(totalPrice + " €");
             }
-        }
 
-        totalPriceTextView.setText(totalPrice + " €");
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+            }
+        });
 
     }
 
@@ -350,6 +339,7 @@ public class CreateNewLessonFragment extends Fragment implements
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -370,6 +360,7 @@ public class CreateNewLessonFragment extends Fragment implements
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void didTouchCreateNewLessonButton() {
         Lesson request = new Lesson();
         request.setLevelId(currentLevelId);
@@ -462,7 +453,7 @@ public class CreateNewLessonFragment extends Fragment implements
         outState.putInt("topicGroup", currentTopicGroupPosition);
         outState.putInt("topic", currentTopicPosition);
         outState.putInt("level", currentLevelPosition);
-        outState.putDouble("totalPrice", totalPrice);
+        outState.putFloat("totalPrice", totalPrice);
         outState.putString("activityTitle", getActivity().getTitle().toString());
     }
 

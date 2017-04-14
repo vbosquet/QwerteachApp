@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/lesson_request_button"
+        android:title="@string/lesson_request_button"
+        android:visible="false"/>
 
 </menu>

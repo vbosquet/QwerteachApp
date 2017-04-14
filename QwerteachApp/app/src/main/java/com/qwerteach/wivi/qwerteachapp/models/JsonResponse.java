@@ -118,6 +118,8 @@ public class JsonResponse {
     private String errorMesage;
     @SerializedName("payments")
     private List<Payment> payments;
+    @SerializedName("price")
+    private Float lessonTotalPrice;
 
     public String getAvatar() {
         return avatar;
@@ -329,6 +331,10 @@ public class JsonResponse {
 
     public List<Lesson> getPastLessons() {
         return pastLessons;
+    }
+
+    public Float getLessonTotalPrice() {
+        return lessonTotalPrice;
     }
 
     public static class Duration
