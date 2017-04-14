@@ -28,7 +28,8 @@
         android:layout_height="wrap_content"
         android:text="@string/empty_mailbox_message"
         android:visibility="gone"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:textColor="@color/text_grey"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/conversation_list_view"

@@ -50,7 +50,7 @@ public class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHo
                 + " à " + lesson.getTime(timeStart));
 
 
-        holder.lessonAccept.setOnClickListener(new View.OnClickListener() {
+        /*holder.lessonAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 fragment.didTouchAcceptLessonButton(position);
@@ -84,7 +84,7 @@ public class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHo
             public void onClick(View view) {
                 fragment.didTouchNegativeFeedBackButton(position);
             }
-        });
+        });*/
 
 
         if (lesson.getStatus().equals("pay")) {

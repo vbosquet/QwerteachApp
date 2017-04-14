@@ -99,7 +99,7 @@
     <string name="to_become_a_teacher_introduction_message">Vous souhaitez donner des cours en ligne ? Dès à présent, envoyez votre candidature.\n\nComplétez vos informations de profil et suivez attentivement chaque étape.</string>
     <string name="search_teacher_activity_title">Rechercher un professeur</string>
     <string name="app_label">Qwerteach</string>
-    <string name="search_hint">Rechercher professeur</string>
+    <string name="search_hint">Chercher un prof par matière</string>
     <string name="read_more_text_view">lire plus</string>
     <string name="course_names_teacher_profile_text_view">Matières enseignées</string>
     <string name="prices_teacher_profile_text_view">Tarif</string>
@@ -263,4 +263,5 @@
     <string name="message_to_send_edit_text">Ecrivez un message</string>
     <string name="landing_page_text">Le bon prof au bon moment\nPassez au soutien scolaire à la demande.</string>
     <string name="welcome_text">Bienvenue sur Qwerteach</string>
+    <string name="email_icon_title">EMAIL</string>
 </resources>

@@ -78,6 +78,7 @@ public class DashboardActivity extends AppCompatActivity {
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
+        actionBar.setElevation(0);
 
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open,
                 R.string.drawer_close) {
@@ -139,7 +140,11 @@ public class DashboardActivity extends AppCompatActivity {
 
                 intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
+                return true;
 
+            case R.id.email_button:
+                intent = new Intent(this, MyMessagesActivity.class);
+                startActivity(intent);
                 return true;
 
             case android.R.id.home:

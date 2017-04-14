@@ -3,12 +3,15 @@ package com.qwerteach.wivi.qwerteachapp.fragments;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.CalendarContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
@@ -26,6 +29,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,9 +42,11 @@ import com.pusher.android.notifications.PushNotificationRegistration;
 import com.pusher.android.notifications.fcm.FCMPushNotificationReceivedListener;
 import com.pusher.android.notifications.interests.InterestSubscriptionChangeListener;
 import com.pusher.android.notifications.tokens.PushNotificationRegistrationListener;
+import com.qwerteach.wivi.qwerteachapp.MyLessonsActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.SearchTeacherActivity;
 import com.qwerteach.wivi.qwerteachapp.UpdateLessonActivity;
+import com.qwerteach.wivi.qwerteachapp.VirtualWalletActivity;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.Conversation;
@@ -57,6 +63,7 @@ import com.qwerteach.wivi.qwerteachapp.models.UserBankAccountAdapter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,22 +76,17 @@ import retrofit2.Response;
  * Created by wivi on 3/01/17.
  */
 
-public class DashboardFragment extends Fragment {
+public class DashboardFragment extends Fragment implements View.OnClickListener {
 
-    LinearLayout upcomingLessonLinearLayout, toDoListLinearLayout;
-    TextView upcomingLessonsTextView;
-    String note, comment;
-    List<Lesson> upcomingLessons, toDoList;
+    TextView upcomingLessonsTextView, pastLessonsTextView, toDoListTextView, totalWalletTextView,
+            upcomingLessonsButton, pastLessonsButton, toDoListButton, totalWalletButton, allTeachersButton;
     List<Teacher> teachers;
-    List<String> upcomingLessonAvatars;
-    List<Float> ratings;
     View view;
     ProgressDialog progressDialog;
     QwerteachService service;
-    RecyclerView toDoListRecyclerView, teacherToReviewRecyclerView, upcomingLessonRecyclerView;
-    RecyclerView.Adapter toDoListAdapter, teacherToReviewAdapter, upcomingLessonAdapter;
-    RecyclerView.LayoutManager toDoListLayoutManager, teacherToReviewLayoutManager, upcomingLessonLayoutManager;
     User user;
+    Intent intent;
+    String query;
 
     public static DashboardFragment newInstance() {
         DashboardFragment dashboardFragment = new DashboardFragment();
@@ -110,9 +112,21 @@ public class DashboardFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
-        upcomingLessonsTextView = (TextView) view.findViewById(R.id.upcoming_lesson_text_view);
-        upcomingLessonLinearLayout = (LinearLayout) view.findViewById(R.id.upcoming_lesson_linear_layout);
-        toDoListLinearLayout = (LinearLayout) view.findViewById(R.id.to_do_list_linear_layout);
+        upcomingLessonsTextView = (TextView) view.findViewById(R.id.upcoming_lessons_text_view);
+        pastLessonsTextView = (TextView) view.findViewById(R.id.past_lessons_text_view);
+        toDoListTextView = (TextView) view.findViewById(R.id.to_do_list_text_view);
+        totalWalletTextView = (TextView) view.findViewById(R.id.total_wallet_text_view);
+        upcomingLessonsButton = (TextView) view.findViewById(R.id.upcoming_lessons_button);
+        pastLessonsButton = (TextView) view.findViewById(R.id.past_lessons_button);
+        toDoListButton = (TextView) view.findViewById(R.id.to_do_list_button);
+        totalWalletButton = (TextView) view.findViewById(R.id.total_wallet_button);
+        allTeachersButton = (TextView) view.findViewById(R.id.all_teachers_button);
+
+        pastLessonsButton.setOnClickListener(this);
+        toDoListButton.setOnClickListener(this);
+        totalWalletButton.setOnClickListener(this);
+        upcomingLessonsButton.setOnClickListener(this);
+        allTeachersButton.setOnClickListener(this);
 
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) view.findViewById(R.id.search_view);
@@ -122,8 +136,8 @@ public class DashboardFragment extends Fragment {
 
         Intent intent = getActivity().getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            doMySearch(query);
+            query = intent.getStringExtra(SearchManager.QUERY);
+            doMySearch();
         }
 
         getDashboardInfos();
@@ -131,263 +145,44 @@ public class DashboardFragment extends Fragment {
         return  view;
     }
 
-    public void doMySearch(String query) {
+    public void doMySearch() {
         Intent intent = new Intent(getContext(), SearchTeacherActivity.class);
         intent.putExtra("query", query);
         startActivity(intent);
     }
 
     public void getDashboardInfos() {
+        startProgressDialog();
         Call<JsonResponse> call = service.getDashboardInfos(user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                toDoList = response.body().getToDoList();
-                upcomingLessons = response.body().getUpcomingLesson();
-                List<User> teachersToReview = response.body().getTeachersToReview();
-                upcomingLessonAvatars = response.body().getAvatars();
-                ratings = response.body().getRatings();
+                List<Lesson> toDoList = response.body().getToDoList();
+                List<Lesson> upcomingLessons = response.body().getUpcomingLesson();
+                List<Lesson> pastLessons = response.body().getPastLessons();
+                Integer totalWallet = response.body().getTotalWallet();
 
-                if (teachersToReview.size() > 0) {
-                    for (int i = 0; i < teachersToReview.size(); i++) {
-                        Teacher teacher = new Teacher();
-                        teacher.setUser(teachersToReview.get(i));
-                        teacher.setRating(ratings.get(i));
-                        teachers.add(teacher);
+                progressDialog.dismiss();
+                upcomingLessonsTextView.setText(upcomingLessons.size() + " cours à venir");
+                toDoListTextView.setText(toDoList.size() + " cours en attente");
+
+                if (user.getPostulanceAccepted()) {
+                    pastLessonsTextView.setText(pastLessons.size() + " cours donné(s)");
+                } else {
+                    pastLessonsTextView.setText(pastLessons.size() + " cours suivi(s)");
+                }
+
+                if (totalWallet != null) {
+                    totalWalletTextView.setText(totalWallet + "€");
+                    if (user.getPostulanceAccepted()) {
+                        totalWalletButton.setText("Verser sur mon compte bancaire");
+                    } else {
+                        totalWalletButton.setText("Charger");
                     }
 
-                    displayTeachersToReviewListView();
+                } else {
+                    totalWalletButton.setText("Configurer mon portefeuille");
                 }
-
-                if (upcomingLessons.size() > 0) {
-                    for (int i = 0; i < upcomingLessons.size(); i++) {
-                        getLessonInfos(upcomingLessons.get(i).getLessonId(), i, upcomingLessons, upcomingLessonAvatars);
-                    }
-                }
-
-                if (toDoList.size() > 0) {
-                    for (int i = 0; i < toDoList.size(); i++) {
-                        getLessonInfos(toDoList.get(i).getLessonId(), i, toDoList, null);
-                    }
-                }
-
-                if (teachersToReview.size() > 0  || toDoList.size() > 0) {
-                    toDoListLinearLayout.setVisibility(View.VISIBLE);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<JsonResponse> call, Throwable t) {
-
-            }
-        });
-    }
-
-    public void getLessonInfos(final int lessonId, final int index, final List<Lesson> lessons, final List<String> avatars) {
-        Call<JsonResponse> call = service.getLessonInfos(lessonId, user.getEmail(), user.getToken());
-        call.enqueue(new Callback<JsonResponse>() {
-            @Override
-            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                lessons.get(index).setUserName(response.body().getUserName());
-                lessons.get(index).setTopicTitle(response.body().getTopicTitle());
-                lessons.get(index).setTopicGroupTitle(response.body().getTopicGroupTitle());
-                lessons.get(index).setLevel(response.body().getLevelTitle());
-                lessons.get(index).setDuration(response.body().getDuration().getHours(), response.body().getDuration().getMinutes());
-                lessons.get(index).setStatus(response.body().getLessonStatus());
-
-                if (avatars != null) {
-                    lessons.get(index).setAvatar(avatars.get(index));
-                }
-
-                displayToDoListView();
-                displayUpcomingLessonListView();
-            }
-
-            @Override
-            public void onFailure(Call<JsonResponse> call, Throwable t) {
-
-            }
-        });
-    }
-
-    public void displayToDoListView() {
-        toDoListRecyclerView = (RecyclerView) view.findViewById(R.id.to_do_list);
-        toDoListRecyclerView.setVisibility(View.VISIBLE);
-        toDoListAdapter = new ToDoListAdapter(toDoList, this);
-        toDoListLayoutManager = new LinearLayoutManager(getContext());
-        toDoListRecyclerView.setLayoutManager(toDoListLayoutManager);
-        toDoListRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        toDoListRecyclerView.setAdapter(toDoListAdapter);
-
-    }
-
-    public void displayUpcomingLessonListView() {
-        upcomingLessonsTextView.setText(upcomingLessons.size() + " cours à venir");
-        upcomingLessonLinearLayout.setVisibility(View.VISIBLE);
-        upcomingLessonRecyclerView = (RecyclerView) view.findViewById(R.id.upcoming_lesson);
-        upcomingLessonAdapter = new UpcomingLessonAdapter(upcomingLessons, getContext());
-        upcomingLessonLayoutManager = new LinearLayoutManager(getContext());
-        upcomingLessonRecyclerView.setLayoutManager(upcomingLessonLayoutManager);
-        upcomingLessonRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        upcomingLessonRecyclerView.setAdapter(upcomingLessonAdapter);
-    }
-
-    public void displayTeachersToReviewListView() {
-        teacherToReviewRecyclerView = (RecyclerView) view.findViewById(R.id.teacher_to_review);
-        teacherToReviewRecyclerView.setVisibility(View.VISIBLE);
-        teacherToReviewAdapter = new TeacherToReviewAdapter(teachers, this);
-        teacherToReviewLayoutManager = new LinearLayoutManager(getContext());
-        teacherToReviewRecyclerView.setLayoutManager(teacherToReviewLayoutManager);
-        teacherToReviewRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        teacherToReviewRecyclerView.setAdapter(teacherToReviewAdapter);
-    }
-
-    public void didTouchRefuseLessonButton(final int index) {
-        startProgressDialog();
-        Call<JsonResponse> call = service.refuseLesson(toDoList.get(index).getLessonId(), user.getEmail(), user.getToken());
-        call.enqueue(new Callback<JsonResponse>() {
-            @Override
-            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                displayConfirmationMessage(response, index);
-            }
-
-            @Override
-            public void onFailure(Call<JsonResponse> call, Throwable t) {
-
-            }
-        });
-    }
-
-    public void didTouchAcceptLessonButton(final int index) {
-        Call<JsonResponse> call = service.acceptLesson(toDoList.get(index).getLessonId(), user.getEmail(), user.getToken());
-        call.enqueue(new Callback<JsonResponse>() {
-            @Override
-            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                displayConfirmationMessage(response, index);
-            }
-
-            @Override
-            public void onFailure(Call<JsonResponse> call, Throwable t) {
-
-            }
-        });
-        startProgressDialog();
-    }
-
-    public void didTouchUpdateLessonButton(Lesson lesson) {
-        Intent intent = new Intent(getContext(), UpdateLessonActivity.class);
-        intent.putExtra("lesson", lesson);
-        startActivityForResult(intent, 10004);
-    }
-
-    public void didTouchPositiveFeedBackButton(final int index) {
-        startProgressDialog();
-        Call<JsonResponse> call = service.payTeacher(toDoList.get(index).getLessonId(), user.getEmail(), user.getToken());
-        call.enqueue(new Callback<JsonResponse>() {
-            @Override
-            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                displayConfirmationMessage(response, index);
-            }
-
-            @Override
-            public void onFailure(Call<JsonResponse> call, Throwable t) {
-
-            }
-        });
-    }
-
-    public void didTouchNegativeFeedBackButton(final int index) {
-        startProgressDialog();
-        Call<JsonResponse> call = service.disputeLesson(toDoList.get(index).getLessonId(), user.getEmail(), user.getToken());
-        call.enqueue(new Callback<JsonResponse>() {
-            @Override
-            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                displayConfirmationMessage(response, index);
-            }
-
-            @Override
-            public void onFailure(Call<JsonResponse> call, Throwable t) {
-
-            }
-        });
-
-    }
-
-    public void displayConfirmationMessage(Response<JsonResponse> response, int index) {
-        String success = response.body().getSuccess();
-        String message = response.body().getMessage();
-
-        progressDialog.dismiss();
-        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-
-        if (success.equals("true")) {
-            Lesson lesson = response.body().getLesson();
-            if (lesson != null) {
-                toDoList.get(index).setStatus(lesson.getStatus());
-            }
-
-
-            refreshFragment();
-        }
-
-    }
-
-    public void didTouchTeacherReviewButton(final int teacherId) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        LayoutInflater inflater = LayoutInflater.from(getContext());
-        View dialogView = inflater.inflate(R.layout.dialog_teacher_review, null);
-        final EditText commentEditText = (EditText) dialogView.findViewById(R.id.comment_edit_text);
-        final Spinner noteSpinner = (Spinner) dialogView.findViewById(R.id.note_spinner);
-
-        ArrayAdapter adapter = ArrayAdapter.createFromResource(getContext(), R.array.note_spinner_item, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        noteSpinner.setAdapter(adapter);
-        noteSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                note = adapterView.getItemAtPosition(i).toString();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
-
-        builder.setView(dialogView);
-        builder.setTitle(R.string.teacher_review_dialog_title);
-        builder.setPositiveButton(R.string.teacher_review_dialog_positive_button, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                comment = commentEditText.getText().toString();
-                startCreateReview(teacherId);
-            }
-        });
-
-        builder.setNegativeButton(R.string.teacher_review_dialog_negative_button, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        });
-
-        builder.create().show();
-    }
-
-    public void startCreateReview(final int index) {
-        Review review = new Review();
-        review.setReviewText(comment);
-        review.setNote(Integer.valueOf(note));
-
-        Map<String, Review> requestBody = new HashMap<>();
-        requestBody.put("review", review);
-
-        startProgressDialog();
-        Call<JsonResponse> call = service.letReviewToTeacher(teachers.get(index).getUser().getUserId(), requestBody, user.getEmail(), user.getToken());
-        call.enqueue(new Callback<JsonResponse>() {
-            @Override
-            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                displayConfirmationMessage(response, index);
             }
 
             @Override
@@ -434,5 +229,34 @@ public class DashboardFragment extends Fragment {
         if ((requestCode == 10004) && (resultCode == Activity.RESULT_OK)) {
             refreshFragment();
         }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch(view.getId()) {
+            case R.id.upcoming_lessons_button:
+                Uri.Builder builder = CalendarContract.CONTENT_URI.buildUpon();
+                builder.appendPath("time");
+                ContentUris.appendId(builder, Calendar.getInstance().getTimeInMillis());
+                intent = new Intent(Intent.ACTION_VIEW).setData(builder.build());
+                startActivity(intent);
+                break;
+            case R.id.past_lessons_button:
+                intent = new Intent(getContext(), MyLessonsActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.to_do_list_button:
+                intent = new Intent(getContext(), MyLessonsActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.total_wallet_button:
+                intent = new Intent(getContext(), VirtualWalletActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.all_teachers_button:
+                doMySearch();
+                break;
+        }
+
     }
 }

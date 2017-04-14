@@ -136,7 +136,7 @@ public interface QwerteachService {
     @PUT("user/mangopay/make_payout")
     Call<JsonResponse> makePayout(@Body Map<String, String> body, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
-    @GET("cours")
+    @GET("lessons")
     Call<JsonResponse> getLessons(@Query("page") int pageNumber, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @GET("lessons/find_lesson_informations/{lesson_id}")

@@ -7,6 +7,11 @@
         android:icon="@mipmap/ic_magnify"
         app:showAsAction="always"/>-->
 
+    <item android:id="@+id/email_button"
+        android:title="@string/email_icon_title"
+        android:icon="@drawable/email_icon"
+        app:showAsAction="always"/>
+
     <item android:id="@+id/sign_out_button"
         android:title="@string/sign_out_button"
         android:icon="@drawable/logout_icon"

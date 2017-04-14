@@ -90,7 +90,7 @@ public class CreateVirtualWalletFragment extends Fragment implements
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_create_virtual_wallet, container, false);
+        view = inflater.inflate(R.layout.fragment_user_infos_tab, container, false);
 
         getActivity().setTitle(getResources().getString(R.string.create_new_virtual_wallet_fragment_title));
 
@@ -117,8 +117,8 @@ public class CreateVirtualWalletFragment extends Fragment implements
     }
 
     public void setSpinner(ArrayList arrayList, Spinner spinner) {
-        ArrayAdapter arrayAdapter = new ArrayAdapter(getContext(), android.R.layout.simple_spinner_item, arrayList);
-        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter arrayAdapter = new ArrayAdapter(getContext(), R.layout.simple_spinner_item, arrayList);
+        arrayAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(arrayAdapter);
         spinner.setOnItemSelectedListener(this);
     }

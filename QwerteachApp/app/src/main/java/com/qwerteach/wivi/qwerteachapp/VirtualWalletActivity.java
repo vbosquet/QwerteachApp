@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -66,6 +67,8 @@ public class VirtualWalletActivity extends AppCompatActivity {
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setElevation(0);
+
+        balanceWallet = (TextView) findViewById(R.id.wallet_balance);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         Gson gson = new Gson();
@@ -124,11 +127,11 @@ public class VirtualWalletActivity extends AppCompatActivity {
 
                 if (message != null && message.equals("no wallet")) {
                     progressDialog.dismiss();
+                    balanceWallet.setVisibility(View.GONE);
                     displayCreateVirtualWalletFragment();
 
                 } else {
                     totalWallet = response.body().getTotalWallet();
-                    balanceWallet = (TextView) findViewById(R.id.wallet_balance);
                     balanceWallet.setText("Solde : " + totalWallet/100 + "€");
                     getAllWalletInfos();
                 }

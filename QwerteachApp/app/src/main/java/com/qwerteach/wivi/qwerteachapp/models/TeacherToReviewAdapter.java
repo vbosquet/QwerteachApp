@@ -40,12 +40,12 @@ public class TeacherToReviewAdapter extends RecyclerView.Adapter<TeacherToReview
         final Teacher teacher = teachers.get(position);
 
         holder.title.setText("Recommandez-vous " + teacher.getUser().getFirstName() + " ?");
-        holder.reviewButton.setOnClickListener(new View.OnClickListener() {
+        /*holder.reviewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 fragment.didTouchTeacherReviewButton(position);
             }
-        });
+        });*/
         holder.ratingBar.setRating(teacher.getRating());
 
     }

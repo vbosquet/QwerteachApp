@@ -88,6 +88,8 @@ public class JsonResponse {
     private List<Lesson> upcomingLesson;
     @SerializedName("to_do_list")
     private List<Lesson> toDoList;
+    @SerializedName("past_lessons")
+    private List<Lesson> pastLessons;
     @SerializedName("review_asked")
     private List<User> teachersToReview;
     @SerializedName("lesson_status")
@@ -323,6 +325,10 @@ public class JsonResponse {
 
     public List<Payment> getPayments() {
         return payments;
+    }
+
+    public List<Lesson> getPastLessons() {
+        return pastLessons;
     }
 
     public static class Duration

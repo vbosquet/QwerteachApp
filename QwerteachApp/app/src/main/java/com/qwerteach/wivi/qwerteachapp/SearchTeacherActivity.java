@@ -101,7 +101,6 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         optionList = new ArrayList<>();
         progressDialog = new ProgressDialog(this);
         service = ApiClient.getClient().create(QwerteachService.class);
-        actionBar.setTitle("Résultats pour " + query);
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) findViewById(R.id.search_view);
@@ -115,7 +114,13 @@ public class SearchTeacherActivity extends AppCompatActivity implements
             doMySearch(newQuery);
         }
 
-        menuItems.add(query);
+        if (query != null) {
+            menuItems.add(query);
+            actionBar.setTitle("Résultats pour " + query);
+        } else {
+            menuItems.add("tous les profs");
+            actionBar.setTitle("Résultats pour tous les profs");
+        }
         startSearchTeacher();
         getAllTopics();
 
