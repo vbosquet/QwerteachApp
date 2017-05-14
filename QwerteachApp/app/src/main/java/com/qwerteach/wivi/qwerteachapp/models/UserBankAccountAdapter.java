@@ -1,13 +1,15 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.qwerteach.wivi.qwerteachapp.R;
-import com.qwerteach.wivi.qwerteachapp.fragments.BankAccountInfosTabFragment;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -18,11 +20,11 @@ import java.util.ArrayList;
 public class UserBankAccountAdapter extends RecyclerView.Adapter<UserBankAccountAdapter.ViewHolder> {
 
     private ArrayList<UserBankAccount> userBankAccounts;
-    private BankAccountInfosTabFragment fragment;
+    private Context context;
 
-    public UserBankAccountAdapter(ArrayList<UserBankAccount> userBankAccounts, BankAccountInfosTabFragment fragment) {
+    public UserBankAccountAdapter(ArrayList<UserBankAccount> userBankAccounts, Context context) {
         this.userBankAccounts = userBankAccounts;
-        this.fragment = fragment;
+        this.context = context;
     }
 
     @Override
@@ -36,22 +38,9 @@ public class UserBankAccountAdapter extends RecyclerView.Adapter<UserBankAccount
     public void onBindViewHolder(ViewHolder holder, int position) {
         final UserBankAccount userBankAccount = userBankAccounts.get(position);
 
-        holder.ownerName.setText(userBankAccount.getOwnerName());
-
-        if (userBankAccount.getType().equals("IBAN")) {
-            holder.iban.setText(userBankAccount.getIban());
-            holder.iban.setVisibility(View.VISIBLE);
-        } else {
-            holder.bankAccountNumber.setText(userBankAccount.getAccountNumber());
-            holder.bankAccountNumber.setVisibility(View.VISIBLE);
-        }
-
-        holder.deleteBankAccount.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                fragment.didTouchDeleteBankAccountButton(userBankAccount.getId());
-            }
-        });
+        holder.cardType.setText(userBankAccount.getType());
+        holder.cardNumber.setText(userBankAccount.getIban());
+        Picasso.with(context).load(R.drawable.bank_account_icon).resize(50, 50).centerCrop().into(holder.bankAccountIcon);
 
     }
 
@@ -61,15 +50,15 @@ public class UserBankAccountAdapter extends RecyclerView.Adapter<UserBankAccount
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView ownerName, iban, bankAccountNumber, deleteBankAccount;
+        TextView cardType, cardNumber;
+        ImageView bankAccountIcon;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            ownerName = (TextView) itemView.findViewById(R.id.owner_name);
-            iban = (TextView) itemView.findViewById(R.id.iban);
-            bankAccountNumber = (TextView) itemView.findViewById(R.id.account_number);
-            deleteBankAccount = (TextView) itemView.findViewById(R.id.delete_bank_account);
+            cardType = (TextView) itemView.findViewById(R.id.card_type);
+            cardNumber = (TextView) itemView.findViewById(R.id.card_number);
+            bankAccountIcon = (ImageView) itemView.findViewById(R.id.bank_account_icon);
         }
     }
 }

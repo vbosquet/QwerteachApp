@@ -2,16 +2,18 @@ package com.qwerteach.wivi.qwerteachapp.models;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.qwerteach.wivi.qwerteachapp.R;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Objects;
 
 /**
  * Created by wivi on 9/12/16.
@@ -20,14 +22,16 @@ import java.util.ArrayList;
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.ViewHolder> {
 
     private ArrayList<Transaction> transactions;
+    private Context context;
 
-    public TransactionAdapter(ArrayList<Transaction> transactions) {
+    public TransactionAdapter(ArrayList<Transaction> transactions, Context context) {
         this.transactions = transactions;
+        this.context = context;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.transaction_list_view, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.transaction_recycler_view, parent, false);
         itemView.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT));
         return new ViewHolder(itemView);
     }
@@ -35,15 +39,22 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Transaction transaction = transactions.get(position);
-        holder.transactionDate.setText("Date du paiement : " + transaction.getDate());
-        holder.transactionType.setText("Type de paiement : " + transaction.getType());
-        holder.transactionAuthor.setText("Donneur d'ordre : " + transaction.getAuthorName());
-        holder.creditedUserName.setText("Bénéficiaire : " + transaction.getCreditedUserName());
-        holder.creditedAmount.setText("Montant crédité : " + transaction.getCreditedFund().getAmount()/100 + " " + transaction.getCreditedFund().getCurrency());
-        holder.debitedAmount.setText("Montant débité : " + transaction.getDebitedFund().getAmount()/100 + " " + transaction.getDebitedFund().getCurrency());
-        holder.fees.setText("Frais : " + transaction.getFee().getAmount() + " " + transaction.getFee().getCurrency());
-        holder.status.setText("Status : " + transaction.getStatus());
-        holder.resultMessage.setText("Message : " +transaction.getResultMessage());
+        long millisecond = Long.parseLong(transaction.getCreationDate());
+        String status = transaction.getStatus();
+
+
+        holder.creationDate.setText("Le " + getDate(millisecond) + " à " + getHour(millisecond));
+        holder.title.setText(transaction.getTitle());
+        holder.amount.setText(transaction.getCreditedFund().getAmount()/100 + "€");
+
+        if (Objects.equals(status, "SUCCEEDED")) {
+            holder.status.setText(R.string.succeeded_transaction_status);
+        } else if (Objects.equals(status, "FAILED")) {
+            holder.status.setText(R.string.failed_transaction_status);
+            holder.status.setTextColor(context.getResources().getColor(R.color.red));
+        } else if (Objects.equals(status, "CREATED")) {
+            holder.status.setVisibility(View.GONE);
+        }
 
     }
 
@@ -53,21 +64,37 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
-        TextView transactionDate, transactionType, transactionAuthor,
-                creditedUserName, creditedAmount, debitedAmount, fees, status, resultMessage;
+        TextView title, creationDate, amount, status;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            transactionDate = (TextView) itemView.findViewById(R.id.transaction_date_text_view);
-            transactionType = (TextView) itemView.findViewById(R.id.transaction_type_tewt_view);
-            transactionAuthor = (TextView) itemView.findViewById(R.id.transaction_author_text_view);
-            creditedUserName = (TextView) itemView.findViewById(R.id.credited_user_text_view);
-            creditedAmount = (TextView) itemView.findViewById(R.id.credited_amount_text_view);
-            debitedAmount = (TextView) itemView.findViewById(R.id.debited_amount_text_view);
-            fees = (TextView) itemView.findViewById(R.id.fees_text_view);
-            resultMessage = (TextView) itemView.findViewById(R.id.result_message_text_view);
-            status = (TextView) itemView.findViewById(R.id.status_text_view);
+            title = (TextView) itemView.findViewById(R.id.transaction_title);
+            creationDate = (TextView) itemView.findViewById(R.id.transaction_creation_date);
+            amount = (TextView) itemView.findViewById(R.id.transaction_amount);
+            status = (TextView) itemView.findViewById(R.id.transaction_status);
         }
+    }
+
+    private String getDate(long timeStamp){
+
+        try{
+            DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            Date netDate = (new Date(timeStamp * 1000));
+            return sdf.format(netDate);
+        } catch(Exception ex){
+            return "xx";
+        }
+    }
+
+    private String getHour(long timeStamp) {
+        try{
+            DateFormat sdf = new SimpleDateFormat("HH:mm");
+            Date netDate = (new Date(timeStamp * 1000));
+            return sdf.format(netDate);
+        } catch(Exception ex){
+            return "xx";
+        }
+
     }
 }

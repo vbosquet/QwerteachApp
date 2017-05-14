@@ -124,9 +124,11 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
                         break;
                     }
                     case "loaded": {
-                        Toast.makeText(getApplication(), R.string.load_wallet_by_credit_card_sucess_toast_message, Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(getApplicationContext(), VirtualWalletActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
+                        finish();
+                        Toast.makeText(getApplication(), R.string.load_wallet_by_credit_card_sucess_toast_message, Toast.LENGTH_LONG).show();
                         break;
                     }
                     default: {

@@ -81,7 +81,7 @@
             android:name=".VirtualWalletActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/virtual_wallet_activity_title"
-            android:parentActivityName=".DashboardActivity" />
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".PaymentMethodActivity"
             android:label="@string/payment_method_activity_title"

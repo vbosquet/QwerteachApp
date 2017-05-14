@@ -14,7 +14,7 @@ import java.util.List;
 
 public class Lesson implements Serializable {
 
-    private static final String BASE_URL = "http://192.168.0.110:3000";
+    private static final String BASE_URL = "http://192.168.0.116:3000";
 
     @SerializedName("id")
     private Integer lessonId;

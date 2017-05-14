@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -42,7 +43,6 @@ public class UnloadWalletActivity extends AppCompatActivity implements
 
     ActionBar actionBar;
     ArrayList<UserBankAccount> userBankAccounts;
-    double totalWallet;
     TextView amountToBeTransferred;
     Spinner bankAccountSpinner;
     ArrayList<String> accountNumbers;
@@ -51,6 +51,7 @@ public class UnloadWalletActivity extends AppCompatActivity implements
     QwerteachService service;
     ProgressDialog progressDialog;
     User user;
+    double totalWallet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +69,6 @@ public class UnloadWalletActivity extends AppCompatActivity implements
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             userBankAccounts = (ArrayList<UserBankAccount>) getIntent().getSerializableExtra("userBankAccounts");
-            totalWallet = getIntent().getDoubleExtra("totalWallet", 0);
         }
 
         accountNumbers = new ArrayList<>();
@@ -84,15 +84,10 @@ public class UnloadWalletActivity extends AppCompatActivity implements
 
         amountToBeTransferred = (TextView) findViewById(R.id.amount_to_be_transferred);
         bankAccountSpinner = (Spinner) findViewById(R.id.bank_accounts);
-
-        amountToBeTransferred.setText("Montant à transférer : " + totalWallet/100 + " €");
-        bankAccountAdapter = new ArrayAdapter<>(this, R.layout.simple_spinner_item, accountNumbers);
-        bankAccountAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
-        bankAccountSpinner.setAdapter(bankAccountAdapter);
         bankAccountSpinner.setOnItemSelectedListener(this);
-
         service = ApiClient.getClient().create(QwerteachService.class);
         progressDialog = new ProgressDialog(this);
+        getTotalWallet();
 
     }
 
@@ -116,6 +111,28 @@ public class UnloadWalletActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
+    public void getTotalWallet() {
+        startProgressDialog();
+        Call<JsonResponse> call = service.getTotalWallet(user.getUserId(), user.getEmail(), user.getToken());
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                progressDialog.dismiss();
+                totalWallet = response.body().getTotalWallet();
+                amountToBeTransferred.setText("Montant à transférer : " + totalWallet/100 + " €");
+                bankAccountAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.simple_spinner_item, accountNumbers);
+                bankAccountAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+                bankAccountSpinner.setAdapter(bankAccountAdapter);
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+                Log.d("FAILURE", t.getMessage());
+
+            }
+        });
+    }
+
     public void didTouchUnloadWalletButton(View view) {
         Map<String, String> requestBody = new HashMap<>();
         requestBody.put("account", currentBankAccount);
@@ -130,12 +147,14 @@ public class UnloadWalletActivity extends AppCompatActivity implements
 
                 if (success.equals("true")) {
                     String message = response.body().getMessage();
-                    Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(getApplication(), VirtualWalletActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
+                    finish();
+                    Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
 
                 } else {
-                    startRedirectUrlAsyncTask("http://192.168.0.110:3000/api/" + response.body().getUrl());
+                    startRedirectUrlAsyncTask("http://192.168.0.116:3000/api/" + response.body().getUrl());
 
                 }
 
@@ -171,9 +190,11 @@ public class UnloadWalletActivity extends AppCompatActivity implements
             String success = jsonObject.getString("success");
 
             if (success.equals("true")) {
-                Toast.makeText(this, R.string.credit_transferred_success_toast_message,Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(this, VirtualWalletActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+                finish();
+                Toast.makeText(this, R.string.credit_transferred_success_toast_message,Toast.LENGTH_LONG).show();
             }
         } catch (JSONException e) {
             e.printStackTrace();

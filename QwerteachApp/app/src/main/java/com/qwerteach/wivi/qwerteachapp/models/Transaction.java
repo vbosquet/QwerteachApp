@@ -34,8 +34,7 @@ public class Transaction implements Serializable{
     @SerializedName("result_message")
     private String resultMessage;
 
-    private String authorName;
-    private String creditedUserName;
+    private String title;
 
     public Transaction() {
 
@@ -85,22 +84,6 @@ public class Transaction implements Serializable{
         return creditedUserId;
     }
 
-    public String getAuthorName() {
-        return authorName;
-    }
-
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
-    }
-
-    public String getCreditedUserName() {
-        return creditedUserName;
-    }
-
-    public void setCreditedUserName(String creditedUserName) {
-        this.creditedUserName = creditedUserName;
-    }
-
     public DebitedFund getDebitedFund() {
         return debitedFund;
     }
@@ -113,11 +96,12 @@ public class Transaction implements Serializable{
         return fee;
     }
 
-    public String getDate() {
-        long newTimeStamp = Long.parseLong(this.creationDate) * 1000L;
-        DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        Date netDate = (new Date(newTimeStamp));
-        return sdf.format(netDate);
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public static class DebitedFund implements Serializable {

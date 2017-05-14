@@ -116,7 +116,7 @@ public interface QwerteachService {
     Call<JsonResponse> finalizePaymentWithCard(@Url String url, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @GET("user/mangopay/index_wallet")
-    Call<JsonResponse> getAllWallletInfos(@Query("page") int pageNumber, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+    Call<JsonResponse> getAllWallletInfos(@Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @GET("user/mangopay/card_info")
     Call<JsonResponse> getPreRegistrationCardData(@Header("X-User-Email") String email, @Header("X-User-Token") String token);
@@ -191,5 +191,8 @@ public interface QwerteachService {
     @POST("users/{user_id}/lesson_requests/calculate")
     Call<JsonResponse> calculateUserLessonRequest(@Path("user_id") int teacherId, @Body Map<String, String> body,
                                                   @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("user/mangopay/transactions_index")
+    Call<JsonResponse> getMoreTransactions(@Query("page") int pageNumber, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
 }

@@ -13,6 +13,20 @@
         <item name ="android:windowBackground">@color/colorPrimaryDark</item>
     </style>
 
+    <style name="AppTheme.NoActionBar">
+        <item name="colorControlNormal">@color/white</item>
+        <item name="colorControlActivated">@color/white</item>
+        <item name="colorControlHighlight">@color/white</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowActionBarOverlay">false</item>
+        <item name="android:checkboxStyle">@style/customCheckBoxStyle</item>
+    </style>
+
+    <style name="customCheckBoxStyle" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:buttonTint">@color/purple_dark</item>
+    </style>
+
     <style name="ThemeOverlay.AppTheme.ActionBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <!-- title text color -->
         <item name="android:textColorPrimary">@color/colorPrimaryDark</item>

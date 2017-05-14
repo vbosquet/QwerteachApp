@@ -16,8 +16,9 @@
     <color name="medium_grey">#626262</color>
     <color name="text_light_grey">#E2E2E2</color>
     <color name="yellow">#F8E71C</color>
-    <color name="purple">#501dd4</color>
+    <color name="purple">#511DD3</color>
     <color name="purple_light">#6C42D9</color>
+    <color name="purple_dark">#4921AD</color>
     <color name="blue">#3DCAFF</color>
     <color name="mauve">#82368C</color>
 </resources>

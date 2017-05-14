@@ -8,7 +8,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -30,7 +29,6 @@ import com.qwerteach.wivi.qwerteachapp.models.UserWalletInfos;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -85,12 +83,11 @@ public class CreateVirtualWalletFragment extends Fragment implements
         }
 
         Collections.sort(countries);
-        setHasOptionsMenu(true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_user_infos_tab, container, false);
+        view = inflater.inflate(R.layout.fragment_create_virtual_wallet, container, false);
 
         getActivity().setTitle(getResources().getString(R.string.create_new_virtual_wallet_fragment_title));
 
@@ -218,15 +215,6 @@ public class CreateVirtualWalletFragment extends Fragment implements
         }
 
         return newCountryCode;
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(final Menu menu) {
-        if (menu.findItem(R.id.reload_wallet_button) != null) {
-            menu.findItem(R.id.reload_wallet_button).setVisible(false);
-        }
-
-        super.onPrepareOptionsMenu(menu);
     }
 
     public void startProgressDialog() {

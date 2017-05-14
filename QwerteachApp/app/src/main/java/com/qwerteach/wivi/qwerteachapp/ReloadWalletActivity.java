@@ -166,7 +166,12 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                 }
             }
 
-            easyPaymentCheckBox.setText(easyPayments.get(0));
+            if (easyPayments.size() > 0) {
+                easyPaymentCheckBox.setText(easyPayments.get(0));
+            } else {
+                easyPaymentCheckBox.setVisibility(View.GONE);
+                noCreditCardForEasyPaymentTextView.setVisibility(View.VISIBLE);
+            }
         } else {
             easyPaymentCheckBox.setVisibility(View.GONE);
             noCreditCardForEasyPaymentTextView.setVisibility(View.VISIBLE);
@@ -524,7 +529,9 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         switch (message) {
             case "true":
                 intent = new Intent(this, VirtualWalletActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+                finish();
                 Toast.makeText(this, R.string.load_wallet_by_credit_card_sucess_toast_message, Toast.LENGTH_SHORT).show();
                 break;
             case "redirect url":

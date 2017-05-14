@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -117,6 +118,7 @@ public class SignInActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                Log.d("FAILURE", t.getMessage());
 
             }
         });

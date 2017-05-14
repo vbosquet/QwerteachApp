@@ -131,7 +131,7 @@
         <item>45</item>
     </string-array>
     <string name="booking_lesson_button">RESERVER</string>
-    <string name="virtual_wallet_activity_title">Portefeuille virtuel</string>
+    <string name="virtual_wallet_activity_title">Votre portefeuille</string>
     <string name="address_text_view">Adresse</string>
     <string name="street_number_text_view">N°</string>
     <string name="postal_code_text_view">Code postal</string>
@@ -265,4 +265,13 @@
     <string name="welcome_text">Bienvenue sur Qwerteach</string>
     <string name="email_icon_title">EMAIL</string>
     <string name="lesson_request_button">Réserver un cours</string>
+    <string name="teacher_accounts_and_cards_text_view">Comptes et cartes bancaires</string>
+    <string name="card_bank_accounts_button">Voir plus</string>
+    <string name="card_coordonnees_title">Mes coordonnées</string>
+    <string name="card_transactions_history_title">Historique des transactions</string>
+    <string name="student_accounts_and_cards_text_view">Cartes bancaires</string>
+    <string name="card_coordonnnees_button">Modifier</string>
+    <string name="succeeded_transaction_status">Validé</string>
+    <string name="failed_transaction_status">Echoué</string>
+    <string name="transactions_button">Tout voir</string>
 </resources>

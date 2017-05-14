@@ -174,12 +174,6 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
 
                 if (totalWallet != null) {
                     totalWalletTextView.setText(totalWallet + "€");
-                    if (user.getPostulanceAccepted()) {
-                        totalWalletButton.setText("Verser sur mon compte bancaire");
-                    } else {
-                        totalWalletButton.setText("Charger");
-                    }
-
                 } else {
                     totalWalletButton.setText("Configurer mon portefeuille");
                 }
@@ -187,7 +181,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("FAILURE", t.getMessage());
             }
         });
     }
