@@ -1,10 +1,13 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import android.util.Log;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -30,20 +33,19 @@ public class Lesson implements Serializable {
     private Integer levelId;
     @SerializedName("time_start")
     private String timeStart;
+    @SerializedName("time_end")
+    private String timeEnd;
     @SerializedName("status")
     private String status;
     @SerializedName("price")
     private String price;
-    @SerializedName("hours")
-    private String hours;
-    @SerializedName("minutes")
-    private String minutes;
 
+    private String hours;
+    private String minutes;
     private String userName;
     private String topicTitle;
     private String topicGroupTitle;
     private String level;
-    private String duration;
     private String avatar;
     private List<Payment> payments;
 
@@ -147,25 +149,117 @@ public class Lesson implements Serializable {
         this.level = level;
     }
 
-    public String getDuration() {
-        return duration;
-    }
-
-    public void setDuration(String duration) {
-        this.duration = duration;
-    }
-
-    public void setDuration(int hours, int minutes) {
-        String duration = calculateLessonDuration(hours, minutes);
-        this.duration = duration;
-    }
-
     public String getTimeStart() {
         return timeStart;
     }
 
     public void setTimeStart(String timeStart) {
         this.timeStart = timeStart;
+    }
+
+    public int getHour() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(changeStringToDate(this.getTimeStart()));
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        return  hour;
+
+    }
+
+    public int getMinute() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(changeStringToDate(this.getTimeStart()));
+        int minute = cal.get(Calendar.MINUTE);
+        return  minute;
+
+    }
+
+    public int getMonth() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(changeStringToDate(this.getTimeStart()));
+        int month = cal.get(Calendar.MONTH);
+        return  month;
+
+    }
+
+    public int getDay() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(changeStringToDate(this.getTimeStart()));
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        return  day;
+
+    }
+
+    public int getYear() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(changeStringToDate(this.getTimeStart()));
+        int year = cal.get(Calendar.YEAR);
+        return  year;
+
+    }
+
+    public String getDate() {
+        String dateFormated = (String) android.text.format.DateFormat.format("dd/MM/yyyy", changeStringToDate(this.getTimeStart()));
+        return  dateFormated;
+
+    }
+
+    public String getTime() {
+        String time = (String) android.text.format.DateFormat.format("HH:mm", changeStringToDate(this.getTimeStart()));
+        return time;
+    }
+
+    public String calculateLessonDuration() {
+        Date lessonStart = changeStringToDate(this.getTimeStart());
+        Date lessonEnd = changeStringToDate(this.getTimeEnd());
+        long d = lessonEnd.getTime() - lessonStart.getTime();
+        int minutes = (int) ((d % 3600000) / 60000);
+        int hours = (int) (d/ 3600000);
+
+        String duration;
+        if (minutes == 0) {
+            duration = hours + "h";
+        } else if (hours < 1) {
+            duration = minutes + "min";
+        } else {
+            duration = hours + "h" + minutes;
+        }
+
+        return duration;
+    }
+
+    private Date changeStringToDate(String string) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        Date convertedDate = new Date();
+        try {
+            convertedDate = dateFormat.parse(string);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return convertedDate;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = BASE_URL + avatar;
+    }
+
+    public List<Payment> getPayments() {
+        return payments;
+    }
+
+    public void setPayments(List<Payment> payments) {
+        this.payments = payments;
+    }
+
+    public String getTimeEnd() {
+        return timeEnd;
+    }
+
+    public void setTimeEnd(String timeEnd) {
+        this.timeEnd = timeEnd;
     }
 
     public String getHours() {
@@ -184,85 +278,11 @@ public class Lesson implements Serializable {
         this.minutes = minutes;
     }
 
-    public String calculateLessonDuration(int hours, int minutes) {
-        String duration;
-        if (minutes == 0) {
-            duration = hours + "h";
-        } else {
-            duration = hours + "h" + minutes;
-        }
+    public boolean pending(User user) {
+        boolean pending;
+        pending = (user.getPostulanceAccepted() && this.getStatus().equals("pending_teacher"))
+                || (!user.getPostulanceAccepted() && this.getStatus().equals("pending_student"));
 
-        return duration;
-    }
-
-    public String getMonth(String dateToFormat) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-        String month = null;
-        try {
-            Date date = dateFormat.parse(dateToFormat);
-            month = (String) android.text.format.DateFormat.format("MMMM", date);
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return  month;
-
-    }
-
-    public String getDay(String dateToFormat) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-        String day = null;
-        try {
-            Date date = dateFormat.parse(dateToFormat);
-            day = (String) android.text.format.DateFormat.format("dd", date);
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return  day;
-
-    }
-
-    public String getDate(String dateToFormat) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-        String dateFormated = null;
-        try {
-            Date date = dateFormat.parse(dateToFormat);
-            dateFormated = (String) android.text.format.DateFormat.format("dd/MM/yyyy", date);
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return  dateFormated;
-
-    }
-
-    public String getTime(String dateToFormat) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-        String time = null;
-        try {
-            Date date = dateFormat.parse(dateToFormat);
-            time = (String) android.text.format.DateFormat.format("HH:mm", date);
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return time;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = BASE_URL + avatar;
-    }
-
-    public List<Payment> getPayments() {
-        return payments;
-    }
-
-    public void setPayments(List<Payment> payments) {
-        this.payments = payments;
+        return pending;
     }
 }

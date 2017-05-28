@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -14,59 +13,33 @@ import android.preference.PreferenceManager;
 import android.provider.CalendarContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 import com.pusher.android.PusherAndroid;
 import com.pusher.android.notifications.ManifestValidator;
 import com.pusher.android.notifications.PushNotificationRegistration;
 import com.pusher.android.notifications.fcm.FCMPushNotificationReceivedListener;
-import com.pusher.android.notifications.interests.InterestSubscriptionChangeListener;
-import com.pusher.android.notifications.tokens.PushNotificationRegistrationListener;
 import com.qwerteach.wivi.qwerteachapp.MyLessonsActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.SearchTeacherActivity;
-import com.qwerteach.wivi.qwerteachapp.UpdateLessonActivity;
 import com.qwerteach.wivi.qwerteachapp.VirtualWalletActivity;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
-import com.qwerteach.wivi.qwerteachapp.models.Conversation;
-import com.qwerteach.wivi.qwerteachapp.models.ConversationAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
-import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
-import com.qwerteach.wivi.qwerteachapp.models.TeacherToReviewAdapter;
-import com.qwerteach.wivi.qwerteachapp.models.ToDoListAdapter;
-import com.qwerteach.wivi.qwerteachapp.models.UpcomingLessonAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.User;
-import com.qwerteach.wivi.qwerteachapp.models.UserBankAccountAdapter;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -158,7 +131,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 List<Lesson> toDoList = response.body().getToDoList();
-                List<Lesson> upcomingLessons = response.body().getUpcomingLesson();
+                List<Lesson> upcomingLessons = response.body().getUpcomingLessons();
                 List<Lesson> pastLessons = response.body().getPastLessons();
                 Integer totalWallet = response.body().getTotalWallet();
 
@@ -237,10 +210,12 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
                 break;
             case R.id.past_lessons_button:
                 intent = new Intent(getContext(), MyLessonsActivity.class);
+                intent.putExtra("position", 2);
                 startActivity(intent);
                 break;
             case R.id.to_do_list_button:
                 intent = new Intent(getContext(), MyLessonsActivity.class);
+                intent.putExtra("position", 1);
                 startActivity(intent);
                 break;
             case R.id.total_wallet_button:

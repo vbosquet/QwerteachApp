@@ -137,10 +137,14 @@ public interface QwerteachService {
     Call<JsonResponse> makePayout(@Body Map<String, String> body, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @GET("lessons")
-    Call<JsonResponse> getLessons(@Query("page") int pageNumber, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+    Call<JsonResponse> getLessons(@Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @GET("lessons/find_lesson_informations/{lesson_id}")
     Call<JsonResponse> getLessonInfos(@Path("lesson_id") int lessonId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("lessons/index_pagination")
+    Call<JsonResponse> getMoreHistoryLessons(@Query("lesson_type") String lessonType, @Query("page") int pageNumber,
+                                             @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @GET("lessons/{lesson_id}/cancel")
     Call<JsonResponse> cancelLesson(@Path("lesson_id") int lessonId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);

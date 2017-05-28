@@ -85,7 +85,7 @@ public class JsonResponse {
     @SerializedName("lesson")
     private Lesson lesson;
     @SerializedName("upcoming_lessons")
-    private List<Lesson> upcomingLesson;
+    private List<Lesson> upcomingLessons;
     @SerializedName("to_do_list")
     private List<Lesson> toDoList;
     @SerializedName("past_lessons")
@@ -263,8 +263,8 @@ public class JsonResponse {
         return lesson;
     }
 
-    public List<Lesson> getUpcomingLesson() {
-        return upcomingLesson;
+    public List<Lesson> getUpcomingLessons() {
+        return upcomingLessons;
     }
 
     public List<Lesson> getToDoList() {

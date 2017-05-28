@@ -26,9 +26,16 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="@string/update_lesson_intro"
+                android:layout_marginBottom="15dp"
+                android:textColor="@color/text_grey"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:text="@string/lesson_start_time_title_text_view"
                 android:paddingBottom="10dp"
-                android:textColor="@color/medium_grey"/>
+                android:textColor="@color/colorPrimaryDark"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -46,7 +53,7 @@
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
                     android:layout_weight="1"
-                    android:textColor="@color/medium_grey"/>
+                    android:textColor="@color/text_grey"/>
 
                 <Button
                     android:id="@+id/date_picker_button"
@@ -74,7 +81,7 @@
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
                     android:layout_weight="1"
-                    android:textColor="@color/medium_grey"/>
+                    android:textColor="@color/text_grey"/>
 
                 <Button
                     android:id="@+id/time_picker_button"
@@ -88,132 +95,12 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="@dimen/activity_vertical_margin">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/lesson_duration_title_text_view"
-                android:paddingBottom="10dp"
-                android:textColor="@color/medium_grey"/>
-
-            <TextView
-                android:id="@+id/lesson_duration_text_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/edit_text_border"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:textColor="@color/medium_grey"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="@dimen/activity_vertical_margin">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Catégorie"
-                android:paddingBottom="10dp"
-                android:textColor="@color/medium_grey"/>
-
-            <TextView
-                android:id="@+id/lesson_topic_group_text_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/edit_text_border"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:textColor="@color/medium_grey"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="@dimen/activity_vertical_margin">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Matière"
-                android:paddingBottom="10dp"
-                android:textColor="@color/medium_grey"/>
-
-            <TextView
-                android:id="@+id/lesson_topic_text_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/edit_text_border"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:textColor="@color/medium_grey"/>
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="@dimen/activity_vertical_margin">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Niveau"
-                android:paddingBottom="10dp"
-                android:textColor="@color/medium_grey"/>
-
-            <TextView
-                android:id="@+id/lesson_level_text_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/edit_text_border"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:textColor="@color/medium_grey"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="@dimen/activity_vertical_margin">
-
-            <TextView
-                android:id="@+id/total_price_text_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/medium_grey"
-                android:textSize="20dp"
-                android:gravity="center"/>
-
-        </LinearLayout>
 
         <Button
             android:id="@+id/save_lesson_infos_button"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/save_profile_button"
+            android:text="MODIFIER"
             android:backgroundTint="@color/colorPrimary"
             android:textColor="@color/white"/>
 

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/lesson_accept"
+        android:title="Accepter"
+        android:visible="false"/>
+
+    <item android:id="@+id/lesson_refuse"
+        android:title="Refuser"
+        android:visible="false"/>
+
+    <item android:id="@+id/lesson_update"
+        android:title="Déplacer"
+        android:visible="false"/>
+
+</menu>

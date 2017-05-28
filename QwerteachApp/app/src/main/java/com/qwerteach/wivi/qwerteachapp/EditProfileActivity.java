@@ -25,8 +25,8 @@ public class EditProfileActivity extends AppCompatActivity {
 
     ViewPager viewPager;
     TabLayout tabLayout;
-    User user;
     int numItems = 0;
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

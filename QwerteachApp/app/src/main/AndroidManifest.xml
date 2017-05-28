@@ -36,6 +36,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
+
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
@@ -51,18 +52,18 @@
         <activity
             android:name=".CreateSmallAdActivity"
             android:label="@string/create_small_add_activity_title"
-            android:parentActivityName=".EditProfileActivity"/>
+            android:parentActivityName=".EditProfileActivity" />
         <activity
             android:name=".ToBecomeATeacherActivity"
             android:label="@string/to_become_a_teacher_activity_title" />
         <activity
             android:name=".UpdateSmallAdActivity"
             android:label="@string/title_activity_update_small_ad"
-            android:parentActivityName=".EditProfileActivity"/>
+            android:parentActivityName=".EditProfileActivity" />
         <activity
             android:name=".SearchTeacherActivity"
-            android:label="@string/search_teacher_activity_title"
-            android:configChanges="orientation|screenSize">
+            android:configChanges="orientation|screenSize"
+            android:label="@string/search_teacher_activity_title">
 
             <!-- android:parentActivityName=".DashboardActivity" -->
             <intent-filter>
@@ -84,8 +85,8 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".PaymentMethodActivity"
-            android:label="@string/payment_method_activity_title"
-            android:configChanges="orientation|screenSize"/>
+            android:configChanges="orientation|screenSize"
+            android:label="@string/payment_method_activity_title" />
         <activity
             android:name=".MangoPaySecureModeActivity"
             android:label="@string/mango_pay_web_view_activity_title"
@@ -97,19 +98,21 @@
             android:parentActivityName=".DashboardActivity">
             <intent-filter>
                 <action android:name="MY_LESSONS" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
             android:name=".ReloadWalletActivity"
-            android:label="@string/reload_wallet_activity_title"
-            android:configChanges="orientation|screenSize"/>
+            android:configChanges="orientation|screenSize"
+            android:label="@string/reload_wallet_activity_title" />
         <activity
             android:name=".MyMessagesActivity"
             android:label="@string/my_messages_activity_title"
             android:parentActivityName=".DashboardActivity">
             <intent-filter>
                 <action android:name="MY_MESSAGES" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -121,17 +124,15 @@
             android:label="@string/read_comments_activity_title" />
         <activity
             android:name=".UnloadWalletActivity"
-            android:label="@string/unload_wallet_activity_title"
-            android:configChanges="orientation|screenSize"/>
-
+            android:configChanges="orientation|screenSize"
+            android:label="@string/unload_wallet_activity_title" />
         <activity
             android:name=".UpdateLessonActivity"
-            android:label="@string/update_leson_activity_title"
-            android:configChanges="orientation|screenSize"/>
-
+            android:configChanges="orientation|screenSize"
+            android:label="@string/update_leson_activity_title" />
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
-            android:theme="@style/Base.Theme.AppCompat"/>
+            android:theme="@style/Base.Theme.AppCompat" />
 
         <!-- [START firebase_service] -->
         <service android:name=".services.MyFirebaseMessagingService">
@@ -161,6 +162,8 @@
             </intent-filter>
         </service>
 
+        <activity android:name=".ShowLessonActivity"
+            android:parentActivityName=".MyLessonsActivity"/>
     </application>
 
 </manifest>
