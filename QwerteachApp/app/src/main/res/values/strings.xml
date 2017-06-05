@@ -187,7 +187,7 @@
     <string name="teacher_review_dialog_title">Laisser un avis</string>
     <string name="teacher_review_dialog_positive_button">Valider</string>
     <string name="teacher_review_dialog_negative_button">Annuler</string>
-    <string name="teacher_review_dialog_note_text_view">Note</string>
+    <string name="teacher_review_dialog_note_text_view">Note sur 5</string>
     <string name="teacher_review_dialog_comment_text_view">Commentaire</string>
     <string-array name="note_spinner_item">
         <item>0</item>

@@ -119,7 +119,6 @@ public class IndexVirtualWalletFragment extends Fragment implements View.OnClick
         switch (item.getItemId()) {
             case R.id.reload_wallet_button:
                 intent = new Intent(getContext(), ReloadWalletActivity.class);
-                intent.putExtra("easy_payment", userCreditCards);
                 startActivity(intent);
                 return true;
             case R.id.unload_wallet_button:

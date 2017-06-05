@@ -100,11 +100,6 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            userCreditCards = (ArrayList<UserCreditCard>) getIntent().getSerializableExtra("easy_payment");
-        }
-
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         Gson gson = new Gson();
         String json = preferences.getString("user", "");
@@ -191,6 +186,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
                 cardRegistrationData = response.body().getCardRegistrationData();
+                userCreditCards = response.body().getUserCreditCards();
                 displayInitialLayout();
             }
 

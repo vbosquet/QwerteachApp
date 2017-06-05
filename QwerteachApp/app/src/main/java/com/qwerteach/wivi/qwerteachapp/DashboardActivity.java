@@ -25,7 +25,7 @@ import com.qwerteach.wivi.qwerteachapp.fragments.DashboardFragment;
 
 public class DashboardActivity extends AppCompatActivity {
 
-    String[] menuDrawerItems = {"Mes cours", "Mes messages", "Mon portefeuille", "Mon profil"};
+    String[] menuDrawerItems = {"Mes cours", "Mon portefeuille", "Mon profil", "Déconnexion"};
     DrawerLayout mDrawerLayout;
     ActionBarDrawerToggle mDrawerToggle;
     ListView mDrawerList;
@@ -58,17 +58,22 @@ public class DashboardActivity extends AppCompatActivity {
                 }
 
                 if (action.equals(menuDrawerItems[1])) {
-                    Intent intent = new Intent(getApplicationContext(), MyMessagesActivity.class);
-                    startActivity(intent);
-                }
-
-                if (action.equals(menuDrawerItems[2])) {
                     Intent intent = new Intent(getApplicationContext(), VirtualWalletActivity.class);
                     startActivity(intent);
                 }
 
-                if(action.equals(menuDrawerItems[3])) {
+                if(action.equals(menuDrawerItems[2])) {
                     Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+                    startActivity(intent);
+                }
+
+                if (action.equals(menuDrawerItems[3])) {
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putBoolean("isLogin", false);
+                    editor.apply();
+
+                    intent = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent);
                 }
 
@@ -119,29 +124,12 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-        menu.findItem(R.id.sign_out_button).setVisible(!drawerOpen);
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
 
         switch (item.getItemId()) {
-            case R.id.sign_out_button:
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putBoolean("isLogin", false);
-                editor.apply();
-
-                intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
-                return true;
-
             case R.id.email_button:
                 intent = new Intent(this, MyMessagesActivity.class);
                 startActivity(intent);

@@ -162,8 +162,12 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".ShowLessonActivity"
-            android:parentActivityName=".MyLessonsActivity"/>
+        <activity
+            android:name=".ShowLessonActivity"
+            android:parentActivityName=".MyLessonsActivity" />
+        <activity
+            android:name=".TeacherReviewActivity"
+            android:label="Laisser un avis"/>
     </application>
 
 </manifest>

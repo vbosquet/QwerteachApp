@@ -76,8 +76,6 @@ public class JsonResponse {
     private boolean expired;
     @SerializedName("past")
     private boolean past;
-    @SerializedName("review_needed")
-    private boolean reviewNeed;
     @SerializedName("duration")
     private Duration duration;
     @SerializedName("name")
@@ -90,8 +88,12 @@ public class JsonResponse {
     private List<Lesson> toDoList;
     @SerializedName("past_lessons")
     private List<Lesson> pastLessons;
-    @SerializedName("review_asked")
-    private List<User> teachersToReview;
+    @SerializedName("past_lessons_given")
+    private List<Lesson> pastLessonsGiven;
+    @SerializedName("to_unlock_lessons")
+    private List<Lesson> toUnlockLessons;
+    @SerializedName("to_review_lessons")
+    private List<Lesson> toReviewLessons;
     @SerializedName("lesson_status")
     private String lessonStatus;
     @SerializedName("messages")
@@ -247,10 +249,6 @@ public class JsonResponse {
         return past;
     }
 
-    public boolean isReviewNeed() {
-        return reviewNeed;
-    }
-
     public Duration getDuration() {
         return duration;
     }
@@ -273,10 +271,6 @@ public class JsonResponse {
 
     public String getLessonStatus() {
         return lessonStatus;
-    }
-
-    public List<User> getTeachersToReview() {
-        return teachersToReview;
     }
 
     public List<Message> getMessages() {
@@ -341,6 +335,18 @@ public class JsonResponse {
 
     public List<String> getTransactionInfos() {
         return transactionInfos;
+    }
+
+    public List<Lesson> getPastLessonsGiven() {
+        return pastLessonsGiven;
+    }
+
+    public List<Lesson> getToUnlockLessons() {
+        return toUnlockLessons;
+    }
+
+    public List<Lesson> getToReviewLessons() {
+        return toReviewLessons;
     }
 
     public static class Duration

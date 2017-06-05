@@ -7,9 +7,4 @@
         android:icon="@drawable/email_icon"
         app:showAsAction="always"/>
 
-    <item android:id="@+id/sign_out_button"
-        android:title="@string/sign_out_button"
-        android:icon="@drawable/logout_icon"
-        app:showAsAction="always"/>
-
 </menu>

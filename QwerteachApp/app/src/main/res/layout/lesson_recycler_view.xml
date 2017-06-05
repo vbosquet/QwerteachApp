@@ -78,4 +78,52 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/to_unlock_lessons_buttons_management"
+        android:layout_marginTop="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/lock_payment_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="Signaler un problème"
+            android:background="@android:color/transparent"
+            android:textColor="@color/colorPrimary"/>
+
+        <Button
+            android:id="@+id/pay_teacher_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="Très bien"
+            android:backgroundTint="@color/colorPrimary"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_gravity="right"/>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/to_review_lessons_buttons_management"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/review_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Laisser une évaluation"
+            android:backgroundTint="@color/colorPrimary"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_alignParentRight="true"/>
+
+
+    </RelativeLayout>
+
 </LinearLayout>

@@ -30,17 +30,10 @@
                     android:layout_marginBottom="10dp"
                     android:layout_marginTop="10dp"/>
 
-                <TextView
-                    android:id="@+id/all_teachers_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Voir tous les profs"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:clickable="true"/>
-
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/search_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -51,7 +44,8 @@
                 android:paddingTop="10dp"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
-                android:layout_marginTop="@dimen/activity_vertical_margin">
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -61,7 +55,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/lesson"
+                        android:src="@drawable/search_teachers_icon"
                         android:layout_marginRight="15dp"/>
 
                     <LinearLayout
@@ -73,24 +67,18 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="CALENDRIER"
-                            android:textColor="@color/text_light_grey" />
-
-                        <TextView
-                            android:id="@+id/upcoming_lessons_text_view"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/text_grey"
+                            android:textColor="@color/colorPrimaryDark"
+                            android:text="Trouver un prof"
                             android:textSize="20dp"/>
 
                         <TextView
-                            android:id="@+id/upcoming_lessons_button"
+                            android:id="@+id/all_teachers_button"
                             android:layout_marginTop="15dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Consulter mon calendrier"
                             android:textColor="@color/colorPrimary"
-                            android:clickable="true"/>
+                            android:clickable="true"
+                            android:text="Tous les profs"/>
 
                     </LinearLayout>
 
@@ -119,7 +107,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/historical"
+                        android:src="@drawable/past_lessons_received_icon"
                         android:layout_marginRight="15dp"/>
 
                     <LinearLayout
@@ -129,24 +117,72 @@
                         android:layout_gravity="center_vertical">
 
                         <TextView
+                            android:id="@+id/past_lessons_received_text_view"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="HISTORIQUE"
-                            android:textColor="@color/text_light_grey" />
-
-                        <TextView
-                            android:id="@+id/past_lessons_text_view"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/text_grey"
+                            android:textColor="@color/colorPrimaryDark"
                             android:textSize="20dp"/>
 
                         <TextView
-                            android:id="@+id/past_lessons_button"
+                            android:id="@+id/past_lessons_received_button"
                             android:layout_marginTop="15dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Voir la liste"
+                            android:textColor="@color/colorPrimary"
+                            android:text="Voir l'historique complet"
+                            android:clickable="true"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/past_lessons_given_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/edit_text_border"
+                android:paddingBottom="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/past_lessons_given_icon"
+                        android:layout_marginRight="15dp"/>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/past_lessons_given_text_view"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/colorPrimaryDark"
+                            android:textSize="20dp"/>
+
+                        <TextView
+                            android:id="@+id/past_lessons_given_button"
+                            android:layout_marginTop="15dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Voir l'historique complet"
                             android:textColor="@color/colorPrimary"
                             android:clickable="true"/>
 
@@ -177,7 +213,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/calendar"
+                android:src="@drawable/pending_lessons_icon"
                 android:layout_marginRight="15dp"/>
 
             <LinearLayout
@@ -187,20 +223,14 @@
                 android:layout_gravity="center_vertical">
 
                 <TextView
+                    android:id="@+id/pending_lessons_text_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="MES RESERVATIONS"
-                    android:textColor="@color/text_light_grey" />
-
-                <TextView
-                    android:id="@+id/to_do_list_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_grey"
+                    android:textColor="@color/colorPrimaryDark"
                     android:textSize="20dp"/>
 
                 <TextView
-                    android:id="@+id/to_do_list_button"
+                    android:id="@+id/pending_lessons_button"
                     android:layout_marginTop="15dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -236,7 +266,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/wallet"
+                        android:src="@drawable/wallet_icon"
                         android:layout_marginRight="15dp"/>
 
                     <LinearLayout
@@ -248,31 +278,97 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="PORTEFEUILLE"
-                            android:textColor="@color/text_light_grey" />
+                            android:textColor="@color/colorPrimaryDark"
+                            android:textSize="20dp"
+                            android:text="Portefeuille"/>
 
                         <TextView
                             android:id="@+id/total_wallet_text_view"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/text_grey"
+                            android:textColor="@color/colorPrimary"
                             android:textSize="20dp"/>
 
                         <TextView
-                            android:id="@+id/total_wallet_button"
+                            android:id="@+id/wallet_create_button"
                             android:layout_marginTop="15dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="@color/colorPrimary"
                             android:clickable="true"
-                            android:text="Voir"/>
+                            android:text="Configurer mon portefeuille"
+                            android:visibility="gone"/>
+
+                        <LinearLayout
+                            android:id="@+id/wallet_buttons_management"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:id="@+id/wallet_details_button"
+                                android:layout_marginTop="15dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/colorPrimary"
+                                android:clickable="true"
+                                android:text="Voir"/>
+
+                            <TextView
+                                android:layout_marginTop="15dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="10dp"
+                                android:layout_marginRight="10dp"
+                                android:textColor="@color/colorPrimaryDark"
+                                android:text="-"/>
+
+                            <TextView
+                                android:id="@+id/wallet_reload_button"
+                                android:layout_marginTop="15dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/colorPrimary"
+                                android:clickable="true"
+                                android:text="Charger"/>
+
+
+                        </LinearLayout>
 
                     </LinearLayout>
 
                 </LinearLayout>
 
-
             </LinearLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/to_unlock_lessons_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_text_border"
+                android:paddingBottom="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:visibility="gone"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/to_review_lessons_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_text_border"
+                android:paddingBottom="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:visibility="gone"/>
 
         </LinearLayout>
 

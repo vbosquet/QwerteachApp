@@ -134,37 +134,41 @@ public class UnloadWalletActivity extends AppCompatActivity implements
     }
 
     public void didTouchUnloadWalletButton(View view) {
-        Map<String, String> requestBody = new HashMap<>();
-        requestBody.put("account", currentBankAccount);
+        if (totalWallet > 0) {
+            Map<String, String> requestBody = new HashMap<>();
+            requestBody.put("account", currentBankAccount);
 
-        startProgressDialog();
-        Call<JsonResponse> call = service.makePayout(requestBody, user.getEmail(), user.getToken());
-        call.enqueue(new Callback<JsonResponse>() {
-            @Override
-            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                progressDialog.dismiss();
-                String success = response.body().getSuccess();
+            startProgressDialog();
+            Call<JsonResponse> call = service.makePayout(requestBody, user.getEmail(), user.getToken());
+            call.enqueue(new Callback<JsonResponse>() {
+                @Override
+                public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                    progressDialog.dismiss();
+                    String success = response.body().getSuccess();
 
-                if (success.equals("true")) {
-                    String message = response.body().getMessage();
-                    Intent intent = new Intent(getApplication(), VirtualWalletActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    finish();
-                    Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
+                    if (success.equals("true")) {
+                        String message = response.body().getMessage();
+                        Intent intent = new Intent(getApplication(), VirtualWalletActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        finish();
+                        Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
 
-                } else {
-                    startRedirectUrlAsyncTask("http://192.168.0.116:3000/api/" + response.body().getUrl());
+                    } else {
+                        startRedirectUrlAsyncTask("http://192.168.0.116:3000/api/" + response.body().getUrl());
+
+                    }
 
                 }
 
-            }
+                @Override
+                public void onFailure(Call<JsonResponse> call, Throwable t) {
 
-            @Override
-            public void onFailure(Call<JsonResponse> call, Throwable t) {
-
-            }
-        });
+                }
+            });
+        } else {
+            Toast.makeText(this, "Vous n'avez rien à récupérer.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

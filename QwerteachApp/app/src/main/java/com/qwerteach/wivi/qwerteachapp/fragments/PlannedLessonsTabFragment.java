@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.R;
@@ -48,6 +49,7 @@ public class PlannedLessonsTabFragment extends Fragment {
     int scrollPosition, page = 1;
     boolean loading = true;
     List<Lesson> plannedLessons;
+    TextView noLessonsTitle;
 
     public static PlannedLessonsTabFragment newInstance() {
         PlannedLessonsTabFragment plannedLessonsTabFragment = new PlannedLessonsTabFragment();
@@ -70,6 +72,7 @@ public class PlannedLessonsTabFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         view  = inflater.inflate(R.layout.fragment_planned_lessons_tab, container, false);
         lessonRecyclerView = (RecyclerView) view.findViewById(R.id.planned_lessons_recycler_view);
+        noLessonsTitle = (TextView) view.findViewById(R.id.no_lessons_title);
 
         return view;
     }
@@ -83,8 +86,12 @@ public class PlannedLessonsTabFragment extends Fragment {
                 progressDialog.dismiss();
                 plannedLessons = response.body().getUpcomingLessons();
 
-                for (int i = 0; i < plannedLessons.size(); i++) {
-                    getPlannedLessonInfos(plannedLessons.get(i).getLessonId(), i);
+                if (plannedLessons.size() > 0) {
+                    for (int i = 0; i < plannedLessons.size(); i++) {
+                        getPlannedLessonInfos(plannedLessons.get(i).getLessonId(), i);
+                    }
+                } else {
+                    noLessonsTitle.setVisibility(View.VISIBLE);
                 }
             }
 

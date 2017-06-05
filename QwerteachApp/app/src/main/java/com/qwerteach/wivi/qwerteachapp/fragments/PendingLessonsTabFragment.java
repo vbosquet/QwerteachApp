@@ -14,6 +14,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -53,6 +54,7 @@ public class PendingLessonsTabFragment extends Fragment {
     int scrollPosition, page = 1;
     boolean loading = true;
     List<Lesson> pendingLessons;
+    TextView noLessonsTitle;
 
     public static PendingLessonsTabFragment newInstance() {
         PendingLessonsTabFragment pendingLessonsTabFragment = new PendingLessonsTabFragment();
@@ -76,6 +78,7 @@ public class PendingLessonsTabFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         view  = inflater.inflate(R.layout.fragment_pending_lessons_tab, container, false);
         lessonRecyclerView = (RecyclerView) view.findViewById(R.id.pending_lessons_recycler_view);
+        noLessonsTitle = (TextView) view.findViewById(R.id.no_lessons_title);
 
         return view;
     }
@@ -89,8 +92,12 @@ public class PendingLessonsTabFragment extends Fragment {
                 progressDialog.dismiss();
                 pendingLessons = response.body().getToDoList();
 
-                for (int i = 0; i < pendingLessons.size(); i++) {
-                    getPendingLessonInfos(pendingLessons.get(i).getLessonId(), i);
+                if (pendingLessons.size() > 0) {
+                    for (int i = 0; i < pendingLessons.size(); i++) {
+                        getPendingLessonInfos(pendingLessons.get(i).getLessonId(), i);
+                    }
+                } else {
+                   noLessonsTitle.setVisibility(View.VISIBLE);
                 }
             }
 
