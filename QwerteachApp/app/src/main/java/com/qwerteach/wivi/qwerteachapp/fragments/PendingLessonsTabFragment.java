@@ -32,6 +32,7 @@ import com.qwerteach.wivi.qwerteachapp.models.Payment;
 import com.qwerteach.wivi.qwerteachapp.models.PendingLessonsAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 import retrofit2.Call;
@@ -103,7 +104,10 @@ public class PendingLessonsTabFragment extends Fragment {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                progressDialog.dismiss();
+                if(t instanceof SocketTimeoutException){
+                    Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -267,10 +271,8 @@ public class PendingLessonsTabFragment extends Fragment {
 
     public void seeLessonDetails(int index) {
         Lesson lesson = pendingLessons.get(index);
-        String lessonType = "pending";
         Intent intent = new Intent(getContext(), ShowLessonActivity.class);
         intent.putExtra("lesson", lesson);
-        intent.putExtra("lessonType", lessonType);
         startActivity(intent);
     }
 }

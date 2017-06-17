@@ -65,7 +65,7 @@ public class EditVirtualWalletFragment extends Fragment implements AdapterView.O
     RecyclerView creditCardsRecyclerView, bankAccountsRecyclerView;
     RecyclerView.Adapter creditCardAdapter, bankAccountAdapter;
     RecyclerView.LayoutManager creditCardLayoutManager, bankAccountLayoutManager;
-    LinearLayout newBankAccount, ibanLinearLayout, ukLinearLayout, usaLinearLayout, canadaLinearLayout, otherLinearLayout;
+    LinearLayout newBankAccount, ibanLinearLayout, ukLinearLayout, usaLinearLayout, canadaLinearLayout, otherLinearLayout, bankAccountsCard;
     ImageView newBankAccountIcon;
     UserWalletInfos accountInfos;
     EditText firstNameEditText, lastNameEditText, addressEditText, streetNumberEditText, postalCodeEditText, cityEditText,
@@ -138,6 +138,7 @@ public class EditVirtualWalletFragment extends Fragment implements AdapterView.O
         residenceSpinner = (Spinner) view.findViewById(R.id.residence_place_spinner);
         nationalitySpinner = (Spinner) view.findViewById(R.id.nationality_spinner);
         saveButton = (Button) view.findViewById(R.id.save_infos_button);
+        bankAccountsCard = (LinearLayout) view.findViewById(R.id.bank_accounts_card);
         saveButton.setOnClickListener(this);
         newBankAccount.setOnClickListener(this);
 
@@ -145,9 +146,12 @@ public class EditVirtualWalletFragment extends Fragment implements AdapterView.O
             displayCreditCardsList();
         }
 
-        if (bankAccounts.size() > 0) {
-            bankAccountsRecyclerView.setVisibility(View.VISIBLE);
-            displayBankAccountsList();
+        if (user.getPostulanceAccepted()) {
+            bankAccountsCard.setVisibility(View.VISIBLE);
+            if (bankAccounts.size() > 0) {
+                bankAccountsRecyclerView.setVisibility(View.VISIBLE);
+                displayBankAccountsList();
+            }
         }
 
         displayUserInfos();
@@ -562,6 +566,7 @@ public class EditVirtualWalletFragment extends Fragment implements AdapterView.O
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
                 String message = response.body().getMessage();
+                Log.d("MESSAGE", message);
                 getFragmentManager().popBackStack();
                 Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
             }

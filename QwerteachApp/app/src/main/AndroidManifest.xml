@@ -167,7 +167,11 @@
             android:parentActivityName=".MyLessonsActivity" />
         <activity
             android:name=".TeacherReviewActivity"
-            android:label="Laisser un avis"/>
+            android:label="Laisser un avis" />
+        <activity
+            android:name=".MyNotificationsActivity"
+            android:parentActivityName=".DashboardActivity"
+            android:label="@string/my_notifications_activity_title"/>
     </application>
 
 </manifest>

@@ -29,6 +29,7 @@ import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -178,7 +179,10 @@ public class EmailSignUpActivity extends AppCompatActivity  {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                progressDialog.dismiss();
+                if(t instanceof SocketTimeoutException){;
+                    Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

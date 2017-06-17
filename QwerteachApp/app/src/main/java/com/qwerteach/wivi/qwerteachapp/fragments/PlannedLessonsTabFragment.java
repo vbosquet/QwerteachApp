@@ -9,10 +9,12 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.R;
@@ -26,6 +28,7 @@ import com.qwerteach.wivi.qwerteachapp.models.PendingLessonsAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.PlannedLessonsAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,7 +100,10 @@ public class PlannedLessonsTabFragment extends Fragment {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                progressDialog.dismiss();
+                if(t instanceof SocketTimeoutException){
+                    Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

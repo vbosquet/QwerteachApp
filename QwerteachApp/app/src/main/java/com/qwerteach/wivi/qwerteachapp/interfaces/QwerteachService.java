@@ -199,4 +199,7 @@ public interface QwerteachService {
     @GET("user/mangopay/transactions_index")
     Call<JsonResponse> getMoreTransactions(@Query("page") int pageNumber, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
+    @GET("notifications")
+    Call<JsonResponse> getNotifications(@Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
 }

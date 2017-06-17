@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.R;
@@ -24,6 +25,7 @@ import com.qwerteach.wivi.qwerteachapp.models.HistoryLessonsAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.Payment;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 import retrofit2.Call;
@@ -89,7 +91,10 @@ public class HistoryLessonsTabFragment extends Fragment {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                progressDialog.dismiss();
+                if(t instanceof SocketTimeoutException){
+                    Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

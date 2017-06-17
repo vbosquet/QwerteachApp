@@ -343,6 +343,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                         }
                     }
 
+                    startProgressDialog();
                     payLesson();
 
                 } else {
@@ -415,10 +416,13 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                         startActivity(intent);
                         break;
                     case "finish":
+                    case"true": {
                         Toast.makeText(getApplication(), R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
                         intent = new Intent(getApplication(), MyLessonsActivity.class);
+                        intent.putExtra("position", 1);
                         startActivity(intent);
                         break;
+                    }
                     case "errors":
                         Log.d("ERROR", "error");
                         break;

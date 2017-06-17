@@ -36,7 +36,6 @@ public class ShowLessonActivity extends AppCompatActivity {
     TextView lessonDate, lessonOtherUser, lessonDuration, lessonPrice, userTitle, paymentPrice, paymentStatus, paymentId;
     User user;
     List<Payment> payments;
-    String lessonType;
     ProgressDialog progressDialog;
     QwerteachService service;
 
@@ -57,7 +56,6 @@ public class ShowLessonActivity extends AppCompatActivity {
         if (extras != null) {
             lesson = (Lesson) getIntent().getSerializableExtra("lesson");
             payments = lesson.getPayments();
-            lessonType = getIntent().getStringExtra("lessonType");
         }
 
         ActionBar actionBar = getSupportActionBar();
@@ -97,7 +95,8 @@ public class ShowLessonActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(final Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.show_lesson_menu, menu);
-        if (lessonType.equals("pending")) {
+        if ((lesson.getStatus().equals("pending_teacher") && user.getPostulanceAccepted()) ||
+                (lesson.getStatus().equals("pending_student") && !user.getPostulanceAccepted())) {
             MenuItem lessonAccept = menu.findItem(R.id.lesson_accept);
             MenuItem lessonRefuse = menu.findItem(R.id.lesson_refuse);
             MenuItem lessonUpdate = menu.findItem(R.id.lesson_update);

@@ -169,6 +169,7 @@
     <string name="create_new_virtual_wallet_fragment_title">Créer Portefeuille Virtuel</string>
     <string name="no_credit_card_for_easy_payment_text_view">Vous n\'avez aucune carte enregistrée</string>
     <string name="my_messages_activity_title">Mes messages</string>
+    <string name="my_notifications_activity_title">Mes notifications</string>
     <string name="new_conversation_button">NOUVEAU</string>
     <string name="refuse_lesson_button">Refuser</string>
     <string name="accept_lesson_button">Accepter</string>
@@ -275,4 +276,6 @@
     <string name="failed_transaction_status">Echoué</string>
     <string name="transactions_button">Tout voir</string>
     <string name="update_lesson_intro">Vous pouvez modifier la date et l\'heure prévue du cours. Si vous souhaitez modifier d\'autres éléments, vous devrez annuler ce cours et faire une nouvelle réservation.</string>
+    <string name="socket_failure">Impossible de se connecter au réseau. Veuillez réessayer.</string>
+    <string name="notification_icon_title">NOTIFICATION</string>
 </resources>

@@ -135,6 +135,11 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(intent);
                 return true;
 
+            case R.id.notification_button:
+                intent = new Intent(this, MyNotificationsActivity.class);
+                startActivity(intent);
+                break;
+
             case android.R.id.home:
                 int count = getSupportFragmentManager().getBackStackEntryCount();
                 if (count == 0) {

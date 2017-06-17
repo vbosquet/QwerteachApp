@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.fragments.CreateVirtualWalletFragment;
@@ -27,6 +28,7 @@ import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserBankAccount;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 
 import retrofit2.Call;
@@ -104,8 +106,10 @@ public class VirtualWalletActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("FAILURE", t.getMessage());
-
+                progressDialog.dismiss();
+                if(t instanceof SocketTimeoutException){;
+                    Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

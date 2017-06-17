@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.fragments.StudentProfileFragment;
@@ -25,6 +26,7 @@ import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +56,10 @@ public class ProfileActivity extends AppCompatActivity  {
 
         progressDialog = new ProgressDialog(this);
         teacher = new Teacher();
+        getUserInfos();
+    }
 
+    public void getUserInfos() {
         startProgressDialog();
         QwerteachService service = ApiClient.getClient().create(QwerteachService.class);
         Call<JsonResponse> call = service.getUserInfos(user.getUserId(), user.getEmail(), user.getToken());
@@ -76,9 +81,13 @@ public class ProfileActivity extends AppCompatActivity  {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                progressDialog.dismiss();
+                if(t instanceof SocketTimeoutException){;
+                    Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
+                }
             }
         });
+
     }
 
     public void preparaDataForTeacher(Response<JsonResponse> response) {

@@ -23,6 +23,7 @@ import com.qwerteach.wivi.qwerteachapp.asyncTasks.RedirectURLAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import org.jsoup.Jsoup;
@@ -120,6 +121,7 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
                     case "true": {
                         Toast.makeText(getApplication(), R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(getApplicationContext(), MyLessonsActivity.class);
+                        intent.putExtra("position", 1);
                         startActivity(intent);
                         break;
                     }

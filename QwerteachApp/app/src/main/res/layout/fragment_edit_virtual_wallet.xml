@@ -14,52 +14,61 @@
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Comptes bancaires"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="17dp"
-            android:layout_marginBottom="10dp"/>
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/bank_accounts_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/edit_text_border"
-            android:paddingBottom="10dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:paddingTop="10dp"
-            android:visibility="gone"
-            android:layout_marginBottom="10dp"/>
-
         <LinearLayout
-            android:id="@+id/new_bank_account"
+            android:id="@+id/bank_accounts_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/edit_text_border"
-            android:paddingBottom="10dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:paddingTop="10dp"
-            android:clickable="true">
-
-            <ImageView
-                android:id="@+id/new_bank_account_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/plus_icon"
-                android:layout_marginRight="10dp"/>
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ajouter un compte bancaire"
-                android:textColor="@color/purple_dark"
-                android:layout_gravity="center_vertical"/>
+                android:text="Comptes bancaires"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="17dp"
+                android:layout_marginBottom="10dp"/>
 
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/bank_accounts_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_text_border"
+                android:paddingBottom="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp"
+                android:visibility="gone"
+                android:layout_marginBottom="10dp"/>
+
+            <LinearLayout
+                android:id="@+id/new_bank_account"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/edit_text_border"
+                android:paddingBottom="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp"
+                android:clickable="true">
+
+                <ImageView
+                    android:id="@+id/new_bank_account_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/plus_icon"
+                    android:layout_marginRight="10dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ajouter un compte bancaire"
+                    android:textColor="@color/purple_dark"
+                    android:layout_gravity="center_vertical"/>
+
+
+            </LinearLayout>
 
         </LinearLayout>
 

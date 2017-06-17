@@ -53,6 +53,7 @@ import com.qwerteach.wivi.qwerteachapp.models.ToReviewLessonsAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.ToUnlockLessonsAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -69,10 +70,8 @@ import retrofit2.Response;
 
 public class DashboardFragment extends Fragment implements View.OnClickListener {
 
-    TextView pastLessonsReceivedTextView, pastLessonsGivenTextView, pendingLessonsTextView, totalWalletTextView,
-            pastLessonsReceivedButton, pastLessonsGivenButton, pendingLessonsButton, walletDetailsButton,
-            allTeachersButton, walletReloadButton, walletCreateButton;
-    LinearLayout searchCard, pastLessonsGivenCard, walletButtonsManagement;
+    TextView pastLessonsReceivedTextView, pastLessonsGivenTextView, pendingLessonsTextView, totalWalletTextView;
+    LinearLayout searchCard, pastLessonsGivenCard, pastLessonsReceivedCard, pendingLessonsCard, walletDetailsCard;
     List<Teacher> teachers;
     List<Lesson> toUnlockLessons, toReviewLessons;
     View view;
@@ -113,26 +112,19 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
         pastLessonsGivenTextView = (TextView) view.findViewById(R.id.past_lessons_given_text_view);
         pendingLessonsTextView = (TextView) view.findViewById(R.id.pending_lessons_text_view);
         totalWalletTextView = (TextView) view.findViewById(R.id.total_wallet_text_view);
-        pastLessonsReceivedButton = (TextView) view.findViewById(R.id.past_lessons_received_button);
-        pastLessonsGivenButton = (TextView) view.findViewById(R.id.past_lessons_given_button);
-        pendingLessonsButton = (TextView) view.findViewById(R.id.pending_lessons_button);
-        walletDetailsButton = (TextView) view.findViewById(R.id.wallet_details_button);
-        allTeachersButton = (TextView) view.findViewById(R.id.all_teachers_button);
+        pastLessonsReceivedCard = (LinearLayout) view.findViewById(R.id.past_lessons_received_card);
+        pendingLessonsCard = (LinearLayout) view.findViewById(R.id.pending_lessons_card);
+        walletDetailsCard = (LinearLayout) view.findViewById(R.id.wallet_details_card);
         searchCard = (LinearLayout) view.findViewById(R.id.search_card);
         pastLessonsGivenCard = (LinearLayout) view.findViewById(R.id.past_lessons_given_card);
-        walletReloadButton = (TextView) view.findViewById(R.id.wallet_reload_button);
         toUnlockLessonRecyclerView = (RecyclerView) view.findViewById(R.id.to_unlock_lessons_recycler_view);
-        walletButtonsManagement = (LinearLayout) view.findViewById(R.id.wallet_buttons_management);
-        walletCreateButton = (TextView) view.findViewById(R.id.wallet_create_button);
         toReviewLessonRecyclerView = (RecyclerView) view.findViewById(R.id.to_review_lessons_recycler_view);
 
-        pastLessonsGivenButton.setOnClickListener(this);
-        pendingLessonsButton.setOnClickListener(this);
-        walletDetailsButton.setOnClickListener(this);
-        pastLessonsReceivedButton.setOnClickListener(this);
-        allTeachersButton.setOnClickListener(this);
-        walletReloadButton.setOnClickListener(this);
-        walletCreateButton.setOnClickListener(this);
+        pastLessonsGivenCard.setOnClickListener(this);
+        pendingLessonsCard.setOnClickListener(this);
+        walletDetailsCard.setOnClickListener(this);
+        pastLessonsReceivedCard.setOnClickListener(this);
+        searchCard.setOnClickListener(this);
 
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) view.findViewById(R.id.search_view);
@@ -184,9 +176,6 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
 
                 if (totalWallet != null) {
                     totalWalletTextView.setText(totalWallet + "€");
-                    walletButtonsManagement.setVisibility(View.VISIBLE);
-                } else {
-                    walletCreateButton.setVisibility(View.VISIBLE);
                 }
 
                 if (toUnlockLessons.size() > 0) {
@@ -206,7 +195,11 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("FAILURE", t.getMessage());
+                Log.d("FAILURE", t.toString());
+                progressDialog.dismiss();
+                if(t instanceof SocketTimeoutException){;
+                    Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -315,35 +308,27 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
     @Override
     public void onClick(View view) {
         switch(view.getId()) {
-            case R.id.past_lessons_received_button:
+            case R.id.past_lessons_received_card:
                 intent = new Intent(getContext(), MyLessonsActivity.class);
                 intent.putExtra("position", 2);
                 startActivity(intent);
                 break;
-            case R.id.past_lessons_given_button:
+            case R.id.past_lessons_given_card:
                 intent = new Intent(getContext(), MyLessonsActivity.class);
                 intent.putExtra("position", 2);
                 startActivity(intent);
                 break;
-            case R.id.pending_lessons_button:
+            case R.id.pending_lessons_card:
                 intent = new Intent(getContext(), MyLessonsActivity.class);
                 intent.putExtra("position", 1);
                 startActivity(intent);
                 break;
-            case R.id.wallet_details_button:
+            case R.id.wallet_details_card:
                 intent = new Intent(getContext(), VirtualWalletActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.wallet_reload_button:
-                intent = new Intent(getContext(), ReloadWalletActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.all_teachers_button:
+            case R.id.search_card:
                 doMySearch();
-                break;
-            case R.id.wallet_create_button:
-                intent = new Intent(getContext(), VirtualWalletActivity.class);
-                startActivity(intent);
                 break;
         }
 

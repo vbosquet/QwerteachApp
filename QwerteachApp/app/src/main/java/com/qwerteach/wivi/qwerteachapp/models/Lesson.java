@@ -1,7 +1,5 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
-import android.util.Log;
-
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -17,7 +15,7 @@ import java.util.List;
 
 public class Lesson implements Serializable {
 
-    private static final String BASE_URL = "http://192.168.0.116:3000";
+    private static final String BASE_URL = "http://192.168.1.21:3000";
 
     @SerializedName("id")
     private Integer lessonId;
