@@ -26,7 +26,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/email_outline"
+            android:src="@drawable/email_sign_in"
             android:layout_gravity="center_vertical"
             android:layout_marginRight="10dp"/>
 

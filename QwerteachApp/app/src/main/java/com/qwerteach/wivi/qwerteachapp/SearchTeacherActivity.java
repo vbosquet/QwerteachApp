@@ -143,7 +143,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
     }
 
     public void getAllTopics() {
-        Call<JsonResponse> call = service.getAllTopics();
+        Call<JsonResponse> call = service.getAllTopics(user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

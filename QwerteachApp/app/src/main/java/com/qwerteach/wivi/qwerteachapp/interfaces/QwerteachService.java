@@ -46,7 +46,7 @@ public interface QwerteachService {
                                     @Header("X-User-Token") String token);
 
     @GET("users/find_level")
-    Call<JsonResponse> getLevels();
+    Call<JsonResponse> getLevels(@Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @GET("offers")
     Call<JsonResponse> getAdverts(@Header("X-User-Email") String email, @Header("X-User-Token") String token);
@@ -62,10 +62,10 @@ public interface QwerteachService {
                                      @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @GET("topic_groups")
-    Call<JsonResponse> getAllTopicGroups();
+    Call<JsonResponse> getAllTopicGroups(@Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @GET("topics")
-    Call<JsonResponse> getAllTopics();
+    Call<JsonResponse> getAllTopics(@Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @GET("topic_choice")
     Call<JsonResponse> getTopics(@Query("group_id") int topicGroupId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
@@ -201,5 +201,8 @@ public interface QwerteachService {
 
     @GET("notifications")
     Call<JsonResponse> getNotifications(@Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("notification/infos/{sender_id}")
+    Call<JsonResponse> getNotificationInfos(@Path("sender_id") int sender_id, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
 }

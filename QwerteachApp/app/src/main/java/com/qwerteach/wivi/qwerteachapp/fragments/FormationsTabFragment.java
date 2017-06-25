@@ -101,7 +101,7 @@ public class FormationsTabFragment extends Fragment implements AdapterView.OnIte
             }
         });
 
-        Call<JsonResponse> call = service.getLevels();
+        Call<JsonResponse> call = service.getLevels(user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

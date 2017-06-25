@@ -1,20 +1,31 @@
 package com.qwerteach.wivi.qwerteachapp;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.google.gson.Gson;
+import com.pusher.client.Pusher;
+import com.pusher.client.PusherOptions;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.Notification;
+import com.qwerteach.wivi.qwerteachapp.models.NotificationAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.User;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -25,6 +36,10 @@ public class MyNotificationsActivity extends AppCompatActivity {
     User user;
     ProgressDialog progressDialog;
     QwerteachService service;
+    List<Notification> notificationList;
+    RecyclerView notificationRecyclerView;
+    RecyclerView.Adapter notificationAdapter;
+    RecyclerView.LayoutManager notificationLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +56,7 @@ public class MyNotificationsActivity extends AppCompatActivity {
 
         progressDialog = new ProgressDialog(this);
         service = ApiClient.getClient().create(QwerteachService.class);
-
+        notificationRecyclerView = (RecyclerView) findViewById(R.id.notifications_recycler_view);
         getNotifications();
     }
 
@@ -69,7 +84,34 @@ public class MyNotificationsActivity extends AppCompatActivity {
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                progressDialog.dismiss();
+                notificationList = response.body().getNotifications();
+                for(int i = 0; i < notificationList.size(); i++) {
+                    getNotificationInfos(notificationList.get(i).getSender_id(), i);
+                }
+            }
 
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+                Log.d("FAILURE", toString());
+
+            }
+        });
+
+    }
+
+    public void getNotificationInfos(int senderId, final int index) {
+        startProgressDialog();
+        Call<JsonResponse> call = service.getNotificationInfos(senderId, user.getEmail(), user.getToken());
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                progressDialog.dismiss();
+                String avatar = response.body().getAvatar();
+                notificationList.get(index).setAvatar(avatar);
+                if (index == notificationList.size() - 1) {
+                    dislayNotifications();
+                }
             }
 
             @Override
@@ -78,6 +120,20 @@ public class MyNotificationsActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    public void seeLessonDetails() {
+        Intent intent = new Intent(this, MyLessonsActivity.class);
+        startActivity(intent);
+    }
+
+    public void dislayNotifications(){
+        notificationAdapter = new NotificationAdapter(notificationList, this);
+        notificationRecyclerView.setHasFixedSize(true);
+        notificationLayoutManager = new LinearLayoutManager(this);
+        notificationRecyclerView.setLayoutManager(notificationLayoutManager);
+        notificationRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        notificationRecyclerView.setAdapter(notificationAdapter);
     }
 
     public void startProgressDialog() {

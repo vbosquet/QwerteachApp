@@ -124,6 +124,10 @@ public class JsonResponse {
     private Float lessonTotalPrice;
     @SerializedName("transaction_infos")
     private List<String> transactionInfos;
+    @SerializedName("notifications")
+    private List<Notification> notifications;
+    @SerializedName("review_needed")
+    private Boolean reviewNeeded;
 
     public String getAvatar() {
         return avatar;
@@ -347,6 +351,14 @@ public class JsonResponse {
 
     public List<Lesson> getToReviewLessons() {
         return toReviewLessons;
+    }
+
+    public List<Notification> getNotifications() {
+        return notifications;
+    }
+
+    public Boolean getReviewNeeded() {
+        return reviewNeeded;
     }
 
     public static class Duration

@@ -16,6 +16,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +42,7 @@ import com.qwerteach.wivi.qwerteachapp.SearchTeacherActivity;
 import com.qwerteach.wivi.qwerteachapp.TeacherProfileActivity;
 import com.qwerteach.wivi.qwerteachapp.TeacherReviewActivity;
 import com.qwerteach.wivi.qwerteachapp.VirtualWalletActivity;
+import com.qwerteach.wivi.qwerteachapp.common.Common;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
@@ -70,8 +72,9 @@ import retrofit2.Response;
 
 public class DashboardFragment extends Fragment implements View.OnClickListener {
 
-    TextView pastLessonsReceivedTextView, pastLessonsGivenTextView, pendingLessonsTextView, totalWalletTextView;
-    LinearLayout searchCard, pastLessonsGivenCard, pastLessonsReceivedCard, pendingLessonsCard, walletDetailsCard;
+    TextView pastLessonsReceivedTextView, pastLessonsGivenTextView, pendingLessonsTextView, totalWalletTextView, teacherStatsTextView;
+    LinearLayout searchCard, pastLessonsGivenCard, pastLessonsReceivedCard,
+            pendingLessonsCard, walletDetailsCard, teacherStatsCard;
     List<Teacher> teachers;
     List<Lesson> toUnlockLessons, toReviewLessons;
     View view;
@@ -119,6 +122,8 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
         pastLessonsGivenCard = (LinearLayout) view.findViewById(R.id.past_lessons_given_card);
         toUnlockLessonRecyclerView = (RecyclerView) view.findViewById(R.id.to_unlock_lessons_recycler_view);
         toReviewLessonRecyclerView = (RecyclerView) view.findViewById(R.id.to_review_lessons_recycler_view);
+        teacherStatsCard = (LinearLayout) view.findViewById(R.id.teacher_stats_card);
+        teacherStatsTextView = (TextView) view.findViewById(R.id.teacher_stats_text_view);
 
         pastLessonsGivenCard.setOnClickListener(this);
         pendingLessonsCard.setOnClickListener(this);
@@ -162,16 +167,27 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
                 toReviewLessons = response.body().getToReviewLessons();
                 Integer totalWallet = response.body().getTotalWallet();
 
+                float sum = 0;
+                List<Integer> studentIds = new ArrayList();
+                for(int i = 0; i < pastLessonsGiven.size(); i++) {
+                    sum += Float.parseFloat(pastLessonsGiven.get(i).getPrice());
+                    studentIds.add(pastLessonsGiven.get(i).getStudentId());
+                }
+
                 progressDialog.dismiss();
                 pendingLessonsTextView.setText(pendingLessons.size() + " cours en attente");
 
                 if (user.getPostulanceAccepted()) {
                     pastLessonsGivenCard.setVisibility(View.VISIBLE);
+                    teacherStatsCard.setVisibility(View.VISIBLE);
                     pastLessonsGivenTextView.setText(pastLessonsGiven.size() + " cours donné(s)");
-                    pastLessonsReceivedTextView.setText(pastLessons.size() + " cours suivi(s)");
+                    teacherStatsTextView.setText(Html.fromHtml("<font color='#22de80'>" + pastLessonsGiven.size()
+                            + "</font> cours donnés à <font color='#22de80'>" + Common.getUniqueElement(studentIds)
+                            + "</font> élèves pour un total de <font color='#22de80'>" + sum + "€ <font color='#22de80'>"));
                 } else {
                     pastLessonsReceivedTextView.setText(pastLessons.size() + " cours suivi(s)");
                     searchCard.setVisibility(View.VISIBLE);
+                    pastLessonsReceivedCard.setVisibility(View.VISIBLE);
                 }
 
                 if (totalWallet != null) {
@@ -343,11 +359,16 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
                 progressDialog.dismiss();
                 String success = response.body().getSuccess();
                 String message = response.body().getMessage();
+                Boolean reviewNeeded = response.body().getReviewNeeded();
                 Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
                 if (success.equals("true")) {
-                    Intent intent = new Intent(getContext(), TeacherReviewActivity.class);
-                    intent.putExtra("teacherId", teacherId);
-                    startActivity(intent);
+                    if (reviewNeeded) {
+                        Intent intent = new Intent(getContext(), TeacherReviewActivity.class);
+                        intent.putExtra("teacherId", teacherId);
+                        startActivity(intent);
+                    } else {
+                        refreshFragment();
+                    }
                 }
             }
 

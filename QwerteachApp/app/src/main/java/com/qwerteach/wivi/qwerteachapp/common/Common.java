@@ -5,8 +5,10 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 /**
@@ -79,5 +81,13 @@ public class Common {
         }
         return  date;
 
+    }
+
+    public static int getUniqueElement(List<Integer> data) {
+        List<Integer> newList = new ArrayList<>();
+        for (Integer studentId : data)
+            if (!newList.contains(studentId))
+                newList.add(studentId);
+        return newList.size();
     }
 }
