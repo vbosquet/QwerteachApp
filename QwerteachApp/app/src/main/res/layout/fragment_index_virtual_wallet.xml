@@ -152,8 +152,8 @@
                 android:text="@string/transactions_button"
                 android:textColor="@color/purple_dark"
                 android:paddingTop="10dp"
-                android:background="@drawable/light_text_view_top_border"
-                android:clickable="true"/>
+                android:clickable="true"
+                android:background="@drawable/light_text_view_top_border"/>
 
         </LinearLayout>
 

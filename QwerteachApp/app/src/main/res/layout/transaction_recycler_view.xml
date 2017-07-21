@@ -3,7 +3,14 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="10dp">
+    android:paddingBottom="10dp"
+    android:paddingTop="10dp">
+
+    <TextView
+        android:id="@+id/transaction_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/medium_grey"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,11 +19,11 @@
         android:weightSum="1.0">
 
         <TextView
-            android:id="@+id/transaction_title"
+            android:id="@+id/transaction_creation_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="@color/text_grey"/>
+            android:textColor="@color/text_grey"
+            android:layout_weight="1"/>
 
         <TextView
             android:id="@+id/transaction_amount"
@@ -24,19 +31,12 @@
             android:layout_height="wrap_content"
             android:textColor="@color/text_grey"/>
 
-
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/transaction_creation_date"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/text_grey"/>
 
     <TextView
         android:id="@+id/transaction_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/text_grey"/>
+        android:textColor="@color/text_grey" />
 
 </LinearLayout>

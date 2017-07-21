@@ -155,7 +155,7 @@ public class UnloadWalletActivity extends AppCompatActivity implements
                         Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
 
                     } else {
-                        startRedirectUrlAsyncTask("http:/192.168.1.21:3000/api/" + response.body().getUrl());
+                        startRedirectUrlAsyncTask("http:/192.168.1.21:3000/api" + response.body().getUrl());
 
                     }
 

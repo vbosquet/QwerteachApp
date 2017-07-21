@@ -261,6 +261,7 @@ public class IndexVirtualWalletFragment extends Fragment implements View.OnClick
     public void displayTransactionsListFragment() {
         Bundle bundle = new Bundle();
         bundle.putSerializable("transactions", transactions);
+        bundle.putSerializable("userBankAccounts", userBankAccounts);
 
         Fragment newFragment = TransactionsListFragment.newInstance();
         newFragment.setArguments(bundle);

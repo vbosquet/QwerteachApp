@@ -167,17 +167,17 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
                 toReviewLessons = response.body().getToReviewLessons();
                 Integer totalWallet = response.body().getTotalWallet();
 
-                float sum = 0;
-                List<Integer> studentIds = new ArrayList();
-                for(int i = 0; i < pastLessonsGiven.size(); i++) {
-                    sum += Float.parseFloat(pastLessonsGiven.get(i).getPrice());
-                    studentIds.add(pastLessonsGiven.get(i).getStudentId());
-                }
 
                 progressDialog.dismiss();
                 pendingLessonsTextView.setText(pendingLessons.size() + " cours en attente");
 
                 if (user.getPostulanceAccepted()) {
+                    float sum = 0;
+                    List<Integer> studentIds = new ArrayList();
+                    for(int i = 0; i < pastLessonsGiven.size(); i++) {
+                        sum += Float.parseFloat(pastLessonsGiven.get(i).getPrice());
+                        studentIds.add(pastLessonsGiven.get(i).getStudentId());
+                    }
                     pastLessonsGivenCard.setVisibility(View.VISIBLE);
                     teacherStatsCard.setVisibility(View.VISIBLE);
                     pastLessonsGivenTextView.setText(pastLessonsGiven.size() + " cours donné(s)");

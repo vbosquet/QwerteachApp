@@ -44,7 +44,11 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
 
         holder.creationDate.setText("Le " + getDate(millisecond) + " à " + getHour(millisecond));
-        holder.title.setText(transaction.getTitle());
+        if (transaction.getTitle().equals("")) {
+            holder.title.setVisibility(View.GONE);
+        } else {
+            holder.title.setText(transaction.getTitle());
+        }
         holder.amount.setText(transaction.getCreditedFund().getAmount()/100 + "€");
 
         if (Objects.equals(status, "SUCCEEDED")) {
@@ -61,6 +65,16 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     @Override
     public int getItemCount() {
         return transactions.size();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{

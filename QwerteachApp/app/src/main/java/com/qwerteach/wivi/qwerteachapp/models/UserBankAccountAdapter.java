@@ -49,6 +49,16 @@ public class UserBankAccountAdapter extends RecyclerView.Adapter<UserBankAccount
         return userBankAccounts.size();
     }
 
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView cardType, cardNumber;
         ImageView bankAccountIcon;

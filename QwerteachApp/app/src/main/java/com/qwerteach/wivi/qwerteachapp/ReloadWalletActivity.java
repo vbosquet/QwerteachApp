@@ -241,8 +241,6 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     for (int j = 0; j < userCreditCards.size(); j++) {
                         if (currentCardNumber.equals(userCreditCards.get(j).getAlias())) {
                             cardId = userCreditCards.get(j).getCardId();
-                        } else {
-                            cardId = "";
                         }
                     }
                 }
@@ -542,7 +540,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                 if (errorMessages.size() > 0) {
                     for (int i = 0; i < errorMessages.size(); i++) {
                         Log.d("ERROR", errorMessages.get(i));
-                        Toast.makeText(getApplicationContext(), R.string.error_payment_message, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), errorMessages.get(i), Toast.LENGTH_LONG).show();
                     }
                 }
                 break;

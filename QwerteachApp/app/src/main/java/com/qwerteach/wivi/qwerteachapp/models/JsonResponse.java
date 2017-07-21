@@ -128,6 +128,8 @@ public class JsonResponse {
     private List<Notification> notifications;
     @SerializedName("review_needed")
     private Boolean reviewNeeded;
+    @SerializedName("transaction")
+    private  Transaction transaction;
 
     public String getAvatar() {
         return avatar;
@@ -359,6 +361,10 @@ public class JsonResponse {
 
     public Boolean getReviewNeeded() {
         return reviewNeeded;
+    }
+
+    public Transaction getTransaction() {
+        return transaction;
     }
 
     public static class Duration
