@@ -62,6 +62,8 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
         user = gson.fromJson(json, User.class);
 
         service = ApiClient.getClient().create(QwerteachService.class);
+        progressDialog = new ProgressDialog(MangoPaySecureModeActivity.this);
+        progressDialog.setMessage("Loading...");
 
         WebView myWebView = (WebView) findViewById(R.id.webview);
         WebSettings webSettings = myWebView.getSettings();
@@ -200,15 +202,13 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
-            progressDialog = new ProgressDialog(MangoPaySecureModeActivity.this);
-            progressDialog.setMessage("Loading...");
             progressDialog.show();
         }
 
         @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
-            if (progressDialog != null) {
+            if ((progressDialog != null) && progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
         }

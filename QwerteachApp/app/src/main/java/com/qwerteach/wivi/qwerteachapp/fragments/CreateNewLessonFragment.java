@@ -382,27 +382,32 @@ public class CreateNewLessonFragment extends Fragment implements
                 @Override
                 public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                     String message = response.body().getMessage();
-
-                    if (message.equals("no account")) {
-                        progressDialog.dismiss();
-                        displayCreateVirtualWalletFragment();
-
-                    } else if (message.equals("true")) {
-                        ArrayList<UserCreditCard> creditCards = response.body().getUserCreditCards();
-                        CardRegistrationData cardRegistrationData = response.body().getCardRegistrationData();
-
-                        progressDialog.dismiss();
-                        Intent intent = new Intent(getContext(), PaymentMethodActivity.class);
-                        intent.putExtra("totalPrice", totalPrice);
-                        intent.putExtra("teacher", teacher);
-                        intent.putExtra("userCreditCardList", creditCards);
-                        intent.putExtra("cardRegistration", cardRegistrationData);
-                        startActivity(intent);
+                    progressDialog.dismiss();
+                    switch (message) {
+                        case "no account":
+                            displayCreateVirtualWalletFragment();
+                            break;
+                        case "true":
+                            ArrayList<UserCreditCard> creditCards = response.body().getUserCreditCards();
+                            CardRegistrationData cardRegistrationData = response.body().getCardRegistrationData();
+                            Intent intent = new Intent(getContext(), PaymentMethodActivity.class);
+                            intent.putExtra("totalPrice", totalPrice);
+                            intent.putExtra("teacher", teacher);
+                            intent.putExtra("userCreditCardList", creditCards);
+                            intent.putExtra("cardRegistration", cardRegistrationData);
+                            startActivity(intent);
+                            break;
+                        default:
+                            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                            break;
                     }
                 }
 
                 @Override
                 public void onFailure(Call<JsonResponse> call, Throwable t) {
+                    Log.d("FAILURE", t.toString());
+                    progressDialog.dismiss();
+                    Toast.makeText(getContext(), "Impossible de réserver votre cours. Veuillez réessayer ultérieurement.", Toast.LENGTH_LONG).show();
 
                 }
             });

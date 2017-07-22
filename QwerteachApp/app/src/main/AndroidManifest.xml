@@ -18,18 +18,19 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".EmailSignUpActivity"
             android:label="@string/title_activity_email_sign_up"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".SignInActivity"
             android:label="@string/title_activity_sign_in"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".DashboardActivity"
             android:configChanges="orientation|screenSize">
@@ -44,22 +45,27 @@
         <activity
             android:name=".ProfileActivity"
             android:label="@string/title_profile_activity"
-            android:parentActivityName=".DashboardActivity" />
+            android:parentActivityName=".DashboardActivity"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".EditProfileActivity"
             android:label="@string/title_edit_profile_activity"
-            android:parentActivityName=".ProfileActivity" />
+            android:parentActivityName=".ProfileActivity"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".CreateSmallAdActivity"
             android:label="@string/create_small_add_activity_title"
-            android:parentActivityName=".EditProfileActivity" />
+            android:parentActivityName=".EditProfileActivity"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".ToBecomeATeacherActivity"
-            android:label="@string/to_become_a_teacher_activity_title" />
+            android:label="@string/to_become_a_teacher_activity_title"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".UpdateSmallAdActivity"
             android:label="@string/title_activity_update_small_ad"
-            android:parentActivityName=".EditProfileActivity" />
+            android:parentActivityName=".EditProfileActivity"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".SearchTeacherActivity"
             android:configChanges="orientation|screenSize"
@@ -77,7 +83,8 @@
         <activity android:name=".TeacherProfileActivity" />
         <activity
             android:name=".LessonReservationActivity"
-            android:label="@string/lesson_reservation_activity_title" />
+            android:label="@string/lesson_reservation_activity_title"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".VirtualWalletActivity"
             android:configChanges="orientation|screenSize"
@@ -90,7 +97,8 @@
         <activity
             android:name=".MangoPaySecureModeActivity"
             android:label="@string/mango_pay_web_view_activity_title"
-            android:parentActivityName=".PaymentMethodActivity" />
+            android:parentActivityName=".PaymentMethodActivity"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".MyLessonsActivity"
             android:configChanges="orientation|screenSize"
@@ -98,7 +106,6 @@
             android:parentActivityName=".DashboardActivity">
             <intent-filter>
                 <action android:name="MY_LESSONS" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -109,7 +116,8 @@
         <activity
             android:name=".MyMessagesActivity"
             android:label="@string/my_messages_activity_title"
-            android:parentActivityName=".DashboardActivity">
+            android:parentActivityName=".DashboardActivity"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="MY_MESSAGES" />
 
@@ -118,10 +126,12 @@
         </activity>
         <activity
             android:name=".ChatActivity"
-            android:parentActivityName=".MyMessagesActivity" />
+            android:parentActivityName=".MyMessagesActivity"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".ReadCommentsActivity"
-            android:label="@string/read_comments_activity_title" />
+            android:label="@string/read_comments_activity_title"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".UnloadWalletActivity"
             android:configChanges="orientation|screenSize"
@@ -132,7 +142,8 @@
             android:label="@string/update_leson_activity_title" />
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
-            android:theme="@style/Base.Theme.AppCompat" />
+            android:theme="@style/Base.Theme.AppCompat"
+            android:configChanges="orientation|screenSize"/>
 
         <!-- [START firebase_service] -->
         <service android:name=".services.MyFirebaseMessagingService">
@@ -164,14 +175,22 @@
 
         <activity
             android:name=".ShowLessonActivity"
-            android:parentActivityName=".MyLessonsActivity" />
+            android:parentActivityName=".MyLessonsActivity"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".TeacherReviewActivity"
-            android:label="Laisser un avis" />
+            android:label="Laisser un avis"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".MyNotificationsActivity"
             android:parentActivityName=".DashboardActivity"
-            android:label="@string/my_notifications_activity_title"/>
+            android:label="@string/my_notifications_activity_title"
+            android:configChanges="orientation|screenSize">
+            <intent-filter>
+                <action android:name="MY_NOTIFICATIONS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

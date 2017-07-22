@@ -151,10 +151,9 @@
                     android:textColorHint="@color/text_light_grey"
                     android:textColor="@color/medium_grey"/>
 
-
             </LinearLayout>
 
-            <Button
+        <Button
                 android:id="@+id/save_infos_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
