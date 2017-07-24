@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.RedirectURLAsyncTask;
+import com.qwerteach.wivi.qwerteachapp.common.Common;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
@@ -155,7 +156,7 @@ public class UnloadWalletActivity extends AppCompatActivity implements
                         Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
 
                     } else {
-                        startRedirectUrlAsyncTask("http://192.168.1.21:3000/api" + response.body().getUrl());
+                        startRedirectUrlAsyncTask( Common.IP_ADDRESS + "/api" + response.body().getUrl());
                     }
 
                 }

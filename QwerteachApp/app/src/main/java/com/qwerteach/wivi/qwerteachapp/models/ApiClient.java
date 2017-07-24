@@ -2,6 +2,7 @@ package com.qwerteach.wivi.qwerteachapp.models;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.qwerteach.wivi.qwerteachapp.common.Common;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -12,9 +13,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
 
-    private static final String BASE_URL = "http://192.168.1.21:3000/api/";
     private static Retrofit retrofit = null;
-
 
     public static Retrofit getClient() {
         if (retrofit==null) {
@@ -22,7 +21,7 @@ public class ApiClient {
             Gson gson = new GsonBuilder().setLenient().create();
 
             retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
+                    .baseUrl(Common.IP_ADDRESS + "/api/")
                     .addConverterFactory(GsonConverterFactory.create(gson))
                     .build();
         }

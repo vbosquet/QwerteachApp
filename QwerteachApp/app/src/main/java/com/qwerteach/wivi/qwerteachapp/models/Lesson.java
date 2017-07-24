@@ -1,6 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
 import com.google.gson.annotations.SerializedName;
+import com.qwerteach.wivi.qwerteachapp.common.Common;
 
 import java.io.Serializable;
 import java.text.ParseException;
@@ -14,8 +15,6 @@ import java.util.List;
  */
 
 public class Lesson implements Serializable {
-
-    private static final String BASE_URL = "http://192.168.1.21:3000";
 
     @SerializedName("id")
     private Integer lessonId;
@@ -241,7 +240,7 @@ public class Lesson implements Serializable {
     }
 
     public void setAvatar(String avatar) {
-        this.avatar = BASE_URL + avatar;
+        this.avatar = Common.IP_ADDRESS + avatar;
     }
 
     public List<Payment> getPayments() {
