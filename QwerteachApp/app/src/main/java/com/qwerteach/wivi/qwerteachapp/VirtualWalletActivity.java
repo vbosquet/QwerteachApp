@@ -74,7 +74,8 @@ public class VirtualWalletActivity extends AppCompatActivity {
             case android.R.id.home:
                 int count = getSupportFragmentManager().getBackStackEntryCount();
                 if (count == 0) {
-                    finish();
+                    Intent intent = new Intent(this, DashboardActivity.class);
+                    startActivity(intent);
                 } else {
                     getSupportFragmentManager().popBackStack();
                 }

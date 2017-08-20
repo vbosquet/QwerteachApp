@@ -215,7 +215,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
     }
 
     public void displayTeacherListView() {
-        teacherAdapter = new TeacherAdapter(this, teacherList, this);
+        teacherAdapter = new TeacherAdapter(teacherList, this);
         teacherRecyclerView.setHasFixedSize(true);
         teacherLayoutManager = new LinearLayoutManager(this);
         teacherRecyclerView.setLayoutManager(teacherLayoutManager);

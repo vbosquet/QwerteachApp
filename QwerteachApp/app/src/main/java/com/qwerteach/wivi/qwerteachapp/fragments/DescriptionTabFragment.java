@@ -41,6 +41,7 @@ import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -132,12 +133,18 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
     }
 
     public void startSaveInfosProfile() {
+        String zone = TimeZone.getDefault().getID();
+        int slash = zone.indexOf('/');
+        zone = zone.substring(slash + 1).replace("_", " ");
+        Log.d("ZONE", zone);
+
         User newUser = new User();
         newUser.setFirstName(firstNameEditText.getText().toString());
         newUser.setLastName(lastNameEditText.getText().toString());
         newUser.setBirthdate(birthDateEditText.getText().toString());
         newUser.setPhoneNumber(phoneNumberEditText.getText().toString());
         newUser.setPhoneCountryCode(ccp.getSelectedCountryCode());
+        newUser.setTimeZone(zone);
 
         Map<String, User> requestBody = new HashMap<>();
         requestBody.put("user", newUser);

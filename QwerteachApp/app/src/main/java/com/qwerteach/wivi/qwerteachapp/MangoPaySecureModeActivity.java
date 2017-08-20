@@ -118,13 +118,16 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                String message;
+                String message = null;
                 String success = response.body().getSuccess();
                 Transaction transaction = response.body().getTransaction();
-                if (transaction.getStatus().equals("FAILED")) {
-                    message = "L'authentification par 3DSecure a échoué. Vous n'avez pas été débité, et votre portefeuille virtuel Qwerteach n'a pas été chargé.";
-                } else {
-                    message = "Votre portefeuille virtuel a bien été rechargé.";
+
+                if (transaction != null) {
+                    if (transaction.getStatus().equals("FAILED")) {
+                        message = "L'authentification par 3DSecure a échoué. Vous n'avez pas été débité, et votre portefeuille virtuel Qwerteach n'a pas été chargé.";
+                    } else {
+                        message = "Votre portefeuille virtuel a bien été rechargé.";
+                    }
                 }
 
                 switch (success) {
