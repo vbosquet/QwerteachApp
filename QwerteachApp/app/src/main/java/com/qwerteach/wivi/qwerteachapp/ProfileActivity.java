@@ -101,18 +101,20 @@ public class ProfileActivity extends AppCompatActivity  {
         ArrayList<Integer> notes = response.body().getNotes();
         List<String> reviewAvatars = response.body().getAvatars();
 
-        for (int i = 0; i < smallAds.size(); i++) {
-            smallAds.get(i).setTitle(topics.get(i));
+        if (smallAds != null) {
+            for (int i = 0; i < smallAds.size(); i++) {
+                smallAds.get(i).setTitle(topics.get(i));
 
-            ArrayList<SmallAdPrice> smallAdPriceArrayList = new ArrayList<>();
+                ArrayList<SmallAdPrice> smallAdPriceArrayList = new ArrayList<>();
 
-            if (smallAdPrices.get(i).size() > 0) {
-                for (int j = 0; j < smallAdPrices.get(i).size(); j++) {
-                    smallAdPriceArrayList.add(smallAdPrices.get(i).get(j));
+                if (smallAdPrices.get(i).size() > 0) {
+                    for (int j = 0; j < smallAdPrices.get(i).size(); j++) {
+                        smallAdPriceArrayList.add(smallAdPrices.get(i).get(j));
+                    }
                 }
-            }
 
-            smallAds.get(i).setSmallAdPrices(smallAdPriceArrayList);
+                smallAds.get(i).setSmallAdPrices(smallAdPriceArrayList);
+            }
         }
 
         for (int i = 0; i < reviews.size(); i++) {

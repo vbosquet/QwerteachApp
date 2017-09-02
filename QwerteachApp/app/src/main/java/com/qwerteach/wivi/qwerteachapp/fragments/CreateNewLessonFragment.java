@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.qwerteach.wivi.qwerteachapp.NewVirtualWalletActivity;
 import com.qwerteach.wivi.qwerteachapp.PaymentMethodActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.common.Common;
@@ -83,6 +84,7 @@ public class CreateNewLessonFragment extends Fragment implements
     Calendar now;
     TimePickerDialog timePickerDialog;
     DatePickerDialog datePickerDialog;
+    Intent intent;
 
 
     public static CreateNewLessonFragment newInstance() {
@@ -385,12 +387,13 @@ public class CreateNewLessonFragment extends Fragment implements
                     progressDialog.dismiss();
                     switch (message) {
                         case "no account":
-                            displayCreateVirtualWalletFragment();
+                            intent = new Intent(getContext(), NewVirtualWalletActivity.class);
+                            startActivity(intent);
                             break;
                         case "true":
                             ArrayList<UserCreditCard> creditCards = response.body().getUserCreditCards();
                             CardRegistrationData cardRegistrationData = response.body().getCardRegistrationData();
-                            Intent intent = new Intent(getContext(), PaymentMethodActivity.class);
+                            intent = new Intent(getContext(), PaymentMethodActivity.class);
                             intent.putExtra("totalPrice", totalPrice);
                             intent.putExtra("teacher", teacher);
                             intent.putExtra("userCreditCardList", creditCards);
@@ -426,13 +429,13 @@ public class CreateNewLessonFragment extends Fragment implements
         progressDialog.show();
     }
 
-    public void displayCreateVirtualWalletFragment() {
+    /*public void displayCreateVirtualWalletFragment() {
         Fragment newFragment = CreateVirtualWalletFragment.newInstance();
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, newFragment);
         transaction.addToBackStack(null);
         transaction.commit();
-    }
+    }*/
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

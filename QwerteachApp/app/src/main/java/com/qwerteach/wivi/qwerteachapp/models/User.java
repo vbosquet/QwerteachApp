@@ -44,7 +44,6 @@ public class User implements Serializable {
     private String phoneCountryCode;
     @SerializedName("time_zone")
     private String timeZone;
-
     private String avatarUrl;
 
     public User() {
