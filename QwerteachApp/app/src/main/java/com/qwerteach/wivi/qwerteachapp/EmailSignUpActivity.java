@@ -153,6 +153,7 @@ public class EmailSignUpActivity extends AppCompatActivity  {
                 switch (success) {
                     case "true":
                         User user = response.body().getUser();
+
                         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                         SharedPreferences.Editor editor = preferences.edit();
                         Gson gson = new Gson();

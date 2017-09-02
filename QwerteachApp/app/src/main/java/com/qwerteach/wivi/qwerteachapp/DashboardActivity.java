@@ -21,7 +21,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.fragments.DashboardFragment;
+import com.qwerteach.wivi.qwerteachapp.models.User;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -31,11 +33,17 @@ public class DashboardActivity extends AppCompatActivity {
     ListView mDrawerList;
     CharSequence mDrawerTitle, mTitle;
     Intent intent;
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -58,8 +66,13 @@ public class DashboardActivity extends AppCompatActivity {
                 }
 
                 if (action.equals(menuDrawerItems[1])) {
-                    Intent intent = new Intent(getApplicationContext(), VirtualWalletActivity.class);
-                    startActivity(intent);
+                    if (user.getMangoId() != null) {
+                        Intent intent = new Intent(getApplicationContext(), VirtualWalletActivity.class);
+                        startActivity(intent);
+                    } else {
+                        Intent intent = new Intent(getApplicationContext(), NewVirtualWalletActivity.class);
+                        startActivity(intent);
+                    }
                 }
 
                 if(action.equals(menuDrawerItems[2])) {

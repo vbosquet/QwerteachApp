@@ -36,6 +36,7 @@ import com.pusher.android.notifications.ManifestValidator;
 import com.pusher.android.notifications.PushNotificationRegistration;
 import com.pusher.android.notifications.fcm.FCMPushNotificationReceivedListener;
 import com.qwerteach.wivi.qwerteachapp.MyLessonsActivity;
+import com.qwerteach.wivi.qwerteachapp.NewVirtualWalletActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
 import com.qwerteach.wivi.qwerteachapp.ReloadWalletActivity;
 import com.qwerteach.wivi.qwerteachapp.SearchTeacherActivity;
@@ -72,7 +73,8 @@ import retrofit2.Response;
 
 public class DashboardFragment extends Fragment implements View.OnClickListener {
 
-    TextView pastLessonsReceivedTextView, pastLessonsGivenTextView, pendingLessonsTextView, totalWalletTextView, teacherStatsTextView;
+    TextView pastLessonsReceivedTextView, pastLessonsGivenTextView,
+            pendingLessonsTextView, totalWalletTextView, teacherStatsTextView, walletTextView;
     LinearLayout searchCard, pastLessonsGivenCard, pastLessonsReceivedCard,
             pendingLessonsCard, walletDetailsCard, teacherStatsCard;
     List<Teacher> teachers;
@@ -86,6 +88,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
     RecyclerView toUnlockLessonRecyclerView, toReviewLessonRecyclerView;
     RecyclerView.Adapter lessonAdapter;
     RecyclerView.LayoutManager lessonLayoutManager;
+    Integer totalWallet;
 
     public static DashboardFragment newInstance() {
         DashboardFragment dashboardFragment = new DashboardFragment();
@@ -124,6 +127,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
         toReviewLessonRecyclerView = (RecyclerView) view.findViewById(R.id.to_review_lessons_recycler_view);
         teacherStatsCard = (LinearLayout) view.findViewById(R.id.teacher_stats_card);
         teacherStatsTextView = (TextView) view.findViewById(R.id.teacher_stats_text_view);
+        walletTextView = (TextView) view.findViewById(R.id.wallet_text_view);
 
         pastLessonsGivenCard.setOnClickListener(this);
         pendingLessonsCard.setOnClickListener(this);
@@ -165,7 +169,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
                 List<Lesson> pastLessonsGiven = response.body().getPastLessonsGiven();
                 toUnlockLessons = response.body().getToUnlockLessons();
                 toReviewLessons = response.body().getToReviewLessons();
-                Integer totalWallet = response.body().getTotalWallet();
+                totalWallet = response.body().getTotalWallet();
 
 
                 progressDialog.dismiss();
@@ -192,6 +196,10 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
 
                 if (totalWallet != null) {
                     totalWalletTextView.setText(totalWallet + "€");
+                    walletTextView.setText("Voir");
+                } else {
+                    totalWalletTextView.setText("O€");
+                    walletTextView.setText("Configurer");
                 }
 
                 if (toUnlockLessons.size() > 0) {
@@ -340,8 +348,13 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
                 startActivity(intent);
                 break;
             case R.id.wallet_details_card:
-                intent = new Intent(getContext(), VirtualWalletActivity.class);
-                startActivity(intent);
+                if (user.getMangoId() != null) {
+                    intent = new Intent(getContext(), VirtualWalletActivity.class);
+                    startActivity(intent);
+                } else {
+                    intent = new Intent(getContext(), NewVirtualWalletActivity.class);
+                    startActivity(intent);
+                }
                 break;
             case R.id.search_card:
                 doMySearch();

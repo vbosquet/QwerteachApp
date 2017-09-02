@@ -89,8 +89,6 @@ public class CreateVirtualWalletFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_create_virtual_wallet, container, false);
 
-        getActivity().setTitle(getResources().getString(R.string.create_new_virtual_wallet_fragment_title));
-
         firstNameEditText = (EditText) view.findViewById(R.id.firstname_edit_text);
         lastNameEditText = (EditText) view.findViewById(R.id.lastname_edit_text);
         addressEditText = (EditText) view.findViewById(R.id.address_edit_text);
