@@ -71,6 +71,7 @@ public class DashboardActivity extends AppCompatActivity {
                         startActivity(intent);
                     } else {
                         Intent intent = new Intent(getApplicationContext(), NewVirtualWalletActivity.class);
+                        intent.putExtra("status", 0);
                         startActivity(intent);
                     }
                 }

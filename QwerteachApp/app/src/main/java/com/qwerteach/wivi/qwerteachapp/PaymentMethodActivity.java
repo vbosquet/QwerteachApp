@@ -56,7 +56,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
     public static final String TRANSFER_MODE = "transfert";
     public static final String CREDIT_CARD_MODE = "cd";
 
-    Double totalPrice;
+    Float totalPrice;
     TextView totalWalletTextView, bancontactTextView;
     Spinner otherPaymentMethodSpinner, creditCardSpinner, endMonthSpinner, endYearSpinner;
     CheckBox paymentWithVirtualWallet;
@@ -102,7 +102,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            totalPrice = getIntent().getDoubleExtra("totalPrice", 0.0);
+            totalPrice = getIntent().getFloatExtra("totalPrice", 0);
             teacher = (Teacher) getIntent().getSerializableExtra("teacher");
             userCreditCards = (ArrayList<UserCreditCard>) getIntent().getSerializableExtra("userCreditCardList");
             cardRegistrationData = (CardRegistrationData) getIntent().getSerializableExtra("cardRegistration");
@@ -433,7 +433,6 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
             public void onFailure(Call<JsonResponse> call, Throwable t) {
                 progressDialog.dismiss();
                 Log.d("ERROR", t.toString());
-
             }
         });
     }

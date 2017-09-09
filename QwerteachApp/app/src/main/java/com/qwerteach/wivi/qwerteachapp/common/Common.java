@@ -18,7 +18,7 @@ import java.util.TimeZone;
 public class Common {
 
     private static Calendar now = Calendar.getInstance();
-    public static final String IP_ADDRESS = "http://192.168.1.22:3000";
+    public static final String IP_ADDRESS = "http://167.114.246.31:3500/";
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static boolean checkIfValidTime(String date, String time) {

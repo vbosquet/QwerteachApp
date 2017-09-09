@@ -373,8 +373,12 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         }
 
         for (int i = 0; i < reviews.size(); i++) {
-            reviews.get(i).setSenderFirstName(reviewSenderNames.get(i));
-            reviews.get(i).setAvatar(reviewAvatars.get(i));
+            if(reviews.size() == reviewSenderNames.size()) {
+                reviews.get(i).setSenderFirstName(reviewSenderNames.get(i));
+            }
+            if(reviews.size() == reviewAvatars.size()) {
+                reviews.get(i).setAvatar(reviewAvatars.get(i));
+            }
         }
 
         for (int i = 0; i < teacherList.size(); i++) {

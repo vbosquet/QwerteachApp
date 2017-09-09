@@ -162,11 +162,9 @@ public class CreateNewLessonFragment extends Fragment implements
         if (savedState!= null) {
             dateTextView.setText(savedState.getString("date"));
             timeTextView.setText(savedState.getString("time"));
-
         } else {
             dateTextView.setText(now.get(Calendar.DAY_OF_MONTH) + "/" + (now.get(Calendar.MONTH) + 1) + "/" + now.get(Calendar.YEAR));
             timeTextView.setText(newDate.getHours() + ":" + newDate.getMinutes());
-
         }
 
         datePickerButton.setOnClickListener(this);
@@ -388,6 +386,7 @@ public class CreateNewLessonFragment extends Fragment implements
                     switch (message) {
                         case "no account":
                             intent = new Intent(getContext(), NewVirtualWalletActivity.class);
+                            intent.putExtra("status", 1);
                             startActivity(intent);
                             break;
                         case "true":
