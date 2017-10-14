@@ -1,5 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,10 +22,12 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.ViewHold
 
     private ArrayList<Teacher> teachers;
     private ISearcTeacher callback;
+    private Context context;
 
-    public TeacherAdapter(ArrayList<Teacher> teachers, ISearcTeacher callback) {
+    public TeacherAdapter(ArrayList<Teacher> teachers, ISearcTeacher callback, Context context) {
         this.teachers = teachers;
         this.callback = callback;
+        this.context = context;
     }
 
     @Override
@@ -43,7 +46,14 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.ViewHold
                 callback.onClicked(position);
             }
         });
-        holder.onBind(teacher);
+        holder.teacherName.setText(teacher.getUser().getFirstName() + " " + teacher.getUser().getLastName());
+        holder.minPrice.setText(teacher.getMinPrice() + " €/h");
+        holder.ratingBar.setRating(teacher.getRating());
+        holder.numberOfReviews.setText(teacher.getNumberOfReviews() + " commentaire(s)");
+        Picasso.with(context)
+                .load(teacher.getUser().getAvatarUrl())
+                //.resize(300, 300).centerInside()
+                .into(holder.teacherAvatar);
 
     }
 
@@ -74,17 +84,6 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.ViewHold
             ratingBar = (RatingBar) itemView.findViewById(R.id.rating_bar);
             numberOfReviews = (TextView) itemView.findViewById(R.id.number_of_reviews);
             teacherAvatar = (ImageView) itemView.findViewById(R.id.teacher_avatar);
-        }
-
-        public void onBind(Teacher teacher) {
-            teacherName.setText(teacher.getUser().getFirstName() + " " + teacher.getUser().getLastName());
-            minPrice.setText(teacher.getMinPrice() + " €/h");
-            ratingBar.setRating(teacher.getRating());
-            numberOfReviews.setText(teacher.getNumberOfReviews() + " commentaire(s)");
-            Picasso.with(itemView.getContext())
-                    .load(teacher.getUser().getAvatarUrl())
-                    .resize(1800, 1800).centerInside()
-                    .into(teacherAvatar);
         }
     }
 

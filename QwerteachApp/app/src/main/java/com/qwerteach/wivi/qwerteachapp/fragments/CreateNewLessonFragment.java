@@ -277,6 +277,7 @@ public class CreateNewLessonFragment extends Fragment implements
 
                     @Override
                     public void onFailure(Call<JsonResponse> call, Throwable t) {
+                        Log.d("FAILURE", t.toString());
 
                     }
                 });
@@ -296,6 +297,7 @@ public class CreateNewLessonFragment extends Fragment implements
 
                     @Override
                     public void onFailure(Call<JsonResponse> call, Throwable t) {
+                        Log.d("FAILURE", t.toString());
 
                     }
                 });
@@ -328,6 +330,7 @@ public class CreateNewLessonFragment extends Fragment implements
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                Log.d("FAILURE", t.toString());
 
             }
         });
