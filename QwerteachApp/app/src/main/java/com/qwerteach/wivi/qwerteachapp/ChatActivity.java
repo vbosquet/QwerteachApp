@@ -28,6 +28,7 @@ import com.pusher.client.Pusher;
 import com.pusher.client.PusherOptions;
 import com.pusher.client.channel.Channel;
 import com.pusher.client.channel.SubscriptionEventListener;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.EndlessRecyclerViewScrollListener;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.Conversation;
@@ -258,7 +259,7 @@ public class ChatActivity extends AppCompatActivity {
                     }
 
                     loading = true;
-                    displayMessagesListView();
+                    messageAdapter.notifyDataSetChanged();
                 }
             }
 
