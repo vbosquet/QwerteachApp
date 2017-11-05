@@ -353,6 +353,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
                     startActivity(intent);
                 } else {
                     intent = new Intent(getContext(), NewVirtualWalletActivity.class);
+                    intent.putExtra("status", 0);
                     startActivity(intent);
                 }
                 break;

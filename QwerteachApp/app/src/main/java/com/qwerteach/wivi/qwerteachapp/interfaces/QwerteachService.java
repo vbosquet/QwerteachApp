@@ -11,6 +11,8 @@ import com.qwerteach.wivi.qwerteachapp.models.UserWalletInfos;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.StringTokenizer;
 
 import okhttp3.MultipartBody;
 import retrofit2.Call;
@@ -98,8 +100,11 @@ public interface QwerteachService {
     Call<JsonResponse> getTotalWallet(@Path("user_id") int userId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @GET("profs")
-    Call<JsonResponse> getSearchResults(@Query("topic") String topic, @Query("search_sorting") String searchSortingOption, @Query("page") int pageNumber,
-                                        @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+    Call<JsonResponse> getAllTeachers(@Query("page") int pageNumber, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
+    @GET("profs/{topic}")
+    Call<JsonResponse> getAllTeachers(@Path("topic") String topic, @Query("search_sorting") String option, @Query("page") int pageNumber, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
 
     @POST("messages")
     Call<JsonResponse> sendMessageToTeacher(@Body Map<String, Message> body, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
@@ -172,7 +177,7 @@ public interface QwerteachService {
     Call<JsonResponse> reply(@Path("id") int conversationId, @Body Map<String, String> body,
                              @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
-    @GET("mailbox/inbox")
+    @GET("conversations")
     Call<JsonResponse> getConversations(@Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @PUT("lessons/{id}")

@@ -55,6 +55,7 @@ public class CreateVirtualWalletFragment extends Fragment implements
     ProgressDialog progressDialog;
     QwerteachService service;
     User user;
+    int status;
 
     public static CreateVirtualWalletFragment newInstance() {
         CreateVirtualWalletFragment createVirtualWalletFragment = new CreateVirtualWalletFragment();
@@ -74,6 +75,11 @@ public class CreateVirtualWalletFragment extends Fragment implements
         countries = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
         service = ApiClient.getClient().create(QwerteachService.class);
+
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            status = bundle.getInt("status", 0);
+        }
 
         for (Locale locale : locales) {
             String country = locale.getDisplayCountry();
@@ -184,8 +190,12 @@ public class CreateVirtualWalletFragment extends Fragment implements
                 progressDialog.dismiss();
                 if (message.equals("true")) {
                     Toast.makeText(getContext(), R.string.registration_new_wallet_success_toast_message, Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(getActivity(), VirtualWalletActivity.class);
-                    startActivity(intent);
+                    if (status == 0) {
+                        Intent intent = new Intent(getActivity(), VirtualWalletActivity.class);
+                        startActivity(intent);
+                    } else if (status == 1) {
+                        getActivity().finish();
+                    }
                 } else if (message.equals("false")) {
                     String errorMessage = response.body().getErrorMesage();
                     if (errorMessage.equals("Internal Server Error")) {

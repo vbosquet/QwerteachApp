@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.view.ContextThemeWrapper;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -42,11 +41,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -88,7 +84,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         user = gson.fromJson(json, User.class);
 
         progressDialog = new ProgressDialog(getContext());
-        contactDialog = new AlertDialog.Builder(new ContextThemeWrapper(getContext(), R.style.AlertDialogCustom));
+        contactDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogCustom);
     }
 
     @Override
@@ -222,20 +218,22 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                String success = response.body().getSuccess();
-                String message = response.body().getMessage();
-
                 progressDialog.dismiss();
-                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                if (response.body() != null) {
+                    String success = response.body().getSuccess();
+                    String message = response.body().getMessage();
+                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
 
-                if (success.equals("true")) {
-                    Intent intent = new Intent(getContext(), MyMessagesActivity.class);
-                    startActivity(intent);
+                    if (success.equals("true")) {
+                        Intent intent = new Intent(getContext(), MyMessagesActivity.class);
+                        startActivity(intent);
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                Log.d("FAILURE", t.toString());
 
             }
         });

@@ -5,10 +5,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.PorterDuff;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,9 +26,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.EndlessRecyclerViewScrollListener;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
@@ -45,9 +42,7 @@ import com.qwerteach.wivi.qwerteachapp.models.Topic;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -63,16 +58,16 @@ public class SearchTeacherActivity extends AppCompatActivity implements
     RecyclerView.Adapter teacherAdapter;
     RecyclerView.LayoutManager teacherLayoutManager;
     Spinner searchSortingOptionsSpinner, searchTopicsSpinner;
-    int currentOptionId = 0, currentQueryId = 0, page = 1, scrollPosition = 0;
-    String query, currentOption = "";
+    int optionId = 0, topicId = 0;
+    String option, topic;
     ProgressDialog progressDialog;
     QwerteachService service;
-    ArrayList<ArrayList<String>> searchOptions;
     User user;
     boolean loading = true, isPressed = true;
     ImageView chevronButton;
     LinearLayout searchFilterLinearLayout;
     ActionBar actionBar;
+    EndlessRecyclerViewScrollListener scrollListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,10 +90,12 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         String json = preferences.getString("user", "");
         user = gson.fromJson(json, User.class);
 
-        query = getIntent().getStringExtra("query");
         teacherList = new ArrayList<>();
         menuItems = new ArrayList<>();
         optionList = new ArrayList<>();
+        optionList.add("pertinence");
+        optionList.add("prix");
+        optionList.add("dernière connection");
         progressDialog = new ProgressDialog(this);
         service = ApiClient.getClient().create(QwerteachService.class);
 
@@ -108,38 +105,41 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         searchView.setIconifiedByDefault(false);
         searchView.setSubmitButtonEnabled(true);
 
-        Intent intent = getIntent();
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String newQuery = intent.getStringExtra(SearchManager.QUERY);
-            doMySearch(newQuery);
-        }
-
-        if (query != null) {
-            menuItems.add(query);
-        } else {
-            menuItems.add("tous les profs");
-        }
-
-        setActionBarTitle();
-        startSearchTeacher();
+        displayTeacherListView();
+        getQuery();
         getAllTopics();
-
+        displaySearchTopicsSpinner();
+        displaySearchSortingOptionsSpinner();
+        setActionBarTitle();
     }
 
     public void setActionBarTitle() {
-        if (query != null) {
-            actionBar.setTitle("Résultats pour " + query);
+        if (topic != null) {
+            actionBar.setTitle("Résultats pour " + topic);
         } else {
             actionBar.setTitle("Résultats pour tous les profs");
         }
     }
 
-    public void doMySearch(String query) {
-        finish();
-        Intent intent = new Intent(this, SearchTeacherActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra("query", query);
-        startActivity(intent);
+    public void getQuery() {
+        teacherList.clear();
+        if (Intent.ACTION_SEARCH.equals(getIntent().getAction())) {
+            topic = getIntent().getStringExtra(SearchManager.QUERY);
+            menuItems.add(topic);
+            setUpScrollListenerWithTopic();
+            getAllTeachersByTopic(1);
+        } else {
+            topic = getIntent().getStringExtra("query");
+            if (topic != null) {
+                menuItems.add(topic);
+                setUpScrollListenerWithTopic();
+                getAllTeachersByTopic(1);
+            } else {
+                menuItems.add("tous les profs");
+                setUpScrolListenerWithoutTopic();
+                getAllTeachers(1);
+            }
+        }
     }
 
     public void getAllTopics() {
@@ -149,7 +149,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 ArrayList<Topic> topics = response.body().getTopics();
                 for (int i = 0; i < topics.size(); i++) {
-                    if (!topics.get(i).getTopicTitle().equals("Other")) {
+                    if (!topics.get(i).getTopicTitle().equals("Autre")) {
                         menuItems.add(topics.get(i).getTopicTitle());
                     }
                 }
@@ -190,7 +190,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         };
         topicAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         searchTopicsSpinner.setAdapter(topicAdapter);
-        searchTopicsSpinner.setSelection(currentQueryId);
+        searchTopicsSpinner.setSelection(topicId);
         searchTopicsSpinner.setOnItemSelectedListener(this);
 
     }
@@ -199,7 +199,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         OptionAdapter searchOptionsAdapter = new OptionAdapter(this, android.R.layout.simple_spinner_item, optionList);
         searchOptionsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         searchSortingOptionsSpinner.setAdapter(searchOptionsAdapter);
-        searchSortingOptionsSpinner.setSelection(currentOptionId);
+        searchSortingOptionsSpinner.setSelection(optionId);
         searchSortingOptionsSpinner.setOnItemSelectedListener(this);
     }
 
@@ -215,55 +215,72 @@ public class SearchTeacherActivity extends AppCompatActivity implements
     }
 
     public void displayTeacherListView() {
-        teacherAdapter = new TeacherAdapter(teacherList, this);
+        teacherAdapter = new TeacherAdapter(teacherList, this, this);
         teacherRecyclerView.setHasFixedSize(true);
         teacherLayoutManager = new LinearLayoutManager(this);
         teacherRecyclerView.setLayoutManager(teacherLayoutManager);
         teacherRecyclerView.setItemAnimator(new DefaultItemAnimator());
         teacherRecyclerView.setAdapter(teacherAdapter);
-        teacherRecyclerView.scrollToPosition(scrollPosition);
-        teacherRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+    }
+
+    public void setUpScrolListenerWithoutTopic() {
+        scrollListener = new EndlessRecyclerViewScrollListener((LinearLayoutManager) teacherLayoutManager) {
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                int total = recyclerView.getLayoutManager().getItemCount();
-                int lastVisibleItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
-                if (loading) {
-                    if (total > 0) {
-                        if ((total - 1) == lastVisibleItem) {
-                            getMoreTeachers();
-                        }
-                    }
-                }
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                getAllTeachers(page);
             }
-        });
+        };
+        teacherRecyclerView.addOnScrollListener(scrollListener);
+    }
+
+    public void setUpScrollListenerWithTopic() {
+        scrollListener = new EndlessRecyclerViewScrollListener((LinearLayoutManager) teacherLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                getAllTeachersByTopic(page);
+            }
+        };
+        teacherRecyclerView.addOnScrollListener(scrollListener);
     }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         switch (adapterView.getId()) {
             case R.id.search_sorting_options_spinner:
-                currentOption = searchOptions.get(i).get(1);
-                if (currentOptionId == i) {
-                    return;
-                } else {
-                    startSearchTeacher();
+                switch (i) {
+                    case 0:
+                        option = "qwerteach_score";
+                        break;
+                    case 1:
+                        option = "min_price";
+                        break;
+                    case 2:
+                        option = "last_seen";
+                        break;
                 }
 
-                currentOptionId = i;
+                if (optionId == i) {
+                    return;
+                } else {
+                    teacherList.clear();
+                    setUpScrollListenerWithTopic();
+                    getAllTeachersByTopic(1);
+                }
+
+                optionId = i;
                 break;
             case R.id.search_topics_spinner:
-                query = menuItems.get(i);
-                if (currentQueryId == i) {
+                topic = menuItems.get(i);
+                if (topicId == i) {
                     return;
                 } else {
-                    page = 1;
-                    startSearchTeacher();
+                    teacherList.clear();
+                    setUpScrollListenerWithTopic();
+                    getAllTeachersByTopic(1);
                 }
-                currentQueryId = i;
+                topicId = i;
                 break;
         }
-
     }
 
     @Override
@@ -271,55 +288,53 @@ public class SearchTeacherActivity extends AppCompatActivity implements
 
     }
 
-    public void startSearchTeacher() {
-        scrollPosition = 0;
-        teacherList.clear();
-        getSearchResults(query, currentOption, 1);
-
-    }
-
-    public void getSearchResults(final String query, final String searchSortingOption, int pageNumber) {
-        optionList.clear();
+    public void getAllTeachersByTopic(int pageNumber) {
         startProgressDialog();
-        Call<JsonResponse> call = service.getSearchResults(query, searchSortingOption, pageNumber, user.getEmail(), user.getToken());
+        Call<JsonResponse> call = service.getAllTeachers(topic, option, pageNumber, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 ArrayList<User> users = response.body().getUsers();
-                searchOptions = response.body().getOptions();
-
-                if (users.size() > 0) {
-                    for (int i = 0; i < users.size(); i++) {
-                        Teacher teacher = new Teacher();
-                        teacher.setUser(users.get(i));
-                        teacherList.add(teacher);
-                        getTeacherInfos(users.get(i).getUserId());
-                    }
-                } else if (users.size() == 0 && page == 1) {
-                    teacherList.clear();
-                    progressDialog.dismiss();
-                    setActionBarTitle();
-                    Toast.makeText(getApplication(), R.string.no_result_found_toast_message, Toast.LENGTH_SHORT).show();
-                    displayTeacherListView();
-                } else {
-                    progressDialog.dismiss();
-                }
-
-                for (int i = 0; i < searchOptions.size(); i++) {
-                    optionList.add(searchOptions.get(i).get(0));
-                }
-
-                displaySearchTopicsSpinner();
-                displaySearchSortingOptionsSpinner();
-
+                setTeachersList(users);
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                Log.d("FAILURE", t.toString());
 
             }
         });
+    }
 
+    public void getAllTeachers(int pageNumber) {
+        startProgressDialog();
+        Call<JsonResponse> call = service.getAllTeachers(pageNumber, user.getEmail(), user.getToken());
+        call.enqueue(new Callback<JsonResponse>() {
+            @Override
+            public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                ArrayList<User> users = response.body().getUsers();
+                setTeachersList(users);
+            }
+
+            @Override
+            public void onFailure(Call<JsonResponse> call, Throwable t) {
+                Log.d("FAILURE", t.toString());
+
+            }
+        });
+    }
+
+    public void setTeachersList(ArrayList<User> users) {
+        if (users.size() > 0) {
+            for (int i = 0; i < users.size(); i++) {
+                Teacher teacher = new Teacher();
+                teacher.setUser(users.get(i));
+                teacherList.add(teacher);
+                getTeacherInfos(users.get(i).getUserId());
+            }
+        } else {
+            progressDialog.dismiss();
+        }
     }
 
     public void startProgressDialog() {
@@ -334,13 +349,14 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                prepareDataForTeacher(response);
-
+                if (response.body() != null) {
+                    prepareDataForTeacher(response);
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("FAILURE", t.toString());
             }
         });
     }
@@ -360,7 +376,6 @@ public class SearchTeacherActivity extends AppCompatActivity implements
 
         for (int i = 0; i < smallAds.size(); i++) {
             smallAds.get(i).setTitle(topics.get(i));
-
             ArrayList<SmallAdPrice> smallAdPriceArrayList = new ArrayList<>();
 
             if (smallAdPrices.get(i).size() > 0) {
@@ -373,8 +388,12 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         }
 
         for (int i = 0; i < reviews.size(); i++) {
-            reviews.get(i).setSenderFirstName(reviewSenderNames.get(i));
-            reviews.get(i).setAvatar(reviewAvatars.get(i));
+            if(reviews.size() == reviewSenderNames.size()) {
+                reviews.get(i).setSenderFirstName(reviewSenderNames.get(i));
+            }
+            if(reviews.size() == reviewAvatars.size()) {
+                reviews.get(i).setAvatar(reviewAvatars.get(i));
+            }
         }
 
         for (int i = 0; i < teacherList.size(); i++) {
@@ -388,10 +407,8 @@ public class SearchTeacherActivity extends AppCompatActivity implements
             }
 
             if (Objects.equals(user.getUserId(), teacherList.get(teacherList.size() - 1).getUser().getUserId())) {
-                loading = true;
                 progressDialog.dismiss();
-                setActionBarTitle();
-                displayTeacherListView();
+                teacherAdapter.notifyDataSetChanged();
             }
         }
 
@@ -400,16 +417,13 @@ public class SearchTeacherActivity extends AppCompatActivity implements
     public void onClicked(int position) {
         Intent intent = new Intent(getApplicationContext(), TeacherProfileActivity.class);
         intent.putExtra("teacher", teacherList.get(position));
-        intent.putExtra("query", query);
+        intent.putExtra("query", topic);
         startActivity(intent);
     }
 
     @Override
     public void onClick(View view) {
-        page += 1;
-        scrollPosition = teacherList.size() - 1;
-        getSearchResults(query,currentOption, page);
-        startProgressDialog();
+        //getAllTeachers(page);
 
     }
 
@@ -417,13 +431,6 @@ public class SearchTeacherActivity extends AppCompatActivity implements
     protected void onDestroy() {
         progressDialog.dismiss();
         super.onDestroy();
-    }
-
-    public void getMoreTeachers() {
-        loading = false;
-        page += 1;
-        scrollPosition = teacherList.size() - 1;
-        getSearchResults(query,currentOption, page);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.qwerteach.wivi.qwerteachapp;
 
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,8 @@ import com.qwerteach.wivi.qwerteachapp.fragments.CreateVirtualWalletFragment;
 
 public class NewVirtualWalletActivity extends AppCompatActivity  {
 
+    int status;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,6 +23,8 @@ public class NewVirtualWalletActivity extends AppCompatActivity  {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setElevation(0);
+
+        status = getIntent().getIntExtra("status", 0);
 
         displayCreateVirtualWalletFragment();
     }
@@ -37,8 +42,12 @@ public class NewVirtualWalletActivity extends AppCompatActivity  {
 
     public void displayCreateVirtualWalletFragment() {
         FragmentManager fragmentManager = getSupportFragmentManager();
+        Bundle bundle = new Bundle();
+        bundle.putInt("status", status);
+        CreateVirtualWalletFragment fragment = new CreateVirtualWalletFragment();
+        fragment.setArguments(bundle);
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.add(R.id.fragment_container, CreateVirtualWalletFragment.newInstance(), "CREATE_NEW_WALLET");
+        transaction.add(R.id.fragment_container, fragment, "CREATE_NEW_WALLET");
         transaction.commitNow();
     }
 }
