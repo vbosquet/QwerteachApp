@@ -164,55 +164,56 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                List<Lesson> pendingLessons = response.body().getToDoList();
-                List<Lesson> pastLessons = response.body().getPastLessons();
-                List<Lesson> pastLessonsGiven = response.body().getPastLessonsGiven();
-                toUnlockLessons = response.body().getToUnlockLessons();
-                toReviewLessons = response.body().getToReviewLessons();
-                totalWallet = response.body().getTotalWallet();
-
-
                 progressDialog.dismiss();
-                pendingLessonsTextView.setText(pendingLessons.size() + " cours en attente");
+                if (response != null) {
+                    List<Lesson> pendingLessons = response.body().getToDoList();
+                    List<Lesson> pastLessons = response.body().getPastLessons();
+                    List<Lesson> pastLessonsGiven = response.body().getPastLessonsGiven();
+                    toUnlockLessons = response.body().getToUnlockLessons();
+                    toReviewLessons = response.body().getToReviewLessons();
+                    totalWallet = response.body().getTotalWallet();
 
-                if (user.getPostulanceAccepted()) {
-                    float sum = 0;
-                    List<Integer> studentIds = new ArrayList();
-                    for(int i = 0; i < pastLessonsGiven.size(); i++) {
-                        sum += Float.parseFloat(pastLessonsGiven.get(i).getPrice());
-                        studentIds.add(pastLessonsGiven.get(i).getStudentId());
+                    pendingLessonsTextView.setText(pendingLessons.size() + " cours en attente");
+
+                    if (user.getPostulanceAccepted()) {
+                        float sum = 0;
+                        List<Integer> studentIds = new ArrayList();
+                        for(int i = 0; i < pastLessonsGiven.size(); i++) {
+                            sum += Float.parseFloat(pastLessonsGiven.get(i).getPrice());
+                            studentIds.add(pastLessonsGiven.get(i).getStudentId());
+                        }
+                        pastLessonsGivenCard.setVisibility(View.VISIBLE);
+                        teacherStatsCard.setVisibility(View.VISIBLE);
+                        pastLessonsGivenTextView.setText(pastLessonsGiven.size() + " cours donné(s)");
+                        teacherStatsTextView.setText(Html.fromHtml("<font color='#22de80'>" + pastLessonsGiven.size()
+                                + "</font> cours donnés à <font color='#22de80'>" + Common.getUniqueElement(studentIds)
+                                + "</font> élèves pour un total de <font color='#22de80'>" + sum + "€ <font color='#22de80'>"));
+                    } else {
+                        pastLessonsReceivedTextView.setText(pastLessons.size() + " cours suivi(s)");
+                        searchCard.setVisibility(View.VISIBLE);
+                        pastLessonsReceivedCard.setVisibility(View.VISIBLE);
                     }
-                    pastLessonsGivenCard.setVisibility(View.VISIBLE);
-                    teacherStatsCard.setVisibility(View.VISIBLE);
-                    pastLessonsGivenTextView.setText(pastLessonsGiven.size() + " cours donné(s)");
-                    teacherStatsTextView.setText(Html.fromHtml("<font color='#22de80'>" + pastLessonsGiven.size()
-                            + "</font> cours donnés à <font color='#22de80'>" + Common.getUniqueElement(studentIds)
-                            + "</font> élèves pour un total de <font color='#22de80'>" + sum + "€ <font color='#22de80'>"));
-                } else {
-                    pastLessonsReceivedTextView.setText(pastLessons.size() + " cours suivi(s)");
-                    searchCard.setVisibility(View.VISIBLE);
-                    pastLessonsReceivedCard.setVisibility(View.VISIBLE);
-                }
 
-                if (totalWallet != null) {
-                    totalWalletTextView.setText(totalWallet + "€");
-                    walletTextView.setText("Voir");
-                } else {
-                    totalWalletTextView.setText("O€");
-                    walletTextView.setText("Configurer");
-                }
-
-                if (toUnlockLessons.size() > 0) {
-                    toUnlockLessonRecyclerView.setVisibility(View.VISIBLE);
-                    for (int i = 0; i < toUnlockLessons.size(); i++) {
-                        getToUnlockLessonInfos(toUnlockLessons.get(i).getLessonId(), i);
+                    if (totalWallet != null) {
+                        totalWalletTextView.setText(totalWallet + "€");
+                        walletTextView.setText("Voir");
+                    } else {
+                        totalWalletTextView.setText("O€");
+                        walletTextView.setText("Configurer");
                     }
-                }
 
-                if (toReviewLessons.size() > 0) {
-                    toReviewLessonRecyclerView.setVisibility(View.VISIBLE);
-                    for (int i = 0; i < toReviewLessons.size(); i++) {
-                        getToReviewLessonInfo(toReviewLessons.get(i).getLessonId(), i);
+                    if (toUnlockLessons.size() > 0) {
+                        toUnlockLessonRecyclerView.setVisibility(View.VISIBLE);
+                        for (int i = 0; i < toUnlockLessons.size(); i++) {
+                            getToUnlockLessonInfos(toUnlockLessons.get(i).getLessonId(), i);
+                        }
+                    }
+
+                    if (toReviewLessons.size() > 0) {
+                        toReviewLessonRecyclerView.setVisibility(View.VISIBLE);
+                        for (int i = 0; i < toReviewLessons.size(); i++) {
+                            getToReviewLessonInfo(toReviewLessons.get(i).getLessonId(), i);
+                        }
                     }
                 }
             }

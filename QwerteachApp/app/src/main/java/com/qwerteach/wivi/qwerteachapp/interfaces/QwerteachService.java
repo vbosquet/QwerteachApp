@@ -210,4 +210,7 @@ public interface QwerteachService {
     @GET("notification/infos/{sender_id}")
     Call<JsonResponse> getNotificationInfos(@Path("sender_id") int sender_id, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
+    @DELETE("sessions")
+    Call<JsonResponse> deleteSession(@Header("X-User-Email") String email, @Header("X-User-Token") String token);
+
 }

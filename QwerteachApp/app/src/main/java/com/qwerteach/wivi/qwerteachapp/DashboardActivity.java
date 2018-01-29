@@ -23,7 +23,16 @@ import android.widget.ListView;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.fragments.DashboardFragment;
+import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
+import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
+import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.User;
+
+import java.util.Objects;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -34,6 +43,7 @@ public class DashboardActivity extends AppCompatActivity {
     CharSequence mDrawerTitle, mTitle;
     Intent intent;
     User user;
+    QwerteachService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +54,8 @@ public class DashboardActivity extends AppCompatActivity {
         Gson gson = new Gson();
         String json = preferences.getString("user", "");
         user = gson.fromJson(json, User.class);
+
+        service = ApiClient.getClient().create(QwerteachService.class);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -82,13 +94,27 @@ public class DashboardActivity extends AppCompatActivity {
                 }
 
                 if (action.equals(menuDrawerItems[3])) {
-                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                    SharedPreferences.Editor editor = preferences.edit();
-                    editor.putBoolean("isLogin", false);
-                    editor.apply();
+                    Call<JsonResponse> call = service.deleteSession(user.getEmail(), user.getToken());
+                    call.enqueue(new Callback<JsonResponse>() {
+                        @Override
+                        public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                            String success = response.body().getSuccess();
+                            if (Objects.equals(success, "true")) {
+                                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                                SharedPreferences.Editor editor = preferences.edit();
+                                editor.putBoolean("isLogin", false);
+                                editor.apply();
 
-                    intent = new Intent(getApplicationContext(), MainActivity.class);
-                    startActivity(intent);
+                                intent = new Intent(getApplicationContext(), MainActivity.class);
+                                startActivity(intent);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<JsonResponse> call, Throwable t) {
+
+                        }
+                    });
                 }
 
             }
