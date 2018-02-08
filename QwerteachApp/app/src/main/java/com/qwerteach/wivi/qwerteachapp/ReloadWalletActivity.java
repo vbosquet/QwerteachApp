@@ -72,7 +72,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
     static final String OTHER_AMOUNT = "Autre montant";
     static final String NEW_CREDIT_CARD = "Nouvelle carte";
     static final String CB_VISA_MASTERCARD = "CB_VISA_MASTERCARD";
-    static final String BCMC = "BCMC";
+    //static final String BCMC = "BCMC";
     static final String BANK_WIRE = "BANK_WIRE";
 
     ActionBar actionBar;
@@ -122,7 +122,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         visaCheckbox = (CheckBox) findViewById(R.id.visa);
         mastercardCheckbox = (CheckBox) findViewById(R.id.mastercard);
         cbCheckbox = (CheckBox) findViewById(R.id.cb);
-        bcmcCheckbox = (CheckBox) findViewById(R.id.bcmc);
+        //bcmcCheckbox = (CheckBox) findViewById(R.id.bcmc);
         bankWireCheckbox = (CheckBox) findViewById(R.id.banck_wire);
         easyPaymentCheckBox = (CheckBox) findViewById(R.id.easy_payment);
         cardNumberLinearLayout = (LinearLayout) findViewById(R.id.card_number_linear_layout);
@@ -145,7 +145,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         visaCheckbox.setOnClickListener(this);
         mastercardCheckbox.setOnClickListener(this);
         cbCheckbox.setOnClickListener(this);
-        bcmcCheckbox.setOnClickListener(this);
+        //bcmcCheckbox.setOnClickListener(this);
         bankWireCheckbox.setOnClickListener(this);
         easyPaymentCheckBox.setOnClickListener(this);
 
@@ -328,7 +328,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     visaCheckbox.setChecked(false);
                     mastercardCheckbox.setChecked(false);
                     cbCheckbox.setChecked(false);
-                    bcmcCheckbox.setChecked(false);
+                    //bcmcCheckbox.setChecked(false);
                     bankWireCheckbox.setChecked(false);
 
                     if (userCreditCards.size() > 0) {
@@ -359,7 +359,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     visaCheckbox.setChecked(true);
                     mastercardCheckbox.setChecked(false);
                     cbCheckbox.setChecked(false);
-                    bcmcCheckbox.setChecked(false);
+                    //bcmcCheckbox.setChecked(false);
                     bankWireCheckbox.setChecked(false);
 
                     setCreditCardSpinner();
@@ -375,7 +375,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     visaCheckbox.setChecked(false);
                     mastercardCheckbox.setChecked(true);
                     cbCheckbox.setChecked(false);
-                    bcmcCheckbox.setChecked(false);
+                    //bcmcCheckbox.setChecked(false);
                     bankWireCheckbox.setChecked(false);
 
                     setCreditCardSpinner();
@@ -391,7 +391,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     visaCheckbox.setChecked(false);
                     mastercardCheckbox.setChecked(false);
                     cbCheckbox.setChecked(true);
-                    bcmcCheckbox.setChecked(false);
+                    //bcmcCheckbox.setChecked(false);
                     bankWireCheckbox.setChecked(false);
 
                     setCreditCardSpinner();
@@ -400,7 +400,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     validationButton.setVisibility(View.VISIBLE);
                 }
                 break;
-            case R.id.bcmc:
+            /*case R.id.bcmc:
                 if (checked) {
                     cardType = BCMC;
                     easyPaymentCheckBox.setChecked(false);
@@ -416,7 +416,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     validationButton.setVisibility(View.VISIBLE);
                     paymentMode = "bancontact";
                 }
-                break;
+                break;*/
             case R.id.banck_wire:
                 if (checked) {
                     cardType = BANK_WIRE;
@@ -424,7 +424,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                     visaCheckbox.setChecked(false);
                     mastercardCheckbox.setChecked(false);
                     cbCheckbox.setChecked(false);
-                    bcmcCheckbox.setChecked(false);
+                    //bcmcCheckbox.setChecked(false);
                     bankWireCheckbox.setChecked(true);
 
                     cardNumberLinearLayout.setVisibility(View.GONE);
@@ -529,6 +529,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                 Toast.makeText(this, R.string.load_wallet_by_credit_card_sucess_toast_message, Toast.LENGTH_SHORT).show();
                 break;
             case "redirect url":
+                Log.d("REDIRECT_URL", message);
                 String url = response.body().getUrl();
                 intent = new Intent(this, MangoPaySecureModeActivity.class);
                 intent.putExtra("url", url);

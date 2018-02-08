@@ -5,14 +5,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBar.LayoutParams;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputFilter;
-import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -92,7 +89,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
         endYearSpinner = (Spinner) findViewById(R.id.end_year_spinner);
         creditCardSpinner = (Spinner) findViewById(R.id.credit_card_choice_spinner);
         creditCardChoiceLinearLayout = (LinearLayout) findViewById(R.id.credit_card_choice_linear_layout);
-        bancontactTextView = (TextView) findViewById(R.id.bancontact_text_view);
+        //bancontactTextView = (TextView) findViewById(R.id.bancontact_text_view);
         paymentWithVirtualWallet.setOnCheckedChangeListener(this);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -119,7 +116,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
         otherPaymentMethods = new ArrayList<>();
         otherPaymentMethods.add("Choisissez votre mode de paiement");
         otherPaymentMethods.add("Carte de crédit");
-        otherPaymentMethods.add("Bancontact");
+        //otherPaymentMethods.add("Bancontact");
 
         setCreditCards();
         setYears();
@@ -205,30 +202,30 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                 if (otherPaymentMethodName.equals(otherPaymentMethods.get(0))) {
                     newCreditCardLinearLayout.setVisibility(View.GONE);
                     creditCardChoiceLinearLayout.setVisibility(View.GONE);
-                    bancontactTextView.setVisibility(View.GONE);
+                    //bancontactTextView.setVisibility(View.GONE);
                 } else if (otherPaymentMethodName.equals(otherPaymentMethods.get(1))) {
                     paymentMode = CREDIT_CARD_MODE;
                     if (userCreditCards.size() > 0) {
                         creditCardChoiceLinearLayout.setVisibility(View.VISIBLE);
                         newCreditCardLinearLayout.setVisibility(View.GONE);
-                        bancontactTextView.setVisibility(View.GONE);
+                        //bancontactTextView.setVisibility(View.GONE);
                         paymentWithVirtualWallet.setChecked(false);
                         setCreditCardSpinner();
                     } else {
                         currentAlias = NEW_CREDIT_CARD;
                         newCreditCardLinearLayout.setVisibility(View.VISIBLE);
-                        bancontactTextView.setVisibility(View.GONE);
+                        //bancontactTextView.setVisibility(View.GONE);
                         paymentWithVirtualWallet.setChecked(false);
                         addNewCreditCard();
                     }
-                } else if (otherPaymentMethodName.equals(otherPaymentMethods.get(2))) {
+                } /*else if (otherPaymentMethodName.equals(otherPaymentMethods.get(2))) {
                     paymentMode = BANCONTACT_MODE;
                     bancontactTextView.setVisibility(View.VISIBLE);
                     creditCardChoiceLinearLayout.setVisibility(View.GONE);
                     newCreditCardLinearLayout.setVisibility(View.GONE);
                     paymentWithVirtualWallet.setChecked(false);
                 }
-                break;
+                break;*/
             case R.id.credit_card_choice_spinner:
                 currentAlias = adapterView.getItemAtPosition(i).toString();
                 if (currentAlias.equals(creditCards.get(0))) {
@@ -326,9 +323,11 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
     }
 
     public void didTouchPaymentButton(View view) {
+        startProgressDialog();
         switch (paymentMode) {
             case TRANSFER_MODE:
                 if (totalWallet < totalPrice) {
+                    progressDialog.dismiss();
                     Toast.makeText(this, R.string.total_wallet_insufficient_toast_message, Toast.LENGTH_SHORT).show();
                 } else {
                     payLesson();
@@ -342,8 +341,6 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                             cardId = userCreditCards.get(i).getCardId();
                         }
                     }
-
-                    startProgressDialog();
                     payLesson();
 
                 } else {
@@ -351,14 +348,13 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                 }
 
                 break;
-            case BANCONTACT_MODE:
+            /*case BANCONTACT_MODE:
                 payLesson();
-                break;
+                break;*/
         }
     }
 
     public void createNewCreditCard() {
-        startProgressDialog();
         MangoPayBuilder builder = new MangoPayBuilder(this);
         builder.baseURL("https://api.sandbox.mangopay.com")
                 .clientId("qwerteachrails")

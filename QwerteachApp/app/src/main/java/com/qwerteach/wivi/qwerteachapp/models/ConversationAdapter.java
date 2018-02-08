@@ -60,9 +60,12 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
         holder.body.setText(lastMessage);
         holder.creationDate.setReferenceTime(oldDate.getTime());
-        holder.recipient.setText(conversation.getUser().getFirstName());
-        Picasso.with(context).load(conversation.getUser().getAvatarUrl())
-                .resize(150, 150).centerCrop().into(holder.avatar);
+        if (conversation.getUser() != null) {
+            holder.recipient.setText(conversation.getUser().getFirstName());
+            Picasso.with(context).load(conversation.getUser().getAvatarUrl())
+                    .resize(150, 150).centerCrop().into(holder.avatar);
+        }
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

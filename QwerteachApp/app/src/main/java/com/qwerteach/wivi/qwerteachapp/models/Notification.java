@@ -1,6 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.models;
 
 import com.google.gson.annotations.SerializedName;
+import com.qwerteach.wivi.qwerteachapp.common.Common;
 
 import java.io.Serializable;
 import java.text.ParseException;
@@ -13,8 +14,6 @@ import java.util.Date;
 
 public class Notification implements Serializable {
 
-    private static final String BASE_URL = "http://192.168.1.21:3000";
-
     @SerializedName("id")
     Integer notification_id;
     @SerializedName("subject")
@@ -25,6 +24,8 @@ public class Notification implements Serializable {
     String created_at;
     @SerializedName("notified_object_type")
     String notification_type;
+    @SerializedName("notified_object_id")
+    Integer notificationObjectId;
 
     String avatar;
 
@@ -77,7 +78,7 @@ public class Notification implements Serializable {
     }
 
     public void setAvatar(String avatar) {
-        this.avatar = BASE_URL + avatar;
+        this.avatar = Common.IP_ADDRESS + avatar;
     }
 
     public String getDate() {
@@ -100,5 +101,13 @@ public class Notification implements Serializable {
             e.printStackTrace();
         }
         return convertedDate;
+    }
+
+    public Integer getNotificationObjectId() {
+        return notificationObjectId;
+    }
+
+    public void setNotificationObjectId(Integer notificationObjectId) {
+        this.notificationObjectId = notificationObjectId;
     }
 }

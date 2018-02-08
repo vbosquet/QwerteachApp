@@ -23,11 +23,13 @@ import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.Conversation;
 import com.qwerteach.wivi.qwerteachapp.models.ConversationAdapter;
+import com.qwerteach.wivi.qwerteachapp.models.HistoryLessonsAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Message;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -79,13 +81,23 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
                 conversationsList = response.body().getConversations();
                 usersList = response.body().getRecipients();
                 List<Message> messages = response.body().getMessages();
-                List<String> participantAvatar = response.body().getParticipantAvatars();
+                List<String> avatars = response.body().getParticipantAvatars();
+
+                Log.d("CONVERSATIONS", String.valueOf(conversationsList.size()));
+                Log.d("USERS", String.valueOf(usersList.size()));
+                Log.d("AVATARS", String.valueOf(avatars.size()));
 
                 if (conversationsList.size() > 0) {
                     for (int i = 0; i < conversationsList.size(); i++) {
                         int conversationId = conversationsList.get(i).getConversationId();
-                        conversationsList.get(i).setUser(usersList.get(i));
-                        conversationsList.get(i).getUser().setAvatarUrl(participantAvatar.get(i));
+
+                        if(usersList.get(i) != null) {
+                            conversationsList.get(i).setUser(usersList.get(i));
+                        }
+
+                        if (avatars.get(i) != null) {
+                            conversationsList.get(i).getUser().setAvatarUrl(avatars.get(i));
+                        }
 
                         for (int j = 0; j < messages.size(); j++) {
                             if (Objects.equals(messages.get(j).getConversationId(), conversationId)) {

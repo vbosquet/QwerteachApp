@@ -31,6 +31,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import java.util.Set;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -74,11 +76,11 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
 
     @Override
     public void redirectURL(String string) {
+        Log.d("RESULT", string);
         Document doc = Jsoup.parse(string);
         Element link = doc.select("a").first();
         String linkHref = link.attr("href");
         finalizePaymentWithCard(formatingUrl(linkHref));
-
     }
 
     public void startRedirectURL(String newURL) {
@@ -165,6 +167,7 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
     private class MyWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            Log.d("URL", url);
 
             switch (url) {
                 case "https://homologation-secure-p.payline.com/webpayment/mpiServletProxy.do?reqCode=enrollment": {
@@ -172,14 +175,12 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
                     intent.putExtra("url", url);
                     intent.putExtra("mode", mode);
                     startActivity(intent);
-                    break;
                 }
                 case "https://homologation-secure-p.payline.com/webpayment/step2.do?reqCode=doStep2": {
                     Intent intent = new Intent(getApplicationContext(), MangoPaySecureModeActivity.class);
                     intent.putExtra("url", url);
                     intent.putExtra("mode", mode);
                     startActivity(intent);
-                    break;
                 }
                 case "https://homologation-secure-p.payline.com/webpayment/step1.do?reqCode=prepareStep1": {
                     Toast.makeText(getApplicationContext(), R.string.payment_error_toast_message, Toast.LENGTH_LONG).show();
@@ -187,14 +188,15 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
                     startActivity(intent);
                     break;
                 }
-                default:
 
+
+                default:
                     if (mode.equals("cd")) {
                         finalizePaymentWithCard(formatingUrl(url));
 
-                    } else if (mode.equals("bancontact")) {
+                    } /*else if (mode.equals("bancontact")) {
                         startRedirectURL(url);
-                    }
+                    }*/
 
                     break;
             }

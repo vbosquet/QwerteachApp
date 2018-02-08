@@ -21,6 +21,7 @@ import com.pusher.client.PusherOptions;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
+import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 import com.qwerteach.wivi.qwerteachapp.models.Notification;
 import com.qwerteach.wivi.qwerteachapp.models.NotificationAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.User;
@@ -106,11 +107,11 @@ public class MyNotificationsActivity extends AppCompatActivity {
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                progressDialog.dismiss();
                 String avatar = response.body().getAvatar();
                 notificationList.get(index).setAvatar(avatar);
                 if (index == notificationList.size() - 1) {
                     dislayNotifications();
+                    progressDialog.dismiss();
                 }
             }
 

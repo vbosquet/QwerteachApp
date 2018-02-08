@@ -82,7 +82,10 @@ public class ChatActivity extends AppCompatActivity {
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle(conversation.getUser().getFirstName());
+
+        if(conversation.getUser() != null) {
+            actionBar.setTitle(conversation.getUser().getFirstName());
+        }
 
         service = ApiClient.getClient().create(QwerteachService.class);
         messageToSendEditText = (EditText) findViewById(R.id.message_to_send_edit_text);

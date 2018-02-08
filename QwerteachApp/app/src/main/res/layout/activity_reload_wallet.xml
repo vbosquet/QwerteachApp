@@ -149,12 +149,12 @@
                 android:text="@string/blue_card_checkbox"
                 android:textColor="@color/medium_grey"/>
 
-            <CheckBox
+            <!--<CheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/bcmc"
                 android:text="@string/bancontact_checkbox"
-                android:textColor="@color/medium_grey"/>
+                android:textColor="@color/medium_grey"/>-->
 
             <CheckBox
                 android:layout_width="match_parent"

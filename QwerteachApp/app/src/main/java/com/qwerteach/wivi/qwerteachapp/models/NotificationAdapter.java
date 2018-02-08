@@ -3,6 +3,7 @@ package com.qwerteach.wivi.qwerteachapp.models;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import com.qwerteach.wivi.qwerteachapp.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by wivi on 18/06/17.
@@ -45,12 +47,14 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         Picasso.with(context).load(notification.getAvatar()).resize(150, 150).centerCrop().into(holder.userAvatar);
 
         if (notification.getNotification_type() != null) {
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ((MyNotificationsActivity)context).seeLessonDetails();
-                }
-            });
+            if (Objects.equals(notification.getNotification_type(), "Lesson")) {
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ((MyNotificationsActivity)context).seeLessonDetails();
+                    }
+                });
+            }
         }
 
     }
