@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.method.KeyListener;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,6 +37,7 @@ import com.qwerteach.wivi.qwerteachapp.models.TopicGroup;
 import com.qwerteach.wivi.qwerteachapp.models.TopicGroupAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;;import retrofit2.Call;
@@ -92,13 +94,16 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                topicGroups = response.body().getTopicGroups();
-                displayTopicGroupSpinner();
+                if (response.isSuccessful()) {
+                    topicGroups = response.body().getTopicGroups();
+                    displayTopicGroupSpinner();
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -109,13 +114,16 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                topics = response.body().getTopics();
-                displayTopicSpinner();
+                if(response.isSuccessful()) {
+                    topics = response.body().getTopics();
+                    displayTopicSpinner();
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -126,13 +134,16 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                levels = response.body().getLevels();
-                displayLevelCheckboxes();
+                if(response.isSuccessful()) {
+                    levels = response.body().getLevels();
+                    displayLevelCheckboxes();
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -182,23 +193,23 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                String success = response.body().getSuccess();
-
-                if (success.equals("true")) {
-                    setResult(Activity.RESULT_OK);
-                    finish();
-                    Toast.makeText(getApplication(), R.string.save_small_ad_success_true_message, Toast.LENGTH_SHORT).show();
-
-                } else {
-                    String message = response.body().getMessage();
-                    Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
+                if(response.isSuccessful()) {
+                    String success = response.body().getSuccess();
+                    if (success.equals("true")) {
+                        setResult(Activity.RESULT_OK);
+                        finish();
+                        Toast.makeText(getApplication(), R.string.save_small_ad_success_true_message, Toast.LENGTH_SHORT).show();
+                    } else {
+                        String message = response.body().getMessage();
+                        Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
+                    }
                 }
-
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

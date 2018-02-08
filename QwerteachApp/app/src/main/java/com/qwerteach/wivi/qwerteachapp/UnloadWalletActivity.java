@@ -30,6 +30,7 @@ import com.qwerteach.wivi.qwerteachapp.models.UserBankAccount;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -119,17 +120,20 @@ public class UnloadWalletActivity extends AppCompatActivity implements
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                totalWallet = response.body().getTotalWallet();
-                amountToBeTransferred.setText("Montant à transférer : " + totalWallet/100 + " €");
-                bankAccountAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.simple_spinner_item, accountNumbers);
-                bankAccountAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
-                bankAccountSpinner.setAdapter(bankAccountAdapter);
+                if(response.isSuccessful()) {
+                    totalWallet = response.body().getTotalWallet();
+                    amountToBeTransferred.setText("Montant à transférer : " + totalWallet/100 + " €");
+                    bankAccountAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.simple_spinner_item, accountNumbers);
+                    bankAccountAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+                    bankAccountSpinner.setAdapter(bankAccountAdapter);
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
                 Log.d("FAILURE", t.getMessage());
-
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -145,25 +149,27 @@ public class UnloadWalletActivity extends AppCompatActivity implements
                 @Override
                 public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                     progressDialog.dismiss();
-                    String success = response.body().getSuccess();
+                    if(response.isSuccessful()) {
+                        String success = response.body().getSuccess();
+                        if (success.equals("true")) {
+                            String message = response.body().getMessage();
+                            Intent intent = new Intent(getApplication(), VirtualWalletActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                            finish();
+                            Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
 
-                    if (success.equals("true")) {
-                        String message = response.body().getMessage();
-                        Intent intent = new Intent(getApplication(), VirtualWalletActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                        finish();
-                        Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
-
-                    } else {
-                        startRedirectUrlAsyncTask( Common.IP_ADDRESS + "/api" + response.body().getUrl());
+                        } else {
+                            startRedirectUrlAsyncTask( Common.IP_ADDRESS + "/api" + response.body().getUrl());
+                        }
                     }
-
                 }
 
                 @Override
                 public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                    Log.d("failure", String.valueOf(t.getMessage()));
+                    progressDialog.dismiss();
+                    Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
                 }
             });
         } else {

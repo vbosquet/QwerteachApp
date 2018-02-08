@@ -1,16 +1,17 @@
 package com.qwerteach.wivi.qwerteachapp;
 
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.CheckInternetAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.fragments.CreateVirtualWalletFragment;
 
-public class NewVirtualWalletActivity extends AppCompatActivity  {
+public class NewVirtualWalletActivity extends AppCompatActivity implements CheckInternetAsyncTask.ICheckInternet {
 
     int status;
 
@@ -26,7 +27,8 @@ public class NewVirtualWalletActivity extends AppCompatActivity  {
 
         status = getIntent().getIntExtra("status", 0);
 
-        displayCreateVirtualWalletFragment();
+        CheckInternetAsyncTask asyncTask = new CheckInternetAsyncTask(this, this);
+        asyncTask.execute();
     }
 
     @Override
@@ -49,5 +51,15 @@ public class NewVirtualWalletActivity extends AppCompatActivity  {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.add(R.id.fragment_container, fragment, "CREATE_NEW_WALLET");
         transaction.commitNow();
+    }
+
+    @Override
+    public void getResult(Boolean result) {
+        if(result) {
+            displayCreateVirtualWalletFragment();
+        } else {
+            Toast.makeText(this, R.string.socket_failure, Toast.LENGTH_SHORT).show();
+        }
+
     }
 }

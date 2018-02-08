@@ -24,6 +24,7 @@ import com.qwerteach.wivi.qwerteachapp.models.Payment;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 import retrofit2.Call;
@@ -134,18 +135,20 @@ public class ShowLessonActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                Toast.makeText(getApplicationContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
-
-                if (response.body().getSuccess().equals("true")) {
-                    Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
-                    startActivity(intent);
+                if(response.isSuccessful()) {
+                    Toast.makeText(getApplicationContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    if (response.body().getSuccess().equals("true")) {
+                        Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+                        startActivity(intent);
+                    }
                 }
-
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -157,17 +160,20 @@ public class ShowLessonActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                Toast.makeText(getApplicationContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
-
-                if (response.body().getSuccess().equals("true")) {
-                    Intent intent = new Intent(getApplicationContext(), MyLessonsActivity.class);
-                    startActivity(intent);
+                if(response.isSuccessful()) {
+                    Toast.makeText(getApplicationContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    if (response.body().getSuccess().equals("true")) {
+                        Intent intent = new Intent(getApplicationContext(), MyLessonsActivity.class);
+                        startActivity(intent);
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

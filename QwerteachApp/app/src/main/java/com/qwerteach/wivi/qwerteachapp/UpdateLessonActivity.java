@@ -30,6 +30,7 @@ import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
+import java.net.SocketTimeoutException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
@@ -132,22 +133,24 @@ public class UpdateLessonActivity extends AppCompatActivity implements View.OnCl
             call.enqueue(new Callback<JsonResponse>() {
                 @Override
                 public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                    String success = response.body().getSuccess();
-                    String message = response.body().getMessage();
-
                     progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                    if(response.isSuccessful()) {
+                        String success = response.body().getSuccess();
+                        String message = response.body().getMessage();
+                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
 
-                    if (success.equals("true")) {
-                        setResult(Activity.RESULT_OK);
-                        finish();
+                        if (success.equals("true")) {
+                            setResult(Activity.RESULT_OK);
+                            finish();
+                        }
                     }
-
                 }
 
                 @Override
                 public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                    Log.d("failure", String.valueOf(t.getMessage()));
+                    progressDialog.dismiss();
+                    Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
                 }
             });
 

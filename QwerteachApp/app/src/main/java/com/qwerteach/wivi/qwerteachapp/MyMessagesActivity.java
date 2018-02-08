@@ -78,53 +78,51 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                conversationsList = response.body().getConversations();
-                usersList = response.body().getRecipients();
-                List<Message> messages = response.body().getMessages();
-                List<String> avatars = response.body().getParticipantAvatars();
+                if (response.isSuccessful()) {
+                    conversationsList = response.body().getConversations();
+                    usersList = response.body().getRecipients();
+                    List<Message> messages = response.body().getMessages();
+                    List<String> avatars = response.body().getParticipantAvatars();
 
-                Log.d("CONVERSATIONS", String.valueOf(conversationsList.size()));
-                Log.d("USERS", String.valueOf(usersList.size()));
-                Log.d("AVATARS", String.valueOf(avatars.size()));
+                    if (conversationsList.size() > 0) {
+                        for (int i = 0; i < conversationsList.size(); i++) {
+                            int conversationId = conversationsList.get(i).getConversationId();
 
-                if (conversationsList.size() > 0) {
-                    for (int i = 0; i < conversationsList.size(); i++) {
-                        int conversationId = conversationsList.get(i).getConversationId();
+                            if(usersList.get(i) != null) {
+                                conversationsList.get(i).setUser(usersList.get(i));
+                            }
 
-                        if(usersList.get(i) != null) {
-                            conversationsList.get(i).setUser(usersList.get(i));
-                        }
+                            if (avatars.get(i) != null) {
+                                conversationsList.get(i).getUser().setAvatarUrl(avatars.get(i));
+                            }
 
-                        if (avatars.get(i) != null) {
-                            conversationsList.get(i).getUser().setAvatarUrl(avatars.get(i));
-                        }
+                            for (int j = 0; j < messages.size(); j++) {
+                                if (Objects.equals(messages.get(j).getConversationId(), conversationId)) {
+                                    conversationsList.get(i).setLastMessage(messages.get(j));
+                                }
+                            }
 
-                        for (int j = 0; j < messages.size(); j++) {
-                            if (Objects.equals(messages.get(j).getConversationId(), conversationId)) {
-                                conversationsList.get(i).setLastMessage(messages.get(j));
+                            if (conversationId == conversationsList.get(conversationsList.size() - 1).getConversationId()) {
+                                progressDialog.dismiss();
+                                displayConversationListView();
                             }
                         }
 
-                        if (conversationId == conversationsList.get(conversationsList.size() - 1).getConversationId()) {
-                            progressDialog.dismiss();
-                            displayConversationListView();
-                        }
+                    } else {
+                        progressDialog.dismiss();
+                        emptyMailboxTitle.setVisibility(View.VISIBLE);
+                        emptyMailboxMessage.setVisibility(View.VISIBLE);
                     }
-
                 } else {
                     progressDialog.dismiss();
-                    emptyMailboxTitle.setVisibility(View.VISIBLE);
-                    emptyMailboxMessage.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("FAILURE", t.toString());
+                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
-                if(t instanceof SocketTimeoutException){;
-                    Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
 

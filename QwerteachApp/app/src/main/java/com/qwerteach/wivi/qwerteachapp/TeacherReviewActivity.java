@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,6 +26,7 @@ import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -122,18 +124,22 @@ public class TeacherReviewActivity extends AppCompatActivity implements AdapterV
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                String success = response.body().getSuccess();
-                String message = response.body().getMessage();
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                if (success.equals("true")) {
-                    Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
-                    startActivity(intent);
+                if(response.isSuccessful()) {
+                    String success = response.body().getSuccess();
+                    String message = response.body().getMessage();
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                    if (success.equals("true")) {
+                        Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+                        startActivity(intent);
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

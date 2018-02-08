@@ -95,34 +95,33 @@ public class SignInActivity extends AppCompatActivity {
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                String success = response.body().getSuccess();
+                progressDialog.dismiss();
+                if(response.isSuccessful()) {
+                    String success = response.body().getSuccess();
+                    if (success.equals("false")) {
+                        Toast.makeText(getApplicationContext(), R.string.login_error_message, Toast.LENGTH_LONG).show();
+                    } else {
+                        User user = response.body().getUser();
+                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                        SharedPreferences.Editor editor = preferences.edit();
+                        Gson gson = new Gson();
+                        String json = gson.toJson(user);
+                        editor.putString("user", json);
+                        editor.putBoolean("isLogin", true);
+                        editor.apply();
 
-                if (success.equals("false")) {
-                    progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), R.string.login_error_message, Toast.LENGTH_LONG).show();
-                } else {
-                    User user = response.body().getUser();
-                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                    SharedPreferences.Editor editor = preferences.edit();
-                    Gson gson = new Gson();
-                    String json = gson.toJson(user);
-                    editor.putString("user", json);
-                    editor.putBoolean("isLogin", true);
-                    editor.apply();
-
-                    progressDialog.dismiss();
-                    Toast.makeText(getApplication(), R.string.connection_success_toast, Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
-                    startActivity(intent);
+                        Toast.makeText(getApplication(), R.string.connection_success_toast, Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+                        startActivity(intent);
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
-                if(t instanceof SocketTimeoutException){;
-                    Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

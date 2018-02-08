@@ -10,6 +10,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -84,17 +85,18 @@ public class VirtualWalletActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                totalWallet = response.body().getTotalWallet();
-                balanceWallet.setText("Argent disponible pour réserver des cours : " + totalWallet/100 + "€");
-                displayIndexVirtualWalletFragment();
+                if(response.isSuccessful()) {
+                    totalWallet = response.body().getTotalWallet();
+                    balanceWallet.setText("Argent disponible pour réserver des cours : " + totalWallet/100 + "€");
+                    displayIndexVirtualWalletFragment();
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
-                if(t instanceof SocketTimeoutException) {
-                    Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

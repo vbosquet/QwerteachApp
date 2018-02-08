@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.R;
@@ -29,6 +30,7 @@ import com.qwerteach.wivi.qwerteachapp.models.TransactionAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserBankAccount;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -176,7 +178,9 @@ public class TransactionsListFragment extends Fragment {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("FAILURE", t.toString());
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

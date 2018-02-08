@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -107,7 +109,6 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
         teachers = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
         service = ApiClient.getClient().create(QwerteachService.class);
-        setUpPusherNotification();
     }
 
     @Override
@@ -220,11 +221,9 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("FAILURE", t.toString());
+                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
-                if(t instanceof SocketTimeoutException){;
-                    Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -236,22 +235,26 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                String username = response.body().getUserName();
-                String avatar = response.body().getAvatar();
-                String topicTitle = response.body().getTopicTitle();
+                if(response.isSuccessful()) {
+                    String username = response.body().getUserName();
+                    String avatar = response.body().getAvatar();
+                    String topicTitle = response.body().getTopicTitle();
 
-                toUnlockLessons.get(index).setAvatar(avatar);
-                toUnlockLessons.get(index).setUserName(username);
-                toUnlockLessons.get(index).setTopicTitle(topicTitle);
+                    toUnlockLessons.get(index).setAvatar(avatar);
+                    toUnlockLessons.get(index).setUserName(username);
+                    toUnlockLessons.get(index).setTopicTitle(topicTitle);
 
-                if (index == toUnlockLessons.size() - 1) {
-                    displayToUnlockLessons();
+                    if (index == toUnlockLessons.size() - 1) {
+                        displayToUnlockLessons();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -263,20 +266,24 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                String username = response.body().getUserName();
-                String avatar = response.body().getAvatar();
+                if(response.isSuccessful()) {
+                    String username = response.body().getUserName();
+                    String avatar = response.body().getAvatar();
 
-                toReviewLessons.get(index).setAvatar(avatar);
-                toReviewLessons.get(index).setUserName(username);
+                    toReviewLessons.get(index).setAvatar(avatar);
+                    toReviewLessons.get(index).setUserName(username);
 
-                if (index == toReviewLessons.size() - 1) {
-                    dispplayToReviewLessons();
+                    if (index == toReviewLessons.size() - 1) {
+                        dispplayToReviewLessons();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -310,24 +317,6 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
     public void refreshFragment() {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.detach(this).attach(this).commit();
-    }
-
-    public void setUpPusherNotification() {
-        try {
-            PusherAndroid pusher = new PusherAndroid("1e87927ec5fb91180bb0");
-            PushNotificationRegistration nativePusher = pusher.nativePusher();
-            nativePusher.subscribe(String.valueOf(user.getUserId()));
-            nativePusher.registerFCM(getContext());
-
-            nativePusher.setFCMListener(new FCMPushNotificationReceivedListener() {
-                @Override
-                public void onMessageReceived(RemoteMessage remoteMessage) {
-                }
-            });
-
-        } catch (ManifestValidator.InvalidManifestException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -372,24 +361,28 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                String success = response.body().getSuccess();
-                String message = response.body().getMessage();
-                Boolean reviewNeeded = response.body().getReviewNeeded();
-                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-                if (success.equals("true")) {
-                    if (reviewNeeded) {
-                        Intent intent = new Intent(getContext(), TeacherReviewActivity.class);
-                        intent.putExtra("teacherId", teacherId);
-                        startActivity(intent);
-                    } else {
-                        refreshFragment();
+                if(response.isSuccessful()) {
+                    String success = response.body().getSuccess();
+                    String message = response.body().getMessage();
+                    Boolean reviewNeeded = response.body().getReviewNeeded();
+                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                    if (success.equals("true")) {
+                        if (reviewNeeded) {
+                            Intent intent = new Intent(getContext(), TeacherReviewActivity.class);
+                            intent.putExtra("teacherId", teacherId);
+                            startActivity(intent);
+                        } else {
+                            refreshFragment();
+                        }
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -401,17 +394,21 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                String success = response.body().getSuccess();
-                String message = response.body().getMessage();
-                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-                if (success.equals("true")) {
-                    refreshFragment();
+                if(response.isSuccessful()) {
+                    String success = response.body().getSuccess();
+                    String message = response.body().getMessage();
+                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                    if (success.equals("true")) {
+                        refreshFragment();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

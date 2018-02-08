@@ -33,6 +33,7 @@ import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.TeacherAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 
 import retrofit2.Call;
@@ -65,10 +66,15 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
+
         Bundle extras = getActivity().getIntent().getExtras();
         if (extras != null) {
             teacher = (Teacher) getActivity().getIntent().getSerializableExtra("teacher");
-            user = (User) getActivity().getIntent().getSerializableExtra("user");
+            //user = (User) getActivity().getIntent().getSerializableExtra("user");
         }
 
         progressDialog = new ProgressDialog(getContext());
@@ -84,7 +90,7 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
 
         if (teacher != null) {
             smallAds = teacher.getSmallAds();
-            if (getActivity() != null) {
+            if (smallAds != null) {
                 displaySmallAdListView();
             }
         }
@@ -113,31 +119,34 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                smallAds = response.body().getSmallAds();
-                ArrayList<String> topics = response.body().getTopicTitles();
-                ArrayList<ArrayList<SmallAdPrice>> smallAdPrices = response.body().getSmallAdPrices();
+                if(response.isSuccessful()) {
+                    smallAds = response.body().getSmallAds();
+                    ArrayList<String> topics = response.body().getTopicTitles();
+                    ArrayList<ArrayList<SmallAdPrice>> smallAdPrices = response.body().getSmallAdPrices();
 
-                for (int i = 0; i < smallAds.size(); i++) {
-                    smallAds.get(i).setTitle(topics.get(i));
-                    ArrayList<SmallAdPrice> smallAdPriceArrayList = new ArrayList<>();
+                    for (int i = 0; i < smallAds.size(); i++) {
+                        smallAds.get(i).setTitle(topics.get(i));
+                        ArrayList<SmallAdPrice> smallAdPriceArrayList = new ArrayList<>();
 
-                    if (smallAdPrices.get(i).size() > 0) {
-                        for (int j = 0; j < smallAdPrices.get(i).size(); j++) {
-                            smallAdPriceArrayList.add(smallAdPrices.get(i).get(j));
+                        if (smallAdPrices.get(i).size() > 0) {
+                            for (int j = 0; j < smallAdPrices.get(i).size(); j++) {
+                                smallAdPriceArrayList.add(smallAdPrices.get(i).get(j));
+                            }
                         }
+
+                        smallAds.get(i).setSmallAdPrices(smallAdPriceArrayList);
                     }
 
-                    smallAds.get(i).setSmallAdPrices(smallAdPriceArrayList);
+                    displaySmallAdListView();
                 }
-
-                displaySmallAdListView();
                 progressDialog.dismiss();
-
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

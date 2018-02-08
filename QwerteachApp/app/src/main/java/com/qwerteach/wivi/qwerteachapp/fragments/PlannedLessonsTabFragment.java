@@ -87,23 +87,23 @@ public class PlannedLessonsTabFragment extends Fragment {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                plannedLessons = response.body().getUpcomingLessons();
-
-                if (plannedLessons.size() > 0) {
-                    for (int i = 0; i < plannedLessons.size(); i++) {
-                        getPlannedLessonInfos(plannedLessons.get(i).getLessonId(), i);
+                if(response.isSuccessful()) {
+                    plannedLessons = response.body().getUpcomingLessons();
+                    if (plannedLessons.size() > 0) {
+                        for (int i = 0; i < plannedLessons.size(); i++) {
+                            getPlannedLessonInfos(plannedLessons.get(i).getLessonId(), i);
+                        }
+                    } else {
+                        noLessonsTitle.setVisibility(View.VISIBLE);
                     }
-                } else {
-                    noLessonsTitle.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
-                if(t instanceof SocketTimeoutException){
-                    Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -115,24 +115,28 @@ public class PlannedLessonsTabFragment extends Fragment {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                String username = response.body().getUserName();
-                String avatar = response.body().getAvatar();
-                String topicTitle = response.body().getTopicTitle();
-                List<Payment> payments = response.body().getPayments();
+                if(response.isSuccessful()) {
+                    String username = response.body().getUserName();
+                    String avatar = response.body().getAvatar();
+                    String topicTitle = response.body().getTopicTitle();
+                    List<Payment> payments = response.body().getPayments();
 
-                plannedLessons.get(index).setAvatar(avatar);
-                plannedLessons.get(index).setUserName(username);
-                plannedLessons.get(index).setTopicTitle(topicTitle);
-                plannedLessons.get(index).setPayments(payments);
+                    plannedLessons.get(index).setAvatar(avatar);
+                    plannedLessons.get(index).setUserName(username);
+                    plannedLessons.get(index).setTopicTitle(topicTitle);
+                    plannedLessons.get(index).setPayments(payments);
 
-                if (index == plannedLessons.size() - 1) {
-                    displayPlannedLessons();
+                    if (index == plannedLessons.size() - 1) {
+                        displayPlannedLessons();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -182,23 +186,27 @@ public class PlannedLessonsTabFragment extends Fragment {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                List<Lesson> newPendingLessons = response.body().getToDoList();
-                if (newPendingLessons.size() > 0) {
-                    for (int i = 0; i < newPendingLessons.size(); i++) {
-                        plannedLessons.add(newPendingLessons.get(i));
-                    }
+                if(response.isSuccessful()) {
+                    List<Lesson> newPendingLessons = response.body().getToDoList();
+                    if (newPendingLessons.size() > 0) {
+                        for (int i = 0; i < newPendingLessons.size(); i++) {
+                            plannedLessons.add(newPendingLessons.get(i));
+                        }
 
-                    for (int i = scrollPosition; i < plannedLessons.size(); i++) {
-                        getPlannedLessonInfos(plannedLessons.get(i).getLessonId(), i);
-                    }
+                        for (int i = scrollPosition; i < plannedLessons.size(); i++) {
+                            getPlannedLessonInfos(plannedLessons.get(i).getLessonId(), i);
+                        }
 
-                    loading = true;
+                        loading = true;
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

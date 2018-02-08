@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.pusher.client.Pusher;
@@ -26,6 +27,7 @@ import com.qwerteach.wivi.qwerteachapp.models.Notification;
 import com.qwerteach.wivi.qwerteachapp.models.NotificationAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 import retrofit2.Call;
@@ -86,16 +88,19 @@ public class MyNotificationsActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                notificationList = response.body().getNotifications();
-                for(int i = 0; i < notificationList.size(); i++) {
-                    getNotificationInfos(notificationList.get(i).getSender_id(), i);
+                if(response.isSuccessful()) {
+                    notificationList = response.body().getNotifications();
+                    for(int i = 0; i < notificationList.size(); i++) {
+                        getNotificationInfos(notificationList.get(i).getSender_id(), i);
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("FAILURE", toString());
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -107,17 +112,23 @@ public class MyNotificationsActivity extends AppCompatActivity {
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                String avatar = response.body().getAvatar();
-                notificationList.get(index).setAvatar(avatar);
-                if (index == notificationList.size() - 1) {
-                    dislayNotifications();
+                if(response.isSuccessful()) {
+                    String avatar = response.body().getAvatar();
+                    notificationList.get(index).setAvatar(avatar);
+                    if (index == notificationList.size() - 1) {
+                        dislayNotifications();
+                        progressDialog.dismiss();
+                    }
+                } else {
                     progressDialog.dismiss();
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
 

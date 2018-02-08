@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.qwerteach.wivi.qwerteachapp.asyncTasks.EndlessRecyclerViewScrollListener;
@@ -41,6 +42,7 @@ import com.qwerteach.wivi.qwerteachapp.models.TeacherAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.Topic;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -147,17 +149,20 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                ArrayList<Topic> topics = response.body().getTopics();
-                for (int i = 0; i < topics.size(); i++) {
-                    if (!topics.get(i).getTopicTitle().equals("Autre")) {
-                        menuItems.add(topics.get(i).getTopicTitle());
+                if(response.isSuccessful()) {
+                    ArrayList<Topic> topics = response.body().getTopics();
+                    for (int i = 0; i < topics.size(); i++) {
+                        if (!topics.get(i).getTopicTitle().equals("Autre")) {
+                            menuItems.add(topics.get(i).getTopicTitle());
+                        }
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -294,14 +299,19 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                ArrayList<User> users = response.body().getUsers();
-                setTeachersList(users);
+                if(response.isSuccessful()) {
+                    ArrayList<User> users = response.body().getUsers();
+                    setTeachersList(users);
+                } else {
+                    progressDialog.dismiss();
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("FAILURE", t.toString());
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -312,14 +322,19 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                ArrayList<User> users = response.body().getUsers();
-                setTeachersList(users);
+                if(response.isSuccessful()) {
+                    ArrayList<User> users = response.body().getUsers();
+                    setTeachersList(users);
+                } else {
+                    progressDialog.dismiss();
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("FAILURE", t.toString());
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -356,7 +371,8 @@ public class SearchTeacherActivity extends AppCompatActivity implements
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("FAILURE", t.toString());
+                Log.d("failure", String.valueOf(t.getMessage()));
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

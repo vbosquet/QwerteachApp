@@ -38,6 +38,7 @@ import com.qwerteach.wivi.qwerteachapp.models.MessageAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -122,34 +123,37 @@ public class ChatActivity extends AppCompatActivity {
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                messages = response.body().getMessages();
-                List<String> avatars = response.body().getAvatars();
-                List<User> recipients = response.body().getRecipients();
+                if(response.isSuccessful()) {
+                    messages = response.body().getMessages();
+                    List<String> avatars = response.body().getAvatars();
+                    List<User> recipients = response.body().getRecipients();
 
-                for (int i = 0; i < recipients.size(); i++) {
-                    if (!user.getPostulanceAccepted()) {
-                        teacher = new Teacher();
-                        teacher.setUser(recipients.get(i));
+                    for (int i = 0; i < recipients.size(); i++) {
+                        if (!user.getPostulanceAccepted()) {
+                            teacher = new Teacher();
+                            teacher.setUser(recipients.get(i));
+                        }
                     }
-                }
 
-                for (int j = 0; j < messages.size(); j++) {
-                    boolean isMine = false;
-                    if (Objects.equals(user.getUserId(), messages.get(j).getSenderId())) {
-                        isMine = true;
+                    for (int j = 0; j < messages.size(); j++) {
+                        boolean isMine = false;
+                        if (Objects.equals(user.getUserId(), messages.get(j).getSenderId())) {
+                            isMine = true;
+                        }
+                        messages.get(j).setMine(isMine);
+                        messages.get(j).setAvatar(avatars.get(j));
                     }
-                    messages.get(j).setMine(isMine);
-                    messages.get(j).setAvatar(avatars.get(j));
-                }
 
-                scrollPosition = messages.size() - 1;
-                progressDialog.dismiss();
-                displayMessagesListView();
+                    scrollPosition = messages.size() - 1;
+                    progressDialog.dismiss();
+                    displayMessagesListView();
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
                 Log.d("failure", String.valueOf(t.getMessage()));
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -236,7 +240,7 @@ public class ChatActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
             }
         });
 
@@ -247,28 +251,31 @@ public class ChatActivity extends AppCompatActivity {
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                List<Message> newMessages = response.body().getMessages();
-                List<String> avatars = response.body().getAvatars();
+                if(response.isSuccessful()) {
+                    List<Message> newMessages = response.body().getMessages();
+                    List<String> avatars = response.body().getAvatars();
 
-                if (newMessages.size() > 0) {
-                    for (int i = 0; i < newMessages.size(); i++) {
-                        boolean isMine = false;
-                        if (Objects.equals(user.getUserId(), newMessages.get(i).getSenderId())) {
-                            isMine = true;
+                    if (newMessages.size() > 0) {
+                        for (int i = 0; i < newMessages.size(); i++) {
+                            boolean isMine = false;
+                            if (Objects.equals(user.getUserId(), newMessages.get(i).getSenderId())) {
+                                isMine = true;
+                            }
+                            newMessages.get(i).setMine(isMine);
+                            newMessages.get(i).setAvatar(avatars.get(i));
+                            messages.add(0, newMessages.get(i));
                         }
-                        newMessages.get(i).setMine(isMine);
-                        newMessages.get(i).setAvatar(avatars.get(i));
-                        messages.add(0, newMessages.get(i));
-                    }
 
-                    loading = true;
-                    messageAdapter.notifyDataSetChanged();
+                        loading = true;
+                        messageAdapter.notifyDataSetChanged();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

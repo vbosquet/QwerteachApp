@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.CheckInternetAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.fragments.TeacherProfileFragment;
 
 public class TeacherProfileActivity extends AppCompatActivity {

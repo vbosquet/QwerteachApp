@@ -26,6 +26,7 @@ import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserWalletInfos;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -129,14 +130,17 @@ public class CreateVirtualWalletFragment extends Fragment implements
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                User user = response.body().getUser();
-                firstNameEditText.setText(user.getFirstName());
-                lastNameEditText.setText(user.getLastName());
+                if(response.isSuccessful()) {
+                    User user = response.body().getUser();
+                    firstNameEditText.setText(user.getFirstName());
+                    lastNameEditText.setText(user.getLastName());
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -186,29 +190,32 @@ public class CreateVirtualWalletFragment extends Fragment implements
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                String message = response.body().getMessage();
                 progressDialog.dismiss();
-                if (message.equals("true")) {
-                    Toast.makeText(getContext(), R.string.registration_new_wallet_success_toast_message, Toast.LENGTH_SHORT).show();
-                    if (status == 0) {
-                        Intent intent = new Intent(getActivity(), VirtualWalletActivity.class);
-                        startActivity(intent);
-                    } else if (status == 1) {
-                        getActivity().finish();
-                    }
-                } else if (message.equals("false")) {
-                    String errorMessage = response.body().getErrorMesage();
-                    if (errorMessage.equals("Internal Server Error")) {
-                        Toast.makeText(getContext(), R.string.internal_server_error, Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(getContext(), R.string.registration_new_wallet_error_toast_messsage, Toast.LENGTH_LONG).show();
+                if(response.isSuccessful()) {
+                    String message = response.body().getMessage();
+                    if (message.equals("true")) {
+                        Toast.makeText(getContext(), R.string.registration_new_wallet_success_toast_message, Toast.LENGTH_SHORT).show();
+                        if (status == 0) {
+                            Intent intent = new Intent(getActivity(), VirtualWalletActivity.class);
+                            startActivity(intent);
+                        } else if (status == 1) {
+                            getActivity().finish();
+                        }
+                    } else if (message.equals("false")) {
+                        String errorMessage = response.body().getErrorMesage();
+                        if (errorMessage.equals("Internal Server Error")) {
+                            Toast.makeText(getContext(), R.string.internal_server_error, Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getContext(), R.string.registration_new_wallet_error_toast_messsage, Toast.LENGTH_LONG).show();
+                        }
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("FAILURE", t.toString());
+                Log.d("failure", String.valueOf(t.getMessage()));
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

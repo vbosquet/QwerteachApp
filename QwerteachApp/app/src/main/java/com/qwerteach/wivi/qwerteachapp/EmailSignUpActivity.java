@@ -149,41 +149,42 @@ public class EmailSignUpActivity extends AppCompatActivity  {
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                String success = response.body().getSuccess();
-                switch (success) {
-                    case "true":
-                        User user = response.body().getUser();
+                if(response.isSuccessful()) {
+                    String success = response.body().getSuccess();
+                    switch (success) {
+                        case "true":
+                            User user = response.body().getUser();
 
-                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                        SharedPreferences.Editor editor = preferences.edit();
-                        Gson gson = new Gson();
-                        String json = gson.toJson(user);
-                        editor.putString("user", json);
-                        editor.putBoolean("isLogin", true);
-                        editor.apply();
+                            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                            SharedPreferences.Editor editor = preferences.edit();
+                            Gson gson = new Gson();
+                            String json = gson.toJson(user);
+                            editor.putString("user", json);
+                            editor.putBoolean("isLogin", true);
+                            editor.apply();
 
-                        progressDialog.dismiss();
-                        Toast.makeText(getApplicationContext(), R.string.registration_success_toast, Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
-                        startActivity(intent);
-                        break;
-                    case "exist":
-                        progressDialog.dismiss();
-                        Toast.makeText(getApplicationContext(), R.string.email_already_in_use_message, Toast.LENGTH_LONG).show();
-                        break;
-                    default:
-                        progressDialog.dismiss();
-                        Toast.makeText(getApplicationContext(), R.string.registration_error_message, Toast.LENGTH_LONG).show();
-                        break;
+                            progressDialog.dismiss();
+                            Toast.makeText(getApplicationContext(), R.string.registration_success_toast, Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+                            startActivity(intent);
+                            break;
+                        case "exist":
+                            progressDialog.dismiss();
+                            Toast.makeText(getApplicationContext(), R.string.email_already_in_use_message, Toast.LENGTH_LONG).show();
+                            break;
+                        default:
+                            progressDialog.dismiss();
+                            Toast.makeText(getApplicationContext(), R.string.registration_error_message, Toast.LENGTH_LONG).show();
+                            break;
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
-                if(t instanceof SocketTimeoutException){;
-                    Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

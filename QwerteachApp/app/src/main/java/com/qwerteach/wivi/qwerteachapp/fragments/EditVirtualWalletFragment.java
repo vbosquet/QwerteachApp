@@ -43,6 +43,7 @@ import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCardAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.UserWalletInfos;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -335,20 +336,24 @@ public class EditVirtualWalletFragment extends Fragment implements AdapterView.O
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                String message = response.body().getMessage();
                 progressDialog.dismiss();
-                if (message.equals("true")) {
-                    getFragmentManager().popBackStack();
-                    Toast.makeText(getContext(), R.string.updating_wallet_success_toast_message, Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful()) {
+                    String message = response.body().getMessage();
+                    if (message.equals("true")) {
+                        getFragmentManager().popBackStack();
+                        Toast.makeText(getContext(), R.string.updating_wallet_success_toast_message, Toast.LENGTH_SHORT).show();
 
-                } else if (message.equals("false")) {
-                    Toast.makeText(getContext(), R.string.updating_wallet_error_toast_message, Toast.LENGTH_SHORT).show();
+                    } else if (message.equals("false")) {
+                        Toast.makeText(getContext(), R.string.updating_wallet_error_toast_message, Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("FAILURE", t.toString());
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -565,15 +570,18 @@ public class EditVirtualWalletFragment extends Fragment implements AdapterView.O
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                String message = response.body().getMessage();
-                Log.d("MESSAGE", message);
-                getFragmentManager().popBackStack();
-                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                if(response.isSuccessful()) {
+                    String message = response.body().getMessage();
+                    getFragmentManager().popBackStack();
+                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
                 Log.d("FAILURE", t.getMessage());
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

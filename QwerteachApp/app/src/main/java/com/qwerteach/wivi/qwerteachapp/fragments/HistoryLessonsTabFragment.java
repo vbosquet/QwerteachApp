@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,7 @@ import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import java.net.SocketTimeoutException;
 import java.util.List;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -82,19 +84,20 @@ public class HistoryLessonsTabFragment extends Fragment {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                historyLessons = response.body().getPastLessons();
+                if(response.isSuccessful()) {
+                    historyLessons = response.body().getPastLessons();
 
-                for (int i = 0; i < historyLessons.size(); i++) {
-                    getHistoryLessonInfos(historyLessons.get(i).getLessonId(), i);
+                    for (int i = 0; i < historyLessons.size(); i++) {
+                        getHistoryLessonInfos(historyLessons.get(i).getLessonId(), i);
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
-                if(t instanceof SocketTimeoutException){
-                    Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -106,24 +109,28 @@ public class HistoryLessonsTabFragment extends Fragment {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                String username = response.body().getUserName();
-                String avatar = response.body().getAvatar();
-                String topicTitle = response.body().getTopicTitle();
-                List<Payment> payments = response.body().getPayments();
+                if(response.isSuccessful()) {
+                    String username = response.body().getUserName();
+                    String avatar = response.body().getAvatar();
+                    String topicTitle = response.body().getTopicTitle();
+                    List<Payment> payments = response.body().getPayments();
 
-                historyLessons.get(index).setAvatar(avatar);
-                historyLessons.get(index).setUserName(username);
-                historyLessons.get(index).setTopicTitle(topicTitle);
-                historyLessons.get(index).setPayments(payments);
+                    historyLessons.get(index).setAvatar(avatar);
+                    historyLessons.get(index).setUserName(username);
+                    historyLessons.get(index).setTopicTitle(topicTitle);
+                    historyLessons.get(index).setPayments(payments);
 
-                if (index == historyLessons.size() - 1) {
-                    displayHistoryLessons();
+                    if (index == historyLessons.size() - 1) {
+                        displayHistoryLessons();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -136,23 +143,27 @@ public class HistoryLessonsTabFragment extends Fragment {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                List<Lesson> newHistoryLessons = response.body().getPastLessons();
-                if (newHistoryLessons.size() > 0) {
-                    for (int i = 0; i < newHistoryLessons.size(); i++) {
-                        historyLessons.add(newHistoryLessons.get(i));
-                    }
+                if(response.isSuccessful()) {
+                    List<Lesson> newHistoryLessons = response.body().getPastLessons();
+                    if (newHistoryLessons.size() > 0) {
+                        for (int i = 0; i < newHistoryLessons.size(); i++) {
+                            historyLessons.add(newHistoryLessons.get(i));
+                        }
 
-                    for (int i = scrollPosition; i < historyLessons.size(); i++) {
-                        getHistoryLessonInfos(historyLessons.get(i).getLessonId(), i);
-                    }
+                        for (int i = scrollPosition; i < historyLessons.size(); i++) {
+                            getHistoryLessonInfos(historyLessons.get(i).getLessonId(), i);
+                        }
 
-                    loading = true;
+                        loading = true;
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

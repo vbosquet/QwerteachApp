@@ -44,6 +44,7 @@ import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
+import java.net.SocketTimeoutException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -140,17 +141,21 @@ public class CreateNewLessonFragment extends Fragment implements
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                topicGroups = response.body().getTopicGroups();
-                displayDateAndTimePickers();
-                displayHourSpinner();
-                displayMinutSpinner();
-                displayTopicGroupSpinner();
+                if(response.isSuccessful()) {
+                    topicGroups = response.body().getTopicGroups();
+                    displayDateAndTimePickers();
+                    displayHourSpinner();
+                    displayMinutSpinner();
+                    displayTopicGroupSpinner();
+                }
                 progressDialog.dismiss();
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -271,14 +276,16 @@ public class CreateNewLessonFragment extends Fragment implements
                 callForTopics.enqueue(new Callback<JsonResponse>() {
                     @Override
                     public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                        topics = response.body().getTopics();
-                        displayTopicSpinner();
+                        if(response.isSuccessful()) {
+                            topics = response.body().getTopics();
+                            displayTopicSpinner();
+                        }
                     }
 
                     @Override
                     public void onFailure(Call<JsonResponse> call, Throwable t) {
-                        Log.d("FAILURE", t.toString());
-
+                        Log.d("failure", String.valueOf(t.getMessage()));
+                        Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
                     }
                 });
                 break;
@@ -291,14 +298,16 @@ public class CreateNewLessonFragment extends Fragment implements
                 callForLevels.enqueue(new Callback<JsonResponse>() {
                     @Override
                     public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                        levels = response.body().getLevels();
-                        displayLevelSpinner();
+                        if(response.isSuccessful()) {
+                            levels = response.body().getLevels();
+                            displayLevelSpinner();
+                        }
                     }
 
                     @Override
                     public void onFailure(Call<JsonResponse> call, Throwable t) {
-                        Log.d("FAILURE", t.toString());
-
+                        Log.d("failure", String.valueOf(t.getMessage()));
+                        Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
                     }
                 });
                 break;
@@ -323,15 +332,18 @@ public class CreateNewLessonFragment extends Fragment implements
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                totalPrice = response.body().getLessonTotalPrice();
                 progressDialog.dismiss();
-                totalPriceTextView.setText(totalPrice + " €");
+                if(response.isSuccessful()) {
+                    totalPrice = response.body().getLessonTotalPrice();
+                    totalPriceTextView.setText(totalPrice + " €");
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("FAILURE", t.toString());
-
+                progressDialog.dismiss();
+                Log.d("failure", String.valueOf(t.getMessage()));
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -384,36 +396,37 @@ public class CreateNewLessonFragment extends Fragment implements
             call.enqueue(new Callback<JsonResponse>() {
                 @Override
                 public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                    String message = response.body().getMessage();
                     progressDialog.dismiss();
-                    switch (message) {
-                        case "no account":
-                            intent = new Intent(getContext(), NewVirtualWalletActivity.class);
-                            intent.putExtra("status", 1);
-                            startActivity(intent);
-                            break;
-                        case "true":
-                            ArrayList<UserCreditCard> creditCards = response.body().getUserCreditCards();
-                            CardRegistrationData cardRegistrationData = response.body().getCardRegistrationData();
-                            intent = new Intent(getContext(), PaymentMethodActivity.class);
-                            intent.putExtra("totalPrice", totalPrice);
-                            intent.putExtra("teacher", teacher);
-                            intent.putExtra("userCreditCardList", creditCards);
-                            intent.putExtra("cardRegistration", cardRegistrationData);
-                            startActivity(intent);
-                            break;
-                        default:
-                            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-                            break;
+                    if(response.isSuccessful()) {
+                        String message = response.body().getMessage();
+                        switch (message) {
+                            case "no account":
+                                intent = new Intent(getContext(), NewVirtualWalletActivity.class);
+                                intent.putExtra("status", 1);
+                                startActivity(intent);
+                                break;
+                            case "true":
+                                ArrayList<UserCreditCard> creditCards = response.body().getUserCreditCards();
+                                CardRegistrationData cardRegistrationData = response.body().getCardRegistrationData();
+                                intent = new Intent(getContext(), PaymentMethodActivity.class);
+                                intent.putExtra("totalPrice", totalPrice);
+                                intent.putExtra("teacher", teacher);
+                                intent.putExtra("userCreditCardList", creditCards);
+                                intent.putExtra("cardRegistration", cardRegistrationData);
+                                startActivity(intent);
+                                break;
+                            default:
+                                Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                                break;
+                        }
                     }
                 }
 
                 @Override
                 public void onFailure(Call<JsonResponse> call, Throwable t) {
-                    Log.d("FAILURE", t.toString());
+                    Log.d("failure", String.valueOf(t.getMessage()));
                     progressDialog.dismiss();
                     Toast.makeText(getContext(), "Impossible de réserver votre cours. Veuillez réessayer ultérieurement.", Toast.LENGTH_LONG).show();
-
                 }
             });
 

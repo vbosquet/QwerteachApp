@@ -31,6 +31,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import java.net.SocketTimeoutException;
 import java.util.Set;
 
 import retrofit2.Call;
@@ -120,46 +121,49 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                String message = null;
-                String success = response.body().getSuccess();
-                Transaction transaction = response.body().getTransaction();
+                if (response.isSuccessful()) {
+                    String message = null;
+                    String success = response.body().getSuccess();
+                    Transaction transaction = response.body().getTransaction();
 
-                if (transaction != null) {
-                    if (transaction.getStatus().equals("FAILED")) {
-                        message = "L'authentification par 3DSecure a échoué. Vous n'avez pas été débité, et votre portefeuille virtuel Qwerteach n'a pas été chargé.";
-                    } else {
-                        message = "Votre portefeuille virtuel a bien été rechargé.";
+                    if (transaction != null) {
+                        if (transaction.getStatus().equals("FAILED")) {
+                            message = "L'authentification par 3DSecure a échoué. Vous n'avez pas été débité, et votre portefeuille virtuel Qwerteach n'a pas été chargé.";
+                        } else {
+                            message = "Votre portefeuille virtuel a bien été rechargé.";
+                        }
                     }
-                }
 
-                switch (success) {
-                    case "true": {
-                        Toast.makeText(getApplication(), R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
-                        Intent intent = new Intent(getApplicationContext(), MyLessonsActivity.class);
-                        intent.putExtra("position", 1);
-                        startActivity(intent);
-                        break;
-                    }
-                    case "loaded": {
-                        Intent intent = new Intent(getApplicationContext(), VirtualWalletActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                        finish();
-                        Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
-                        break;
-                    }
-                    default: {
-                        Toast.makeText(getApplicationContext(), R.string.payment_error_toast_message, Toast.LENGTH_LONG).show();
-                        Intent intent = new Intent(getApplicationContext(), PaymentMethodActivity.class);
-                        startActivity(intent);
-                        break;
+                    switch (success) {
+                        case "true": {
+                            Toast.makeText(getApplication(), R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(getApplicationContext(), MyLessonsActivity.class);
+                            intent.putExtra("position", 1);
+                            startActivity(intent);
+                            break;
+                        }
+                        case "loaded": {
+                            Intent intent = new Intent(getApplicationContext(), VirtualWalletActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                            finish();
+                            Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
+                            break;
+                        }
+                        default: {
+                            Toast.makeText(getApplicationContext(), R.string.payment_error_toast_message, Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(getApplicationContext(), PaymentMethodActivity.class);
+                            startActivity(intent);
+                            break;
+                        }
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

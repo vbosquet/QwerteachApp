@@ -39,6 +39,7 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import java.io.File;
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -84,10 +85,15 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Bundle extras = getActivity().getIntent().getExtras();
+        /*Bundle extras = getActivity().getIntent().getExtras();
         if (extras != null) {
             user = (User) getActivity().getIntent().getSerializableExtra("user");
-        }
+        }*/
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
 
         progressDialog = new ProgressDialog(getContext());
         service = ApiClient.getClient().create(QwerteachService.class);
@@ -136,7 +142,6 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
         String zone = TimeZone.getDefault().getID();
         int slash = zone.indexOf('/');
         zone = zone.substring(slash + 1).replace("_", " ");
-        Log.d("ZONE", zone);
 
         User newUser = new User();
         newUser.setFirstName(firstNameEditText.getText().toString());
@@ -154,31 +159,34 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                User userResponse = response.body().getUser();
-                String success = response.body().getSuccess();
-                String message = response.body().getMessage();
-
                 progressDialog.dismiss();
+                if(response.isSuccessful()) {
+                    User userResponse = response.body().getUser();
+                    String success = response.body().getSuccess();
+                    String message = response.body().getMessage();
 
-                if (success.equals("true")) {
-                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                    if (success.equals("true")) {
+                        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
 
-                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-                    SharedPreferences.Editor editor = preferences.edit();
-                    Gson gson = new Gson();
-                    String json = gson.toJson(userResponse);
-                    editor.putString("user", json);
-                    editor.apply();
+                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+                        SharedPreferences.Editor editor = preferences.edit();
+                        Gson gson = new Gson();
+                        String json = gson.toJson(userResponse);
+                        editor.putString("user", json);
+                        editor.apply();
 
-                } else {
-                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-                    displayUserInfos();
+                    } else {
+                        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                        displayUserInfos();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -240,8 +248,8 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("ERROR", t.toString());
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
 

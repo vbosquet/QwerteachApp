@@ -31,6 +31,7 @@ import com.qwerteach.wivi.qwerteachapp.models.Level;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -66,10 +67,15 @@ public class FormationsTabFragment extends Fragment implements AdapterView.OnIte
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Bundle extras = getActivity().getIntent().getExtras();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        user = gson.fromJson(json, User.class);
+
+        /*Bundle extras = getActivity().getIntent().getExtras();
         if (extras != null) {
             user = (User) getActivity().getIntent().getSerializableExtra("user");
-        }
+        }*/
 
         levels = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
@@ -105,13 +111,16 @@ public class FormationsTabFragment extends Fragment implements AdapterView.OnIte
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                levels = response.body().getLevels();
-                displayLevels();
+                if(response.isSuccessful()) {
+                    levels = response.body().getLevels();
+                    displayLevels();
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -178,14 +187,18 @@ public class FormationsTabFragment extends Fragment implements AdapterView.OnIte
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                String message = response.body().getMessage();
                 progressDialog.dismiss();
-                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                if(response.isSuccessful()) {
+                    String message = response.body().getMessage();
+                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
 

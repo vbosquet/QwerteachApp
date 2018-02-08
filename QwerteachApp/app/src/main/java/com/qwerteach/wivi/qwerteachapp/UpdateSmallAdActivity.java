@@ -31,6 +31,7 @@ import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -83,19 +84,22 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                topic = response.body().getTopicTitle();
-                topicGroup = response.body().getTopicGroupTitle();
-                levels = response.body().getLevels();
+                if(response.isSuccessful()) {
+                    topic = response.body().getTopicTitle();
+                    topicGroup = response.body().getTopicGroupTitle();
+                    levels = response.body().getLevels();
 
-                topicTextView.setText(topic);
-                topicGroupTextView.setText(topicGroup);
-                descriptionEditText.setText(smallAd.getDescription());
-                displayPrices();
+                    topicTextView.setText(topic);
+                    topicGroupTextView.setText(topicGroup);
+                    descriptionEditText.setText(smallAd.getDescription());
+                    displayPrices();
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -128,20 +132,22 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                String success = response.body().getSuccess();
-
-                if (success.equals("true")) {
-                    setResult(Activity.RESULT_OK);
-                    finish();
-                    Toast.makeText(getApplicationContext(), R.string.delete_small_ad_success_true_message, Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getApplicationContext(), R.string.delete_small_ad_success_false_message, Toast.LENGTH_SHORT).show();
+                if(response.isSuccessful()) {
+                    String success = response.body().getSuccess();
+                    if (success.equals("true")) {
+                        setResult(Activity.RESULT_OK);
+                        finish();
+                        Toast.makeText(getApplicationContext(), R.string.delete_small_ad_success_true_message, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), R.string.delete_small_ad_success_false_message, Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -176,21 +182,24 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                String success = response.body().getSuccess();
-                String message = response.body().getMessage();
+                if(response.isSuccessful()) {
+                    String success = response.body().getSuccess();
+                    String message = response.body().getMessage();
 
-                if (success.equals("true")) {
-                    setResult(Activity.RESULT_OK);
-                    finish();
-                    Toast.makeText(getApplication(), message, Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getApplication(), message, Toast.LENGTH_SHORT).show();
+                    if (success.equals("true")) {
+                        setResult(Activity.RESULT_OK);
+                        finish();
+                        Toast.makeText(getApplication(), message, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getApplication(), message, Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

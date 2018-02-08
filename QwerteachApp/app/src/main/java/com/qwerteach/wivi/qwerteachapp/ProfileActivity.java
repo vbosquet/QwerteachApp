@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -66,25 +67,28 @@ public class ProfileActivity extends AppCompatActivity  {
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                user = response.body().getUser();
-                String avatarUrl = response.body().getAvatar();
-                user.setAvatarUrl(avatarUrl);
+                if(response.isSuccessful()) {
+                    user = response.body().getUser();
+                    String avatarUrl = response.body().getAvatar();
+                    user.setAvatarUrl(avatarUrl);
 
-                if (!user.getPostulanceAccepted()) {
-                    progressDialog.dismiss();
-                    displayStudentProfileFragment();
+                    if (!user.getPostulanceAccepted()) {
+                        progressDialog.dismiss();
+                        displayStudentProfileFragment();
 
+                    } else {
+                        preparaDataForTeacher(response);
+                    }
                 } else {
-                    preparaDataForTeacher(response);
+                    progressDialog.dismiss();
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
-                if(t instanceof SocketTimeoutException){;
-                    Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
 

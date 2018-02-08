@@ -140,33 +140,33 @@ public class IndexVirtualWalletFragment extends Fragment implements View.OnClick
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                userWalletInfos = response.body().getUserWalletInfos();
-                userBankAccounts = response.body().getBankAccounts();
-                transactions = response.body().getTransactions();
-                userCreditCards = response.body().getUserCreditCards();
-                transactionInfos = response.body().getTransactionInfos();
+                if(response.isSuccessful()) {
+                    userWalletInfos = response.body().getUserWalletInfos();
+                    userBankAccounts = response.body().getBankAccounts();
+                    transactions = response.body().getTransactions();
+                    userCreditCards = response.body().getUserCreditCards();
+                    transactionInfos = response.body().getTransactionInfos();
 
-                for (int i = 0; i < transactionInfos.size(); i++) {
-                    transactions.get(i).setTitle(transactionInfos.get(i));
+                    for (int i = 0; i < transactionInfos.size(); i++) {
+                        transactions.get(i).setTitle(transactionInfos.get(i));
+                    }
+
+                    if (user.getPostulanceAccepted()) {
+                        displayTeacherAccountsAndCards();
+                    } else {
+                        displayStudentAccountsAndCards();
+                    }
+
+                    displayCardCoordonnees();
+                    displayTransactionsList();
                 }
-
-                if (user.getPostulanceAccepted()) {
-                    displayTeacherAccountsAndCards();
-                } else {
-                    displayStudentAccountsAndCards();
-                }
-
-                displayCardCoordonnees();
-                displayTransactionsList();
-
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
-                if(t instanceof SocketTimeoutException){;
-                    Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

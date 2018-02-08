@@ -39,10 +39,12 @@ import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.squareup.picasso.Picasso;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -233,8 +235,9 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("FAILURE", t.toString());
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -282,27 +285,29 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
             call.enqueue(new Callback<JsonResponse>() {
                 @Override
                 public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                    ArrayList<Level> levels = response.body().getLevels();
-                    List<Level> newLevelsList = new ArrayList<>();
-                    for (Level element : levels) {
-                        if (!newLevelsList.contains(element)) {
-                            newLevelsList.add(element);
+                    if(response.isSuccessful()) {
+                        ArrayList<Level> levels = response.body().getLevels();
+                        List<Level> newLevelsList = new ArrayList<>();
+                        for (Level element : levels) {
+                            if (!newLevelsList.contains(element)) {
+                                newLevelsList.add(element);
+                            }
                         }
-                    }
 
-                    List<SmallAdPrice> newSmallAdPricesList = new ArrayList<>();
-                    for (SmallAdPrice element : smallAdPrices) {
-                        if (!newSmallAdPricesList.contains(element)) {
-                            newSmallAdPricesList.add(element);
+                        List<SmallAdPrice> newSmallAdPricesList = new ArrayList<>();
+                        for (SmallAdPrice element : smallAdPrices) {
+                            if (!newSmallAdPricesList.contains(element)) {
+                                newSmallAdPricesList.add(element);
+                            }
                         }
-                    }
 
-                    String topicGroup = response.body().getTopicGroupTitle();
-                    addSmallAdTitlesToAlertDialog(topic, topicGroup, alertDialog);
+                        String topicGroup = response.body().getTopicGroupTitle();
+                        addSmallAdTitlesToAlertDialog(topic, topicGroup, alertDialog);
 
-                    for (int j = 0; j < newSmallAdPricesList.size(); j++) {
-                        addSmallAdLevelsAndPricesToAlertDialog(String.valueOf(newSmallAdPricesList.get(j).getPrice()),
-                                newLevelsList.get(j).getBeLevelName(), alertDialog);
+                        for (int j = 0; j < newSmallAdPricesList.size(); j++) {
+                            addSmallAdLevelsAndPricesToAlertDialog(String.valueOf(newSmallAdPricesList.get(j).getPrice()),
+                                    newLevelsList.get(j).getBeLevelName(), alertDialog);
+                        }
                     }
 
                     progressDialog.dismiss();
@@ -310,7 +315,9 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
 
                 @Override
                 public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                    Log.d("failure", String.valueOf(t.getMessage()));
+                    progressDialog.dismiss();
+                    Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -362,9 +369,13 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
     }
 
     public void didTouchLessonReservationButton() {
-        Intent intent = new Intent(getContext(), LessonReservationActivity.class);
-        intent.putExtra("teacher", teacher);
-        startActivity(intent);
+        if(Objects.equals(user.getUserId(), teacher.getUser().getUserId())) {
+            Toast.makeText(getActivity(), "Vous ne pouvez pas réserver de cours avec vous-mêmes.", Toast.LENGTH_SHORT).show();
+        } else {
+            Intent intent = new Intent(getContext(), LessonReservationActivity.class);
+            intent.putExtra("teacher", teacher);
+            startActivity(intent);
+        }
     }
 
     public void startProgressDialog() {

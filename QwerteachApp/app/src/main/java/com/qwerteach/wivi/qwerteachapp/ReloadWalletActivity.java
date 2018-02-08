@@ -52,6 +52,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -185,14 +186,18 @@ public class ReloadWalletActivity extends AppCompatActivity implements
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 progressDialog.dismiss();
-                cardRegistrationData = response.body().getCardRegistrationData();
-                userCreditCards = response.body().getUserCreditCards();
-                displayInitialLayout();
+                if(response.isSuccessful()) {
+                    cardRegistrationData = response.body().getCardRegistrationData();
+                    userCreditCards = response.body().getUserCreditCards();
+                    displayInitialLayout();
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -505,12 +510,16 @@ public class ReloadWalletActivity extends AppCompatActivity implements
         call.enqueue(new retrofit2.Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                displayConfirmationMessage(response);
+                if (response.isSuccessful()) {
+                    displayConfirmationMessage(response);
+                } else {
+                    progressDialog.dismiss();
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("FAILURE", t.toString());
+                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.error_payment_message, Toast.LENGTH_LONG).show();
             }

@@ -38,6 +38,7 @@ import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -127,15 +128,19 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
         call.enqueue(new retrofit2.Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                totalWallet = response.body().getTotalWallet();
                 progressDialog.dismiss();
-                totalWalletTextView.setText("Solde de mon Portefeuille : " + totalWallet/100 + "€");
-                displayOtherPaymentMethodSpinner();
+                if(response.isSuccessful()) {
+                    totalWallet = response.body().getTotalWallet();
+                    totalWalletTextView.setText("Solde de mon Portefeuille : " + totalWallet/100 + "€");
+                    displayOtherPaymentMethodSpinner();
+                }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                Log.d("failure", String.valueOf(t.getMessage()));
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -401,34 +406,37 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
        call.enqueue(new retrofit2.Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                String message = response.body().getMessage();
                 progressDialog.dismiss();
-                switch (message) {
-                    case "result":
-                        String url = response.body().getUrl();
-                        intent = new Intent(getApplication(), MangoPaySecureModeActivity.class);
-                        intent.putExtra("url", url);
-                        intent.putExtra("mode", paymentMode);
-                        startActivity(intent);
-                        break;
-                    case "finish":
-                    case"true": {
-                        Toast.makeText(getApplication(), R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
-                        intent = new Intent(getApplication(), MyLessonsActivity.class);
-                        intent.putExtra("position", 1);
-                        startActivity(intent);
-                        break;
+                if(response.isSuccessful()) {
+                    String message = response.body().getMessage();
+                    switch (message) {
+                        case "result":
+                            String url = response.body().getUrl();
+                            intent = new Intent(getApplication(), MangoPaySecureModeActivity.class);
+                            intent.putExtra("url", url);
+                            intent.putExtra("mode", paymentMode);
+                            startActivity(intent);
+                            break;
+                        case "finish":
+                        case"true": {
+                            Toast.makeText(getApplication(), R.string.payment_success_toast_message, Toast.LENGTH_LONG).show();
+                            intent = new Intent(getApplication(), MyLessonsActivity.class);
+                            intent.putExtra("position", 1);
+                            startActivity(intent);
+                            break;
+                        }
+                        case "errors":
+                            Log.d("ERROR", "error");
+                            break;
                     }
-                    case "errors":
-                        Log.d("ERROR", "error");
-                        break;
                 }
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
-                Log.d("ERROR", t.toString());
+                Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

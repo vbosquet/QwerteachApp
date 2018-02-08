@@ -14,14 +14,18 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.CheckInternetAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.fragments.HistoryLessonsTabFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.PendingLessonsTabFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.PlannedLessonsTabFragment;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.User;
+
+import java.net.SocketTimeoutException;
 
 public class MyLessonsActivity extends AppCompatActivity {
 
@@ -54,8 +58,8 @@ public class MyLessonsActivity extends AppCompatActivity {
         }
 
         viewPager = (ViewPager) findViewById(R.id.pager);
-        viewPager.setOffscreenPageLimit(2);
         tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        viewPager.setOffscreenPageLimit(2);
         viewPager.setAdapter(new MyAdapter(getSupportFragmentManager(), numItems));
         tabLayout.setupWithViewPager(viewPager);
         viewPager.setCurrentItem(position);

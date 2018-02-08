@@ -14,8 +14,10 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.CheckInternetAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.fragments.AdTabFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.DescriptionTabFragment;
 import com.qwerteach.wivi.qwerteachapp.fragments.FormationsTabFragment;

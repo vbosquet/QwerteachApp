@@ -1,8 +1,11 @@
 package com.qwerteach.wivi.qwerteachapp;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -19,15 +22,23 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
+import com.pusher.android.PusherAndroid;
+import com.pusher.android.notifications.ManifestValidator;
+import com.pusher.android.notifications.PushNotificationRegistration;
+import com.pusher.android.notifications.fcm.FCMPushNotificationReceivedListener;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.CheckInternetAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.fragments.DashboardFragment;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
+import java.net.SocketTimeoutException;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -54,8 +65,11 @@ public class DashboardActivity extends AppCompatActivity {
         Gson gson = new Gson();
         String json = preferences.getString("user", "");
         user = gson.fromJson(json, User.class);
-
         service = ApiClient.getClient().create(QwerteachService.class);
+
+        if(isOnline()) {
+            setUpPusherNotification();
+        }
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -98,21 +112,24 @@ public class DashboardActivity extends AppCompatActivity {
                     call.enqueue(new Callback<JsonResponse>() {
                         @Override
                         public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                            String success = response.body().getSuccess();
-                            if (Objects.equals(success, "true")) {
-                                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                                SharedPreferences.Editor editor = preferences.edit();
-                                editor.putBoolean("isLogin", false);
-                                editor.apply();
+                            if (response.isSuccessful()) {
+                                String success = response.body().getSuccess();
+                                if (Objects.equals(success, "true")) {
+                                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putBoolean("isLogin", false);
+                                    editor.apply();
 
-                                intent = new Intent(getApplicationContext(), MainActivity.class);
-                                startActivity(intent);
+                                    intent = new Intent(getApplicationContext(), MainActivity.class);
+                                    startActivity(intent);
+                                }
                             }
                         }
 
                         @Override
                         public void onFailure(Call<JsonResponse> call, Throwable t) {
-
+                            Log.d("failure", String.valueOf(t.getMessage()));
+                            Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -199,4 +216,30 @@ public class DashboardActivity extends AppCompatActivity {
     public void onBackPressed() {
 
     }
+
+    public boolean isOnline() {
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnected());
+
+    }
+
+    public void setUpPusherNotification() {
+        try {
+            PusherAndroid pusher = new PusherAndroid("1e87927ec5fb91180bb0");
+            PushNotificationRegistration nativePusher = pusher.nativePusher();
+            nativePusher.subscribe(String.valueOf(user.getUserId()));
+            nativePusher.registerFCM(this);
+
+            nativePusher.setFCMListener(new FCMPushNotificationReceivedListener() {
+                @Override
+                public void onMessageReceived(RemoteMessage remoteMessage) {
+                }
+            });
+
+        } catch (ManifestValidator.InvalidManifestException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
