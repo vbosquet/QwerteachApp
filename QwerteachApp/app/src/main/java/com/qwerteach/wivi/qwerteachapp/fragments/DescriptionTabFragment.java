@@ -75,6 +75,9 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
     QwerteachService service;
     CountryCodePicker ccp;
     DatePickerDialog dialog;
+    SharedPreferences preferences;
+    SharedPreferences.Editor editor;
+    Gson gson;
 
     public static DescriptionTabFragment newInstance() {
         DescriptionTabFragment descriptionTabFragment = new DescriptionTabFragment();
@@ -90,8 +93,10 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
             user = (User) getActivity().getIntent().getSerializableExtra("user");
         }*/
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        Gson gson = new Gson();
+        preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        editor = preferences.edit();
+        gson = new Gson();
+
         String json = preferences.getString("user", "");
         user = gson.fromJson(json, User.class);
 
@@ -168,9 +173,6 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
                     if (success.equals("true")) {
                         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
 
-                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-                        SharedPreferences.Editor editor = preferences.edit();
-                        Gson gson = new Gson();
                         String json = gson.toJson(userResponse);
                         editor.putString("user", json);
                         editor.apply();

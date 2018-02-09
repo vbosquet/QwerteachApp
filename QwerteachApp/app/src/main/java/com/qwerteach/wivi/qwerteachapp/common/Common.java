@@ -3,6 +3,7 @@ package com.qwerteach.wivi.qwerteachapp.common;
 import android.icu.text.SimpleDateFormat;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -26,8 +27,9 @@ public class Common {
         Calendar selectedDateTime = getSelectedDate(date);
         boolean isValidTime = true;
 
-        int selectedHour = Integer.parseInt(time.substring(0, 2));
-        int selectedMinute = Integer.parseInt(time.substring(3));
+        int index = time.indexOf(":");
+        int selectedHour = Integer.parseInt(time.substring(0, index));
+        int selectedMinute = Integer.parseInt(time.substring(index + 1, time.length()));
 
         if (selectedDateTime.get(Calendar.DAY_OF_MONTH) == now.get(Calendar.DAY_OF_MONTH)
                 && selectedDateTime.get(Calendar.MONTH) == now.get(Calendar.MONTH)

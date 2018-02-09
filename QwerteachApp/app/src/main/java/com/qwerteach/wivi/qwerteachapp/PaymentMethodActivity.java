@@ -217,6 +217,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                         paymentWithVirtualWallet.setChecked(false);
                         setCreditCardSpinner();
                     } else {
+                        Log.d("CREDIT_CARD", "Adding new credit card");
                         currentAlias = NEW_CREDIT_CARD;
                         newCreditCardLinearLayout.setVisibility(View.VISIBLE);
                         //bancontactTextView.setVisibility(View.GONE);
@@ -229,8 +230,8 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                     creditCardChoiceLinearLayout.setVisibility(View.GONE);
                     newCreditCardLinearLayout.setVisibility(View.GONE);
                     paymentWithVirtualWallet.setChecked(false);
-                }
-                break;*/
+                }*/
+                break;
             case R.id.credit_card_choice_spinner:
                 currentAlias = adapterView.getItemAtPosition(i).toString();
                 if (currentAlias.equals(creditCards.get(0))) {

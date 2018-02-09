@@ -41,6 +41,9 @@ public class ProfileActivity extends AppCompatActivity  {
     ProgressDialog progressDialog;
     User user;
     Teacher teacher;
+    SharedPreferences preferences;
+    SharedPreferences.Editor editor;
+    Gson gson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +53,10 @@ public class ProfileActivity extends AppCompatActivity  {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        Gson gson = new Gson();
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        editor = preferences.edit();
+        gson = new Gson();
+
         String json = preferences.getString("user", "");
         user = gson.fromJson(json, User.class);
 
@@ -71,6 +76,10 @@ public class ProfileActivity extends AppCompatActivity  {
                     user = response.body().getUser();
                     String avatarUrl = response.body().getAvatar();
                     user.setAvatarUrl(avatarUrl);
+
+                    String json = gson.toJson(user);
+                    editor.putString("user", json);
+                    editor.apply();
 
                     if (!user.getPostulanceAccepted()) {
                         progressDialog.dismiss();
