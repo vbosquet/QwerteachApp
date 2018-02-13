@@ -77,7 +77,6 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
 
     @Override
     public void redirectURL(String string) {
-        Log.d("RESULT", string);
         Document doc = Jsoup.parse(string);
         Element link = doc.select("a").first();
         String linkHref = link.attr("href");
@@ -162,7 +161,6 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
@@ -171,7 +169,6 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
     private class MyWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            Log.d("URL", url);
 
             switch (url) {
                 case "https://homologation-secure-p.payline.com/webpayment/mpiServletProxy.do?reqCode=enrollment": {

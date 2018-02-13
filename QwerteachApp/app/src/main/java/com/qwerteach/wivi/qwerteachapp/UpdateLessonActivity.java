@@ -148,7 +148,6 @@ public class UpdateLessonActivity extends AppCompatActivity implements View.OnCl
 
                 @Override
                 public void onFailure(Call<JsonResponse> call, Throwable t) {
-                    Log.d("failure", String.valueOf(t.getMessage()));
                     progressDialog.dismiss();
                     Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
                 }

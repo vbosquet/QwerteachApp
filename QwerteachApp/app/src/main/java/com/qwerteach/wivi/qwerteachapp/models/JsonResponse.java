@@ -367,6 +367,7 @@ public class JsonResponse {
         return transaction;
     }
 
+
     public static class Duration
     {
         @SerializedName("hours")

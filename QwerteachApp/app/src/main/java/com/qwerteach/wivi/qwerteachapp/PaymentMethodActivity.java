@@ -138,7 +138,6 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
@@ -217,7 +216,6 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                         paymentWithVirtualWallet.setChecked(false);
                         setCreditCardSpinner();
                     } else {
-                        Log.d("CREDIT_CARD", "Adding new credit card");
                         currentAlias = NEW_CREDIT_CARD;
                         newCreditCardLinearLayout.setVisibility(View.VISIBLE);
                         //bancontactTextView.setVisibility(View.GONE);
@@ -427,7 +425,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                             break;
                         }
                         case "errors":
-                            Log.d("ERROR", "error");
+                            Toast.makeText(getApplication(), "Une erreur s'est produite. Veuillez réessayer ultérieurement", Toast.LENGTH_LONG).show();
                             break;
                     }
                 }
@@ -435,7 +433,6 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }

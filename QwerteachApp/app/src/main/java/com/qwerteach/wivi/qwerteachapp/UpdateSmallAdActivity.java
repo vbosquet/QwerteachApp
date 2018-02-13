@@ -98,7 +98,6 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
@@ -146,7 +145,6 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
@@ -198,7 +196,6 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });

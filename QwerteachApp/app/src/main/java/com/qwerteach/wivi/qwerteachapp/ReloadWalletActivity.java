@@ -195,7 +195,6 @@ public class ReloadWalletActivity extends AppCompatActivity implements
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
@@ -519,7 +518,6 @@ public class ReloadWalletActivity extends AppCompatActivity implements
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.error_payment_message, Toast.LENGTH_LONG).show();
             }
@@ -538,7 +536,6 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                 Toast.makeText(this, R.string.load_wallet_by_credit_card_sucess_toast_message, Toast.LENGTH_SHORT).show();
                 break;
             case "redirect url":
-                Log.d("REDIRECT_URL", message);
                 String url = response.body().getUrl();
                 intent = new Intent(this, MangoPaySecureModeActivity.class);
                 intent.putExtra("url", url);
@@ -549,7 +546,6 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                 List<String> errorMessages = response.body().getErrorMessages();
                 if (errorMessages.size() > 0) {
                     for (int i = 0; i < errorMessages.size(); i++) {
-                        Log.d("ERROR", errorMessages.get(i));
                         Toast.makeText(getApplicationContext(), errorMessages.get(i), Toast.LENGTH_LONG).show();
                     }
                 }

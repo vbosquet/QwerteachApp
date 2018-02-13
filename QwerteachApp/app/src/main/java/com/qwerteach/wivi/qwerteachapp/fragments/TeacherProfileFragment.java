@@ -235,7 +235,6 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
                 Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
@@ -306,7 +305,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
 
                         for (int j = 0; j < newSmallAdPricesList.size(); j++) {
                             addSmallAdLevelsAndPricesToAlertDialog(String.valueOf(newSmallAdPricesList.get(j).getPrice()),
-                                    newLevelsList.get(j).getBeLevelName(), alertDialog);
+                                    newLevelsList.get(j).getFrLevelName(), alertDialog);
                         }
                     }
 
@@ -315,7 +314,6 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
 
                 @Override
                 public void onFailure(Call<JsonResponse> call, Throwable t) {
-                    Log.d("failure", String.valueOf(t.getMessage()));
                     progressDialog.dismiss();
                     Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
                 }

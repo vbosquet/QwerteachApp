@@ -153,7 +153,6 @@ public class CreateNewLessonFragment extends Fragment implements
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
                 Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
@@ -284,7 +283,6 @@ public class CreateNewLessonFragment extends Fragment implements
 
                     @Override
                     public void onFailure(Call<JsonResponse> call, Throwable t) {
-                        Log.d("failure", String.valueOf(t.getMessage()));
                         Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -342,7 +340,6 @@ public class CreateNewLessonFragment extends Fragment implements
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
                 progressDialog.dismiss();
-                Log.d("failure", String.valueOf(t.getMessage()));
                 Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
@@ -424,7 +421,6 @@ public class CreateNewLessonFragment extends Fragment implements
 
                 @Override
                 public void onFailure(Call<JsonResponse> call, Throwable t) {
-                    Log.d("failure", String.valueOf(t.getMessage()));
                     progressDialog.dismiss();
                     Toast.makeText(getContext(), "Impossible de réserver votre cours. Veuillez réessayer ultérieurement.", Toast.LENGTH_LONG).show();
                 }

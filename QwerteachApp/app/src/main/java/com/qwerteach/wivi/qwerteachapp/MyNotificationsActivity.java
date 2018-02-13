@@ -90,6 +90,11 @@ public class MyNotificationsActivity extends AppCompatActivity {
                 progressDialog.dismiss();
                 if(response.isSuccessful()) {
                     notificationList = response.body().getNotifications();
+
+                    if (notificationList.size() == 0) {
+                        Toast.makeText(getApplicationContext(), "Vous n'avez reçu aucune notification.", Toast.LENGTH_LONG).show();
+                    }
+
                     for(int i = 0; i < notificationList.size(); i++) {
                         getNotificationInfos(notificationList.get(i).getSender_id(), i);
                     }
@@ -98,7 +103,6 @@ public class MyNotificationsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
@@ -126,7 +130,6 @@ public class MyNotificationsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }

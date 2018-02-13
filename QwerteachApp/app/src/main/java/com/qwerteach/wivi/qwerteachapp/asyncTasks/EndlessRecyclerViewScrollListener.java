@@ -4,6 +4,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 
 /**
  * Created by wivi on 8/10/17.
@@ -21,7 +22,7 @@ public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnS
     // True if we are still waiting for the last set of data to load.
     private boolean loading = true;
     // Sets the starting page index
-    private int startingPageIndex = 0;
+    private int startingPageIndex = 1;
 
     RecyclerView.LayoutManager mLayoutManager;
 

@@ -186,7 +186,6 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
                 Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
@@ -245,12 +244,10 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
-                Log.i("UPLOAD_AVATAR", "OK");
             }
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
@@ -274,7 +271,6 @@ public class DescriptionTabFragment extends Fragment implements View.OnClickList
                 uploadFile(resultUri);
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Log.d("ERROR", result.getError().toString());
             }
         }
     }

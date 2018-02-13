@@ -65,7 +65,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
     ProgressDialog progressDialog;
     QwerteachService service;
     User user;
-    boolean loading = true, isPressed = true;
+    boolean isPressed = true;
     ImageView chevronButton;
     LinearLayout searchFilterLinearLayout;
     ActionBar actionBar;
@@ -125,20 +125,18 @@ public class SearchTeacherActivity extends AppCompatActivity implements
 
     public void getQuery() {
         teacherList.clear();
+        scrollListener.resetState();
         if (Intent.ACTION_SEARCH.equals(getIntent().getAction())) {
             topic = getIntent().getStringExtra(SearchManager.QUERY);
             menuItems.add(topic);
-            setUpScrollListenerWithTopic();
             getAllTeachersByTopic(1);
         } else {
             topic = getIntent().getStringExtra("query");
             if (topic != null) {
                 menuItems.add(topic);
-                setUpScrollListenerWithTopic();
                 getAllTeachersByTopic(1);
             } else {
                 menuItems.add("tous les profs");
-                setUpScrolListenerWithoutTopic();
                 getAllTeachers(1);
             }
         }
@@ -161,7 +159,6 @@ public class SearchTeacherActivity extends AppCompatActivity implements
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
@@ -212,7 +209,8 @@ public class SearchTeacherActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
+                Intent intent = new Intent(this, DashboardActivity.class);
+                startActivity(intent);
                 return true;
         }
 
@@ -226,23 +224,14 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         teacherRecyclerView.setLayoutManager(teacherLayoutManager);
         teacherRecyclerView.setItemAnimator(new DefaultItemAnimator());
         teacherRecyclerView.setAdapter(teacherAdapter);
-    }
-
-    public void setUpScrolListenerWithoutTopic() {
         scrollListener = new EndlessRecyclerViewScrollListener((LinearLayoutManager) teacherLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                getAllTeachers(page);
-            }
-        };
-        teacherRecyclerView.addOnScrollListener(scrollListener);
-    }
-
-    public void setUpScrollListenerWithTopic() {
-        scrollListener = new EndlessRecyclerViewScrollListener((LinearLayoutManager) teacherLayoutManager) {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                getAllTeachersByTopic(page);
+                if(topic != null) {
+                    getAllTeachersByTopic(page);
+                } else {
+                    getAllTeachers(page);
+                }
             }
         };
         teacherRecyclerView.addOnScrollListener(scrollListener);
@@ -268,7 +257,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
                     return;
                 } else {
                     teacherList.clear();
-                    setUpScrollListenerWithTopic();
+                    scrollListener.resetState();
                     getAllTeachersByTopic(1);
                 }
 
@@ -280,7 +269,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
                     return;
                 } else {
                     teacherList.clear();
-                    setUpScrollListenerWithTopic();
+                    scrollListener.resetState();
                     getAllTeachersByTopic(1);
                 }
                 topicId = i;
@@ -309,7 +298,6 @@ public class SearchTeacherActivity extends AppCompatActivity implements
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
@@ -332,7 +320,6 @@ public class SearchTeacherActivity extends AppCompatActivity implements
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
@@ -342,10 +329,12 @@ public class SearchTeacherActivity extends AppCompatActivity implements
     public void setTeachersList(ArrayList<User> users) {
         if (users.size() > 0) {
             for (int i = 0; i < users.size(); i++) {
-                Teacher teacher = new Teacher();
-                teacher.setUser(users.get(i));
-                teacherList.add(teacher);
-                getTeacherInfos(users.get(i).getUserId());
+                if (users.get(i) != null) {
+                    Teacher teacher = new Teacher();
+                    teacher.setUser(users.get(i));
+                    teacherList.add(teacher);
+                    getTeacherInfos(teacher.getUser().getUserId());
+                }
             }
         } else {
             progressDialog.dismiss();
@@ -371,7 +360,6 @@ public class SearchTeacherActivity extends AppCompatActivity implements
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });

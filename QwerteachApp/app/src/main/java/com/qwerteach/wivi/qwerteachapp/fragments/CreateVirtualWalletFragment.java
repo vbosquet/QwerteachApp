@@ -139,7 +139,6 @@ public class CreateVirtualWalletFragment extends Fragment implements
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
@@ -214,7 +213,6 @@ public class CreateVirtualWalletFragment extends Fragment implements
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });

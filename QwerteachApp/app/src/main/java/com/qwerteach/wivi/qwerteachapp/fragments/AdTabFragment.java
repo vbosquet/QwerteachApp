@@ -144,7 +144,6 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
-                Log.d("failure", String.valueOf(t.getMessage()));
                 progressDialog.dismiss();
                 Toast.makeText(getContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
