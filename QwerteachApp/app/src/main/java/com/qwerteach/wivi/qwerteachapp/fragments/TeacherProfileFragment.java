@@ -1,6 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp.fragments;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -56,10 +57,11 @@ import retrofit2.Response;
 
 public class TeacherProfileFragment extends Fragment implements View.OnClickListener {
 
-    View view;
+    View view, pricesDialogView;
     TextView teacherName, teacherDescription, teacherOccupation, teacherAge, courseMaterialNames,
-            minPrice, senderFirstName, reviewText, sendingDate, readMoreComments, detailedPricesTextView;
-    LinearLayout lastReview;
+            minPrice, senderFirstName, reviewText, sendingDate, readMoreComments, detailedPricesTextView,
+            titlePricesDialog;
+    LinearLayout lastReview, pricesDialogLinearLayout;
     RatingBar ratingBar;
     Button contactTeacherButton, lessonReservationButton;
     Teacher teacher;
@@ -68,8 +70,10 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
     ProgressDialog progressDialog;
     ImageView teacherAvatar, senderAvatar;
     QwerteachService service;
-    AlertDialog.Builder contactDialog;
+    AlertDialog.Builder contactDialog, pricesDialog;
     User user;
+    LinearLayout.LayoutParams customLinearLayoutParams;
+    Context context;
 
     public static TeacherProfileFragment newInstance() {
         TeacherProfileFragment teacherProfileFragment = new TeacherProfileFragment();
@@ -87,6 +91,9 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
 
         progressDialog = new ProgressDialog(getContext());
         contactDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogCustom);
+        pricesDialog = new AlertDialog.Builder(getContext());
+        customLinearLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        context = getContext();
     }
 
     @Override
@@ -266,15 +273,13 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
 
     public void createAlertDialog() {
         startProgressDialog();
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.detailed_prices_alert_dialog, null);
-        builder.setView(dialogView);
-
-        TextView title = (TextView) dialogView.findViewById(R.id.title);
-        final LinearLayout alertDialog = (LinearLayout) dialogView.findViewById(R.id.alert_dialog_linear_layout);
-
-        title.setText("Tarif(s) de " + teacher.getUser().getFirstName());
+        pricesDialogView = inflater.inflate(R.layout.detailed_prices_alert_dialog, null);
+        titlePricesDialog = (TextView) pricesDialogView.findViewById(R.id.title);
+        pricesDialogLinearLayout = (LinearLayout) pricesDialogView.findViewById(R.id.alert_dialog_linear_layout);
+        pricesDialog.setView(pricesDialogView);
+        titlePricesDialog.setText("Tarif(s) de " + teacher.getUser().getFirstName());
 
         for (int i = 0; i < smallAds.size(); i++) {
             final String topic = smallAds.get(i).getTitle();
@@ -301,11 +306,11 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
                         }
 
                         String topicGroup = response.body().getTopicGroupTitle();
-                        addSmallAdTitlesToAlertDialog(topic, topicGroup, alertDialog);
+                        addSmallAdTitlesToAlertDialog(topic, topicGroup, pricesDialogLinearLayout);
 
                         for (int j = 0; j < newSmallAdPricesList.size(); j++) {
                             addSmallAdLevelsAndPricesToAlertDialog(String.valueOf(newSmallAdPricesList.get(j).getPrice()),
-                                    newLevelsList.get(j).getFrLevelName(), alertDialog);
+                                    newLevelsList.get(j).getFrLevelName(), pricesDialogLinearLayout);
                         }
                     }
 
@@ -320,44 +325,44 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
             });
         }
 
-        AlertDialog dialog = builder.create();
+        AlertDialog dialog = pricesDialog.create();
         dialog.show();
-
     }
 
     public void addSmallAdTitlesToAlertDialog(String topicTitle, String topicGroupTitle, LinearLayout alertDialog) {
-        LinearLayout titleLinearLayout = new LinearLayout(getContext());
-        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        titleLinearLayout.setOrientation(LinearLayout.VERTICAL);
-        TextView topic = new TextView(getContext());
-        topic.setText(topicGroupTitle + " - " + topicTitle);
-        topic.setPadding(0, 20, 0, 20);
-        topic.setTextColor(getActivity().getColor(R.color.colorPrimary));
-        titleLinearLayout.addView(topic);
-        alertDialog.addView(titleLinearLayout, titleParams);
+        if (context != null) {
+            LinearLayout topicTitleLinearLayout = new LinearLayout(context);
+            topicTitleLinearLayout.setOrientation(LinearLayout.VERTICAL);
+            TextView topic = new TextView(context);
+            topic.setText(topicGroupTitle + " - " + topicTitle);
+            topic.setPadding(0, 20, 0, 20);
+            topic.setTextColor(context.getColor(R.color.colorPrimary));
+            topicTitleLinearLayout.addView(topic);
+            alertDialog.addView(topicTitleLinearLayout, customLinearLayoutParams);
+        }
     }
 
     public void addSmallAdLevelsAndPricesToAlertDialog(String priceString, String levelName, LinearLayout alertDialog) {
-        LinearLayout linearLayout = new LinearLayout(getContext());
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        if (context != null) {
+            LinearLayout linearLayout = new LinearLayout(context);
+            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
 
-        TextView level = new TextView(getContext());
-        TextView price = new TextView(getContext());
+            TextView level = new TextView(context);
+            TextView price = new TextView(context);
 
-        level.setText(levelName);
-        price.setText(priceString + " €/h");
+            level.setText(levelName);
+            price.setText(priceString + " €/h");
 
-        TableRow.LayoutParams levelParams = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.7f);
-        TableRow.LayoutParams priceParams = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.3f);
-        level.setLayoutParams(levelParams);
-        price.setLayoutParams(priceParams);
+            TableRow.LayoutParams levelParams = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.7f);
+            TableRow.LayoutParams priceParams = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.3f);
+            level.setLayoutParams(levelParams);
+            price.setLayoutParams(priceParams);
 
-        linearLayout.addView(level);
-        linearLayout.addView(price);
+            linearLayout.addView(level);
+            linearLayout.addView(price);
 
-        alertDialog.addView(linearLayout, params);
-
+            alertDialog.addView(linearLayout, customLinearLayoutParams);
+        }
     }
 
     public void didTouchReadComments() {

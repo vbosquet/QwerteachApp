@@ -84,6 +84,10 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
                     List<Message> messages = response.body().getMessages();
                     List<String> avatars = response.body().getParticipantAvatars();
 
+                    if (conversationsList.size() == 0) {
+                        Toast.makeText(getApplicationContext(), "Vous n'avez reçu aucun mesage.", Toast.LENGTH_LONG).show();
+                    }
+
                     if (conversationsList.size() > 0) {
                         for (int i = 0; i < conversationsList.size(); i++) {
                             int conversationId = conversationsList.get(i).getConversationId();
