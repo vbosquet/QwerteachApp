@@ -17,6 +17,8 @@ public class Level implements Serializable {
     private String beLevelName;
     @SerializedName("fr")
     private String frLevelName;
+    @SerializedName("code")
+    private String code;
     private boolean isChecked;
     private boolean needBeLevel;
 
@@ -70,11 +72,19 @@ public class Level implements Serializable {
         this.needBeLevel = needBeLevel;
     }
 
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof Level) {
             Level temp = (Level) obj;
-            if(Objects.equals(this.beLevelName, temp.beLevelName) && this.levelId == temp.levelId)
+            if(Objects.equals(this.frLevelName, temp.frLevelName) && this.levelId == temp.levelId)
                 return true;
         }
         return false;

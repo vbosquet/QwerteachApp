@@ -21,7 +21,7 @@ public class TopicGroup {
 
     public TopicGroup(int topicGroupId, String topicGroupTitle, String levelCode) {
         this.topicGroupId = topicGroupId;
-        this.topicGroupTitle= topicGroupTitle;
+        this.topicGroupTitle = topicGroupTitle;
         this.levelCode = levelCode;
     }
 

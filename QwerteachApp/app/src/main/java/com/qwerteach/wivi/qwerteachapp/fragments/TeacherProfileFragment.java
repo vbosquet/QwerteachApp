@@ -37,6 +37,7 @@ import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
+import com.qwerteach.wivi.qwerteachapp.models.TopicGroup;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.squareup.picasso.Picasso;
 
@@ -142,7 +143,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         teacherDescription.setText(Html.fromHtml(teacher.getUser().getDescription()), TextView.BufferType.SPANNABLE);
         contactTeacherButton.setText("Contacter " + teacher.getUser().getFirstName());
         courseMaterialNames.setText(teacher.getTopics());
-        minPrice.setText("A partir de " +teacher.getMinPrice() + " €/h");
+        minPrice.setText("A partir de " + teacher.getMinPrice() + " €/h");
         teacherAge.setText(teacher.getUser().getAge() + " ans");
 
         if (teacher.getNumberOfReviews() > 0) {
@@ -305,12 +306,17 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
                             }
                         }
 
-                        String topicGroup = response.body().getTopicGroupTitle();
-                        addSmallAdTitlesToAlertDialog(topic, topicGroup, pricesDialogLinearLayout);
+                        TopicGroup topicGroup = response.body().getTopicGroup();
+                        addSmallAdTitlesToAlertDialog(topic, topicGroup.getTopicGroupTitle(), pricesDialogLinearLayout);
 
                         for (int j = 0; j < newSmallAdPricesList.size(); j++) {
-                            addSmallAdLevelsAndPricesToAlertDialog(String.valueOf(newSmallAdPricesList.get(j).getPrice()),
-                                    newLevelsList.get(j).getFrLevelName(), pricesDialogLinearLayout);
+                            for(int l = 0; l < newLevelsList.size(); l++) {
+                                if(newSmallAdPricesList.get(j).getLevelId() == newLevelsList.get(l).getLevelId() &&
+                                        Objects.equals(newLevelsList.get(l).getCode(), topicGroup.getLevelCode())) {
+                                    addSmallAdLevelsAndPricesToAlertDialog(String.valueOf(newSmallAdPricesList.get(j).getPrice()),
+                                            newLevelsList.get(l).getFrLevelName(), pricesDialogLinearLayout);
+                                }
+                            }
                         }
                     }
 

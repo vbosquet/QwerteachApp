@@ -65,7 +65,7 @@ public class CreateNewLessonFragment extends Fragment implements
         TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
 
     View view;
-    TextView timeTextView, dateTextView, totalPriceTextView;
+    TextView timeTextView, dateTextView, totalPriceTextView, commentTextView;
     Spinner hourSpinner, minuteSpinner, topicGroupSpinner, topicSpinner, levelSpinner;
     Button datePickerButton, timePickerButton, createNewLessonButton;
     ArrayList<Topic> topics;
@@ -132,6 +132,7 @@ public class CreateNewLessonFragment extends Fragment implements
         datePickerButton = (Button) view.findViewById(R.id.date_picker_button);
         timePickerButton = (Button) view.findViewById(R.id.time_picker_button);
         createNewLessonButton = (Button) view.findViewById(R.id.create_new_lesson_button);
+        commentTextView = (TextView) view.findViewById(R.id.comment);
 
         createNewLessonButton.setOnClickListener(this);
         totalPriceTextView.setText("0 €");
@@ -380,6 +381,7 @@ public class CreateNewLessonFragment extends Fragment implements
         request.setTimeStart(dateTextView.getText().toString() + " " + timeTextView.getText().toString());
         request.setHours(hour);
         request.setMinutes(minute);
+        request.setComment(commentTextView.getText().toString());
 
         Lesson lesson = new Lesson();
         lesson.setTeacherId(teacher.getUser().getUserId());
@@ -387,7 +389,11 @@ public class CreateNewLessonFragment extends Fragment implements
         requestBody.put("request", request);
         requestBody.put("lesson", lesson);
 
-        if (Common.checkIfValidTime(dateTextView.getText().toString(), timeTextView.getText().toString())) {
+        if (!Common.checkIfValidTime(dateTextView.getText().toString(), timeTextView.getText().toString())) {
+            Toast.makeText(getContext(), R.string.valid_time_message, Toast.LENGTH_LONG).show();
+        } else if (!(request.getComment().length() > 0)){
+            Toast.makeText(getContext(), "Vous devez introduire une description de votre demande (50 caractères).", Toast.LENGTH_LONG).show();
+        } else {
             startProgressDialog();
             Call<JsonResponse> call = service.createNewLesson(teacher.getUser().getUserId(), requestBody, user.getEmail(), user.getToken());
             call.enqueue(new Callback<JsonResponse>() {
@@ -425,9 +431,6 @@ public class CreateNewLessonFragment extends Fragment implements
                     Toast.makeText(getContext(), "Impossible de réserver votre cours. Veuillez réessayer ultérieurement.", Toast.LENGTH_LONG).show();
                 }
             });
-
-        } else {
-            Toast.makeText(getContext(), R.string.valid_time_message, Toast.LENGTH_LONG).show();
         }
 
     }

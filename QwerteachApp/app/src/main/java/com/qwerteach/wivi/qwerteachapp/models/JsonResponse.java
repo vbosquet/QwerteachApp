@@ -43,7 +43,7 @@ public class JsonResponse {
     @SerializedName("topic")
     private String topicTitle;
     @SerializedName("topic_group")
-    private String topicGroupTitle;
+    private TopicGroup topicGroup;
     @SerializedName("level")
     private String levelTitle;
     @SerializedName("topic_groups")
@@ -187,8 +187,8 @@ public class JsonResponse {
         return topicTitle;
     }
 
-    public String getTopicGroupTitle() {
-        return topicGroupTitle;
+    public TopicGroup getTopicGroup() {
+        return topicGroup;
     }
 
     public ArrayList<TopicGroup> getTopicGroups() {

@@ -29,6 +29,7 @@ import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Level;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
+import com.qwerteach.wivi.qwerteachapp.models.TopicGroup;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import java.net.SocketTimeoutException;
@@ -49,7 +50,8 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
     EditText descriptionEditText;
     TextView topicTextView, topicGroupTextView;
     LinearLayout coursePriceLinearLayout;
-    String topic, topicGroup;
+    String topic;
+    TopicGroup topicGroup;
     QwerteachService service;
     User user;
 
@@ -86,11 +88,11 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 if(response.isSuccessful()) {
                     topic = response.body().getTopicTitle();
-                    topicGroup = response.body().getTopicGroupTitle();
+                    topicGroup = response.body().getTopicGroup();
                     levels = response.body().getLevels();
 
                     topicTextView.setText(topic);
-                    topicGroupTextView.setText(topicGroup);
+                    topicGroupTextView.setText(topicGroup.getTopicGroupTitle());
                     descriptionEditText.setText(smallAd.getDescription());
                     displayPrices();
                 }

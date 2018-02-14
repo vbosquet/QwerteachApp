@@ -3,6 +3,8 @@ package com.qwerteach.wivi.qwerteachapp.models;
 import com.google.gson.annotations.SerializedName;
 import com.qwerteach.wivi.qwerteachapp.common.Common;
 
+import org.w3c.dom.Text;
+
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -36,6 +38,8 @@ public class Lesson implements Serializable {
     private String status;
     @SerializedName("price")
     private String price;
+    @SerializedName("comment")
+    private String comment;
 
     private String hours;
     private String minutes;
@@ -152,6 +156,14 @@ public class Lesson implements Serializable {
 
     public void setTimeStart(String timeStart) {
         this.timeStart = timeStart;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     public int getHour() {
