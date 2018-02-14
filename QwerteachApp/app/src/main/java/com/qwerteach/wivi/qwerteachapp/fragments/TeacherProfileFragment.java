@@ -299,23 +299,13 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
                             }
                         }
 
-                        List<SmallAdPrice> newSmallAdPricesList = new ArrayList<>();
-                        for (SmallAdPrice element : smallAdPrices) {
-                            if (!newSmallAdPricesList.contains(element)) {
-                                newSmallAdPricesList.add(element);
-                            }
-                        }
-
                         TopicGroup topicGroup = response.body().getTopicGroup();
                         addSmallAdTitlesToAlertDialog(topic, topicGroup.getTopicGroupTitle(), pricesDialogLinearLayout);
 
-                        for (int j = 0; j < newSmallAdPricesList.size(); j++) {
-                            for(int l = 0; l < newLevelsList.size(); l++) {
-                                if(newSmallAdPricesList.get(j).getLevelId() == newLevelsList.get(l).getLevelId() &&
-                                        Objects.equals(newLevelsList.get(l).getCode(), topicGroup.getLevelCode())) {
-                                    addSmallAdLevelsAndPricesToAlertDialog(String.valueOf(newSmallAdPricesList.get(j).getPrice()),
-                                            newLevelsList.get(l).getFrLevelName(), pricesDialogLinearLayout);
-                                }
+                        for (int j = 0; j < smallAdPrices.size(); j++) {
+                            if (smallAdPrices.get(j) != null) {
+                                addSmallAdLevelsAndPricesToAlertDialog(String.valueOf(smallAdPrices.get(j).getPrice()),
+                                        newLevelsList.get(j).getFrLevelName(), pricesDialogLinearLayout);
                             }
                         }
                     }

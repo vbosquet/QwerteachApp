@@ -360,6 +360,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
