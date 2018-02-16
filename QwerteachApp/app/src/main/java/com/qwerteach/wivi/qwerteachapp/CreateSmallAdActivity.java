@@ -1,6 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
@@ -59,6 +60,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
     QwerteachService service;
     int topicId, topicGroupId;
     User user;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +81,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
         Gson gson = new Gson();
         String json = preferences.getString("user", "");
         user = gson.fromJson(json, User.class);
+        progressDialog = new ProgressDialog(this);
 
         coursePriceEditTextList = new ArrayList<>();
         prices = new ArrayList<>();
@@ -90,10 +93,12 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
     }
 
     public void getTopicGroups() {
+        startProgressDialog();
         Call<JsonResponse> call = service.getAllTopicGroups(user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                progressDialog.dismiss();
                 if (response.isSuccessful()) {
                     topicGroups = response.body().getTopicGroups();
                     displayTopicGroupSpinner();
@@ -102,6 +107,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
@@ -109,10 +115,12 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
     }
 
     public void getTopics() {
+        startProgressDialog();
         Call<JsonResponse> call = service.getTopics(topicGroupId, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                progressDialog.dismiss();
                 if(response.isSuccessful()) {
                     topics = response.body().getTopics();
                     displayTopicSpinner();
@@ -121,6 +129,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
@@ -128,10 +137,12 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
     }
 
     public void getLevels() {
+        startProgressDialog();
         Call<JsonResponse> call = service.getLevels(topicId, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                progressDialog.dismiss();
                 if(response.isSuccessful()) {
                     levels = response.body().getLevels();
                     displayLevelCheckboxes();
@@ -140,6 +151,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
@@ -186,10 +198,12 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
         final Map<String, SmallAd> requestBody = new HashMap<>();
         requestBody.put("offer", smallAd);
 
+        startProgressDialog();
         Call<JsonResponse> call = service.createNewAdvert(requestBody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                progressDialog.dismiss();
                 if(response.isSuccessful()) {
                     String success = response.body().getSuccess();
                     if (success.equals("true")) {
@@ -205,6 +219,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
@@ -320,5 +335,13 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
             });
         }
 
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 }

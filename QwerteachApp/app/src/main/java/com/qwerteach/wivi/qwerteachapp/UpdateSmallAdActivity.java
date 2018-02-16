@@ -1,6 +1,7 @@
 package com.qwerteach.wivi.qwerteachapp;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
@@ -54,6 +55,7 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
     TopicGroup topicGroup;
     QwerteachService service;
     User user;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,11 +79,14 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
         Gson gson = new Gson();
         String json = preferences.getString("user", "");
         user = gson.fromJson(json, User.class);
+        progressDialog = new ProgressDialog(this);
 
         coursePriceEditTextList = new ArrayList<>();
         service = ApiClient.getClient().create(QwerteachService.class);
         prices = smallAd.getSmallAdPrices();
 
+
+        startProgressDialog();
         Call<JsonResponse> call = service.showAdvertInfos(smallAd.getAdvertId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
@@ -100,6 +105,7 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
@@ -129,10 +135,12 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
     }
 
     public void didTouchOnDeleteButton() {
+        startProgressDialog();
         Call<JsonResponse> call = service.deleteSmallAd(smallAd.getAdvertId(), user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                progressDialog.dismiss();
                 if(response.isSuccessful()) {
                     String success = response.body().getSuccess();
                     if (success.equals("true")) {
@@ -147,6 +155,7 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
@@ -178,10 +187,12 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
         requestBody.put("offer", newSmallAd);
 
 
+        startProgressDialog();
         Call<JsonResponse> call = service.updateSmallAd(smallAd.getAdvertId(), smallAd.getTopicId(), requestBody, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
+                progressDialog.dismiss();
                 if(response.isSuccessful()) {
                     String success = response.body().getSuccess();
                     String message = response.body().getMessage();
@@ -198,6 +209,7 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
 
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
+                progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
@@ -234,13 +246,14 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
             editText.setVisibility(View.GONE);
 
             for (int j = 0; j < prices.size(); j++) {
-                if (level.getLevelId() == prices.get(j).getLevelId()) {
-                    editText.setText(String.valueOf(prices.get(j).getPrice()));
-                    checkBox.setChecked(true);
-                    level.setChecked(true);
-                    displayEditTextLayout(editText);
+                if (prices.get(j) != null) {
+                    if (level.getLevelId() == prices.get(j).getLevelId()) {
+                        editText.setText(String.valueOf(prices.get(j).getPrice()));
+                        checkBox.setChecked(true);
+                        level.setChecked(true);
+                        displayEditTextLayout(editText);
+                    }
                 }
-
             }
 
             linearLayout.addView(checkBox);
@@ -266,6 +279,8 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
             });
 
         }
+
+        progressDialog.dismiss();
     }
 
     public void displayEditTextLayout(EditText editText) {
@@ -273,5 +288,13 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
         editText.setBackgroundResource(R.drawable.edit_text_border);
         editText.setVisibility(View.VISIBLE);
 
+    }
+
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 }
