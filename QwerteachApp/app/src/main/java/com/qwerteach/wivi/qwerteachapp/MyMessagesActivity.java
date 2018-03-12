@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.qwerteach.wivi.qwerteachapp.asyncTasks.EndlessRecyclerViewScrollListener;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.Conversation;
@@ -29,6 +30,7 @@ import com.qwerteach.wivi.qwerteachapp.models.Message;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -48,6 +50,7 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
     User user;
     TextView emptyMailboxTitle, emptyMailboxMessage;
     ProgressDialog progressDialog;
+    EndlessRecyclerViewScrollListener scrollListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,60 +65,64 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
         conversationRecyclerView = (RecyclerView) findViewById(R.id.conversation_list_view);
         service = ApiClient.getClient().create(QwerteachService.class);
         progressDialog = new ProgressDialog(this);
+        conversationsList = new ArrayList<>();
+        usersList = new ArrayList<>();
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         Gson gson = new Gson();
         String json = preferences.getString("user", "");
         user = gson.fromJson(json, User.class);
 
-        getAllConversations();
+        displayConversationListView();
+        getAllConversations(1);
 
     }
 
-    public void getAllConversations() {
+    public void getAllConversations(final int pageNumber) {
         startProgressDialog();
-        Call<JsonResponse> call = service.getConversations(user.getEmail(), user.getToken());
+        Call<JsonResponse> call = service.getConversations(pageNumber, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 if (response.isSuccessful()) {
-                    conversationsList = response.body().getConversations();
-                    usersList = response.body().getRecipients();
+                    List<Conversation> newConversationsList = response.body().getConversations();
+                    List<User> newUsersList = response.body().getRecipients();
                     List<Message> messages = response.body().getMessages();
                     List<String> avatars = response.body().getParticipantAvatars();
 
-                    if (conversationsList.size() == 0) {
-                        Toast.makeText(getApplicationContext(), "Vous n'avez reçu aucun mesage.", Toast.LENGTH_LONG).show();
-                    }
+                    progressDialog.dismiss();
 
-                    if (conversationsList.size() > 0) {
-                        for (int i = 0; i < conversationsList.size(); i++) {
-                            int conversationId = conversationsList.get(i).getConversationId();
-
-                            if(usersList.get(i) != null) {
-                                conversationsList.get(i).setUser(usersList.get(i));
-                            }
-
-                            if (avatars.get(i) != null) {
-                                conversationsList.get(i).getUser().setAvatarUrl(avatars.get(i));
-                            }
-
-                            for (int j = 0; j < messages.size(); j++) {
-                                if (Objects.equals(messages.get(j).getConversationId(), conversationId)) {
-                                    conversationsList.get(i).setLastMessage(messages.get(j));
-                                }
-                            }
-
-                            if (conversationId == conversationsList.get(conversationsList.size() - 1).getConversationId()) {
-                                progressDialog.dismiss();
-                                displayConversationListView();
-                            }
-                        }
-
-                    } else {
-                        progressDialog.dismiss();
+                    if (newConversationsList.size() == 0 && pageNumber == 1) {
                         emptyMailboxTitle.setVisibility(View.VISIBLE);
                         emptyMailboxMessage.setVisibility(View.VISIBLE);
+
+                    } else {
+                        for (int i = 0; i < newConversationsList.size(); i++) {
+                            if(newConversationsList.get(i) != null) {
+                                conversationsList.add(newConversationsList.get(i));
+                                int conversationId = newConversationsList.get(i).getConversationId();
+
+                                if(newUsersList.get(i) != null) {
+                                    usersList.add(newUsersList.get(i));
+                                    newConversationsList.get(i).setUser(newUsersList.get(i));
+                                }
+
+                                if (avatars.get(i) != null) {
+                                    newConversationsList.get(i).getUser().setAvatarUrl(avatars.get(i));
+                                }
+
+                                for (int j = 0; j < messages.size(); j++) {
+                                    if (Objects.equals(messages.get(j).getConversationId(), conversationId)) {
+                                        newConversationsList.get(i).setLastMessage(messages.get(j));
+                                    }
+                                }
+
+
+                                if (conversationId == newConversationsList.get(newConversationsList.size() - 1).getConversationId()) {
+                                    conversationAdapter.notifyDataSetChanged();
+                                }
+                            }
+                        }
                     }
                 } else {
                     progressDialog.dismiss();
@@ -157,6 +164,14 @@ public class MyMessagesActivity extends AppCompatActivity implements Conversatio
         conversationRecyclerView.setLayoutManager(conversationLayoutManager);
         conversationRecyclerView.setItemAnimator(new DefaultItemAnimator());
         conversationRecyclerView.setAdapter(conversationAdapter);
+        scrollListener = new EndlessRecyclerViewScrollListener((LinearLayoutManager) conversationLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                Log.d("PAGE", String.valueOf(page));
+                getAllConversations(page);
+            }
+        };
+        conversationRecyclerView.addOnScrollListener(scrollListener);
 
     }
 

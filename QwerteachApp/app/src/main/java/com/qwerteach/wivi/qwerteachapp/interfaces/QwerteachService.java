@@ -178,7 +178,7 @@ public interface QwerteachService {
                              @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @GET("conversations")
-    Call<JsonResponse> getConversations(@Header("X-User-Email") String email, @Header("X-User-Token") String token);
+    Call<JsonResponse> getConversations(@Query("page") int pageNumber, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @PUT("lessons/{id}")
     Call<JsonResponse> updateLesson(@Path("id") int lessonId, @Body Map<String, Lesson> body,
