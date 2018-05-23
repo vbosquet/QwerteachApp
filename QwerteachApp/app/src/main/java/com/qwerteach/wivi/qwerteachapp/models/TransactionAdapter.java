@@ -2,6 +2,7 @@ package com.qwerteach.wivi.qwerteachapp.models;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +43,6 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         long millisecond = Long.parseLong(transaction.getCreationDate());
         String status = transaction.getStatus();
 
-
         holder.creationDate.setText("Le " + getDate(millisecond) + " à " + getHour(millisecond));
         if (transaction.getTitle().equals("")) {
             holder.title.setVisibility(View.GONE);
@@ -57,7 +57,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             holder.status.setText(R.string.failed_transaction_status);
             holder.status.setTextColor(context.getResources().getColor(R.color.red));
         } else if (Objects.equals(status, "CREATED")) {
-            holder.status.setVisibility(View.GONE);
+            holder.status.setText("En cours");
         }
 
     }

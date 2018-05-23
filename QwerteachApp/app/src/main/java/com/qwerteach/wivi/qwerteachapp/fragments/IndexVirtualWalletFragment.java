@@ -174,6 +174,7 @@ public class IndexVirtualWalletFragment extends Fragment implements View.OnClick
         cardBankAccountsTitle.setText(R.string.teacher_accounts_and_cards_text_view);
 
         if (userCreditCards.size() > 0) {
+            creditCardsRecyclerView.setVisibility(View.VISIBLE);
             displayCreditCardsList();
         }
 
@@ -187,6 +188,7 @@ public class IndexVirtualWalletFragment extends Fragment implements View.OnClick
     public void displayStudentAccountsAndCards() {
         cardBankAccountsTitle.setText(R.string.student_accounts_and_cards_text_view);
         if (userCreditCards.size() > 0) {
+            creditCardsRecyclerView.setVisibility(View.VISIBLE);
             displayCreditCardsList();
         }
 
@@ -194,7 +196,11 @@ public class IndexVirtualWalletFragment extends Fragment implements View.OnClick
 
     public void displayCardCoordonnees() {
         userName.setText(userWalletInfos.getFirstName() + " " + userWalletInfos.getLastName());
-        userAddresLine1.setText(userWalletInfos.getAddress() + " " + userWalletInfos.getStreetNumber());
+        if (userWalletInfos.getStreetNumber() != null) {
+            userAddresLine1.setText(userWalletInfos.getAddress() + " " + userWalletInfos.getStreetNumber());
+        } else {
+            userAddresLine1.setText(userWalletInfos.getAddress());
+        }
         userAddressLine2.setText(userWalletInfos.getPostalCode() + " " + userWalletInfos.getCity());
     }
 

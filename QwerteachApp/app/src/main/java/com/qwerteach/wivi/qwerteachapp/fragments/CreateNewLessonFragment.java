@@ -86,6 +86,9 @@ public class CreateNewLessonFragment extends Fragment implements
     TimePickerDialog timePickerDialog;
     DatePickerDialog datePickerDialog;
     Intent intent;
+    SharedPreferences preferences;
+    SharedPreferences.Editor editor;
+    Gson gson;
 
 
     public static CreateNewLessonFragment newInstance() {
@@ -97,8 +100,8 @@ public class CreateNewLessonFragment extends Fragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        Gson gson = new Gson();
+        preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        gson = new Gson();
         String json = preferences.getString("user", "");
         user = gson.fromJson(json, User.class);
 
@@ -411,11 +414,20 @@ public class CreateNewLessonFragment extends Fragment implements
                             case "true":
                                 ArrayList<UserCreditCard> creditCards = response.body().getUserCreditCards();
                                 CardRegistrationData cardRegistrationData = response.body().getCardRegistrationData();
+                                String clientId = response.body().getClientId();
+
+                                editor = preferences.edit();
+                                String teacherJson = gson.toJson(teacher);
+                                String cardRegistrationDataJson = gson.toJson(cardRegistrationData);
+                                String creditCardsJson = gson.toJson(creditCards);
+                                editor.putString("clientId", clientId);
+                                editor.putString("teacher", teacherJson);
+                                editor.putString("userCreditCardList", creditCardsJson);
+                                editor.putString("cardRegistration", cardRegistrationDataJson);
+                                editor.putFloat("totalPrice", totalPrice);
+                                editor.apply();
+
                                 intent = new Intent(getContext(), PaymentMethodActivity.class);
-                                intent.putExtra("totalPrice", totalPrice);
-                                intent.putExtra("teacher", teacher);
-                                intent.putExtra("userCreditCardList", creditCards);
-                                intent.putExtra("cardRegistration", cardRegistrationData);
                                 startActivity(intent);
                                 break;
                             default:

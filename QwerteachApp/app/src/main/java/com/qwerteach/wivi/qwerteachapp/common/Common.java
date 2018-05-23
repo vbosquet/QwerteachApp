@@ -19,7 +19,7 @@ import java.util.TimeZone;
 public class Common {
 
     private static Calendar now = Calendar.getInstance();
-    public static final String IP_ADDRESS = "https://qwerteach.com/";
+    public static final String IP_ADDRESS = "https://qwerteach.com";
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static boolean checkIfValidTime(String date, String time) {

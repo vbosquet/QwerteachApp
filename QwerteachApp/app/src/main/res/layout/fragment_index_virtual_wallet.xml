@@ -30,15 +30,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@drawable/light_text_view_bottom_border"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="17dp"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/credit_cards_list"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:background="@drawable/light_text_view_top_border"
+                android:paddingTop="10dp"
+                android:visibility="gone"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/bank_accounts_list"

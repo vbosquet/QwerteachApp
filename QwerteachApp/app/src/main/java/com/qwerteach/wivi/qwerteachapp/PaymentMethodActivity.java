@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.mangopay.android.sdk.Callback;
 import com.mangopay.android.sdk.MangoPayBuilder;
 import com.mangopay.android.sdk.model.CardRegistration;
@@ -38,6 +39,7 @@ import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 
+import java.lang.reflect.Type;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -62,7 +64,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
     ArrayList<String> otherPaymentMethods, months, years, creditCards;
     Teacher teacher;
     Integer teacherId, totalWallet;
-    String cardId, currentAlias, currentMonth, currentYear, paymentMode = "";
+    String cardId, currentAlias, currentMonth, currentYear, paymentMode = "", clientId;
     ArrayList<UserCreditCard> userCreditCards;
     EditText cardNumberEditText, cvvEditText;
     CardRegistrationData cardRegistrationData;
@@ -95,17 +97,18 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         Gson gson = new Gson();
-        String json = preferences.getString("user", "");
-        user = gson.fromJson(json, User.class);
+        String userJson = preferences.getString("user", "");
+        String teacherJson = preferences.getString("teacher", "");
+        String cardRegistrationDataJson = preferences.getString("cardRegistration", "");
+        String creditCardsJson = preferences.getString("userCreditCardList", "");
 
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            totalPrice = getIntent().getFloatExtra("totalPrice", 0);
-            teacher = (Teacher) getIntent().getSerializableExtra("teacher");
-            userCreditCards = (ArrayList<UserCreditCard>) getIntent().getSerializableExtra("userCreditCardList");
-            cardRegistrationData = (CardRegistrationData) getIntent().getSerializableExtra("cardRegistration");
-        }
-
+        user = gson.fromJson(userJson, User.class);
+        totalPrice = preferences.getFloat("totalPrice", 0);
+        clientId = preferences.getString("clientId", "");
+        teacher = gson.fromJson(teacherJson, Teacher.class);
+        cardRegistrationData = gson.fromJson(cardRegistrationDataJson, CardRegistrationData.class);
+        Type type = new TypeToken<ArrayList<UserCreditCard>>(){}.getType();
+        userCreditCards = gson.fromJson(creditCardsJson, type);
 
         teacherId = teacher.getUser().getUserId();
         months = new ArrayList<>();
@@ -352,16 +355,16 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
                 }
 
                 break;
-            /*case BANCONTACT_MODE:
+            case BANCONTACT_MODE:
                 payLesson();
-                break;*/
+                break;
         }
     }
 
     public void createNewCreditCard() {
         MangoPayBuilder builder = new MangoPayBuilder(this);
-        builder.baseURL("https://api.sandbox.mangopay.com")
-                .clientId("qwerteachrails")
+        builder.baseURL("https://api.mangopay.com")
+                .clientId(clientId)
                 .accessKey(cardRegistrationData.getAccessKey())
                 .cardRegistrationURL(cardRegistrationData.getCardRegistrationURL())
                 .preregistrationData(cardRegistrationData.getPreRegistrationData())

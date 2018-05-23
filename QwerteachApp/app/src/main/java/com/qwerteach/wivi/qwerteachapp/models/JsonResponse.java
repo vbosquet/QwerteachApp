@@ -130,6 +130,8 @@ public class JsonResponse {
     private Boolean reviewNeeded;
     @SerializedName("transaction")
     private  Transaction transaction;
+    @SerializedName("client_id")
+    private String clientId;
 
     public String getAvatar() {
         return avatar;
@@ -367,6 +369,9 @@ public class JsonResponse {
         return transaction;
     }
 
+    public String getClientId() {
+        return clientId;
+    }
 
     public static class Duration
     {

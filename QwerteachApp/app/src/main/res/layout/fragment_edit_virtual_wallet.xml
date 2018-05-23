@@ -73,13 +73,15 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/credit_cards_list_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Cartes de crédit"
             android:textColor="@color/colorPrimaryDark"
             android:textSize="17dp"
             android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp"/>
+            android:layout_marginTop="10dp"
+            android:visibility="gone"/>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/credit_cards_list"
@@ -89,7 +91,8 @@
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:paddingTop="10dp"/>
+            android:paddingTop="10dp"
+            android:visibility="gone"/>
 
         <TextView
             android:layout_width="match_parent"

@@ -40,7 +40,7 @@ import retrofit2.Response;
 
 public class MangoPaySecureModeActivity extends AppCompatActivity implements RedirectURLAsyncTask.IRedirectURL {
 
-    String url, mode;
+    String url;
     ProgressDialog progressDialog;
     QwerteachService service;
     User user;
@@ -56,7 +56,6 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             url = getIntent().getStringExtra("url");
-            mode = getIntent().getStringExtra("mode");
         }
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -116,6 +115,7 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
     }
 
     public void finalizePaymentWithCard(String url) {
+        Log.d("FORMATED_URL", url);
         Call<JsonResponse> call = service.finalizePaymentWithCard(url, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
@@ -169,37 +169,18 @@ public class MangoPaySecureModeActivity extends AppCompatActivity implements Red
     private class MyWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            Log.d("URL", url);
 
-            switch (url) {
-                case "https://homologation-secure-p.payline.com/webpayment/mpiServletProxy.do?reqCode=enrollment": {
-                    Intent intent = new Intent(getApplicationContext(), MangoPaySecureModeActivity.class);
-                    intent.putExtra("url", url);
-                    intent.putExtra("mode", mode);
-                    startActivity(intent);
-                }
-                case "https://homologation-secure-p.payline.com/webpayment/step2.do?reqCode=doStep2": {
-                    Intent intent = new Intent(getApplicationContext(), MangoPaySecureModeActivity.class);
-                    intent.putExtra("url", url);
-                    intent.putExtra("mode", mode);
-                    startActivity(intent);
-                }
-                case "https://homologation-secure-p.payline.com/webpayment/step1.do?reqCode=prepareStep1": {
-                    Toast.makeText(getApplicationContext(), R.string.payment_error_toast_message, Toast.LENGTH_LONG).show();
-                    Intent intent = new Intent(getApplicationContext(), PaymentMethodActivity.class);
-                    startActivity(intent);
-                    break;
-                }
-
-
-                default:
-                    if (mode.equals("cd")) {
-                        finalizePaymentWithCard(formatingUrl(url));
-
-                    } /*else if (mode.equals("bancontact")) {
-                        startRedirectURL(url);
-                    }*/
-
-                    break;
+            if (url.contains("reqCode=enrollment") || url.contains("reqCode=doStep2") || url.contains("3dsecure")) {
+                Intent intent = new Intent(getApplicationContext(), MangoPaySecureModeActivity.class);
+                intent.putExtra("url", url);
+                startActivity(intent);
+            } else if (url.contains("reqCode=prepareStep1")) {
+                Toast.makeText(getApplicationContext(), R.string.payment_error_toast_message, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(getApplicationContext(), PaymentMethodActivity.class);
+                startActivity(intent);
+            } else {
+                finalizePaymentWithCard(formatingUrl(url));
             }
 
             return true;

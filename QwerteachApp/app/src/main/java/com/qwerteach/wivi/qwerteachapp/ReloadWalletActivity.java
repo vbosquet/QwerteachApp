@@ -82,7 +82,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
     CheckBox visaCheckbox, mastercardCheckbox, cbCheckbox, bcmcCheckbox, bankWireCheckbox, easyPaymentCheckBox;
     LinearLayout cardNumberLinearLayout, newCreditCardLinearLayout, bankWireData;
     EditText otherAmountEditText, cardNumberEditText, securityCodeEditText;
-    String currentAmount, cardType = "", currentCardNumber = "", cardId, currentMonth, currentYear, paymentMode;
+    String currentAmount, cardType = "", currentCardNumber = "", cardId, currentMonth, currentYear, paymentMode, clientId;
     ArrayList<UserCreditCard> userCreditCards;
     CardRegistrationData cardRegistrationData;
     TextView noCreditCardForEasyPaymentTextView, bankWireBeneficiary, bankWireAddress, bankWireIban, bankWireBic, bankWireAmount, bankWireCommunication;
@@ -189,6 +189,7 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                 if(response.isSuccessful()) {
                     cardRegistrationData = response.body().getCardRegistrationData();
                     userCreditCards = response.body().getUserCreditCards();
+                    clientId = response.body().getClientId();
                     displayInitialLayout();
                 }
             }
@@ -284,8 +285,8 @@ public class ReloadWalletActivity extends AppCompatActivity implements
 
     private void createNewCreditCard() {
         MangoPayBuilder builder = new MangoPayBuilder(this);
-        builder.baseURL("https://api.sandbox.mangopay.com")
-                .clientId("qwerteachrails")
+        builder.baseURL("https://api.mangopay.com")
+                .clientId(clientId)
                 .accessKey(cardRegistrationData.getAccessKey())
                 .cardRegistrationURL(cardRegistrationData.getCardRegistrationURL())
                 .preregistrationData(cardRegistrationData.getPreRegistrationData())
@@ -539,7 +540,6 @@ public class ReloadWalletActivity extends AppCompatActivity implements
                 String url = response.body().getUrl();
                 intent = new Intent(this, MangoPaySecureModeActivity.class);
                 intent.putExtra("url", url);
-                intent.putExtra("mode", paymentMode);
                 startActivity(intent);
                 break;
             case "error":

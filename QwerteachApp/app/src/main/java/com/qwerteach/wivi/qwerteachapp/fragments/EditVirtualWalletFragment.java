@@ -27,6 +27,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -73,6 +74,7 @@ public class EditVirtualWalletFragment extends Fragment implements AdapterView.O
             regionEditText, ibanEditText, bicEditText, ukBankAccountNumber, ukBankAccountCode, usaBankAccountNumber,
             usaABA, usaBankAccountType, canadaBankName, canadaBankNumber, canadaBranchCode,
             canadaBankAccountNumber, otherCountry, otherBIC, otherBankAccountNumber;
+    TextView creditCardsListTitle;
     QwerteachService service;
     ArrayList<String> countries;
     Locale[] locales;
@@ -140,10 +142,14 @@ public class EditVirtualWalletFragment extends Fragment implements AdapterView.O
         nationalitySpinner = (Spinner) view.findViewById(R.id.nationality_spinner);
         saveButton = (Button) view.findViewById(R.id.save_infos_button);
         bankAccountsCard = (LinearLayout) view.findViewById(R.id.bank_accounts_card);
+        creditCardsListTitle = (TextView) view.findViewById(R.id.credit_cards_list_title);
+
         saveButton.setOnClickListener(this);
         newBankAccount.setOnClickListener(this);
 
         if (creditCards.size() > 0) {
+            creditCardsListTitle.setVisibility(View.VISIBLE);
+            creditCardsRecyclerView.setVisibility(View.VISIBLE);
             displayCreditCardsList();
         }
 
