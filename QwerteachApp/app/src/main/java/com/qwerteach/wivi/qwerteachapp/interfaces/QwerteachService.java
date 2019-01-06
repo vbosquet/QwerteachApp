@@ -99,12 +99,8 @@ public interface QwerteachService {
     @GET("wallets/get_total_wallet/{user_id}")
     Call<JsonResponse> getTotalWallet(@Path("user_id") int userId, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
-    @GET("profs")
-    Call<JsonResponse> getAllTeachers(@Query("page") int pageNumber, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
-
     @GET("profs/{topic}")
-    Call<JsonResponse> getAllTeachers(@Path("topic") String topic, @Query("search_sorting") String option, @Query("page") int pageNumber, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
-
+    Call<JsonResponse> getAllTeachers(@Path("topic") String topic, @Query("page") int pageNumber, @Header("X-User-Email") String email, @Header("X-User-Token") String token);
 
     @POST("messages")
     Call<JsonResponse> sendMessageToTeacher(@Body Map<String, Message> body, @Header("X-User-Email") String email, @Header("X-User-Token") String token);

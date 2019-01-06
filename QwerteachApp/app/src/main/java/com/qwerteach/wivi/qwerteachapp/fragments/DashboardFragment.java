@@ -247,7 +247,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
                     toReviewLessons.get(index).setUserName(username);
 
                     if (index == toReviewLessons.size() - 1) {
-                        dispplayToReviewLessons();
+                        displayToReviewLessons();
                     }
                 }
             }
@@ -260,7 +260,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
         });
     }
 
-    public void dispplayToReviewLessons() {
+    public void displayToReviewLessons() {
         lessonAdapter = new ToReviewLessonsAdapter(toReviewLessons, getContext(), this);
         toReviewLessonRecyclerView.setHasFixedSize(true);
         lessonLayoutManager = new LinearLayoutManager(getContext());
