@@ -26,7 +26,9 @@ public class Review implements Serializable {
     private Integer note;
     @SerializedName("created_at")
     private String creationDate;
-    private String senderFirstName;
+    @SerializedName("sender_name")
+    private String senderFullName;
+    @SerializedName("sender_avatar")
     private String senderAvatar;
 
     public Review() {
@@ -77,16 +79,17 @@ public class Review implements Serializable {
         return creationDate;
     }
 
-    public void setCreationDate(String creationDate) {
-        this.creationDate = creationDate;
+    public String getSenderAvatar() {
+        return Common.IP_ADDRESS + senderAvatar;
     }
 
-    public String getSenderFirstName() {
-        return senderFirstName;
+    public String getSenderFullName() {
+
+        return senderFullName;
     }
 
-    public void setSenderFirstName(String senderFirstName) {
-        this.senderFirstName = senderFirstName;
+    public void setSenderFullName(String senderFullName) {
+        this.senderFullName = Common.IP_ADDRESS + senderFullName;
     }
 
     public String getMonth(String dateToFormat) {
@@ -115,13 +118,5 @@ public class Review implements Serializable {
         }
         return  year;
 
-    }
-
-    public String getAvatar() {
-        return senderAvatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.senderAvatar = Common.IP_ADDRESS + avatar;
     }
 }

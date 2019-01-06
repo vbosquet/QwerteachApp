@@ -6,6 +6,7 @@ import com.qwerteach.wivi.qwerteachapp.common.Common;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -44,7 +45,16 @@ public class User implements Serializable {
     private String phoneCountryCode;
     @SerializedName("time_zone")
     private String timeZone;
+    @SerializedName("avatar_url")
     private String avatarUrl;
+    @SerializedName("min_price")
+    private String minPrice;
+    @SerializedName("avg_reviews")
+    private String rating;
+    @SerializedName("offers")
+    private ArrayList<SmallAd> smallAds;
+    @SerializedName("reviews")
+    private ArrayList<Review> reviews;
 
     public User() {
 
@@ -151,7 +161,7 @@ public class User implements Serializable {
     }
 
     public String getAvatarUrl() {
-        return avatarUrl;
+        return Common.IP_ADDRESS + avatarUrl;
     }
 
     public void setAvatarUrl(String avatarUrl) {
@@ -162,16 +172,8 @@ public class User implements Serializable {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
     public Boolean getPostulanceAccepted() {
         return postulanceAccepted;
-    }
-
-    public void setPostulanceAccepted(Boolean postulanceAccepted) {
-        this.postulanceAccepted = postulanceAccepted;
     }
 
     public Integer getLevelId() {
@@ -184,10 +186,6 @@ public class User implements Serializable {
 
     public Integer getMangoId() {
         return mangoId;
-    }
-
-    public void setMangoId(Integer mangoId) {
-        this.mangoId = mangoId;
     }
 
 
@@ -207,9 +205,6 @@ public class User implements Serializable {
         this.phoneCountryCode = phoneCountryCode;
     }
 
-    public String getTimeZone() {
-        return timeZone;
-    }
 
     public void setTimeZone(String timeZone) {
         this.timeZone = timeZone;
@@ -219,8 +214,40 @@ public class User implements Serializable {
         return token;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public String getMinPrice() {
+        return minPrice;
+    }
+
+    public String getRating() {
+        return rating;
+    }
+
+    public ArrayList<SmallAd> getSmallAds() {
+        return smallAds;
+    }
+
+    public ArrayList<Review> getReviews() {
+        return reviews;
+    }
+
+    public String getTopics() {
+        ArrayList<String> topics = new ArrayList<>();
+        for (int i = 0; i < getSmallAds().size(); i++) {
+            topics.add(getSmallAds().get(i).getTitle());
+        }
+
+        String courseMaterialNames = "";
+
+        for (int i = 0; i < topics.size(); i++) {
+
+            if (topics.get(i).equals(topics.get(topics.size() - 1))) {
+                courseMaterialNames += topics.get(i);
+            } else {
+                courseMaterialNames += (topics.get(i) + ", ");
+            }
+        }
+
+        return courseMaterialNames;
     }
 }
 

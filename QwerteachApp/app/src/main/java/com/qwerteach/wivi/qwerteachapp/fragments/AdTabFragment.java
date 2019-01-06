@@ -11,15 +11,12 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.qwerteach.wivi.qwerteachapp.ToBecomeATeacherActivity;
 import com.qwerteach.wivi.qwerteachapp.UpdateSmallAdActivity;
 import com.qwerteach.wivi.qwerteachapp.CreateSmallAdActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
@@ -29,11 +26,8 @@ import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
-import com.qwerteach.wivi.qwerteachapp.models.Teacher;
-import com.qwerteach.wivi.qwerteachapp.models.TeacherAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 
 import retrofit2.Call;
@@ -52,8 +46,7 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
     RecyclerView smallAdRecyclerView;
     RecyclerView.Adapter smallAdAdapter;
     RecyclerView.LayoutManager smallAdLayoutManager;
-    User user;
-    Teacher teacher;
+    User currentUser, teacher;
     ProgressDialog progressDialog;
     QwerteachService service;
 
@@ -69,11 +62,11 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         Gson gson = new Gson();
         String json = preferences.getString("user", "");
-        user = gson.fromJson(json, User.class);
+        currentUser = gson.fromJson(json, User.class);
 
         Bundle extras = getActivity().getIntent().getExtras();
         if (extras != null) {
-            teacher = (Teacher) getActivity().getIntent().getSerializableExtra("teacher");
+            teacher = (User) getActivity().getIntent().getSerializableExtra("teacher");
             //user = (User) getActivity().getIntent().getSerializableExtra("user");
         }
 
@@ -115,7 +108,7 @@ public class AdTabFragment extends Fragment implements View.OnClickListener {
     }
 
     public void startDisplayInfosSmallAd() {
-        Call<JsonResponse> call = service.getAdverts(user.getEmail(), user.getToken());
+        Call<JsonResponse> call = service.getAdverts(currentUser.getEmail(), currentUser.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
@@ -36,12 +38,10 @@ import com.qwerteach.wivi.qwerteachapp.models.Message;
 import com.qwerteach.wivi.qwerteachapp.models.Review;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
 import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
-import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.TopicGroup;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.squareup.picasso.Picasso;
 
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,14 +65,13 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
     LinearLayout lastReview, pricesDialogLinearLayout;
     RatingBar ratingBar;
     Button contactTeacherButton, lessonReservationButton;
-    Teacher teacher;
+    User teacher, currentUser;
     ArrayList<Review> reviews;
     ArrayList<SmallAd> smallAds;
     ProgressDialog progressDialog;
     ImageView teacherAvatar, senderAvatar;
     QwerteachService service;
     AlertDialog.Builder contactDialog, pricesDialog;
-    User user;
     LinearLayout.LayoutParams customLinearLayoutParams;
     Context context;
 
@@ -88,7 +87,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         Gson gson = new Gson();
         String json = preferences.getString("user", "");
-        user = gson.fromJson(json, User.class);
+        currentUser = gson.fromJson(json, User.class);
 
         progressDialog = new ProgressDialog(getContext());
         contactDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogCustom);
@@ -104,15 +103,14 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         //Bundle from SearchTeacherActivity
         Bundle extras = getActivity().getIntent().getExtras();
         if (extras != null) {
-            teacher = (Teacher) getActivity().getIntent().getSerializableExtra("teacher");
+            teacher = (User) getActivity().getIntent().getSerializableExtra("teacher");
         }
 
         //Bundle from ProfileActivity
         Bundle bundle = this.getArguments();
         if (bundle != null) {
-            teacher = (Teacher) bundle.getSerializable("teacher");
+            teacher = (User) bundle.getSerializable("teacher");
         }
-
         service = ApiClient.getClient().create(QwerteachService.class);
         reviews = teacher.getReviews();
         smallAds = teacher.getSmallAds();
@@ -138,19 +136,19 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
     }
 
     public void displayTeacherProfileInfos() {
-        teacherName.setText(teacher.getUser().getFirstName() + " " + teacher.getUser().getLastName());
-        teacherOccupation.setText(teacher.getUser().getOccupation());
-        teacherDescription.setText(Html.fromHtml(teacher.getUser().getDescription()), TextView.BufferType.SPANNABLE);
-        contactTeacherButton.setText("Contacter " + teacher.getUser().getFirstName());
+        teacherName.setText(teacher.getFirstName() + " " + teacher.getLastName());
+        teacherOccupation.setText(teacher.getOccupation());
+        teacherDescription.setText(Html.fromHtml(teacher.getDescription()), TextView.BufferType.SPANNABLE);
+        contactTeacherButton.setText("Contacter " + teacher.getFirstName());
         courseMaterialNames.setText(teacher.getTopics());
         minPrice.setText("A partir de " + teacher.getMinPrice() + " €/h");
-        teacherAge.setText(teacher.getUser().getAge() + " ans");
+        teacherAge.setText(teacher.getAge() + " ans");
 
-        if (teacher.getNumberOfReviews() > 0) {
+        if (teacher.getReviews().size() > 0) {
             displayLastComment();
         }
 
-        Picasso.with(getContext()).load(teacher.getUser().getAvatarUrl()).resize(1800, 1800).centerInside().into(teacherAvatar);
+        Picasso.with(getContext()).load(teacher.getAvatarUrl()).resize(1800, 1800).centerInside().into(teacherAvatar);
     }
 
     public void displayLastComment() {
@@ -165,15 +163,15 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         int lastPosition = reviews.size() - 1;
 
         lastReview.setVisibility(View.VISIBLE);
-        senderFirstName.setText(reviews.get(lastPosition).getSenderFirstName());
+        senderFirstName.setText(reviews.get(lastPosition).getSenderFullName());
         reviewText.setText(reviews.get(lastPosition).getReviewText());
         String dateToFormat = reviews.get(lastPosition).getCreationDate();
         sendingDate.setText(reviews.get(lastPosition).getMonth(dateToFormat) + " "
                 + reviews.get(lastPosition).getYear(dateToFormat));
-        readMoreComments.setText("Lire " + teacher.getNumberOfReviews() + " commentaire(s)");
+        readMoreComments.setText("Lire " + teacher.getReviews().size() + " commentaire(s)");
         readMoreComments.setOnClickListener(this);
-        ratingBar.setRating(teacher.getRating());
-        Picasso.with(getContext()).load(reviews.get(lastPosition).getAvatar()).resize(150, 150).centerCrop().into(senderAvatar);
+        ratingBar.setRating(Float.parseFloat(teacher.getRating()));
+        Picasso.with(getContext()).load(reviews.get(lastPosition).getSenderAvatar()).resize(150, 150).centerCrop().into(senderAvatar);
 
         if (reviews.size() > 1) {
             readMoreComments.setVisibility(View.VISIBLE);
@@ -193,15 +191,15 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         TextView titleTextView = (TextView) content.findViewById(R.id.alert_dialog_title);
         final EditText userMessageEditText = (EditText) content.findViewById(R.id.alert_dialog_user_message);
 
-        String message = ("Posez une question à " + teacher.getUser().getFirstName());
+        String message = ("Posez une question à " + teacher.getFirstName());
         titleTextView.setText(message);
 
         contactDialog.setPositiveButton("ENVOYER", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 String body = userMessageEditText.getText().toString();
-                int recipient = teacher.getUser().getUserId();
-                String subject = user.getFirstName() + " " + user.getLastName() + " vous pose une question !";
+                int recipient = teacher.getUserId();
+                String subject = currentUser.getFirstName() + " " + currentUser.getLastName() + " vous pose une question !";
 
                 startSendMessageToTeacher(body, subject, recipient);
 
@@ -224,7 +222,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         requestBody.put("message", message);
 
         startProgressDialog();
-        Call<JsonResponse> call = service.sendMessageToTeacher(requestBody, user.getEmail(), user.getToken());
+        Call<JsonResponse> call = service.sendMessageToTeacher(requestBody, currentUser.getEmail(), currentUser.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -280,14 +278,15 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         titlePricesDialog = (TextView) pricesDialogView.findViewById(R.id.title);
         pricesDialogLinearLayout = (LinearLayout) pricesDialogView.findViewById(R.id.alert_dialog_linear_layout);
         pricesDialog.setView(pricesDialogView);
-        titlePricesDialog.setText("Tarif(s) de " + teacher.getUser().getFirstName());
+        titlePricesDialog.setText("Tarif(s) de " + teacher.getFirstName());
 
         for (int i = 0; i < smallAds.size(); i++) {
             final String topic = smallAds.get(i).getTitle();
             final ArrayList<SmallAdPrice> smallAdPrices = smallAds.get(i).getSmallAdPrices();
 
-            Call<JsonResponse> call = service.getInfosForDetailedPrices(smallAds.get(i).getAdvertId(), user.getEmail(), user.getToken());
+            Call<JsonResponse> call = service.getInfosForDetailedPrices(smallAds.get(i).getAdvertId(), currentUser.getEmail(), currentUser.getToken());
             call.enqueue(new Callback<JsonResponse>() {
+                @RequiresApi(api = Build.VERSION_CODES.M)
                 @Override
                 public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                     if(response.isSuccessful()) {
@@ -325,6 +324,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
         dialog.show();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     public void addSmallAdTitlesToAlertDialog(String topicTitle, String topicGroupTitle, LinearLayout alertDialog) {
         if (context != null) {
             LinearLayout topicTitleLinearLayout = new LinearLayout(context);
@@ -368,7 +368,7 @@ public class TeacherProfileFragment extends Fragment implements View.OnClickList
     }
 
     public void didTouchLessonReservationButton() {
-        if(Objects.equals(user.getUserId(), teacher.getUser().getUserId())) {
+        if(Objects.equals(currentUser.getUserId(), teacher.getUserId())) {
             Toast.makeText(getActivity(), "Vous ne pouvez pas réserver de cours avec vous-mêmes.", Toast.LENGTH_SHORT).show();
         } else {
             Intent intent = new Intent(getContext(), LessonReservationActivity.class);

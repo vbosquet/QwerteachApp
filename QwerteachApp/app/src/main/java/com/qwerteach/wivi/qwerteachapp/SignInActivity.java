@@ -120,6 +120,7 @@ public class SignInActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<JsonResponse> call, Throwable t) {
                 progressDialog.dismiss();
+                Log.d("ERROR", t.getMessage());
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });

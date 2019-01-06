@@ -18,7 +18,9 @@ public class SmallAdPrice implements Serializable {
     @SerializedName("level_id")
     private Integer levelId;
     @SerializedName("price")
-    private Double price;
+    private String price;
+    @SerializedName("offer_id")
+    private Integer smallAdId;
 
     public SmallAdPrice() {
 
@@ -40,12 +42,20 @@ public class SmallAdPrice implements Serializable {
         this.levelId = levelId;
     }
 
-    public Double getPrice() {
+    public String getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(String price) {
         this.price = price;
+    }
+
+    public Integer getSmallAdId() {
+        return smallAdId;
+    }
+
+    public void setSmallAdId(Integer smallAdId) {
+        this.smallAdId = smallAdId;
     }
 
     @Override

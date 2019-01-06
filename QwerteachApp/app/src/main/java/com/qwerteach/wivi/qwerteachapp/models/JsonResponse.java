@@ -26,18 +26,8 @@ public class JsonResponse {
     private ArrayList<String> topicTitles;
     @SerializedName("offer_prices")
     private ArrayList<ArrayList<SmallAdPrice>> smallAdPrices;
-    @SerializedName("reviews")
-    private ArrayList<Review> reviews;
-    @SerializedName("review_sender_names")
-    private ArrayList<String> reviewSenderNames;
-    @SerializedName("avg")
-    private float rating;
     @SerializedName("avgs")
     private List<Float> ratings;
-    @SerializedName("min_price")
-    private double minPrice;
-    @SerializedName("notes")
-    private ArrayList<Integer> notes;
     @SerializedName("levels")
     private ArrayList<Level> levels;
     @SerializedName("topic")
@@ -56,7 +46,7 @@ public class JsonResponse {
     private CardRegistrationData cardRegistrationData;
     @SerializedName("total_wallet")
     private Integer totalWallet;
-    @SerializedName("pagin")
+    @SerializedName("search")
     private ArrayList<User> users;
     @SerializedName("options")
     private ArrayList<ArrayList<String>> options;
@@ -132,6 +122,8 @@ public class JsonResponse {
     private  Transaction transaction;
     @SerializedName("client_id")
     private String clientId;
+    @SerializedName("total")
+    private int userListTotal;
 
     public String getAvatar() {
         return avatar;
@@ -159,26 +151,6 @@ public class JsonResponse {
 
     public ArrayList<ArrayList<SmallAdPrice>> getSmallAdPrices() {
         return smallAdPrices;
-    }
-
-    public ArrayList<Review> getReviews() {
-        return reviews;
-    }
-
-    public ArrayList<String> getReviewSenderNames() {
-        return reviewSenderNames;
-    }
-
-    public float getRating() {
-        return rating;
-    }
-
-    public double getMinPrice() {
-        return minPrice;
-    }
-
-    public ArrayList<Integer> getNotes() {
-        return notes;
     }
 
     public ArrayList<Level> getLevels() {
@@ -215,6 +187,10 @@ public class JsonResponse {
 
     public ArrayList<User> getUsers() {
         return users;
+    }
+
+    public int getUserListTotal() {
+        return userListTotal;
     }
 
     public ArrayList<ArrayList<String>> getOptions() {

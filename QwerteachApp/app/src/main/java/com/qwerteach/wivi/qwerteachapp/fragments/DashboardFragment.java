@@ -3,46 +3,29 @@ package com.qwerteach.wivi.qwerteachapp.fragments;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
-import com.pusher.android.PusherAndroid;
-import com.pusher.android.notifications.ManifestValidator;
-import com.pusher.android.notifications.PushNotificationRegistration;
-import com.pusher.android.notifications.fcm.FCMPushNotificationReceivedListener;
 import com.qwerteach.wivi.qwerteachapp.MyLessonsActivity;
 import com.qwerteach.wivi.qwerteachapp.NewVirtualWalletActivity;
 import com.qwerteach.wivi.qwerteachapp.R;
-import com.qwerteach.wivi.qwerteachapp.ReloadWalletActivity;
 import com.qwerteach.wivi.qwerteachapp.SearchTeacherActivity;
-import com.qwerteach.wivi.qwerteachapp.TeacherProfileActivity;
 import com.qwerteach.wivi.qwerteachapp.TeacherReviewActivity;
 import com.qwerteach.wivi.qwerteachapp.VirtualWalletActivity;
 import com.qwerteach.wivi.qwerteachapp.common.Common;
@@ -50,20 +33,12 @@ import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
-import com.qwerteach.wivi.qwerteachapp.models.Payment;
-import com.qwerteach.wivi.qwerteachapp.models.PendingLessonsAdapter;
-import com.qwerteach.wivi.qwerteachapp.models.Review;
-import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.ToReviewLessonsAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.ToUnlockLessonsAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -79,12 +54,12 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
             pendingLessonsTextView, totalWalletTextView, teacherStatsTextView, walletTextView;
     LinearLayout searchCard, pastLessonsGivenCard, pastLessonsReceivedCard,
             pendingLessonsCard, walletDetailsCard, teacherStatsCard;
-    List<Teacher> teachers;
+    List<User> teachers;
     List<Lesson> toUnlockLessons, toReviewLessons;
     View view;
     ProgressDialog progressDialog;
     QwerteachService service;
-    User user;
+    User currentUser;
     Intent intent;
     String query;
     RecyclerView toUnlockLessonRecyclerView, toReviewLessonRecyclerView;
@@ -104,7 +79,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         Gson gson = new Gson();
         String json = preferences.getString("user", "");
-        user = gson.fromJson(json, User.class);
+        currentUser = gson.fromJson(json, User.class);
 
         teachers = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
@@ -161,7 +136,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
 
     public void getDashboardInfos() {
         startProgressDialog();
-        Call<JsonResponse> call = service.getDashboardInfos(user.getEmail(), user.getToken());
+        Call<JsonResponse> call = service.getDashboardInfos(currentUser.getEmail(), currentUser.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -176,7 +151,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
 
                     pendingLessonsTextView.setText(pendingLessons.size() + " cours en attente");
 
-                    if (user.getPostulanceAccepted()) {
+                    if (currentUser.getPostulanceAccepted()) {
                         float sum = 0;
                         List<Integer> studentIds = new ArrayList();
                         for(int i = 0; i < pastLessonsGiven.size(); i++) {
@@ -229,7 +204,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
 
     public void getToUnlockLessonInfos(int lessonId, final int index) {
         startProgressDialog();
-        Call<JsonResponse> call = service.getLessonInfos(lessonId, user.getEmail(), user.getToken());
+        Call<JsonResponse> call = service.getLessonInfos(lessonId, currentUser.getEmail(), currentUser.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -259,7 +234,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
 
     public void getToReviewLessonInfo(int lessonId, final int index) {
         startProgressDialog();
-        Call<JsonResponse> call = service.getLessonInfos(lessonId, user.getEmail(), user.getToken());
+        Call<JsonResponse> call = service.getLessonInfos(lessonId, currentUser.getEmail(), currentUser.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -335,7 +310,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
                 startActivity(intent);
                 break;
             case R.id.wallet_details_card:
-                if (user.getMangoId() != null) {
+                if (currentUser.getMangoId() != null) {
                     intent = new Intent(getContext(), VirtualWalletActivity.class);
                     startActivity(intent);
                 } else {
@@ -353,7 +328,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
 
     public void didTouchPayTeacherButton(int lessonId, final int teacherId) {
         startProgressDialog();
-        Call<JsonResponse> call = service.payTeacher(lessonId, user.getEmail(), user.getToken());
+        Call<JsonResponse> call = service.payTeacher(lessonId, currentUser.getEmail(), currentUser.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -385,7 +360,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
 
     public void didTouchLockPayment(int lessonId) {
         startProgressDialog();
-        Call<JsonResponse> call = service.disputeLesson(lessonId, user.getEmail(), user.getToken());
+        Call<JsonResponse> call = service.disputeLesson(lessonId, currentUser.getEmail(), currentUser.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

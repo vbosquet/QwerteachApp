@@ -23,21 +23,14 @@ public class SmallAd implements Serializable {
     private Integer userId;
     @SerializedName("other_name")
     private String otherName;
-    @SerializedName("offer_prices_attributes")
+    @SerializedName("offer_prices")
     private ArrayList<SmallAdPrice> smallAdPrices;
-
+    @SerializedName("title")
     private String title;
 
     public SmallAd() {
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
 
     public String getDescription() {
         return description;
@@ -93,5 +86,13 @@ public class SmallAd implements Serializable {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

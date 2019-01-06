@@ -2,6 +2,7 @@ package com.qwerteach.wivi.qwerteachapp.models;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,11 +21,11 @@ import java.util.ArrayList;
 
 public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.ViewHolder> {
 
-    private ArrayList<Teacher> teachers;
+    private ArrayList<User> teachers;
     private ISearcTeacher callback;
     private Context context;
 
-    public TeacherAdapter(ArrayList<Teacher> teachers, ISearcTeacher callback, Context context) {
+    public TeacherAdapter(ArrayList<User> teachers, ISearcTeacher callback, Context context) {
         this.teachers = teachers;
         this.callback = callback;
         this.context = context;
@@ -39,19 +40,19 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        Teacher teacher = teachers.get(position);
+        User teacher = teachers.get(position);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 callback.onClicked(position);
             }
         });
-        holder.teacherName.setText(teacher.getUser().getFirstName() + " " + teacher.getUser().getLastName());
+        holder.teacherName.setText(teacher.getFirstName() + " " + teacher.getLastName());
         holder.minPrice.setText(teacher.getMinPrice() + " €/h");
-        holder.ratingBar.setRating(teacher.getRating());
-        holder.numberOfReviews.setText(teacher.getNumberOfReviews() + " commentaire(s)");
+        holder.ratingBar.setRating(Float.parseFloat(teacher.getRating()));
+        holder.numberOfReviews.setText(teacher.getReviews().size() + " commentaire(s)");
         Picasso.with(context)
-                .load(teacher.getUser().getAvatarUrl())
+                .load(teacher.getAvatarUrl())
                 //.resize(300, 300).centerInside()
                 .into(holder.teacherAvatar);
 

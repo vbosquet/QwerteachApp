@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,9 +31,6 @@ import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Lesson;
 import com.qwerteach.wivi.qwerteachapp.models.Level;
 import com.qwerteach.wivi.qwerteachapp.models.LevelAdapter;
-import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
-import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
-import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.Topic;
 import com.qwerteach.wivi.qwerteachapp.models.TopicAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.TopicGroup;
@@ -44,8 +40,6 @@ import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
-import java.net.SocketTimeoutException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -72,7 +66,6 @@ public class CreateNewLessonFragment extends Fragment implements
     ArrayList<Level> levels;
     ArrayList<TopicGroup> topicGroups;
     String hour = "00", minute = "00";
-    Teacher teacher;
     Float totalPrice;
     Bundle savedState;
     ProgressDialog progressDialog;
@@ -80,7 +73,7 @@ public class CreateNewLessonFragment extends Fragment implements
     int currentTopicGroupId, currentTopicId, currentLevelId, currentTopicGroupPosition,
             currentTopicPosition, currentLevelPosition;
     Call<JsonResponse> call;
-    User user;
+    User currentUser, teacher;
     Date newDate;
     Calendar now;
     TimePickerDialog timePickerDialog;
@@ -103,11 +96,11 @@ public class CreateNewLessonFragment extends Fragment implements
         preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         gson = new Gson();
         String json = preferences.getString("user", "");
-        user = gson.fromJson(json, User.class);
+        currentUser = gson.fromJson(json, User.class);
 
         Bundle extras = getActivity().getIntent().getExtras();
         if (extras != null) {
-            teacher = (Teacher) getActivity().getIntent().getSerializableExtra("teacher");
+            teacher = (User) getActivity().getIntent().getSerializableExtra("teacher");
         }
 
         service = ApiClient.getClient().create(QwerteachService.class);
@@ -141,7 +134,7 @@ public class CreateNewLessonFragment extends Fragment implements
         totalPriceTextView.setText("0 €");
 
         startProgressDialog();
-        call = service.getTeacherTopicGroups(teacher.getUser().getUserId(), user.getEmail(), user.getToken());
+        call = service.getTeacherTopicGroups(teacher.getUserId(), currentUser.getEmail(), currentUser.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -274,8 +267,8 @@ public class CreateNewLessonFragment extends Fragment implements
                 currentTopicGroupPosition = i;
                 currentTopicGroupId = topicGroups.get(i).getTopicGroupId();
 
-                Call<JsonResponse> callForTopics  = service.getTeacherTopics(teacher.getUser().getUserId(), currentTopicGroupId,
-                        user.getEmail(), user.getToken());
+                Call<JsonResponse> callForTopics  = service.getTeacherTopics(teacher.getUserId(), currentTopicGroupId,
+                        currentUser.getEmail(), currentUser.getToken());
                 callForTopics.enqueue(new Callback<JsonResponse>() {
                     @Override
                     public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -295,8 +288,8 @@ public class CreateNewLessonFragment extends Fragment implements
                 currentTopicPosition = i;
                 currentTopicId = topics.get(i).getTopicId();
 
-                Call<JsonResponse> callForLevels = service.getTeacherLevels(teacher.getUser().getUserId(),
-                        currentTopicId, user.getEmail(), user.getToken());
+                Call<JsonResponse> callForLevels = service.getTeacherLevels(teacher.getUserId(),
+                        currentTopicId, currentUser.getEmail(), currentUser.getToken());
                 callForLevels.enqueue(new Callback<JsonResponse>() {
                     @Override
                     public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -330,7 +323,7 @@ public class CreateNewLessonFragment extends Fragment implements
         requestBody.put("topic_id", String.valueOf(currentTopicId));
         requestBody.put("level_id", String.valueOf(currentLevelId));
 
-        Call<JsonResponse> call = service.calculateUserLessonRequest(teacher.getUser().getUserId(), requestBody, user.getEmail(), user.getToken());
+        Call<JsonResponse> call = service.calculateUserLessonRequest(teacher.getUserId(), requestBody, currentUser.getEmail(), currentUser.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -387,7 +380,7 @@ public class CreateNewLessonFragment extends Fragment implements
         request.setComment(commentTextView.getText().toString());
 
         Lesson lesson = new Lesson();
-        lesson.setTeacherId(teacher.getUser().getUserId());
+        lesson.setTeacherId(teacher.getUserId());
         Map<String, Lesson> requestBody = new HashMap<>();
         requestBody.put("request", request);
         requestBody.put("lesson", lesson);
@@ -398,7 +391,7 @@ public class CreateNewLessonFragment extends Fragment implements
             Toast.makeText(getContext(), "Vous devez introduire une description de votre demande (50 caractères).", Toast.LENGTH_LONG).show();
         } else {
             startProgressDialog();
-            Call<JsonResponse> call = service.createNewLesson(teacher.getUser().getUserId(), requestBody, user.getEmail(), user.getToken());
+            Call<JsonResponse> call = service.createNewLesson(teacher.getUserId(), requestBody, currentUser.getEmail(), currentUser.getToken());
             call.enqueue(new Callback<JsonResponse>() {
                 @Override
                 public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {

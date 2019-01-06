@@ -9,7 +9,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,15 +20,7 @@ import com.qwerteach.wivi.qwerteachapp.fragments.TeacherProfileFragment;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
-import com.qwerteach.wivi.qwerteachapp.models.Review;
-import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
-import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
-import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
-
-import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -39,8 +30,7 @@ public class ProfileActivity extends AppCompatActivity  {
 
     Intent intent;
     ProgressDialog progressDialog;
-    User user;
-    Teacher teacher;
+    User currentUser;
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
     Gson gson;
@@ -58,35 +48,33 @@ public class ProfileActivity extends AppCompatActivity  {
         gson = new Gson();
 
         String json = preferences.getString("user", "");
-        user = gson.fromJson(json, User.class);
+        currentUser = gson.fromJson(json, User.class);
 
         progressDialog = new ProgressDialog(this);
-        teacher = new Teacher();
         getUserInfos();
     }
 
     public void getUserInfos() {
         startProgressDialog();
         QwerteachService service = ApiClient.getClient().create(QwerteachService.class);
-        Call<JsonResponse> call = service.getUserInfos(user.getUserId(), user.getEmail(), user.getToken());
+        Call<JsonResponse> call = service.getUserInfos(currentUser.getUserId(), currentUser.getEmail(), currentUser.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 if(response.isSuccessful()) {
-                    user = response.body().getUser();
-                    String avatarUrl = response.body().getAvatar();
-                    user.setAvatarUrl(avatarUrl);
+                    currentUser = response.body().getUser();
 
-                    String json = gson.toJson(user);
+                    String json = gson.toJson(currentUser);
                     editor.putString("user", json);
                     editor.apply();
 
-                    if (!user.getPostulanceAccepted()) {
+                    if (!currentUser.getPostulanceAccepted()) {
                         progressDialog.dismiss();
                         displayStudentProfileFragment();
 
                     } else {
-                        preparaDataForTeacher(response);
+                        progressDialog.dismiss();
+                        displayTeacherProfileFragment();
                     }
                 } else {
                     progressDialog.dismiss();
@@ -99,50 +87,6 @@ public class ProfileActivity extends AppCompatActivity  {
                 Toast.makeText(getApplicationContext(), R.string.socket_failure, Toast.LENGTH_SHORT).show();
             }
         });
-
-    }
-
-    public void preparaDataForTeacher(Response<JsonResponse> response) {
-        ArrayList<SmallAd> smallAds = response.body().getSmallAds();
-        ArrayList<String> topics = response.body().getTopicTitles();
-        ArrayList<ArrayList<SmallAdPrice>> smallAdPrices = response.body().getSmallAdPrices();
-        ArrayList<Review> reviews = response.body().getReviews();
-        ArrayList<String> reviewSenderNames = response.body().getReviewSenderNames();
-        float rating = response.body().getRating();
-        double minPrice = response.body().getMinPrice();
-        ArrayList<Integer> notes = response.body().getNotes();
-        List<String> reviewAvatars = response.body().getAvatars();
-
-        if (smallAds != null) {
-            for (int i = 0; i < smallAds.size(); i++) {
-                smallAds.get(i).setTitle(topics.get(i));
-
-                ArrayList<SmallAdPrice> smallAdPriceArrayList = new ArrayList<>();
-
-                if (smallAdPrices.get(i).size() > 0) {
-                    for (int j = 0; j < smallAdPrices.get(i).size(); j++) {
-                        smallAdPriceArrayList.add(smallAdPrices.get(i).get(j));
-                    }
-                }
-
-                smallAds.get(i).setSmallAdPrices(smallAdPriceArrayList);
-            }
-        }
-
-        for (int i = 0; i < reviews.size(); i++) {
-            reviews.get(i).setSenderFirstName(reviewSenderNames.get(i));
-            reviews.get(i).setAvatar(reviewAvatars.get(i));
-        }
-
-        teacher.setUser(user);
-        teacher.setMinPrice(minPrice);
-        teacher.setRating(rating);
-        teacher.setSmallAds(smallAds);
-        teacher.setReviews(reviews);
-        teacher.setNumberOfReviews(notes.size());
-
-        progressDialog.dismiss();
-        displayTeacherProfileFragment();
 
     }
 
@@ -162,10 +106,10 @@ public class ProfileActivity extends AppCompatActivity  {
                 return true;
             case R.id.edit_profile_button:
                 intent = new Intent(this, EditProfileActivity.class);
-                intent.putExtra("user", user);
+                intent.putExtra("user", currentUser);
 
-                if (user.getPostulanceAccepted()) {
-                    intent.putExtra("teacher", teacher);
+                if (currentUser.getPostulanceAccepted()) {
+                    intent.putExtra("teacher", currentUser);
                 }
 
                 startActivity(intent);
@@ -185,7 +129,7 @@ public class ProfileActivity extends AppCompatActivity  {
 
     public void displayTeacherProfileFragment() {
         Bundle bundle = new Bundle();
-        bundle.putSerializable("teacher", teacher);
+        bundle.putSerializable("teacher", currentUser);
         TeacherProfileFragment teacherProfileFragment = new TeacherProfileFragment();
         teacherProfileFragment.setArguments(bundle);
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -196,7 +140,7 @@ public class ProfileActivity extends AppCompatActivity  {
 
     public void displayStudentProfileFragment() {
         Bundle bundle = new Bundle();
-        bundle.putSerializable("student", user);
+        bundle.putSerializable("student", currentUser);
         StudentProfileFragment studentProfileFragment = new StudentProfileFragment();
         studentProfileFragment.setArguments(bundle);
         FragmentManager fragmentManager = getSupportFragmentManager();

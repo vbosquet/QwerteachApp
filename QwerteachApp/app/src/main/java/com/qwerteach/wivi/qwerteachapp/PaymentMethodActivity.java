@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.method.PasswordTransformationMethod;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -37,10 +36,8 @@ import com.qwerteach.wivi.qwerteachapp.models.CardRegistrationData;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 import com.qwerteach.wivi.qwerteachapp.models.UserCreditCard;
-import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 
 import java.lang.reflect.Type;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -62,7 +59,6 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
     CheckBox paymentWithVirtualWallet;
     LinearLayout newCreditCardLinearLayout, creditCardChoiceLinearLayout;
     ArrayList<String> otherPaymentMethods, months, years, creditCards;
-    Teacher teacher;
     Integer teacherId, totalWallet;
     String cardId, currentAlias, currentMonth, currentYear, paymentMode = "", clientId;
     ArrayList<UserCreditCard> userCreditCards;
@@ -70,7 +66,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
     CardRegistrationData cardRegistrationData;
     QwerteachService service;
     Call<JsonResponse> call;
-    User user;
+    User currentUser, teacher;
     Intent intent;
     ProgressDialog progressDialog;
 
@@ -102,15 +98,15 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
         String cardRegistrationDataJson = preferences.getString("cardRegistration", "");
         String creditCardsJson = preferences.getString("userCreditCardList", "");
 
-        user = gson.fromJson(userJson, User.class);
+        currentUser = gson.fromJson(userJson, User.class);
         totalPrice = preferences.getFloat("totalPrice", 0);
         clientId = preferences.getString("clientId", "");
-        teacher = gson.fromJson(teacherJson, Teacher.class);
+        teacher = gson.fromJson(teacherJson, User.class);
         cardRegistrationData = gson.fromJson(cardRegistrationDataJson, CardRegistrationData.class);
         Type type = new TypeToken<ArrayList<UserCreditCard>>(){}.getType();
         userCreditCards = gson.fromJson(creditCardsJson, type);
 
-        teacherId = teacher.getUser().getUserId();
+        teacherId = teacher.getUserId();
         months = new ArrayList<>();
         years = new ArrayList<>();
         creditCards = new ArrayList<>();
@@ -127,7 +123,7 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
         setMonths();
 
         startProgressDialog();
-        call = service.getTotalWallet(user.getUserId(), user.getEmail(), user.getToken());
+        call = service.getTotalWallet(currentUser.getUserId(), currentUser.getEmail(), currentUser.getToken());
         call.enqueue(new retrofit2.Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -400,9 +396,9 @@ public class PaymentMethodActivity extends AppCompatActivity implements AdapterV
 
     public void payLesson() {
         if (paymentMode.equals(CREDIT_CARD_MODE)) {
-            call = service.payLessonWithCreditCard(teacherId, paymentMode, cardId, user.getEmail(), user.getToken());
+            call = service.payLessonWithCreditCard(teacherId, paymentMode, cardId, currentUser.getEmail(), currentUser.getToken());
         } else {
-            call = service.payLesson(teacherId, paymentMode, user.getEmail(), user.getToken());
+            call = service.payLesson(teacherId, paymentMode, currentUser.getEmail(), currentUser.getToken());
         }
 
        call.enqueue(new retrofit2.Callback<JsonResponse>() {

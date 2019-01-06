@@ -13,7 +13,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -34,18 +33,11 @@ import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.OptionAdapter;
-import com.qwerteach.wivi.qwerteachapp.models.Review;
-import com.qwerteach.wivi.qwerteachapp.models.SmallAd;
-import com.qwerteach.wivi.qwerteachapp.models.SmallAdPrice;
-import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.TeacherAdapter;
 import com.qwerteach.wivi.qwerteachapp.models.Topic;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -54,7 +46,7 @@ import retrofit2.Response;
 public class SearchTeacherActivity extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener, View.OnClickListener, TeacherAdapter.ISearcTeacher, View.OnTouchListener {
 
-    ArrayList<Teacher> teacherList;
+    ArrayList<User> teacherList;
     ArrayList<String> menuItems, optionList;
     RecyclerView teacherRecyclerView;
     RecyclerView.Adapter teacherAdapter;
@@ -311,8 +303,11 @@ public class SearchTeacherActivity extends AppCompatActivity implements
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 if(response.isSuccessful()) {
-                    ArrayList<User> users = response.body().getUsers();
-                    setTeachersList(users);
+                    if(response.body().getUserListTotal() > 0) {
+                        ArrayList<User> users = response.body().getUsers();
+                        setTeachersList(users);
+                    }
+
                 } else {
                     progressDialog.dismiss();
                 }
@@ -330,10 +325,7 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         if (users.size() > 0) {
             for (int i = 0; i < users.size(); i++) {
                 if (users.get(i) != null) {
-                    Teacher teacher = new Teacher();
-                    teacher.setUser(users.get(i));
-                    teacherList.add(teacher);
-                    getTeacherInfos(teacher.getUser().getUserId());
+                    getTeacherInfos(users.get(i).getUserId());
                 }
             }
         } else {
@@ -341,20 +333,15 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         }
     }
 
-    public void startProgressDialog() {
-        progressDialog.setMessage("Loading...");
-        progressDialog.setIndeterminate(false);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setCancelable(true);
-        progressDialog.show();
-    }
     public void getTeacherInfos(int userId) {
         Call<JsonResponse> call = service.getUserInfos(userId, user.getEmail(), user.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
                 if (response.body() != null) {
-                    prepareDataForTeacher(response);
+                    teacherList.add(response.body().getUser());
+                    progressDialog.dismiss();
+                    teacherAdapter.notifyDataSetChanged();
                 }
             }
 
@@ -366,57 +353,13 @@ public class SearchTeacherActivity extends AppCompatActivity implements
         });
     }
 
-    public void prepareDataForTeacher(Response<JsonResponse> response) {
-        User user = response.body().getUser();
-        String avatarUrl = response.body().getAvatar();
-        ArrayList<SmallAd> smallAds = response.body().getSmallAds();
-        ArrayList<String> topics = response.body().getTopicTitles();
-        ArrayList<ArrayList<SmallAdPrice>> smallAdPrices = response.body().getSmallAdPrices();
-        ArrayList<Review> reviews = response.body().getReviews();
-        ArrayList<String> reviewSenderNames = response.body().getReviewSenderNames();
-        float rating = response.body().getRating();
-        double minPrice = response.body().getMinPrice();
-        ArrayList<Integer> notes = response.body().getNotes();
-        List<String> reviewAvatars = response.body().getAvatars();
 
-        for (int i = 0; i < smallAds.size(); i++) {
-            smallAds.get(i).setTitle(topics.get(i));
-            ArrayList<SmallAdPrice> smallAdPriceArrayList = new ArrayList<>();
-
-            if (smallAdPrices.get(i).size() > 0) {
-                for (int j = 0; j < smallAdPrices.get(i).size(); j++) {
-                    smallAdPriceArrayList.add(smallAdPrices.get(i).get(j));
-                }
-            }
-
-            smallAds.get(i).setSmallAdPrices(smallAdPriceArrayList);
-        }
-
-        for (int i = 0; i < reviews.size(); i++) {
-            if(reviews.size() == reviewSenderNames.size()) {
-                reviews.get(i).setSenderFirstName(reviewSenderNames.get(i));
-            }
-            if(reviews.size() == reviewAvatars.size()) {
-                reviews.get(i).setAvatar(reviewAvatars.get(i));
-            }
-        }
-
-        for (int i = 0; i < teacherList.size(); i++) {
-            if (Objects.equals(teacherList.get(i).getUser().getUserId(), user.getUserId())) {
-                teacherList.get(i).setSmallAds(smallAds);
-                teacherList.get(i).setReviews(reviews);
-                teacherList.get(i).setRating(rating);
-                teacherList.get(i).setNumberOfReviews(notes.size());
-                teacherList.get(i).setMinPrice(minPrice);
-                teacherList.get(i).getUser().setAvatarUrl(avatarUrl);
-            }
-
-            if (Objects.equals(user.getUserId(), teacherList.get(teacherList.size() - 1).getUser().getUserId())) {
-                progressDialog.dismiss();
-                teacherAdapter.notifyDataSetChanged();
-            }
-        }
-
+    public void startProgressDialog() {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(true);
+        progressDialog.show();
     }
 
     public void onClicked(int position) {

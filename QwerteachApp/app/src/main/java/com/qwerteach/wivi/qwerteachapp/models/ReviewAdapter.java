@@ -50,11 +50,11 @@ public class ReviewAdapter extends ArrayAdapter<Review> {
             viewHolder = (ReviewAdapter.ViewHolder) convertView.getTag();
         }
 
-        viewHolder.senderFirstName.setText(review.getSenderFirstName());
+        viewHolder.senderFirstName.setText(review.getSenderFullName());
         viewHolder.sendingDate.setText(review.getMonth(creationDate) + " " + review.getYear(creationDate));
         viewHolder.reviewText.setText(review.getReviewText());
         viewHolder.ratingBar.setRating(review.getNote());
-        Picasso.with(getContext()).load(review.getAvatar()).resize(150, 150).centerCrop().into(viewHolder.senderAvatar);
+        Picasso.with(getContext()).load(review.getSenderAvatar()).resize(150, 150).centerCrop().into(viewHolder.senderAvatar);
 
         return convertView;
     }

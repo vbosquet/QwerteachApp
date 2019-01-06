@@ -168,7 +168,7 @@ public class UpdateSmallAdActivity extends AppCompatActivity  {
             if (levels.get(i).isChecked() && !coursePriceEditTextList.get(i).getText().toString().equals("")) {
                 SmallAdPrice smallAdPrice = new SmallAdPrice();
                 smallAdPrice.setLevelId(levels.get(i).getLevelId());
-                smallAdPrice.setPrice(Double.valueOf(coursePriceEditTextList.get(i).getText().toString()));
+                smallAdPrice.setPrice(coursePriceEditTextList.get(i).getText().toString());
                 for (int j = 0; j < prices.size(); j++) {
                     if (prices.get(j).getLevelId() == levels.get(i).getLevelId()) {
                         smallAdPrice.setId(prices.get(j).getId());

@@ -23,16 +23,12 @@ import com.qwerteach.wivi.qwerteachapp.asyncTasks.RedirectURLAsyncTask;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
-import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.Transaction;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-
-import java.net.SocketTimeoutException;
-import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;

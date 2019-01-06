@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,29 +17,19 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
-import com.pusher.android.PusherAndroid;
-import com.pusher.android.notifications.ManifestValidator;
-import com.pusher.android.notifications.PushNotificationRegistration;
-import com.pusher.android.notifications.fcm.FCMPushNotificationReceivedListener;
 import com.pusher.client.Pusher;
 import com.pusher.client.PusherOptions;
 import com.pusher.client.channel.Channel;
 import com.pusher.client.channel.SubscriptionEventListener;
-import com.qwerteach.wivi.qwerteachapp.asyncTasks.EndlessRecyclerViewScrollListener;
 import com.qwerteach.wivi.qwerteachapp.interfaces.QwerteachService;
 import com.qwerteach.wivi.qwerteachapp.models.ApiClient;
 import com.qwerteach.wivi.qwerteachapp.models.Conversation;
 import com.qwerteach.wivi.qwerteachapp.models.JsonResponse;
 import com.qwerteach.wivi.qwerteachapp.models.Message;
 import com.qwerteach.wivi.qwerteachapp.models.MessageAdapter;
-import com.qwerteach.wivi.qwerteachapp.models.Teacher;
 import com.qwerteach.wivi.qwerteachapp.models.User;
 
-import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,11 +49,10 @@ public class ChatActivity extends AppCompatActivity {
     RecyclerView.LayoutManager messageLayoutManager;
     int scrollPosition, page = 1;
     QwerteachService service;
-    User user;
+    User currentUser, teacher;
     boolean loading = true;
     ProgressDialog progressDialog;
     Intent intent;
-    Teacher teacher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +67,7 @@ public class ChatActivity extends AppCompatActivity {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         Gson gson = new Gson();
         String json = preferences.getString("user", "");
-        user = gson.fromJson(json, User.class);
+        currentUser = gson.fromJson(json, User.class);
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -119,7 +107,7 @@ public class ChatActivity extends AppCompatActivity {
 
     public void showMessages() {
         startProgressDialog();
-        Call<JsonResponse> call = service.showMessages(conversation.getConversationId(), user.getEmail(), user.getToken());
+        Call<JsonResponse> call = service.showMessages(conversation.getConversationId(), currentUser.getEmail(), currentUser.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -129,15 +117,14 @@ public class ChatActivity extends AppCompatActivity {
                     List<User> recipients = response.body().getRecipients();
 
                     for (int i = 0; i < recipients.size(); i++) {
-                        if (!user.getPostulanceAccepted()) {
-                            teacher = new Teacher();
-                            teacher.setUser(recipients.get(i));
+                        if (!currentUser.getPostulanceAccepted()) {
+                            teacher = recipients.get(i);
                         }
                     }
 
                     for (int j = 0; j < messages.size(); j++) {
                         boolean isMine = false;
-                        if (Objects.equals(user.getUserId(), messages.get(j).getSenderId())) {
+                        if (Objects.equals(currentUser.getUserId(), messages.get(j).getSenderId())) {
                             isMine = true;
                         }
                         messages.get(j).setMine(isMine);
@@ -160,7 +147,7 @@ public class ChatActivity extends AppCompatActivity {
     public void addNewMessage(Message message) {
         messageToSendEditText.setText("");
         Boolean isMine = false;
-        if (Objects.equals(user.getUserId(), message.getSenderId())) {
+        if (Objects.equals(currentUser.getUserId(), message.getSenderId())) {
             isMine = true;
         }
 
@@ -178,7 +165,7 @@ public class ChatActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.chat_menu, menu);
 
-        if(!user.getPostulanceAccepted()) {
+        if(!currentUser.getPostulanceAccepted()) {
             MenuItem menuItem = menu.findItem(R.id.lesson_request_button);
             menuItem.setVisible(true);
         }
@@ -230,7 +217,7 @@ public class ChatActivity extends AppCompatActivity {
         Map<String, String> requestBody = new HashMap<>();
         requestBody.put("body", messageToSendEditText.getText().toString());
 
-        Call<JsonResponse> call = service.reply(conversation.getConversationId(), requestBody, user.getEmail(), user.getToken());
+        Call<JsonResponse> call = service.reply(conversation.getConversationId(), requestBody, currentUser.getEmail(), currentUser.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -245,7 +232,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     public void getMoreMessages() {
-        Call<JsonResponse> call = service.getMoreMessages(conversation.getConversationId(), page, user.getEmail(), user.getToken());
+        Call<JsonResponse> call = service.getMoreMessages(conversation.getConversationId(), page, currentUser.getEmail(), currentUser.getToken());
         call.enqueue(new Callback<JsonResponse>() {
             @Override
             public void onResponse(Call<JsonResponse> call, Response<JsonResponse> response) {
@@ -256,7 +243,7 @@ public class ChatActivity extends AppCompatActivity {
                     if (newMessages.size() > 0) {
                         for (int i = 0; i < newMessages.size(); i++) {
                             boolean isMine = false;
-                            if (Objects.equals(user.getUserId(), newMessages.get(i).getSenderId())) {
+                            if (Objects.equals(currentUser.getUserId(), newMessages.get(i).getSenderId())) {
                                 isMine = true;
                             }
                             newMessages.get(i).setMine(isMine);

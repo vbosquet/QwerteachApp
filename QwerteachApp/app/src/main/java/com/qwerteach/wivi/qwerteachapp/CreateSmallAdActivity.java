@@ -176,7 +176,7 @@ public class CreateSmallAdActivity extends AppCompatActivity implements AdapterV
         for (int i = 0; i < levels.size(); i++) {
             if (levels.get(i).isChecked() && !coursePriceEditTextList.get(i).getText().toString().equals("")) {
                 SmallAdPrice smallAdPrice = new SmallAdPrice();
-                smallAdPrice.setPrice(Double.valueOf(coursePriceEditTextList.get(i).getText().toString()));
+                smallAdPrice.setPrice(coursePriceEditTextList.get(i).getText().toString());
                 smallAdPrice.setLevelId(levels.get(i).getLevelId());
                 prices.add(smallAdPrice);
             }
